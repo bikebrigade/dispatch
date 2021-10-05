@@ -241,8 +241,16 @@ Hooks.ConversationList = {
     this.handleEvent("new_message", ({riderId}) => {
       let msg = document.getElementById(`conversation-list-item:${riderId}`);
       if (msg != undefined) {
-        this.el.prepend(msg)
+        this.el.prepend(msg);
       }
+    });
+
+    this.handleEvent("only_show", ({riderIds}) => {
+      Array.from(this.el.children).forEach((item) => {
+        if (!riderIds.includes(parseInt(item.dataset.riderId))) {
+          item.classList.add("hidden")
+        }
+      });
     });
   }
 };

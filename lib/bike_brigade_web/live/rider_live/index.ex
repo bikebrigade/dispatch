@@ -92,6 +92,6 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   end
 
   defp fetch_riders(query) do
-    Riders.search_riders(query)
+    Riders.search_riders(query, email_search: true, phone_search: true)
   end
 end

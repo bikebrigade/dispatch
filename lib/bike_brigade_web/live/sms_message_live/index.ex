@@ -26,6 +26,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
       |> assign(:presence, [])
       |> assign(:others_present, [])
       |> assign(:conversations, conversations)
+      |> assign(:search_query, "")
       |> assign_rider(rider)
 
     socket =
@@ -76,6 +77,17 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
     Delivery.update_task(task, %{delivery_status: delivery_status})
 
     {:noreply, socket}
+  end
+
+  def handle_event("search-riders", %{"value" => query}, socket) do
+    rider_ids =
+      Riders.search_riders(query)
+      |> Enum.map(& &1.id)
+
+    {:noreply,
+     socket
+     |> assign(:search_query, query)
+     |> push_event("only_show", %{"riderIds" => rider_ids})}
   end
 
   @impl true
@@ -199,11 +211,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
 
   defp details_buffer(campaign) do
     for task <- campaign.tasks do
-      "Name: #{task.dropoff_name}\nPhone: #{task.dropoff_phone}\nType: #{task.request_type}\nAddress: #{
-        task.dropoff_address
-      } #{task.dropoff_address2} #{task.dropoff_city} #{task.dropoff_postal}\nNotes: #{
-        task.rider_notes
-      }"
+      "Name: #{task.dropoff_name}\nPhone: #{task.dropoff_phone}\nType: #{task.request_type}\nAddress: #{task.dropoff_address} #{task.dropoff_address2} #{task.dropoff_city} #{task.dropoff_postal}\nNotes: #{task.rider_notes}"
     end
     |> Enum.join("\n\n")
     |> inspect()
