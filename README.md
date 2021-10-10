@@ -7,7 +7,7 @@
 
 ## Getting an environment set up
 1. Clone this repo
-2. Copy `.env.local.sample` to `.env.local` 
+2. Copy `.env.local.sample` to `.env.local`
 3. Run `nix-shell` inside the directory. This will create an environment that has all the dependencies installed locally.
 4. Inside the nix shell, run `docker-compose up -d`
 5. To install dependencies, run `mix deps.get`
@@ -46,6 +46,11 @@ Pushes to the `main` branch (including merged PRs) automatically trigger a produ
 - [LeafletJS](https://leafletjs.com/) - for mapping
 - [Tailwind](https://tailwindcss.com/) - for CSS styles
 - [TailwindUI](https://tailwindui.com/) - paid library of Tailwind components. Licensed to @mveytsman.
+
+# Contributors
+This project's history has been squashed as part of open-sourcing, so not all contributirons are reflected in the Git history.
+
+Please see [CONTRIBUTORS.md](https://github.com/bikebrigade/dispatch/blob/main/CONTRIBUTORS.md) for the list of contributors.
 
 # License
 
