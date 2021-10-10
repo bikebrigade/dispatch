@@ -41,11 +41,17 @@ git push origin +HEAD:staging
 Pushes to the `main` branch (including merged PRs) automatically trigger a production deploy. Please **be aware of this when pushing small changes without a PR.**
 
 ## External dependencies
+- [Google Drive API](https://developers.google.com/drive/api/v3/reference)
+- [Google Maps API](https://developers.google.com/maps/documentation)
+- [Google Storage API](https://cloud.google.com/storage/docs/apis)
+- [LeafletJS](https://leafletjs.com/)
+- [Mailchimp API](https://mailchimp.com/developer/)
+- [Mapbox Tiles](https://docs.mapbox.com/help/glossary/static-tiles-api/)
+- [Slack API](https://api.slack.com/)
+- [Tailwind](https://tailwindcss.com/)
+- [TailwindUI](https://tailwindui.com/) - paid library of Tailwind components. Licensed to [@mveytsman](https://github.com/mveytsman).
 - [Twilio](https://www.twilio.com/)
-- [Google Maps API](https://developers.google.com/maps/documentation) - for geocoding
-- [LeafletJS](https://leafletjs.com/) - for mapping
-- [Tailwind](https://tailwindcss.com/) - for CSS styles
-- [TailwindUI](https://tailwindui.com/) - paid library of Tailwind components. Licensed to @mveytsman.
+
 
 # Contributors
 This project's history has been squashed as part of open-sourcing, so not all contributirons are reflected in the Git history.
