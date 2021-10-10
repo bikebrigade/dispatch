@@ -7,7 +7,7 @@
 
 ## Getting an environment set up
 1. Clone this repo
-2. In order to decrypt the .env file with developer API keys, you will need a password stored in 1Password. To set up the .env file run `transcrypt -c aes-256-cbc -p <PASSWORD>`
+2. Copy `.env.local.sample` to `.env.local` 
 3. Run `nix-shell` inside the directory. This will create an environment that has all the dependencies installed locally.
 4. Inside the nix shell, run `docker-compose up -d`
 5. To install dependencies, run `mix deps.get`
