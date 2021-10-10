@@ -1,0 +1,67 @@
+<div class="flex flex-col h-full max-h-full py-6 mx-auto print:fixed print:top-0">
+  <div class="px-4 mt-1 mb-2 sm:px-6 md:px-8">
+    <h1 class="font-semibold text-gray-400 text-l"><%= @campaign_date %></h1>
+    <h6 class="text-2xl font-semibold text-gray-900"><%= @campaign_title %></h6>
+  </div>
+</div>
+
+<div class="max-w-screen-xl px-4 font-sans sm:px-6 md:px-8">
+  <div class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+    <div class="min-w-full overflow-hidden align-middle border-b border-gray-200 shadow print:shadow-none sm:rounded-lg">
+      <table class="w-full divide-y divide-gray-200">
+        <thead class="print:table-header-group">
+          <tr class="print:h-24">
+            <th colspan="5"></th>
+          </tr>
+          <tr class="print:align-top">
+            <th class="w-16 py-1 text-xs font-medium leading-4 tracking-wider text-center text-gray-500 uppercase bg-gray-50">
+              Status
+            </th>
+            <th class="px-3 py-1 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase w-96 w-52 bg-gray-50">
+              Rider
+            </th>
+            <th class="w-24 px-3 py-1 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase bg-gray-50">
+              Delivery
+            </th>
+            <th class="w-1/4 px-3 py-1 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase px-1/5 bg-gray-50">
+              Recipient
+            </th>
+            <th class="w-1/4 px-3 py-1 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase 01 px-1/5 bg-gray-50">
+              Address
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <%= for task <- @tasks do %>
+            <tr id={task.id} class="leading-tight">
+              <td class="py-.5 text-xs leading-5 text-center text-gray-500 border-r">
+                <input type="checkbox" class="w-4 h-4 ">
+              </td>
+              <td class="px-3 text-xs leading-5 text-gray-500 border w-96">
+                <%= if task.assigned_rider do %>
+                  <div class="flex items-center justify-between">
+                    <div><%= task.assigned_rider.name %> (<%= task.assigned_rider.pronouns %>)</div>
+                    <%= if new_rider?(task.assigned_rider) do %>
+                      <div class="px-2 text-xs border rounded-full">
+                        New
+                      </div>
+                    <% end %>
+                  </div>
+                <% end %>
+              </td>
+              <td class="w-24 px-3 text-xs leading-5 text-gray-500 truncate">
+                <%= request_type(task) %>
+              </td>
+              <td class="w-1/4 px-3 text-xs leading-5 text-gray-500 truncate">
+                <%= task.dropoff_name %>
+              </td>
+              <td class="w-1/4 px-3 text-xs leading-5 text-gray-500 truncate">
+                <%= task.dropoff_address %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

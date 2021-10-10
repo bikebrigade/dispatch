@@ -1,0 +1,109 @@
+<div>
+<h2><%= @title %></h2>
+<%= live_component C.FlashComponent, flash: @flash %>
+<.form
+  let={c}
+  for={@changeset}
+  id="user-form"
+  phx-target={@myself}
+  phx-change="validate"
+  phx-submit="save">
+  <%= for d <- inputs_for(c, :date_time_form) do %>
+  <div class="flex my-2 space-x-2">
+    <div>
+      <%= label d, :delivery_date, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+        Delivery Date
+      <% end %>
+      <div id={"container:#{input_id(d, :delivery_date)}"} class="relative mt-1 rounded-md shadow-sm" phx-hook="DatePicker" data-config='{"altInput": true, "altFormat": "D j M Y", "wrap": true}' phx-update="append">
+        <%= hidden_input d, :delivery_date, required: true, data_input: true, placeholder: "YYYY-MM-DD", phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+        <div class="absolute top-0 right-0 px-3 py-2">
+          <%= Heroicons.Outline.calendar(class: "w-6 h-6 text-gray-400") %>
+        </div>
+      </div>
+      <%= error_tag d, :delivery_date %>
+    </div>
+    <div>
+      <%= label d, :start_time, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+        Start
+      <% end %>
+      <div id={"container:#{input_id(d, :start_time)}"} class="relative mt-1 cursor-pointer" phx-update="append" phx-hook="DatePicker" data-config='{"enableTime": true, "noCalendar": true, "wrap": true, "altInput": true, "altFormat": "h:i K"}'>
+        <%= hidden_input d, :start_time, required: true, data_input: true, phx_debounce: "blur", class: "block w-28 px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+        <div class="absolute top-0 right-0 px-3 py-2">
+          <%= Heroicons.Outline.clock(class: "w-6 h-6 text-gray-400") %>
+        </div>
+      </div>
+      <%= error_tag d, :start_time %>
+    </div>
+    <div>
+      <%= label d, :end_time, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+        End
+      <% end %>
+      <div id={"container:#{input_id(d, :end_time)}"} class="relative mt-1 cursor-pointer" phx-update="append" phx-hook="DatePicker" data-config='{"enableTime": true, "noCalendar": true, "wrap": true, "altInput": true, "altFormat": "h:i K"}'>
+        <%= hidden_input d, :end_time, required: true, data_input: true, phx_debounce: "blur", class: "block w-28 px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+        <div data-toggle class="absolute top-0 right-0 px-3 py-2">
+          <%= Heroicons.Outline.clock(class: "w-6 h-6 text-gray-400") %>
+        </div>
+        <%= error_tag d, :end_time %>
+      </div>
+    </div>
+  </div>
+ <% end %>
+ <%= for f <- inputs_for(c, :campaign) do %>
+  <div class="my-2">
+    <%= label f, :program_id, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+      Program
+    <% end %>
+    <div class="mt-1 rounded-md shadow-sm">
+      <%= select f, :program_id,  program_options(), phx_debounce: "blur", class: "block w-full py-2 pl-3 pr-10 mt-1 text-xs border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" %>
+    </div>
+    <%= error_tag f, :program_id %>
+    <%= live_patch "Create New Program", to: Routes.program_index_path(@socket, :new), class: "text-xs link" %>
+  </div>
+
+  <div class="my-2">
+    <%= label f, :pickup_address, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+      Pickup Address
+    <% end %>
+    <div class="mt-1 rounded-md shadow-sm">
+      <%= text_input f, :pickup_address, required: true, phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+    </div>
+    <%= error_tag f, :pickup_address %>
+  </div>
+
+  <div class="my-2">
+    <%= label f, :task_spreadsheet_url, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+      Delivery Spreadsheet (link to google sheet)
+    <% end %>
+    <div class="mt-1 rounded-md shadow-sm">
+      <%= text_input f, :task_spreadsheet_url, [class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5", id: "rider_spreadsheet", file_input: "one"] %>
+    </div>
+    <%= error_tag f, :task_spreadsheet_url %>
+  </div>
+
+  <div class="my-2">
+    <%= label f, :rider_spreadsheet_url, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+      Rider Spreadsheet (link to google sheet)
+    <% end %>
+    <div class="mt-1 rounded-md shadow-sm">
+      <%= text_input f, :rider_spreadsheet_url, [class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5", id: "task_spreadsheet", file_input: "one"] %>
+    </div>
+    <%= error_tag f, :rider_spreadsheet_url %>
+  </div>
+
+  <div class="my-2">
+    <%= label f, :rider_spreadsheet_layout, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+      Rider Spreadsheet Layout
+    <% end %>
+    <div class="mt-1 rounded-md shadow-sm">
+      <%= select f, :rider_spreadsheet_layout,  ["Not Foodshare": :non_foodshare, "Foodshare": :foodshare], phx_debounce: "blur", class: "block w-full py-2 pl-3 pr-10 mt-1 text-xs border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" %>
+    </div>
+    <%= error_tag f, :rider_spreadsheet_layout %>
+  </div>
+  <% end %>
+  <div class="flex justify-end mt-2">
+    <C.button type="submit" phx-disable-with="Saving...">
+      Save
+    </C.button>
+  </div>
+</.form>
+</div>

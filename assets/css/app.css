@@ -1,0 +1,131 @@
+@import "flatpickr";
+
+@tailwind base;
+
+@tailwind components;
+
+@tailwind utilities;
+
+@layer base {
+
+  /* Trying to get tables to print right */
+  @media print {
+
+    tr,
+    td {
+      page-break-inside: avoid;
+    }
+  }
+}
+
+@layer components {
+
+  /* Alpine */
+  [x-cloak] {
+    display: none !important;
+  }
+
+  /* LiveView specific classes for your customizations */
+  .phx-no-feedback {
+    display: none;
+  }
+
+  .phx-click-loading {
+    opacity: 0.5;
+    transition: opacity 1s ease-out;
+  }
+
+  .phx-disconnected {
+    cursor: wait;
+  }
+
+  .phx-disconnected * {
+    pointer-events: none;
+  }
+
+  /* Alerts and form errors */
+  .alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+  }
+
+  .alert-info {
+    color: #31708f;
+    background-color: #d9edf7;
+    border-color: #bce8f1;
+  }
+
+  .alert-warning {
+    color: #8a6d3b;
+    background-color: #fcf8e3;
+    border-color: #faebcc;
+  }
+
+  .alert-danger {
+    color: #a94442;
+    background-color: #f2dede;
+    border-color: #ebccd1;
+  }
+
+  .alert p {
+    margin-bottom: 0;
+  }
+
+  .alert:empty {
+    display: none;
+  }
+
+  .dropdown:hover .dropdown-menu {
+    display: block;
+  }
+
+  .has-tooltip .tooltip {
+    display: none;
+  }
+
+  .has-tooltip:hover .tooltip {
+    display: flex;
+  }
+
+  .link {
+    @apply text-indigo-600 hover:text-indigo-500;
+  }
+
+  /* This is copied from tribute.js */
+  .tribute-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: auto;
+    max-height: 300px;
+    max-width: 500px;
+    overflow: auto;
+    display: block;
+    z-index: 999999;
+  }
+  .tribute-container ul {
+    margin: 0;
+    margin-top: 2px;
+    padding: 0;
+    list-style: none;
+    background: #efefef;
+  }
+  .tribute-container li {
+    padding: 5px 5px;
+    cursor: pointer;
+  }
+  .tribute-container li.highlight {
+    background: #ddd;
+  }
+  .tribute-container li span {
+    font-weight: bold;
+  }
+  .tribute-container li.no-match {
+    cursor: default;
+  }
+  .tribute-container .menu-highlighted {
+    font-weight: bold;
+  }
+}

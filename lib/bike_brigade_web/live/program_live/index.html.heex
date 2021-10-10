@@ -1,0 +1,91 @@
+<%= if @live_action in [:new, :edit] do %>
+<%= live_modal BikeBrigadeWeb.ProgramLive.FormComponent,
+    id: @program.id || :new,
+    title: @page_title,
+    action: @live_action,
+    program: @program,
+    return_to: Routes.program_index_path(@socket, :index) %>
+<% end %>
+
+<%= if @live_action in [:new_item, :edit_item] do %>
+<%= live_modal BikeBrigadeWeb.ProgramLive.ItemFormComponent,
+    id: @item.id || :new,
+    title: @page_title,
+    action: @live_action,
+    program: @program,
+    item: @item,
+    return_to: Routes.program_index_path(@socket, :edit, @program.id) %>
+<% end %>
+
+<div class="flex flex-col py-4">
+  <div class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+    <div class="inline-block min-w-full overflow-hidden align-middle border-b border-gray-200 shadow sm:rounded-lg">
+      <table class="min-w-full">
+        <thead>
+          <tr>
+             <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+              Name
+            </th>
+            <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+              Campaigns
+            </th>
+            <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+              Latest Campaign
+            </th>
+            <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+              Schedule
+            </th>
+            <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+              Lead
+            </th>
+            <th class="flex justify-end px-3 py-3 border-b border-gray-200 bg-gray-50">
+              <C.button patch_to={Routes.program_index_path(@socket, :new)} %>
+                New Program
+              </C.button>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white">
+        <%= for program <- @programs do %>
+          <tr id={program.id}>
+            <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200 whitespace-nowrap">
+                <%= live_patch program.name, to: Routes.program_show_path(@socket, :show, program),  class: "pl-2 text-indigo-600 hover:text-indigo-900" %>
+                <%= if !program.active do %>
+                  <span class="inline-block px-2 ml-2 text-xs border rounded-full">
+                    Inactive
+                  </span>
+                <% end %>
+            </td>
+            <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200 whitespace-nowrap">
+              <%= program.campaign_count %>
+            </td>
+            <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200 whitespace-nowrap">
+              <%= if latest_campaign = program.latest_campaign do %>
+                <%= live_patch to: Routes.campaign_show_path(@socket, :show, latest_campaign), class: "inline-flex hover:bg-indigo-100" do %>
+                  <C.date date={latest_campaign.delivery_start || latest_campaign.delivery_date} />
+                <% end %>
+              <% end %>
+            </td>
+            <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200 whitespace-nowrap">
+              <%= if program.schedules != [] do %>
+                <%= for s <- program.schedules do %>
+                  <div><%= ProgramForm.Schedule.from_program_schedule(s) %></div>
+                <% end %>
+              <% else %>
+                N/A
+              <% end %>
+            </td>
+            <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200 whitespace-nowrap">
+              <%= if program.lead, do: program.lead.name, else: "N/A" %>
+            </td>
+            <td class="px-6 py-4 text-sm font-medium leading-5 text-right border-b border-gray-200 whitespace-nowrap">
+              <%= live_patch "Edit", to: Routes.program_index_path(@socket, :edit, program), class: "text-indigo-600 hover:text-indigo-900" %>
+              <%#= link "Delete", to: "#", phx_click: "delete", phx_value_id: campaign.id, data: [confirm: "Are you sure?"], class: "pl-2 text-indigo-600 hover:text-indigo-900"  %>
+            </td>
+          </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

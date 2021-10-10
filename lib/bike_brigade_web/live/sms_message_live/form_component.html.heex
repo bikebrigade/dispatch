@@ -1,0 +1,38 @@
+<div>
+  <h2 class="my-6 text-3xl font-extrabold leading-9 text-center text-gray-900">
+    Send Message
+  </h2>
+  <.form
+    let={f}
+    for={@changeset}
+    id="sms_message-form"
+    phx-target={@myself}
+    phx-submit="send"
+    autocomplete="off">
+    <div>
+      <%= label f, :to, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+        To
+      <% end %>
+      <div class="mt-1 rounded-md shadow-sm">
+        <%= live_component C.RiderSelectionComponent, id: :select_rider, input_name: "rider_ids[]", multi: true %>
+      </div>
+      <%= error_tag f, :to %>
+    </div>
+
+    <div class="mt-2">
+      <%= label f, :body, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+        Message
+      <% end %>
+      <div class="mt-1 rounded-md shadow-sm">
+        <%= textarea f, :body, required: true, phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+      </div>
+      <%= error_tag f, :body %>
+    </div>
+
+    <div class="flex justify-end mt-6">
+      <C.button type="submit" data-confirm={@confirm_send} phx-disable-with="Sending...">
+        Send
+      </C.button>
+    </div>
+  </.form>
+</div>

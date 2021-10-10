@@ -1,0 +1,72 @@
+<div class="flex flex-col h-full max-h-full py-6 mx-auto print:fixed print:top-0">
+  <div class="px-4 mt-1 mb-2 sm:px-6 md:px-8">
+    <h1 class="font-semibold text-gray-400 text-l"><%= @campaign_date %></h1>
+    <h6 class="text-2xl font-semibold text-gray-900"><%= @campaign_title %></h6>
+  </div>
+</div>
+
+<div class="max-w-screen-xl px-4 font-sans sm:px-6 md:px-8">
+  <div class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+    <div class="min-w-full overflow-hidden align-middle border-b border-gray-200 shadow print:shadow-none sm:rounded-lg">
+      <table class="w-full divide-y divide-gray-200">
+        <thead class="print:table-header-group">
+        <tr class="print:h-24"></tr>
+        <tr class="print:align-top">
+          <th class="w-32 px-6 py-1 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase bg-gray-50">
+            Rider
+          </th>
+          <th class="w-24 px-6 py-1 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase bg-gray-50">
+            Last Check
+          </th>
+          <th class="w-32 px-6 py-1 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase px-1/5 bg-gray-50">
+            Safety Check
+          </th>
+          <th class="w-32 px-6 py-1 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase px-1/5 bg-gray-50">
+            Bike
+          </th>
+          <th class="w-64 px-6 py-1 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase bg-gray-50">
+            Work Completed
+          </th>
+          <th class="w-64 px-6 py-1 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase bg-gray-50">
+            Work Needed
+          </th>
+        </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <%= for rider <- @riders do %>
+            <tr id={rider.id} class="leading-tight">
+              <td class="w-24 px-6 text-xs leading-5 text-gray-500 border">
+                <div class="flex items-center justify-between">
+                  <div><%= rider.name %> (<%= rider.pronouns %>)</div>
+                  <%= if new_rider?(rider) do %>
+                    <div class="px-2 text-xs border rounded-full">
+                      New
+                    </div>
+                  <% end %>
+                </div>
+              </td>
+              <td class="px-6 text-xs leading-5 text-gray-500 truncate border">
+                <%= rider.last_safety_check || "-" %>
+              </td>
+              <td class="px-6 text-xs leading-5 text-gray-500 truncate border">
+                <input type="checkbox" class="w-4 h-4 ml-2">
+                Pass
+                <input type="checkbox" class="w-4 h-4 ml-2">
+                Fail
+              </td>
+              <td class="h-12 px-6 text-xs leading-5 text-gray-500 truncate">
+
+              </td>
+               <td class="px-6 text-xs leading-5 text-center text-gray-500 border">
+
+              </td>
+              <td class="px-3 text-xs leading-5 text-gray-500 border ">
+                <input type="checkbox" class="w-4 h-4">
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

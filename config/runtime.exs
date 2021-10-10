@@ -1,0 +1,138 @@
+import Config
+
+# Set Endpoint and repo configs if we're in praoduction
+if config_env() == :prod do
+  app_env =
+    case System.get_env("APP_ENV") do
+      "production" -> :production
+      "staging" -> :staging
+    end
+
+  config :bike_brigade, :app_env, app_env
+
+  database_url =
+    System.get_env("DATABASE_URL") ||
+      raise """
+      environment variable DATABASE_URL is missing.
+      For example: ecto://USER:PASS@HOST/DATABASE
+      """
+
+  config :bike_brigade, BikeBrigade.Repo,
+    url: database_url,
+    ssl: false,
+    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
+
+  secret_key_base =
+    System.get_env("SECRET_KEY_BASE") ||
+      raise """
+      environment variable SECRET_KEY_BASE is missing.
+      You can generate one by calling: mix phx.gen.secret
+      """
+
+  config :bike_brigade, BikeBrigadeWeb.Endpoint,
+    server: true,
+    http: [
+      port: String.to_integer(System.get_env("PORT") || "4000"),
+      # IMPORTANT: support IPv6 addresses
+      transport_options: [socket_opts: [:inet6]]
+    ],
+    secret_key_base: secret_key_base
+
+  case app_env do
+    :production ->
+      config :bike_brigade, BikeBrigadeWeb.Endpoint,
+        url: [host: "dispatch.bikebrigade.ca", port: 80]
+
+      # Honeybadger
+      config :honeybadger,
+        app: :bike_brigade,
+        use_logger: true,
+        breadcrumbs_enabled: true,
+        ecto_repos: [BikeBrigade.Repo]
+
+      # Use LogFlare in prod
+      # config :logger,
+      #   level: :info,
+      #   backends: [LogflareLogger.HttpBackend]
+
+      logflare_api_key =
+        System.get_env("LOGFLARE_API_KEY") ||
+          raise "LOGFLARE_API_KEY not available"
+
+      logflare_source_id =
+        System.get_env("LOGFLARE_SOURCE_ID") ||
+          raise "LOGFLARE_SOURCE_ID not available"
+
+      config :logflare_logger_backend,
+        # https://api.logflare.app is configured by default and you can set your own url
+        url: "https://api.logflare.app",
+        # Default LogflareLogger level is :info. Note that log messages are filtered by the :logger application first
+        level: :info,
+        api_key: logflare_api_key,
+        source_id: logflare_source_id,
+        # minimum time in ms before a log batch is sent to the server ",
+        flush_interval: 1_000,
+        # maximum number of events before a log batch is sent to the server
+        max_batch_size: 50,
+        metadata: [drop: [:hb_breadcrumbs]]
+
+    :staging ->
+      _app_name =
+        System.get_env("FLY_APP_NAME") ||
+          raise "FLY_APP_NAME not available"
+
+      config :bike_brigade, BikeBrigade.Repo, socket_options: [:inet6]
+
+      config :bike_brigade, BikeBrigadeWeb.Endpoint,
+        url: [host: "staging.bikebrigade.ca", port: 443]
+
+      config :bike_brigade, BikeBrigade.PromEx,
+        manual_metrics_start_delay: :no_delay,
+        grafana: [
+          host: System.get_env("GRAFANA_HOST") || raise("GRAFANA_HOST is required"),
+          username: System.get_env("GRAFANA_USERNAME") || raise("GRAFANA_USERNAME is required"),
+          password: System.get_env("GRAFANA_PASSWORD") || raise("GRAFANA_PASSWORD is required"),
+          upload_dashboards_on_start: true,
+          folder_name: "Bike Brigade Dashboards",
+          annotate_app_lifecycle: true
+        ],
+        metrics_server: [
+          port: 4021,
+          path: "/metrics",
+          protocol: :http,
+          pool_size: 5,
+          cowboy_opts: [],
+          auth_strategy: :none
+        ]
+  end
+
+  # Slack
+  config :bike_brigade, :slack, webhook_url: System.fetch_env!("SLACK_WEBHOOK_URL")
+
+  # Geocoding
+  config :lib_lat_lon, :provider, LibLatLon.Providers.GoogleMaps
+
+  config :lib_lat_lon,
+         :google_maps_api_key,
+         System.get_env("GOOGLE_MAPS_API_KEY") ||
+           raise("environment variable GOOGLE_MAPS_API_KEY is missing.")
+
+  # Mailchimp
+  config :mailchimp,
+    api_key:
+      System.get_env("MAILCHIMP_API_KEY") ||
+        raise("environment variable MAILCHIMP_API_KEY is missing")
+
+  # Twilio
+  config :ex_twilio,
+    account_sid: System.fetch_env!("TWILIO_ACCOUNT_SID"),
+    auth_token: System.fetch_env!("TWILIO_AUTH_TOKEN")
+
+  # SmsService
+  config :bike_brigade, :sms_service,
+    adapter: BikeBrigade.SmsService.SmsService,
+    status_callback_url: System.fetch_env!("TWILIO_STATUS_CALLBACK")
+end
+
+# LibLatLon uses porcelain with the basic driver so we don't need to worry about goon
+config :porcelain, goon_warn_if_missing: false

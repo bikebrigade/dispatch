@@ -1,0 +1,108 @@
+<%= case @live_action do %>
+<% :edit -> %>
+<%= live_modal BikeBrigadeWeb.CampaignLive.FormComponent,
+    id: @campaign.id,
+    title: @page_title,
+    action: @live_action,
+    campaign: @campaign,
+    return_to: Routes.campaign_show_path(@socket, :show, @campaign.id) %>
+<% :messaging -> %>
+<%= live_slideover BikeBrigadeWeb.CampaignLive.MessagingFormComponent,
+  id: :messaging,
+  css: "max-w-4xl",
+  campaign: @campaign,
+  title: "Campaign Messaging",
+  action: @live_action,
+  return_to: Routes.campaign_show_path(@socket, :show, @campaign) %>
+
+<% :add_rider -> %>
+<%= live_modal BikeBrigadeWeb.CampaignLive.AddRiderFormComponent,
+  id: :new_task,
+  campaign: @campaign,
+  title: @page_title,
+  action: @live_action,
+  return_to: Routes.campaign_show_path(@socket, :show, @campaign) %>
+
+<% :new_task -> %>
+<%= live_modal BikeBrigadeWeb.CampaignLive.TaskFormComponent,
+  id: :new_task,
+  campaign: @campaign,
+  title: @page_title,
+  action: :new,
+  task: @form_task,
+  return_to: Routes.campaign_show_path(@socket, :show, @campaign) %>
+
+<% :edit_task -> %>
+<%= live_modal BikeBrigadeWeb.CampaignLive.TaskFormComponent,
+  id: :new_task,
+  campaign: @campaign,
+  title: @page_title,
+  action: :edit,
+  task: @form_task,
+  return_to: Routes.campaign_show_path(@socket, :show, @campaign) %>
+
+<% _ -> %>
+<%# do nothing here%>
+
+<% end %>
+<div class="flex flex-col border-">
+  <div class="flex flex-row items-center">
+    <C.button patch_to={Routes.campaign_show_path(@socket, :messaging, @campaign)} class="mr-3" do %>
+      <%= Heroicons.Outline.chat_alt_2(class: "w-5 h-5 mr-2 -ml-1") %>
+      Messaging
+    </C.button>
+    <div class="relative inline-block dropdown">
+      <C.button class="my-3 mr-3">
+        <span class="mr-1">Print</span>
+        <%= Heroicons.Solid.chevron_down(class: "w-4 h-4") %>
+      </C.button>
+      <ul class="absolute z-10 hidden pt-1 text-gray-700 dropdown-menu">
+        <li>
+          <%= link "Assignments", to: Routes.printable_campaign_assignments_path(@socket, :index, @campaign.id), class: "rounded-t bg-gray-200 hover:bg-gray-400 py-2 px-14 block whitespace-nowrap" %>
+        </li>
+         <li>
+          <%= link "Safety Check Tracker", to: Routes.printable_safety_check_path(@socket, :index, @campaign.id), class: "rounded-t bg-gray-200 hover:bg-gray-400 py-2 px-14 block whitespace-nowrap" %>
+        </li>
+      </ul>
+    </div>
+
+    <div class="relative inline-block dropdown">
+      <C.button class="my-3 mr-3">
+        <span class="mr-1">Download</span>
+        <%= Heroicons.Solid.chevron_down(class: "w-4 h-4") %>
+      </C.button>
+      <ul class="absolute z-10 hidden pt-1 text-gray-700 dropdown-menu">
+        <li>
+          <%= link "Assignments", to: Routes.campaign_path(@socket, :download_assignments, @campaign.id), download: true, class: "rounded-t bg-gray-200 hover:bg-gray-400 py-2 px-14 block whitespace-nowrap" %>
+        </li>
+        <li>
+          <%= link "Results", to: Routes.campaign_path(@socket, :download_results, @campaign.id), download: true, class: "rounded-t bg-gray-200 hover:bg-gray-400 py-2 px-14 block whitespace-nowrap" %>
+        </li>
+      </ul>
+    </div>
+    <div class="flex justify-end w-full">
+      <C.button patch_to={ Routes.campaign_show_path(@socket, :edit, @campaign.id) }>
+        Edit
+      </C.button>
+    </div>
+  </div>
+  <div class="flex my-2 space-x-2">
+    <C.date date={campaign_date(@campaign)} />
+    <h1 class="text-lg font-medium leading-6 text-gray-900">
+      <%= name(@campaign) %>
+    </h1>
+    </div>
+  <div class="flex flex-row space-x-2">
+    <div class="w-3/12 h-screen px-2 py-3 bg-white shadow sm:rounded-lg">
+      <%= live_component TasksListComponent, id: :tasks_list, campaign: @campaign, tasks_query: @tasks_query, selected_task: @selected_task, selected_rider: @selected_rider %>
+    </div>
+    <div class="w-6/12 overflow-hidden bg-white shadow sm:rounded-lg">
+      <div class="h-screen px-4 py-5 sm:p-6">
+        <%= live_component MapComponent, id: :tasks_map, campaign: @campaign, tasks_query: @tasks_query, riders_query: @riders_query, selected_task: @selected_task, selected_rider: @selected_rider %>
+      </div>
+    </div>
+    <div class="w-3/12 h-screen px-2 py-3 bg-white shadow sm:rounded-lg">
+      <%= live_component RidersListComponent, id: :riders_list, campaign: @campaign, riders_query: @riders_query, selected_task: @selected_task, selected_rider: @selected_rider %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,86 @@
+<%= live_component C.FlashComponent, flash: @flash %>
+<div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+  <div class="flex flex-col justify-center min-h-screen py-12 bg-gray-50 sm:px-6 lg:px-8">
+    <div class="sm:mx-auto sm:w-full sm:max-w-md">
+      <img class="w-auto h-8 mx-auto" src={Routes.static_path(@socket, "/images/logo-black.png")}
+        alt="Toronto Bike Brigade" />
+      <h2 class="mt-6 text-3xl font-extrabold leading-9 text-center text-gray-900">
+        Sign in to your account
+      </h2>
+    </div>
+
+    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+      <div class="px-4 py-8 bg-white shadow sm:rounded-lg sm:px-10">
+      <%= if @state == :phone do %>
+        <.form
+          let={f}
+          for={@changeset}
+          id="login-form"
+          phx-submit="submit-phone">
+          <div>
+            <%= label f, :phone, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+              Phone number
+            <% end %>
+            <div class="mt-1 rounded-md shadow-sm">
+              <%= text_input f, :phone, required: true, phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+            </div>
+            <%= error_tag f, :phone %>
+          </div>
+          <div class="flex items-center justify-between mt-6">
+            <div class="text-sm leading-5">
+              <a href="#"
+                data-confirm="Please contact someone from the Bike Brigade directly to get set up!"
+                class="font-medium text-indigo-600 transition duration-150 ease-in-out hover:text-indigo-500 focus:outline-none focus:underline">
+                Need an account?
+              </a>
+            </div>
+          </div>
+
+          <div class="mt-6">
+            <span class="block w-full rounded-md shadow-sm">
+              <button type="submit"
+                class="flex justify-center w-full px-4 py-2 text-sm font-medium text-white transition duration-150 ease-in-out bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:ring-indigo active:bg-indigo-700">
+                Get Code
+              </button>
+            </span>
+          </div>
+        </.form>
+        <% else %>
+        <div class="mb-3 text-sm font-medium leading-5 text-gray-700">
+          <p>
+            We sent an authentication code to your phone number: <span class="text-xs font-semibold text-gray-600"><%= @changeset.data.phone %></span>.
+          </p>
+          <p class="mt-2">
+            Enter it below.
+          </p>
+        </div>
+        <.form
+          let={f}
+          for={@changeset}
+          action={Routes.authentication_path(@socket, :login)}
+          id="login-form2">
+          <%= hidden_input(f, :phone) %>
+          <div>
+            <%= label f, :token_attempt, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+              Authentication code
+            <% end %>
+            <div class="mt-1 rounded-md shadow-sm">
+              <%= text_input f, :token_attempt, phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+            </div>
+            <%= error_tag f, :token_attempt %>
+          </div>
+
+          <div class="mt-6">
+            <span class="block w-full rounded-md shadow-sm">
+              <button type="submit"
+                class="flex justify-center w-full px-4 py-2 text-sm font-medium text-white transition duration-150 ease-in-out bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:ring-indigo active:bg-indigo-700">
+                Sign in
+              </button>
+            </span>
+          </div>
+        </.form>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

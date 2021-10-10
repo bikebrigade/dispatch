@@ -1,0 +1,143 @@
+<div class="flex flex-col max-h-full">
+  <div class="flex flex-row flex-wrap items-baseline flex-grow space-y-1">
+    <C.button patch_to={Routes.campaign_show_path(@socket, :new_task, @campaign)}
+      size={:small}>
+      Add Task
+    </C.button>
+  </div>
+  <div class="my-2 ml-4">
+    <h3 class="text-lg font-medium leading-6 text-gray-900">
+      Tasks
+    </h3>
+    <div class="text-base font-medium leading-6 text-gray-800">
+      <%= Enum.count(@campaign.tasks, &task_assigned?/1) %> / <%= Enum.count(@campaign.tasks) %> assigned
+    </div>
+  </div>
+  <div class="p-2 border-b">
+    <div class="flex flex-row flex-wrap">
+      <C.filter_button  phx-click="filter-tasks" phx-value-assignment="all"
+        selected={@tasks_query[:assignment] == "all"}>
+        All
+      </C.filter_button>
+        <C.filter_button  phx-click="filter-tasks" phx-value-assignment="unassigned"
+        selected={@tasks_query[:assignment] == "unassigned"}>
+        Unassigned
+      </C.filter_button>
+      <C.filter_button  phx-click="filter-tasks" phx-value-assignment="assigned"
+        selected={@tasks_query[:assignment] == "assigned"}>
+        Assigned
+      </C.filter_button>
+    </div>
+    <input type="text" phx-keydown="search-tasks" phx-debounce="100" value={@tasks_query[:search]}
+
+      class="block w-full px-3 py-2 placeholder-gray-400 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+      placeholder="Search Deliveries" />
+  </div>
+  <ul class="flex-1 overflow-y-auto scrolling-touch" id="tasks-list" phx-hook="TasksList">
+    <%= for task <- @tasks_list do %>
+    <li id={"tasks-list:#{task.id}"}>
+      <a phx-click="select-task" phx-value-id={task.id} href="#"
+        class={"block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50 #{if selected?(@selected_task, task), do: "bg-gray-100", else: ""}"}>
+        <div class="flex flex-col px-4 py-4">
+          <div class="text-sm font-medium">
+            <span class="pii"><%= task.dropoff_name %></span><span class="text-xs">(<%= round_distance(task.delivery_distance) %>
+              km)</span>
+          </div>
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <%= if task_assigned?(task) do %>
+              <span
+                class="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium leading-5 bg-green-100 text-green-800">
+                Assigned
+              </span>
+              <% else  %>
+              <span
+                class="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium leading-5 bg-gray-100 text-gray-800">
+                Unassigned
+              </span>
+              <% end %>
+            </div>
+            <div class="mx-2 mt-0.5 text-xs font-medium">
+              <%= request_type(task) %>
+            </div>
+          </div>
+        </div>
+      </a>
+      <%= if selected?(@selected_task, task) do %>
+      <div class="p-2 mx-1 rounded-b shadow-inner bg-gray-50">
+        <div class="flex flex-row my-2">
+          <%= Heroicons.Outline.location_marker(class: "flex-shrink-0 w-4 h-4 text-gray-500") %>
+          <div class="mx-1 text-sm leading-5 text-gray-800">
+            <span class="pii"><%= task.dropoff_address %></span>
+          </div>
+        </div>
+        <div class="flex flex-row my-2">
+          <%= Heroicons.Outline.phone(class: "flex-shrink-0 w-4 h-4") %>
+          <div class="mx-1 text-sm leading-5 text-gray-800">
+            <span clas="pii"><%= task.dropoff_phone %></span>
+          </div>
+        </div>
+        <div class="flex flex-row my-2">
+          <%= Heroicons.Outline.pencil_alt(class: "flex-shrink-0 w-4 h-4 text-gray-500") %>
+          <div class="mx-1 text-sm leading-5 text-gray-600">
+            <span clas="pii"><%= task.rider_notes %></span>
+          </div>
+        </div>
+        <div class="flex flex-row my-2">
+          <C.Icons.maki_bicycle_15 class="flex-shrink-0 w-4 h-4 text-gray-500"/>
+          <%= cond do %>
+          <% task.assigned_rider != nil -> %>
+          <a href="#" phx-click="select-rider" phx-value-id={task.assigned_rider.id}
+            class="mx-1 text-sm leading-5 text-indigo-600">
+            <%= task.assigned_rider.name %>
+          </a>
+          <C.button phx-click="unassign-task" phx-value-task-id={@selected_task.id}
+            color={:secondary}
+            size={:xsmall}
+            class="-my-1.5 justify-self-end">
+            Unassign
+          </C.button>
+          <% @selected_rider != nil -> %>
+          <div class="mx-1 text-sm leading-5">
+            <C.button phx-click="assign-task" phx-value-task-id={@selected_task.id}
+              phx-value-rider-id={@selected_rider.id}
+              size={:xsmall}
+              class="-my-1.5">
+              Assign to <%= @selected_rider.name %>
+            </C.button>
+          </div>
+          <% true -> %>
+          <div class="mx-1 text-sm leading-5 text-gray-500">None</div>
+          <% end %>
+        </div>
+        <form phx-change="update-delivery-status" phx-target={@myself}>
+          <input type="hidden" name="task-id" value={task.id}>
+          <select name="delivery-status"
+            class="block px-2 py-1 mt-1 text-xs leading-6 border-gray-300 form-select focus:outline-none focus:ring-blue focus:border-blue-300">
+            <%= for delivery_status <- ~W(pending picked_up completed failed) do %>
+            <option selected={task.delivery_status == String.to_atom(delivery_status)}>
+              <%= delivery_status %></option>
+            <% end %>
+          </select>
+        </form>
+        <div class="pt-5">
+          <div class="flex justify-end space-x-1.5">
+            <C.button patch_to={Routes.campaign_show_path(@socket, :edit_task, @campaign, task)}
+              color={:white}
+              size={:xsmall}>
+              Edit
+            </C.button>
+            <C.button phx-click="delete-task"
+              phx-value-task-id={task.id}
+              color={:red}
+              size={:xsmall}>
+              Delete
+            </C.button>
+          </div>
+        </div>
+      </div>
+      <% end %>
+    </li>
+    <% end %>
+  </ul>
+</div>

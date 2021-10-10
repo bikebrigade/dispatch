@@ -1,0 +1,59 @@
+<%= if @live_action in [:new, :edit] do %>
+<%= live_modal BikeBrigadeWeb.ItemLive.FormComponent,
+    id: @item.id || :new,
+    title: @page_title,
+    action: @live_action,
+    item: @item,
+    return_to: Routes.item_index_path(@socket, :index) %>
+<% end %>
+<div class="flex flex-col py-4">
+  <div class="py-2 -my-2 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+    <div class="inline-block min-w-full overflow-hidden align-middle border-b border-gray-200 shadow sm:rounded-lg">
+      <table class="min-w-full table-fixed">
+        <thead>
+          <tr>
+            <th class="w-1/3 px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+              Program
+            </th>
+            <th class="w-1/3 px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+              Name
+            </th>
+            <th class="w-full px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+              Description
+            </th>
+             <th class="w-1/3 px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+              Category
+            </th>
+             <th class="px-3 py-3 border-b border-gray-200 bg-gray-50">
+              <C.button patch_to={ Routes.item_index_path(@socket, :new)}>
+              New Item
+              </C.button>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white">
+          <%= for item <- @items do %>
+            <tr id={"item-#{item.id}"}>
+              <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
+                <%= item.program && item.program.name %>
+              </td>
+              <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
+                <%= item.name %>
+              </td>
+              <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
+                <%= item.description %>
+              </td>
+              <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
+                <%= item.category %>
+              </td>
+              <td class="px-6 py-4 text-sm font-medium leading-5 text-right border-b border-gray-200 whitespace-nowrap">
+              <%= live_patch "Edit", to: Routes.item_index_path(@socket, :edit, item), class: "text-indigo-600 hover:text-indigo-900" %>
+              <%= link "Delete", to: "#", phx_click: "delete", phx_value_id: item.id, data: [confirm: "Are you sure?"], class: "pl-2 text-indigo-600 hover:text-indigo-900"  %>
+            </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

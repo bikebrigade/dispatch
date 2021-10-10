@@ -1,0 +1,266 @@
+<div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+<div class="overflow-hidden bg-white divide-y divide-gray-200 shadow-md sm:mt-2 sm:rounded-lg" role="banner">
+  <div class="p-2.5 sm:p-4 flex flex-wrap items-start justify-between sm:flex-nowrap">
+    <div class="mb-2 ml-3" role="heading" aria-level="1">
+      <h1 class="text-lg font-medium leading-6 text-gray-900">
+        <%= campaign_name(@campaign) %>
+      </h1>
+      <p class="mt-1 text-sm text-gray-500">
+        <%= @rider.name %>
+      </p>
+      <p class="mt-1 text-sm text-gray-500">
+        <%= Calendar.strftime(@campaign_date, "%A, %b %d" ) %>
+      </p>
+    </div>
+    <div class="flex-shrink-0">
+      <div class="flex justify-end flex-1">
+        <C.button href={"sms:#{BikeBrigade.Messaging.inbound_number(@rider)}"}>
+          Contact Bike Brigade
+        </C.button>
+      </div>
+    </div>
+  </div>
+  <div class="shadow-inner bg-gray-50">
+    <div class="px-3 py-2 pl-6 sm:py-3 sm:grid sm:grid-cols-8 sm:gap-2">
+      <div class="text-sm font-semibold text-gray-800">
+        Resources
+      </div>
+      <div class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-7">
+        <div class="flex flex-col sm:flex-row sm:divide-gray-300 sm:divide-x-2">
+          <a class="text-indigo-600 sm:pr-2 hover:text-indigo-900" href="https://www.bikebrigade.ca/safety">Health and
+            Safety / COVID-19</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="relative my-1 sm:my-2">
+  <div class="absolute inset-0 flex items-center" aria-hidden="true">
+    <div class="w-full border-t border-gray-300"></div>
+  </div>
+  <div class="relative flex justify-center">
+    <span class="px-2 text-gray-500 bg-gray-50">
+      <%= Heroicons.Outline.star(class: "w-5 h-5 text-gray-500" ) %>
+    </span>
+  </div>
+</div>
+<div role="main">
+  <div class="w-full overflow-hidden bg-white shadow-md sm:mt-2 sm:rounded-lg">
+    <div class="flex items-start space-x-1 p-2.5 bg-white border-b border-gray-200 sm:p-4" aria-hidden="true">
+      <div class="flex items-center justify-center flex-shrink-0 w-8 h-8 bg-green-700 rounded-full ring-8 ring-white">
+        <%= Heroicons.Solid.clipboard_check(class: "w-5 h-5 text-white" ) %>
+      </div>
+      <div class="w-full pl-1 border-l border-gray-200 sm:flex-nowrap">
+        <div class="flex flex-col space-y-.5">
+          <div class="flex flex-row items-center justify-between">
+
+            <h2 class="mr-1 text-base font-semibold text-gray-900">
+              Pick up
+            </h2>
+            <div class="flex flex-wrap items-start justify-end flex-shrink ml-auto">
+              <C.button href={open_map_url(@campaign)} aria-label="Map Pickup"
+                size={:small}
+                color={:green}>
+                <%= Heroicons.Outline.map(class: "w-5 h-5 mr-1 -ml-0.5") %>
+                  Map
+              </C.button>
+            </div>
+          </div>
+          <div class="inline-flex flex-shrink-0 leading-normal">
+            <%= Heroicons.Outline.clock(aria_label: "Pickup Time" , class: "w-4 h-4 mr-1 mt-1 text-gray-800" ) %>
+              <%= CampaignHelpers.pickup_window(@campaign, @rider) %>
+          </div>
+          <div class="inline-flex flex-shrink-0 leading-normal">
+            <%= Heroicons.Outline.location_marker(aria_label: "Pickup Address" ,
+              class: "w-4 h-4 mr-1 mt-1 text-gray-800" ) %>
+              <%= @campaign.pickup_address %>
+          </div>
+          <div class="inline-flex leading-normal">
+            <%= Heroicons.Outline.shopping_bag(class: "w-4 h-4 mr-1 mt-1 ext-gray-800 flex-shrink-0 " ) %>
+              <%= humanized_task_count(@rider.assigned_tasks) %>
+          </div>
+        </div>
+      </div>
+    </div>
+    <dl class="sm:divide-y sm:divide-gray-200">
+      <div class="px-6 py-2 pl-14 sm:py-5 sm:grid sm:grid-cols-8 sm:gap-2">
+        <dt class="text-sm font-medium text-gray-500">
+          Details
+        </dt>
+        <dd id="campaign_details" x-data="{ collapsed: true, overflows: false }"
+          x-on:mounted="overflows = $el.firstElementChild.scrollHeight > $el.firstElementChild.clientHeight"
+          x-on:updated="overflows = $el.firstElementChild.scrollHeight > $el.firstElementChild.clientHeight"
+          phx-hook="Alpine" class="relative mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-7">
+          <div :class="{ 'max-h-20': collapsed }" class="overflow-hidden whitespace-pre-wrap">
+            <%= render_raw @campaign.details %>
+          </div>
+          <div x-show="overflows" :class="{'absolute inset-x-0 bottom-0': collapsed }"
+            class="flex justify-around p-1.5 bg-white bg-opacity-90">
+            <button x-text="collapsed ? 'Show More...' : 'Show Less'" @click="collapsed = !collapsed" type="button"
+              class="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            </button>
+          </div>
+        </dd>
+      </div>
+    </dl>
+  </div>
+  <%= for {task, i} <- Enum.with_index(@rider.assigned_tasks, 1) do %>
+    <div class="relative my-1 sm:my-2">
+      <div class="absolute inset-0 flex items-center" aria-hidden="true">
+        <div class="w-full border-t border-gray-300"></div>
+      </div>
+      <div class="relative flex justify-center">
+        <span class="px-2 text-gray-500 bg-gray-50">
+          <%= Heroicons.Outline.chevron_down(class: "w-5 h-5 text-gray-500" ) %>
+        </span>
+      </div>
+    </div>
+    <div class="w-full overflow-hidden bg-white shadow-md sm:mt-2 sm:rounded-lg">
+      <div class="flex items-start space-x-1 p-2.5 bg-white border-b border-gray-200 sm:p-4">
+        <div class="flex items-center justify-center flex-shrink-0 w-8 h-8 bg-indigo-700 rounded-full ring-8 ring-white"
+          aria-label={"Delivery #{i}"}>
+          <span class="font-black text-white tabular-nums ">
+            <%= i %>
+          </span>
+        </div>
+        <div class="w-full px-1 border-l border-gray-200">
+          <div class="flex flex-col space-y-.5">
+            <div class="flex flex-row items-center justify-between">
+              <h2 class="mr-1 text-base font-semibold text-gray-900">
+                Delivery
+              </h2>
+              <div class="flex items-start justify-end flex-shrink space-x-1">
+                <%= if task.dropoff_phone do %>
+                  <C.button href={sms_url(@campaign, @rider, task)} aria-label={"Text Delivery #{i}"}
+                    size={:small}>
+                    <%= Heroicons.Outline.chat_alt(class: "w-5 h-5 mr-1 -ml-0.5") %>
+                      Text
+                  </C.button>
+                  <C.button href={tel_url(task)} aria-label={"Call Delivery #{i}"}
+                    size={:small}>
+                    <%= Heroicons.Outline.phone(class: "w-5 h-5 mr-1 -ml-0.5") %>
+                      Call
+                  </C.button>
+                <% end %>
+                <C.button href={open_map_url(task)} aria-label={"Map Delivery #{i}"}
+                  size={:small}>
+                  <%= Heroicons.Outline.map(class: "w-5 h-5 mr-1 -ml-0.5") %>
+                    Map
+                </C.button>
+              </div>
+            </div>
+            <div class="inline-flex flex-shrink-0 leading-normal">
+              <%= Heroicons.Outline.user(aria_label: "Dropoff Name" , class: "w-4 h-4 mr-1 mt-1 text-gray-800" ) %>
+                <%= task.dropoff_name %>
+            </div>
+            <div class="inline-flex flex-shrink-0 leading-normal">
+              <%= Heroicons.Outline.location_marker(aria_label: "Dropoff Address" ,
+                class: "w-4 h-4 mr-1 mt-1 text-gray-800" ) %>
+                <%= task.dropoff_address %>
+            </div>
+            <div class="inline-flex flex-shrink-0 leading-normal">
+              <%= Heroicons.Outline.phone(aria_label: "Dropoff Phone" , class: "w-4 h-4 mr-1 mt-1 text-gray-800" ) %>
+                <%= if !is_nil(task.dropoff_phone) do %>
+                  <%= task.dropoff_phone %>
+                    <% else %>
+                      No phone number
+                      <% end %>
+            </div>
+            <div class="inline-flex leading-normal">
+              <%= Heroicons.Outline.shopping_bag(class: "w-4 h-4 mr-1 mt-1 ext-gray-800 flex-shrink-0 ") %>
+              <%= CampaignHelpers.request_type(task) %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <dl class="sm:divide-y sm:divide-gray-200">
+        <div class="px-6 py-2 pl-14 sm:py-5 sm:grid sm:grid-cols-8 sm:gap-2">
+          <dt class="text-sm font-medium text-gray-500">
+            Notes
+          </dt>
+          <dd id={"delivery_details:#{i}"} x-data="{ collapsed: true, overflows: false }"
+            x-on:mounted="overflows = $el.firstElementChild.scrollHeight > $el.firstElementChild.clientHeight"
+            x-on:updated="overflows = $el.firstElementChild.scrollHeight > $el.firstElementChild.clientHeight"
+            phx-hook="Alpine" class="relative mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-7">
+            <div :class="{ 'max-h-24': collapsed }" class="overflow-hidden">
+              <%= if is_nil(task.rider_notes) or task.rider_notes=="" do %>
+                N/A
+                <% else %>
+                  <%= render_raw task.rider_notes %>
+                    <% end %>
+            </div>
+            <div x-show="overflows" :class="{'absolute inset-x-0 bottom-0': collapsed }"
+              class="flex justify-around p-1.5 bg-white bg-opacity-90">
+              <button x-text="collapsed ? 'Show More...' : 'Show Less'" @click="collapsed = !collapsed" type="button"
+                class="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              </button>
+            </div>
+          </dd>
+        </div>
+      </dl>
+    </div>
+  <% end %>
+  <div class="relative my-1 sm:my-2">
+    <div class="absolute inset-0 flex items-center" aria-hidden="true">
+      <div class="w-full border-t border-gray-300"></div>
+    </div>
+    <div class="relative flex justify-center">
+      <span class="px-2 text-gray-500 bg-gray-50">
+        <%= Heroicons.Outline.chevron_double_down(class: "w-5 h-5 text-gray-500" ) %>
+      </span>
+    </div>
+  </div>
+  <div class="w-full overflow-hidden bg-white shadow-md sm:mt-2 sm:rounded-lg">
+    <div class="flex items-start space-x-1 p-2.5 bg-white border-b border-gray-200 sm:p-4">
+      <div
+        class="flex items-center justify-center flex-shrink-0 w-8 h-8 bg-green-700 rounded-full ring-8 ring-white">
+        <%= Heroicons.Solid.star(class: "w-5 h-5 text-white" ) %>
+      </div>
+      <div class="w-full pl-1 border-l border-gray-200 sm:flex-nowrap">
+        <div class="flex flex-row items-center justify-between">
+          <h2 class="mr-1 text-base font-semibold text-gray-900">
+            Tell us you're done.
+          </h2>
+          <div class="flex flex-wrap items-start justify-end flex-shrink ml-auto">
+            <C.button href={sms_done_url(@campaign, @rider)} class="ml-auto"
+              color={:green}>
+              <%= Heroicons.Outline.chat_alt(class: "w-5 h-5 mr-1 -ml-0.5") %>
+                I'm done!
+            </C.button>
+          </div>
+        </div>
+        <div class="mt-1">
+          Pics or it didn't happen - send a selfie that we can share on social media!
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="relative my-1 sm:my-2">
+    <div class="absolute inset-0 flex items-center" aria-hidden="true">
+      <div class="w-full border-t border-gray-300"></div>
+    </div>
+    <div class="relative flex justify-center">
+      <span class="px-2 text-gray-500 bg-gray-50">
+        <%= Heroicons.Outline.map(class: "w-5 h-5 text-gray-500" ) %>
+      </span>
+    </div>
+  </div>
+  <div class="overflow-hidden bg-white border-t divide-y divide-gray-200 shadow-md sm:mt-2 sm:rounded-lg">
+    <div class="py-2 mt-2 ml-4">
+      <h2 class="text-lg font-medium leading-6 text-gray-900">
+        Full Route Map
+      </h2>
+    </div>
+    <div class="p-3 sm:p-4">
+      <div class="w-full h-80">
+        <iframe width="100%" height="100%" frameborder="0" style="border:0" src={embed_directions_url(assigns)}
+          allowfullscreen>
+        </iframe>
+      </div>
+      <br />
+      <a href={directions_url(assigns)} class="font-medium text-indigo-600 hover:text-indigo-500">Open in Google
+        Maps</a>
+    </div>
+  </div>
+</div>
+</div>

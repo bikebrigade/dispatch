@@ -1,0 +1,74 @@
+<div id="calendar-frame" class="w-full p-2 text-base leading-7 text-white bg-black" phx-hook="FrameHook">
+  <div class="w-full py-3 text-center">
+    <h1 class="font-serif text-4xl font-medium ">
+      <%= Calendar.strftime(@start_date, "%b %-d") %>
+      -
+      <%= Calendar.strftime(@end_date, "%b %-d, %Y") %>
+    </h1>
+  </div>
+  <div class="flex flex-col my-6 space-y-5 mt-14">
+    <%= for {date, opportunties} <- @opportunities  do %>
+    <div class="flex flex-col items-start sm:flex-row">
+      <div class="flex flex-col items-center flex-shrink-0 w-2/12 border-t border-gray-600">
+        <div class="mt-2 text-lg font-normal "><%= Calendar.strftime(date, "%a") %></div>
+        <div class="my-2 font-serif text-3xl"><%= Calendar.strftime(date, "%-d") %></div>
+        <div class="mt-2 text-lg font-normal "><%= Calendar.strftime(date, "%b") %></div>
+      </div>
+      <div class="space-y-10 ml-14">
+        <%= for opportunity <- opportunties do %>
+          <div class="flex flex-row space-x-1">
+            <!-- don't show images yet
+            <div class="hidden md:block">
+              <img class="w-full h-full" src={Routes.static_path(@socket, "/images/wordmark-black.png")}/>
+            </div>
+            -->
+            <div class="flex flex-col space-y-3">
+                <h2 class="mt-2 font-serif text-2xl font-medium">
+                  <%= opportunity.program.name %>
+                </h2>
+              <div class="flex items-center text-sm text-gray-300">
+                <%= Heroicons.Outline.clock(aria_label: "Pickup Time" , class: "flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" ) %>
+                <%= time_interval(opportunity.delivery_start, opportunity.delivery_end)%>
+              </div>
+              <%= if opportunity.program.latest_campaign do %>
+              <div class="flex items-center text-sm text-gray-300">
+                <%= Heroicons.Outline.location_marker(class: "flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" ) %>
+                  <%= link to: DeliveryHelpers.open_map_url(opportunity.program.latest_campaign), target: "_blank", class: "underline hover:text-gray-300" do %>
+                  <%= opportunity.program.latest_campaign.pickup_address %>
+                <% end %>
+              </div>
+              <% end %>
+              <%= if opportunity.program.campaign_blurb  do %>
+                <div class="flex items-center text-sm text-gray-300">
+                  <%= Heroicons.Outline.information_circle(aria_label: "Pickup Time" , class: "flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" ) %>
+                  <%= opportunity.program.campaign_blurb %>
+                </div>
+              <% end %>
+              <%= if opportunity.program.items != []  do %>
+                <div class="flex items-start text-sm text-gray-300">
+                  <%= Heroicons.Outline.shopping_bag(aria_label: "Pickup Time" , class: "flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" ) %>
+                  <div class="flex flex-col">
+                    You'll be delivering:
+
+                  <%= for item <- opportunity.program.items do %>
+                    <p class="text-sm text-gray-300">
+                      <span class="font-bold"> <%= item.name %></span>
+                      - <%= item.description %>
+                    </p>
+                  <% end %>
+                </div>
+                </div>
+              <% end %>
+              <div>
+                <!--<C.button patch_to={Routes.calendar_index_path(@socket, :show, opportunity)} patch_replace color={:black}>More Info</C.button>-->
+                <C.button href={opportunity.signup_link} target="_blank" color={:black}>Sign Up</C.button>
+              </div>
+
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+    <% end %>
+  </div>
+</div>
