@@ -4,7 +4,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.ConversationComponent do
   import BikeBrigadeWeb.MessagingHelpers
 
   alias BikeBrigade.Messaging
-  alias BikeBrigade.Google.GCP
+  alias BikeBrigade.MediaStorage
   alias BikeBrigade.SmsService
 
   @impl Phoenix.LiveComponent
@@ -79,8 +79,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.ConversationComponent do
     media =
       consume_uploaded_entries(socket, :media, fn %{path: path}, %{client_type: content_type} ->
         # TOOD do some gaurds on content type here
-        {:ok, obj} = GCP.upload_object("bike-brigade-public", path, content_type: content_type)
-        %{url: obj.mediaLink, content_type: content_type}
+        MediaStorage.upload_file!(path, content_type)
       end)
 
     {:noreply, send_sms_message(socket, Map.put(sms_message_params, "media", media))}

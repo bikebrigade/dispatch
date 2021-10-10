@@ -13,6 +13,10 @@ config :bike_brigade, :sms_service, adapter: BikeBrigade.SmsService.Twilio
 
 config :bike_brigade, :geocoder, adapter: BikeBrigade.Geocoder.LibLatLonGeocoder
 
+config :bike_brigade, :media_storage,
+  bucket: "bike-brigade-public",
+  adapter: BikeBrigade.MediaStorage.GoogleMediaStorage
+
 config :bike_brigade, BikeBrigade.Google, start: true
 
 # Importers
