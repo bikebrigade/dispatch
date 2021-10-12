@@ -1,11 +1,16 @@
-with (import <nixpkgs> {});
+{ pkgs ? import <nixpkgs> {} }:
+with pkgs;
 let
-  inherit (lib) optional;
+  inherit (lib) optional optionals;
 
   basePackages =
     [ git libxml2 openssl zlib curl libiconv docker-compose postgresql_12 ]
     ++ optional stdenv.isLinux inotify-tools
-    ++ optional stdenv.isDarwin rubyPackages.rb-fsevent;
+    ++ optionals stdenv.isDarwin (with darwin.apple_sdk.frameworks; [
+      # For file_system on macOS.
+      CoreFoundation
+      CoreServices
+    ]);
 
   elixirPackages = [ beam.packages.erlangR24.elixir_1_12 ];
 
