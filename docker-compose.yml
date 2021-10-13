@@ -1,6 +1,7 @@
 version: '3.4'
+
 services:
-  postgres:  
+  postgres:
     image: postgis/postgis
     environment:
       POSTGRES_USER: postgres
@@ -9,5 +10,12 @@ services:
       - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+
+  chrome:
+    image: selenium/standalone-chrome
+    ports:
+      - "4444:4444"
+      - "7900:7900"
+
 volumes:
   pgdata:

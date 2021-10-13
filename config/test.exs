@@ -18,8 +18,10 @@ config :bike_brigade, BikeBrigade.Repo,
 # you can enable the server option below.
 config :bike_brigade, BikeBrigadeWeb.Endpoint,
   http: [port: 4002],
-  server: false,
-  static_url: [path: "/"]
+  # HACK: this is the IP that the selenium docker container can
+  # find the host elixir app at.
+  url: [host: "172.17.0.1", port: 4002],
+  server: true
 
 # Print only warnings and errors during test
 config :logger, level: :warn
@@ -45,3 +47,24 @@ config :bike_brigade, :sms_service,
   status_callback_url: :local
 
 config :bike_brigade, :geocoder, adapter: BikeBrigade.Geocoder.FakeGeocoder
+
+config :bike_brigade, :sql_sandbox, true
+
+config :wallaby,
+  driver: Wallaby.Selenium,
+  selenium: [
+    capabilities: %{
+      javascriptEnabled: true,
+      browserName: "chrome",
+      chromeOptions: %{
+        args: [
+          "--no-sandbox",
+          "window-size=1280,800",
+          "--disable-gpu",
+          "--headless",
+          "--fullscreen",
+          "--user-agent=Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"
+        ]
+      }
+    }
+  ]

@@ -83,6 +83,7 @@ defmodule BikeBrigade.MixProject do
       {:prom_ex, "~> 1.4.1"},
       {:esbuild, "~> 0.3.0", runtime: Mix.env() == :dev},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
+      {:wallaby, "~> 0.29.1", runtime: false, only: :test},
 
       # LiveBook Stuff
       {:kino, "~> 0.3.0"},

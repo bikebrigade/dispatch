@@ -25,6 +25,7 @@ defmodule BikeBrigadeWeb.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import BikeBrigadeWeb.ConnCase
+      import BikeBrigade.Fixtures
 
       alias BikeBrigadeWeb.Router.Helpers, as: Routes
 
@@ -58,7 +59,6 @@ defmodule BikeBrigadeWeb.ConnCase do
     rider = fixture(:rider)
     %{rider: rider}
   end
-
 
   defp login_user(conn, user) do
     conn
