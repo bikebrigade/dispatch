@@ -3,7 +3,6 @@ defmodule BikeBrigadeWeb.OpportunityLive.OpportunityComponent do
 
   alias BikeBrigade.LocalizedDateTime
   alias BikeBrigade.Delivery
-  alias BikeBrigade.Delivery.Opportunity
 
   # TODO: DRY this with CampaignForm
   defmodule OpportunityForm do
