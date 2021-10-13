@@ -18,9 +18,13 @@ defmodule BikeBrigade.MixProject do
   #
   # Type `mix help compile.app` for more information.
   def application do
+    extras = case Mix.env() do
+      :test -> []
+      _ -> [:os_mon]
+    end
     [
       mod: {BikeBrigade.Application, []},
-      extra_applications: [:logger, :runtime_tools, :honeybadger, :os_mon]
+      extra_applications: [:logger, :runtime_tools, :honeybadger] ++ extras
     ]
   end
 
