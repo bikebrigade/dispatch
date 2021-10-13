@@ -420,8 +420,7 @@ window.hidePII = () => {
     style.id = 'pii-style';
     style.innerHTML = `
         .pii {
-          color: transparent;
-          text-shadow: 0 0 8px black;
+          filter: blur(6px);
         }
       `;
     document.head.appendChild(style);

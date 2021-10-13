@@ -13,7 +13,13 @@
             <div class="h-10 mt-2 ml-4">
                 <h3 class="text-lg font-medium leading-6 text-gray-900">
                     <%= if @rider do %>
-                    <%= @rider.name %> <%= @rider.phone %> - (<%= @rider.pronouns %>)
+                        <div class="flex flex-col">
+                            <div class="pii"><span><%= @rider.name %></span><span class="ml-1 text-sm text-gray-500">(<%= if @rider.pronouns, do: @rider.pronouns, else: "pronouns unknown" %>)</span></div>
+                            <div class="flex inline-flex items-center text-sm text-gray-500 flex-shrink-1">
+                                <%= Heroicons.Outline.phone(class: "w-4 h-4") %>
+                                <span class="pii"><%= @rider.phone %></span>
+                            </div>
+                        </div>
                     <% else %>
                     <span class="italic">No conversations yet</span>
                     <% end %>
