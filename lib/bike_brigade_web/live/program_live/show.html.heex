@@ -7,61 +7,16 @@
     return_to: Routes.program_show_path(@socket, :show, @program) %>
 <% end %>
 
-<div class="flex justify-end mb-4">
+<div class="flex items-center justify-between mb-4">
+  <h1 class="text-lg font-medium leading-6 text-gray-900">
+    <%= @program.name %>
+  </h1>
   <C.button patch_to={Routes.program_show_path(@socket, :edit, @program)}>Edit</C.button>
-</div>
-
-<div class="overflow-hidden bg-white shadow sm:rounded-lg">
-  <div class="px-4 py-5 sm:p-0">
-    <dl>
-      <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:py-5">
-        <dt class="text-sm font-medium leading-5 text-gray-500">
-          Contact name
-        </dt>
-        <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-          <%= @program.name %>
-        </dd>
-      </div>
-      <div class="mt-8 sm:mt-0 sm:grid sm:grid-cols-3 sm:gap-4 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5">
-        <dt class="text-sm font-medium leading-5 text-gray-500">
-          Contact number
-        </dt>
-        <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-          <%= @program.contact_phone %>
-        </dd>
-      </div>
-      <div class="mt-8 sm:mt-0 sm:grid sm:grid-cols-3 sm:gap-4 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5">
-        <dt class="text-sm font-medium leading-5 text-gray-500">
-          Contact email
-        </dt>
-        <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-          <%= link(@program.contact_email, to: "mailto:#{@program.contact_email}") %>
-
-        </dd>
-      </div>
-      <div class="mt-8 sm:mt-0 sm:grid sm:grid-cols-3 sm:gap-4 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5">
-        <dt class="text-sm font-medium leading-5 text-gray-500">
-          About
-        </dt>
-        <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-          <%= @program.description %>
-        </dd>
-      </div>
-      <div class="mt-8 sm:mt-0 sm:grid sm:grid-cols-3 sm:gap-4 sm:border-t sm:border-gray-200 sm:px-6 sm:py-5">
-        <dt class="text-sm font-medium leading-5 text-gray-500">
-          Account manager
-        </dt>
-        <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-          <%= if (@program.lead), do: "#{@program.lead.name} (#{@program.lead.email})" %>
-        </dd>
-      </div>
-    </dl>
-  </div>
 </div>
 
 <div class="flex flex-col py-4">
   <div class="py-2 -my-2 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-    <div class="inline-block min-w-full overflow-hidden align-middle border-b border-gray-200 shadow sm:rounded-lg">
+    <div class="inline-block min-w-full align-middle border-b border-gray-200 shadow sm:rounded-lg">
       <table class="min-w-full table-fixed">
         <thead>
           <tr>
@@ -70,6 +25,12 @@
             </th>
             <th class="w-24 px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
               Time
+            </th>
+            <th class="w-24 px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+              Riders
+            </th>
+            <th class="w-24 px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+              Deliveries
             </th>
             <th class="flex justify-end px-3 py-3 border-b border-gray-200 bg-gray-50">
               <C.button patch_to={Routes.campaign_index_path(@socket, :new)}>
@@ -89,7 +50,12 @@
             <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
               <div class="w-24 truncate"><%= if campaign.delivery_start, do: time_interval(campaign.delivery_start, campaign.delivery_end), else: campaign.pickup_window %></div>
             </td>
-
+            <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200 whitespace-nowrap">
+              <%= campaign.total_riders %>
+            </td>
+            <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200 whitespace-nowrap">
+              <%= campaign.total_tasks %>
+            </td>
             <td class="px-6 py-4 text-sm font-medium leading-5 text-right border-b border-gray-200 whitespace-nowrap">
               <%= live_patch "Edit", to: Routes.campaign_index_path(@socket, :edit, campaign), class: "text-indigo-600 hover:text-indigo-900" %>
               <%= link "Delete", to: "#", phx_click: "delete", phx_value_id: campaign.id, data: [confirm: "Are you sure?"], class: "pl-2 text-indigo-600 hover:text-indigo-900"  %>

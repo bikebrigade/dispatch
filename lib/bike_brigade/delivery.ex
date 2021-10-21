@@ -573,11 +573,18 @@ defmodule BikeBrigade.Delivery do
     # TODO make the campaign preload a composable query
     campaigns_query =
       from c in Campaign,
+        left_join: t in assoc(c, :tasks),
+        left_join: r in assoc(c, :riders),
         order_by: [
           # TODO refactor
           desc_nulls_last: coalesce(c.delivery_start, c.delivery_date),
           asc_nulls_last: c.pickup_window
-        ]
+        ],
+        group_by: c.id,
+        select_merge: %{
+          total_tasks: count(t),
+          total_riders: count(r)
+        }
 
     Repo.get!(Program, id)
     |> Repo.preload(:lead)
