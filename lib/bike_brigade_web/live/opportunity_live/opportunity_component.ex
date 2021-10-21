@@ -145,7 +145,9 @@ defmodule BikeBrigadeWeb.OpportunityLive.OpportunityComponent do
             <%= error_tag f, :signup_link %>
           </td>
           <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
-            <a href={Routes.program_index_path(@socket, :edit, @opportunity.program)} class="link">Edit Program to change lead</a>
+            <%= if @id != :new do %>
+              <a href={Routes.program_index_path(@socket, :edit, @opportunity.program)} class="link">Edit Program to change lead</a>
+            <% end %>
           </td>
           <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
             <div class="rounded-md shadow-sm ">
