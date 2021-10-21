@@ -23,6 +23,11 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+      chrome:
+        image: selenium/standalone-chrome
+        ports:
+          - "4444:4444"
+          - "7900:7900"
 
     steps:
     - uses: actions/checkout@v2
