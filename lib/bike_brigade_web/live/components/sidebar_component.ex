@@ -20,6 +20,10 @@ defmodule BikeBrigadeWeb.Components.SidebarComponent do
       <%= Heroicons.Outline.cube(class: @svg_class.(:campaigns)) %>
       Campaigns
     <% end %>
+    <%= live_patch to: Routes.opportunity_index_path(@socket, :index), class: @class.(:opportunities) do %>
+      <%= Heroicons.Outline.clipboard_list(class: @svg_class.(:riders)) %>
+      Signups
+    <% end %>
     <%= live_patch to: Routes.rider_index_path(@socket, :index), class: @class.(:riders) do %>
       <%= Heroicons.Outline.user_group(class: @svg_class.(:riders)) %>
       Riders
