@@ -145,10 +145,13 @@ defmodule BikeBrigadeWeb.OpportunityLive.OpportunityComponent do
             <%= error_tag f, :signup_link %>
           </td>
           <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
-          <div class="rounded-md shadow-sm ">
-          <%= checkbox f, :published, form: f.id, phx_debounce: "blur", rows: 1, class: "focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" %>
-        </div>
-        <%= error_tag f, :published %>
+            <a href={Routes.program_index_path(@socket, :edit, @opportunity.program)} class="link">Edit Program to change lead</a>
+          </td>
+          <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
+            <div class="rounded-md shadow-sm ">
+              <%= checkbox f, :published, form: f.id, phx_debounce: "blur", rows: 1, class: "focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" %>
+            </div>
+            <%= error_tag f, :published %>
           </td>
           <td class="px-6 py-4 space-x-1 space-y-1 text-right border-b border-gray-200">
             <C.button type="submit" form={f.id} size={:xsmall} color={:secondary}>Save</C.button>
@@ -178,6 +181,13 @@ defmodule BikeBrigadeWeb.OpportunityLive.OpportunityComponent do
           </td>
           <td class="px-6 py-4 text-sm leading-5 text-gray-500 break-all border-b border-gray-200">
             <a href={@opportunity.signup_link} class="link"><%= @opportunity.signup_link %></a>
+          </td>
+          <td class="px-6 py-4 text-sm leading-5 text-gray-500 break-all border-b border-gray-200 whitespace-nowrap">
+            <%= if @opportunity.program.lead do %>
+              <%= @opportunity.program.lead.name %>
+            <% else %>
+              Not set
+            <% end %>
           </td>
           <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
             <.check_mark value={@opportunity.published} />

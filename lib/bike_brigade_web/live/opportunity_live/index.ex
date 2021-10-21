@@ -140,5 +140,6 @@ defmodule BikeBrigadeWeb.OpportunityLive.Index do
 
   defp list_opportunities do
     Delivery.list_opportunities(order_by: :program_name)
+    |> BikeBrigade.Repo.preload(program: [:lead])
   end
 end
