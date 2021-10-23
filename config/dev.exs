@@ -23,7 +23,6 @@ config :bike_brigade, BikeBrigadeWeb.Endpoint,
   debug_errors: true,
   code_reloader: true,
   check_origin: false,
-  canonical_host: "localhost",
   watchers: [
     esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
     npx:

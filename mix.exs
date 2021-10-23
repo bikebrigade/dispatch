@@ -74,7 +74,6 @@ defmodule BikeBrigade.MixProject do
       {:honeybadger, "~> 0.16.3"},
       {:recase, "~> 0.5"},
       {:heroicons, "~> 0.2.4"},
-      {:plug_canonical_host, "~> 2.0"},
       {:linkify, git: "https://github.com/mveytsman/linkify", ref: "42c1aca5da2c2ab28abf8f304b211c2a5d2c89c7"},
       {:crontab, "~> 1.1"},
       {:tzdata, "~> 1.1"},
