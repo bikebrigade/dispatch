@@ -1,0 +1,9 @@
+#!/bin/env bash
+
+set -e
+
+if [ "$IN_NIX_SHELL" == "" ]; then
+  nix-shell --run "iex -S mix phx.server"
+else
+  iex -S mix phx.server
+fi
