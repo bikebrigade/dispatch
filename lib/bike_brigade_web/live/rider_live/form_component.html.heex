@@ -10,8 +10,7 @@
       <%= if @action == :new, do: "Add Rider", else: "Edit Rider" %>
     </h2>
 
-    <%= live_component C.FlashComponent, flash: @flash %>
-
+    <.live_component module={C.FlashComponent} flash={@flash} />
     <div class="mt-2">
       <%= label f, :name, class: "block text-sm font-medium leading-5 text-gray-700" do %>
       Name

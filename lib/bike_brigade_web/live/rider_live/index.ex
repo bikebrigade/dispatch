@@ -4,6 +4,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   alias BikeBrigade.Riders
   alias BikeBrigade.Riders.Rider
   alias BikeBrigade.Geocoder
+  alias BikeBrigadeWeb.RiderLive.MapComponent
 
   @impl true
   def mount(_params, session, socket) do

@@ -1,7 +1,6 @@
 <div>
 <h2><%= @title %></h2>
-<%= live_component C.FlashComponent, flash: @flash %>
-
+<.live_component module={C.FlashComponent} flash={@flash} />
 <.form let={c} for={@changeset}
   id="user-form"
   phx-target={@myself}
@@ -170,10 +169,7 @@
       Program Lead
     <% end %>
       <div class="mt-1 rounded-md shadow-sm">
-      <%= live_component C.UserSelectionComponent, id: :select_user, selected_user_id: @program.lead_id do %>
-        <% user_id -> %>
-          <input type="hidden" name={input_name(f, :lead_id)} value={user_id} />
-      <% end %>
+      <.live_component module={C.UserSelectionComponent} id={:select_user} selected_user_id={@program.lead_id} input_name={input_name(f, :lead_id)} />
     </div>
   </div>
 

@@ -94,15 +94,15 @@
     </div>
   <div class="flex flex-row space-x-2">
     <div class="w-3/12 h-screen px-2 py-3 bg-white shadow sm:rounded-lg">
-      <%= live_component TasksListComponent, id: :tasks_list, campaign: @campaign, tasks_query: @tasks_query, selected_task: @selected_task, selected_rider: @selected_rider %>
+      <.live_component module={TasksListComponent} id={:tasks_list} campaign={@campaign} tasks_query={@tasks_query} selected_task={@selected_task} selected_rider={@selected_rider} />
     </div>
     <div class="w-6/12 overflow-hidden bg-white shadow sm:rounded-lg">
       <div class="h-screen px-4 py-5 sm:p-6">
-        <%= live_component MapComponent, id: :tasks_map, campaign: @campaign, tasks_query: @tasks_query, riders_query: @riders_query, selected_task: @selected_task, selected_rider: @selected_rider %>
+        <.live_component module={MapComponent} id={:tasks_map} campaign={@campaign} tasks_query={@tasks_query} selected_task={@selected_task} selected_rider={@selected_rider} />
       </div>
     </div>
     <div class="w-3/12 h-screen px-2 py-3 bg-white shadow sm:rounded-lg">
-      <%= live_component RidersListComponent, id: :riders_list, campaign: @campaign, riders_query: @riders_query, selected_task: @selected_task, selected_rider: @selected_rider %>
+      <.live_component module={RidersListComponent} id={:riders_list} campaign={@campaign} tasks_query={@tasks_query} selected_task={@selected_task} selected_rider={@selected_rider} />
     </div>
   </div>
 </div>

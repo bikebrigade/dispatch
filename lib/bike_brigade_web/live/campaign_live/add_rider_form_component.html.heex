@@ -12,14 +12,13 @@
         Add Rider
       </h2>
 
-      <%= live_component C.FlashComponent, flash: @flash %>
-
+      <.live_component module={C.FlashComponent} flash={@flash} />
       <div>
         <%= label f, :rider_id, class: "block text-sm font-medium leading-5 text-gray-700" do %>
           Rider
         <% end %>
         <div class="mt-1 rounded-md shadow-sm">
-          <%= live_component C.RiderSelectionComponent, id: :select_rider, input_name: input_name(f, :rider_id) %>
+          <.live_component module={C.RiderSelectionComponent} id={:select_rider} input_name={input_name(f, :rider_id)} />
         </div>
         <%#NOTE NO ERROR TAG HEERE, hard to make them sync %>
         <%#= error_tag f, :rider_id %>
