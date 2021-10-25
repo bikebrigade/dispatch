@@ -1,0 +1,11 @@
+#!/bin/env bash
+
+set -e
+
+if [ "$1" == "prod" ]; then
+  fly ssh console
+elif [ "$1" == "staging" ]; then
+  fly ssh console -c fly.staging.toml
+else
+  echo "usage: scripts/remote_console <prod|staging>"
+fi
