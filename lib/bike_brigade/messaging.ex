@@ -43,11 +43,12 @@ defmodule BikeBrigade.Messaging do
         order_by: [desc: latest_message.sent_at],
         select: {r, latest_message}
 
-    query = if limit = opts[:limit] do
-      query |> limit(^limit)
-    else
-      query
-    end
+    query =
+      if limit = opts[:limit] do
+        query |> limit(^limit)
+      else
+        query
+      end
 
     Repo.all(query)
   end
@@ -71,6 +72,7 @@ defmodule BikeBrigade.Messaging do
       end
 
     Repo.all(query)
+    |> Repo.preload(:sent_by_user)
     |> Enum.reverse()
   end
 
@@ -152,7 +154,7 @@ defmodule BikeBrigade.Messaging do
     %SmsMessage{from: from}
   end
 
-  def new_sms_message(%Rider{} = rider) do
+  def new_sms_message(%Rider{} = rider, sent_by_user \\ nil) do
     from =
       if rider.flags.opt_in_to_new_number do
         new_outbound_number()
@@ -160,7 +162,15 @@ defmodule BikeBrigade.Messaging do
         outbound_number()
       end
 
-    %SmsMessage{from: from, to: rider.phone, rider_id: rider.id, incoming: false}
+    sent_by_user_id = if sent_by_user, do: sent_by_user.id
+
+    %SmsMessage{
+      from: from,
+      to: rider.phone,
+      rider_id: rider.id,
+      sent_by_user_id: sent_by_user_id,
+      incoming: false
+    }
   end
 
   @doc "Send a message and save it in the database"
@@ -260,5 +270,20 @@ defmodule BikeBrigade.Messaging do
 
   def brigade_number?(phone) do
     phone in all_inbound_numbers()
+  end
+
+  # TODO move this?
+  def campaign_name(message) do
+    message = message
+    |> Repo.preload(campaign: [:program])
+
+    message.campaign.program.name
+  end
+
+  def sent_by_user_name(message) do
+    message = message
+    |> Repo.preload(:sent_by_user)
+
+    message.sent_by_user.name
   end
 end

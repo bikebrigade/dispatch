@@ -22,7 +22,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.ConversationComponent do
   end
 
   @impl Phoenix.LiveComponent
-  def update(%{rider: rider} = assigns, socket) do
+  def update(%{rider: rider, current_user: current_user} = assigns, socket) do
     conversation = Messaging.latest_messages(rider)
 
     earliest_timestamp =
@@ -31,7 +31,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.ConversationComponent do
         [] -> nil
       end
 
-    sms_message = Messaging.new_sms_message(rider)
+    sms_message = Messaging.new_sms_message(rider, current_user)
     changeset = Messaging.send_sms_message_changeset(sms_message)
 
     {:ok,

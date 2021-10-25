@@ -3,6 +3,7 @@
   id: :new,
   title: @page_title,
   action: @live_action,
+  current_user: @current_user,
   return_to: @current_path %>
 <% end %>
 <div class="flex flex-wrap h-full max-h-full min-h-0 -mx-3">
@@ -62,7 +63,7 @@
       </ul>
     </div>
   </div>
-  <%= if @selected_rider, do: live_component ConversationComponent, id: @selected_rider.id, rider: @selected_rider, live_action: @live_action %>
+  <%= if @selected_rider, do: live_component ConversationComponent, id: @selected_rider.id, rider: @selected_rider, live_action: @live_action, current_user: @current_user %>
   <%= if @latest_campaign_tasks != [] do %>
   <div class={"w-full px-3 sm:w-2/12 #{unless @live_action == :tasks, do: "hidden"} sm:block"}>
     <div class="flex-grow-0 px-4 py-5 mb-2 bg-white border-b border-gray-200 sm:hidden">
