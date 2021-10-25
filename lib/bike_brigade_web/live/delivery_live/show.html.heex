@@ -142,7 +142,7 @@
                       Call
                   </C.button>
                 <% end %>
-                <C.button href={open_map_url(task)} aria-label={"Map Delivery #{i}"}
+                <C.button href={open_map_url(task)} target="_blank" aria-label={"Map Delivery #{i}"}
                   size={:small}>
                   <%= Heroicons.Outline.map(class: "w-5 h-5 mr-1 -ml-0.5") %>
                     Map
@@ -246,10 +246,14 @@
     </div>
   </div>
   <div class="overflow-hidden bg-white border-t divide-y divide-gray-200 shadow-md sm:mt-2 sm:rounded-lg">
-    <div class="py-2 mt-2 ml-4">
-      <h2 class="text-lg font-medium leading-6 text-gray-900">
+    <div class="flex flex-row items-center justify-between">
+      <h2 class="ml-7 text-base font-semibold text-gray-900">
         Full Route Map
       </h2>
+       <div class="flex justify-end flex-1 mr-3 my-4 pb-1">
+      <C.button href={directions_url(assigns)} font-medium text-white">Open in Google
+        Maps</C.button>
+    </div>
     </div>
     <div class="p-3 sm:p-4">
       <div class="w-full h-80">
@@ -258,8 +262,6 @@
         </iframe>
       </div>
       <br />
-      <a href={directions_url(assigns)} class="font-medium text-indigo-600 hover:text-indigo-500">Open in Google
-        Maps</a>
     </div>
   </div>
 </div>
