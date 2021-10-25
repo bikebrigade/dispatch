@@ -130,7 +130,6 @@ if config_env() == :prod do
 
   # SmsService
   config :bike_brigade, :sms_service,
-    adapter: BikeBrigade.SmsService.SmsService,
     status_callback_url: System.fetch_env!("TWILIO_STATUS_CALLBACK")
 end
 
