@@ -1,6 +1,6 @@
 <div>
 <h2><%= @title %></h2>
-<.live_component module={C.FlashComponent} flash={@flash} /><.form
+<C.flash_component flash={@flash} /><.form
   let={c}
   for={@changeset}
   id="user-form"

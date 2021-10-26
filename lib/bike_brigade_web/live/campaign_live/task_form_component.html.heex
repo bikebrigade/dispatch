@@ -7,7 +7,7 @@
     <h2 class="my-6 text-3xl font-extrabold leading-9 text-center text-gray-900">
       Add Task
     </h2>
-    <.live_component module={C.FlashComponent} flash={@flash} />    <%= if @campaign.program.items == [] do %>
+    <C.flash_component flash={@flash} />    <%= if @campaign.program.items == [] do %>
       <div class="mt-2">
         You'll have to set up the kinds of items that we delivery for <%= @campaign.program.name %> (Meals, Foodshare Boxes, etc) before you can add a task.
         <div class="mt-1">

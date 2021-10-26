@@ -14,7 +14,7 @@ defmodule BikeBrigadeWeb.RiderLive.MapComponent do
           data-icon="circle" data-color="#1c64f2" data-zindex="100"></leaflet-marker>
       <% end %>
       <%= for rider <- @riders do %>
-        <.live_component module={RiderMarkerComponent} rider={rider} selected={@selected_rider && @selected_rider.id == rider.id} />
+        <.live_component id={rider.id} module={RiderMarkerComponent} rider={rider} selected={@selected_rider && @selected_rider.id == rider.id} />
       <% end %>
     </leaflet-map>
     """

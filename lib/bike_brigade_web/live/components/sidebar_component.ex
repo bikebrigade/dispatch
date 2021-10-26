@@ -12,6 +12,7 @@ defmodule BikeBrigadeWeb.Components.SidebarComponent do
   @impl Phoenix.LiveComponent
   def render(assigns) do
     ~H"""
+    <div>
     <%= live_patch to: Routes.program_index_path(@socket, :index), class: @class.(:programs) do %>
       <%= Heroicons.Outline.collection(class: @svg_class.(:programs)) %>
       Programs
@@ -44,6 +45,7 @@ defmodule BikeBrigadeWeb.Components.SidebarComponent do
       <%= Heroicons.Outline.logout(class: @svg_class.(:logout)) %>
       Log out
     <% end %>
+    </div>
     """
   end
 
