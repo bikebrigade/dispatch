@@ -2,6 +2,7 @@ defmodule BikeBrigade.Messaging.SmsMessage do
   use BikeBrigade.Schema
   import Ecto.Changeset
 
+  alias BikeBrigade.Accounts.User
   alias BikeBrigade.Riders.Rider
   alias BikeBrigade.Delivery.Campaign
 
@@ -34,7 +35,8 @@ defmodule BikeBrigade.Messaging.SmsMessage do
     field :twilio_status, :string
     embeds_many :media, MediaItem
     belongs_to :campaign, Campaign
-    belongs_to :rider, Rider
+    belongs_to :rider, Rider #TODO: rename to sent_to_rider or sent_to
+    belongs_to :sent_by_user, User
 
     timestamps()
   end
@@ -42,7 +44,7 @@ defmodule BikeBrigade.Messaging.SmsMessage do
   @doc false
   def changeset(sms_message, attrs) do
     sms_message
-    |> cast(attrs, [:to, :from, :body, :sent_at, :twilio_sid, :twilio_status, :incoming, :rider_id, :campaign_id])
+    |> cast(attrs, [:to, :from, :body, :sent_at, :twilio_sid, :twilio_status, :incoming, :rider_id, :campaign_id, :sent_by_user_id])
     |> cast_embed(:media)
     |> validate_required([:to, :from])
     |> validate_required_inclusion([:body, :media])

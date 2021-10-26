@@ -84,20 +84,33 @@
                             </div>
                             <div class="px-1 my-0.5 flex justify-between">
                                 <div class="text-xs font-bold"><%= datetime(message.sent_at) %></div>
-                                <div class="text-xs text-gray-600">
-                                    <%= case message.twilio_status do %>
-                                    <% "queued" -> %>
-                                        <%= Heroicons.Solid.dots_horizontal(class: "w-4 h-4") %>
-                                    <% "sent" -> %>
-                                        <%= Heroicons.Solid.arrow_circle_right(class: "w-4 h-4") %>
-                                    <% "delivered" -> %>
-                                        <%= Heroicons.Solid.check_circle(class: "w-4 h-4") %>
-                                    <% "undelivered" -> %>
-                                        <%= Heroicons.Solid.exclamation_circle(class: "text-red-600 w-4 h-4") %>
-                                    <% "failed" -> %>
-                                        <%= Heroicons.Solid.exclamation_circle(class: "text-red-600 w-4 h-4") %>
-                                    <% _ -> %>
+                                <div class="flex flex-row space-x-1">
+                                    <%= cond do %>
+                                    <% message.campaign_id -> %>
+                                        <a href={Routes.campaign_show_path(@socket, :show, message.campaign_id)} class="text-xs font-semibold link">
+                                           <%= Messaging.campaign_name(message) %>
+                                        </a>
+                                    <% message.sent_by_user -> %>
+                                        <div class="text-xs font-semibold">
+                                            Sent by <%= Messaging.sent_by_user_name(message) %>
+                                        </div>
+                                    <% true -> %>
                                     <% end %>
+                                    <div class="text-xs text-gray-600">
+                                        <%= case message.twilio_status do %>
+                                        <% "queued" -> %>
+                                            <%= Heroicons.Solid.dots_horizontal(class: "w-4 h-4") %>
+                                        <% "sent" -> %>
+                                            <%= Heroicons.Solid.arrow_circle_right(class: "w-4 h-4") %>
+                                        <% "delivered" -> %>
+                                            <%= Heroicons.Solid.check_circle(class: "w-4 h-4") %>
+                                        <% "undelivered" -> %>
+                                            <%= Heroicons.Solid.exclamation_circle(class: "text-red-600 w-4 h-4") %>
+                                        <% "failed" -> %>
+                                            <%= Heroicons.Solid.exclamation_circle(class: "text-red-600 w-4 h-4") %>
+                                        <% _ -> %>
+                                        <% end %>
+                                    </div>
                                 </div>
                             </div>
                         </div>

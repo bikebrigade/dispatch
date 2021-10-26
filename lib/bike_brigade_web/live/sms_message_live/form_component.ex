@@ -31,7 +31,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.FormComponent do
 
     for rider <- riders do
       # TODO handle errors
-      sms_message = Messaging.new_sms_message(rider)
+      sms_message = Messaging.new_sms_message(rider, socket.assigns.current_user)
       Messaging.send_sms_message(sms_message, params)
     end
 
