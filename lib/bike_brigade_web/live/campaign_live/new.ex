@@ -10,7 +10,6 @@ defmodule BikeBrigadeWeb.CampaignLive.New do
   def mount(_params, session, socket) do
     {:ok,
      socket
-     |> assign_defaults(session)
      |> assign(:page, :campaigns)
      |> assign(:page_title, "New Campaign")
      |> assign(:campaign, %Campaign{})

@@ -45,18 +45,6 @@ defmodule BikeBrigadeWeb.LiveHelpers do
     "https://www.gravatar.com/avatar/#{hash}?s=150&d=identicon"
   end
 
-  def assign_defaults(socket, %{"user_id" => user_id}) do
-    # can this ever return nil?
-    user = Accounts.get_user(user_id)
-
-    # Set the context for Honeybadger here
-    Honeybadger.context(context: %{user_id: user.id, user_email: user.email})
-
-    socket
-    |> assign_new(:current_user, fn -> user end)
-    |> assign_new(:page_title, fn -> nil end)
-  end
-
   def date(datetime) do
     LocalizedDateTime.localize(datetime)
     |> Calendar.strftime("%x")

@@ -8,9 +8,7 @@ defmodule BikeBrigadeWeb.PrintableLive.SafetyCheck do
 
   @impl true
   def mount(_params, session, socket) do
-    {:ok,
-     socket
-     |> assign_defaults(session)}
+    {:ok, socket}
   end
 
   @impl true

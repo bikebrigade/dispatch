@@ -70,7 +70,6 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
 
     {:ok,
      socket
-     |> assign_defaults(session)
      |> assign(:page, :stats)
      |> assign(:page_title, "Stats")
      |> assign(:options, options)

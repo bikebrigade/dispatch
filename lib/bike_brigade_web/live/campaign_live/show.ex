@@ -16,7 +16,6 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
 
     {:ok,
      socket
-     |> assign_defaults(session)
      |> assign(:page, :campaigns)}
   end
 

@@ -14,7 +14,6 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
 
     {:ok,
      socket
-     |> assign_defaults(session)
      |> assign(:page, :riders)
      |> assign(:selected_rider, nil)
      |> assign(:located_place, nil)

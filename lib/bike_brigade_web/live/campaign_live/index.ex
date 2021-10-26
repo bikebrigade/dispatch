@@ -18,7 +18,6 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
 
     {:ok,
      socket
-     |> assign_defaults(session)
      |> assign(:page, :campaigns)
      |> assign(:page_title, "Campaigns")
      |> assign(:current_week, current_week)

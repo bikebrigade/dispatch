@@ -20,8 +20,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
       end
 
     socket =
-      assign_defaults(socket, session)
-      |> assign(:page_title, "Messages")
+      assign(:page_title, "Messages")
       |> assign(:page, :messages)
       |> assign(:presence, [])
       |> assign(:others_present, [])

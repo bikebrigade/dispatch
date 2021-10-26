@@ -8,7 +8,6 @@ defmodule BikeBrigadeWeb.ItemLive.Index do
   def mount(_params, session, socket) do
     {:ok,
      socket
-     |> assign_defaults(session)
      |> assign(:page, :programs)
      |> assign(:page_title, "Programs")
      |> assign(:items, list_items())}

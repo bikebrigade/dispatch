@@ -14,7 +14,6 @@ defmodule BikeBrigadeWeb.OpportunityLive.Index do
 
     {:ok,
      socket
-     |> assign_defaults(session)
      |> assign(:page, :opportunities)
      |> assign(:page_title, "Delivery Opportunities")
      |> assign(:opportunities, list_opportunities())

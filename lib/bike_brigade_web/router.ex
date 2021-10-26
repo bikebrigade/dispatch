@@ -5,6 +5,8 @@ defmodule BikeBrigadeWeb.Router do
 
   require Logger
 
+  alias BikeBrigadeWeb.LiveHooks
+
   # Don't alert expired deliviers to honeybadger
   use Honeybadger.Plug
   def handle_errors(_conn, %{reason: %BikeBrigadeWeb.DeliveryExpiredError{}}), do: :ok
@@ -77,7 +79,7 @@ defmodule BikeBrigadeWeb.Router do
 
     get "/", Plugs.Redirect, to: "/campaigns"
 
-    live_session :dispatch do
+    live_session :dispatch, on_mount: LiveHooks.Authentication do
       live "/riders", RiderLive.Index, :index
       live "/riders/new", RiderLive.Index, :new
       live "/riders/:id/edit", RiderLive.Index, :edit
