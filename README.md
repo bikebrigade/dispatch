@@ -7,12 +7,12 @@
 
 ## Getting an environment set up
 1. Clone this repo
-2. Copy `.env.local.sample` to `.env.local`
+2. Copy the env file `cp .env.local.sample .env.local`
 3. Run `nix-shell` inside the directory. This will create an environment that has all the dependencies installed locally.
 4. Inside the nix shell, run `docker-compose up -d`
 5. To install dependencies, run `mix deps.get`
-6. To set up the database run `mix ecto.create` and `mix ecto.migrate`
-7. To set up the assets, `cd assets` and `npm install`
+6. To set up the database run `mix do ecto.create, ecto.migrate`
+7. To set up the assets, `npm install --prefix=assets/`
 8. To install seeds, `mix run priv/repo/seeds.exs`
 
 ## Development environment
