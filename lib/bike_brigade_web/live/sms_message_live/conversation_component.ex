@@ -22,7 +22,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.ConversationComponent do
   end
 
   @impl Phoenix.LiveComponent
-  def update(%{rider: rider, current_user: current_user} = assigns, socket) do
+  def update(%{rider: rider} = assigns, socket) do
     conversation = Messaging.latest_messages(rider)
 
     earliest_timestamp =
@@ -31,17 +31,13 @@ defmodule BikeBrigadeWeb.SmsMessageLive.ConversationComponent do
         [] -> nil
       end
 
-    sms_message = Messaging.new_sms_message(rider, current_user)
-    changeset = Messaging.send_sms_message_changeset(sms_message)
-
     {:ok,
      socket
      |> assign(assigns)
+     |> assign_new_sms_message()
      |> assign(conversation: conversation)
      |> assign(earliest_timestamp: earliest_timestamp)
-     |> assign(phx_update: "append")
-     |> assign(changeset: changeset)
-     |> assign(sms_message: sms_message)}
+     |> assign(phx_update: "append")}
   end
 
   @impl Phoenix.LiveComponent
@@ -111,13 +107,19 @@ defmodule BikeBrigadeWeb.SmsMessageLive.ConversationComponent do
   defp send_sms_message(socket, params) do
     case Messaging.send_sms_message(socket.assigns.sms_message, params) do
       {:ok, _sent_sms_message} ->
-        sms_message = Messaging.new_sms_message(socket.assigns.rider)
-        changeset = Messaging.send_sms_message_changeset(sms_message)
-        assign(socket, sms_message: sms_message, changeset: changeset)
-
+        assign_new_sms_message(socket)
       {:error, %Ecto.Changeset{} = changeset} ->
         assign(socket, :changeset, changeset)
     end
+  end
+
+  defp assign_new_sms_message(socket) do
+    sms_message = Messaging.new_sms_message(socket.assigns.rider, socket.assigns.current_user)
+    changeset = Messaging.send_sms_message_changeset(sms_message)
+
+    socket
+    |> assign(changeset: changeset)
+    |> assign(sms_message: sms_message)
   end
 
   def error_to_string(:too_large), do: "Too large"
