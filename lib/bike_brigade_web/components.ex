@@ -53,7 +53,7 @@ defmodule BikeBrigadeWeb.Components do
       |> assign_new(:patch_replace, fn -> false end)
     ~H"""
     <%= live_patch to: patch_to, replace: @patch_replace, class: button_class(assigns) do %>
-      <%= render_block(@inner_block) %>
+      <%= render_slot(@inner_block) %>
     <% end %>
     """
   end
@@ -66,7 +66,7 @@ defmodule BikeBrigadeWeb.Components do
 
     ~H"""
     <a href={@href} class={@class} {@attrs}>
-      <%= render_block(@inner_block) %>
+      <%= render_slot(@inner_block) %>
     </a>
     """
   end
@@ -80,7 +80,7 @@ defmodule BikeBrigadeWeb.Components do
 
     ~H"""
     <button class={@class} type={@type} {@attrs}>
-      <%= render_block(@inner_block) %>
+      <%= render_slot(@inner_block) %>
     </button>
     """
   end
@@ -144,7 +144,7 @@ defmodule BikeBrigadeWeb.Components do
     ~H"""
     <button type="button" class={@class} {@attrs}>
       <div class="text-xs leading-relaxed text-center">
-        <%= render_block @inner_block %>
+        <%= render_slot @inner_block %>
       </div>
     </button>
     """
@@ -157,7 +157,7 @@ defmodule BikeBrigadeWeb.Components do
 
     ~H"""
     <div class="relative flex flex-col items-center has-tooltip">
-      <%= render_block @inner_block %>
+      <%= render_slot @inner_block %>
       <div class={"absolute bottom-0 flex-col items-center mb-6 tooltip #{@class}"}>
         <span class="relative z-10 p-2 text-xs leading-none text-white whitespace-no-wrap bg-black rounded-sm shadow-lg">
           <%= @tooltip %>
