@@ -79,7 +79,7 @@
                   <div>
                     <div class="text-sm font-medium leading-5 text-indigo-600 truncate"><%= @selected_rider.name %></div>
                     <div class="mt-2">
-                      <C.button size={:xsmall} patch_to={Routes.sms_message_index_path(@socket, :show, @selected_rider.id)}>
+                      <C.button size={:xsmall} redirect_to={Routes.sms_message_index_path(@socket, :show, @selected_rider.id)}>
                         Message
                       </C.button>
                       <C.button size={:xsmall} patch_to={Routes.rider_index_path(@socket, :edit, @selected_rider.id)}>

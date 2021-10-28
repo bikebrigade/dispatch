@@ -39,7 +39,7 @@
           <div class="px-4 py-4">
             <div class="flex items-center justify-between">
               <div class="flex items-center space-x-1">
-                <%= live_patch name(c), to: Routes.campaign_show_path(BikeBrigadeWeb.Endpoint, :show, c),  class: "link text-sm font-medium" %>
+                <%= live_redirect name(c), to: Routes.campaign_show_path(@socket, :show, c),  class: "link text-sm font-medium" %>
               </div>
               <div class="flex flex-shrink-0 ml-2">
                 <C.button size={:xsmall} color={:white} patch_to={Routes.campaign_index_path(@socket, :edit, c)} class="mr-2">

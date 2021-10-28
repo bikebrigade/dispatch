@@ -58,6 +58,17 @@ defmodule BikeBrigadeWeb.Components do
     """
   end
 
+  def button(%{redirect_to: redirect_to} = assigns) do
+    assigns =
+      assigns
+      |> assign_new(:patch_replace, fn -> false end)
+    ~H"""
+    <%= live_redirect to: redirect_to, replace: @patch_replace, class: button_class(assigns) do %>
+      <%= render_slot(@inner_block) %>
+    <% end %>
+    """
+  end
+
   def button(%{href: _href} = assigns) do
     assigns =
       assigns

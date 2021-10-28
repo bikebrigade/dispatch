@@ -13,31 +13,31 @@ defmodule BikeBrigadeWeb.Components.SidebarComponent do
   def render(assigns) do
     ~H"""
     <div>
-    <%= live_patch to: Routes.program_index_path(@socket, :index), class: @class.(:programs) do %>
+    <%= live_redirect to: Routes.program_index_path(@socket, :index), class: @class.(:programs) do %>
       <%= Heroicons.Outline.collection(class: @svg_class.(:programs)) %>
       Programs
     <% end %>
-    <%= live_patch to: Routes.campaign_index_path(@socket, :index), class: @class.(:campaigns) do %>
+    <%= live_redirect to: Routes.campaign_index_path(@socket, :index), class: @class.(:campaigns) do %>
       <%= Heroicons.Outline.cube(class: @svg_class.(:campaigns)) %>
       Campaigns
     <% end %>
-    <%= live_patch to: Routes.opportunity_index_path(@socket, :index), class: @class.(:opportunities) do %>
+    <%= live_redirect to: Routes.opportunity_index_path(@socket, :index), class: @class.(:opportunities) do %>
       <%= Heroicons.Outline.clipboard_list(class: @svg_class.(:riders)) %>
       Signups
     <% end %>
-    <%= live_patch to: Routes.rider_index_path(@socket, :index), class: @class.(:riders) do %>
+    <%= live_redirect to: Routes.rider_index_path(@socket, :index), class: @class.(:riders) do %>
       <%= Heroicons.Outline.user_group(class: @svg_class.(:riders)) %>
       Riders
     <% end %>
-    <%= live_patch to: Routes.stats_dashboard_path(@socket, :show), class: @class.(:stats) do %>
+    <%= live_redirect to: Routes.stats_dashboard_path(@socket, :show), class: @class.(:stats) do %>
       <%= Heroicons.Outline.chart_bar(class: @svg_class.(:stats)) %>
       Stats
     <% end %>
-    <%= live_patch to: Routes.user_index_path(@socket, :index), class: @class.(:dispatchers) do %>
+    <%= live_redirect to: Routes.user_index_path(@socket, :index), class: @class.(:dispatchers) do %>
       <%= Heroicons.Outline.users(class: @svg_class.(:dispatchers)) %>
       Dispatchers
     <% end %>
-    <%= live_patch to: Routes.sms_message_index_path(@socket, :index), class: @class.(:messages) do %>
+    <%= live_redirect to: Routes.sms_message_index_path(@socket, :index), class: @class.(:messages) do %>
       <%= Heroicons.Outline.chat(class: @svg_class.(:messages)) %>
       Messages
     <% end %>

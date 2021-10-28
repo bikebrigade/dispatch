@@ -33,7 +33,7 @@
               Deliveries
             </th>
             <th class="flex justify-end px-3 py-3 border-b border-gray-200 bg-gray-50">
-              <C.button patch_to={Routes.campaign_index_path(@socket, :new)}>
+              <C.button redirect_to={Routes.campaign_index_path(@socket, :new)}>
                 New Campaign
               </C.button>
             </th>
@@ -57,7 +57,7 @@
               <%= campaign.total_tasks %>
             </td>
             <td class="px-6 py-4 text-sm font-medium leading-5 text-right border-b border-gray-200 whitespace-nowrap">
-              <%= live_patch "Edit", to: Routes.campaign_index_path(@socket, :edit, campaign), class: "text-indigo-600 hover:text-indigo-900" %>
+              <%= live_redirect "Edit", to: Routes.campaign_index_path(@socket, :edit, campaign), class: "text-indigo-600 hover:text-indigo-900" %>
               <%= link "Delete", to: "#", phx_click: "delete", phx_value_id: campaign.id, data: [confirm: "Are you sure?"], class: "pl-2 text-indigo-600 hover:text-indigo-900"  %>
             </td>
           </tr>

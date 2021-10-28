@@ -11,7 +11,7 @@
       <div class="mt-2">
         You'll have to set up the kinds of items that we delivery for <%= @campaign.program.name %> (Meals, Foodshare Boxes, etc) before you can add a task.
         <div class="mt-1">
-          <C.button size={:small} patch_to={Routes.program_index_path(@socket, :edit, @campaign.program)}>
+          <C.button size={:small} redirect_to={Routes.program_index_path(@socket, :edit, @campaign.program)}>
             Set up delivery items
           </C.button>
         </div>
@@ -66,7 +66,7 @@
       </div>
       <%= error_tag g, :item %>
     <% end %>
-    <%= live_patch "Set up program's delivery items", to: Routes.program_index_path(@socket, :edit, @campaign.program.id), class: "text-xs link" %>
+    <%= live_redirect "Set up program's delivery items", to: Routes.program_index_path(@socket, :edit, @campaign.program.id), class: "text-xs link" %>
 
   </div>
 

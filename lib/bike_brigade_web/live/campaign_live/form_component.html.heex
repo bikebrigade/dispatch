@@ -56,7 +56,7 @@
       <%= select f, :program_id,  program_options(), phx_debounce: "blur", class: "block w-full py-2 pl-3 pr-10 mt-1 text-xs border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" %>
     </div>
     <%= error_tag f, :program_id %>
-    <%= live_patch "Create New Program", to: Routes.program_index_path(@socket, :new), class: "text-xs link" %>
+    <%= live_redirect "Create New Program", to: Routes.program_index_path(@socket, :new), class: "text-xs link" %>
   </div>
 
   <div class="my-2">
