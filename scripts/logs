@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -e
+
+if [ "$1" == "prod" ]; then
+  flyctl logs
+elif [ "$1" == "staging" ]; then
+  flyctl logs -c fly.staging.toml
+else
+  echo "usage: scripts/logs <prod|staging>"
+fi
