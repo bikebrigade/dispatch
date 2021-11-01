@@ -168,7 +168,7 @@
       Program Lead
     <% end %>
       <div class="mt-1 rounded-md shadow-sm">
-      <.live_component id={:user_selection} module={C.UserSelectionComponent} id={:select_user} selected_user_id={@program.lead_id} input_name={input_name(f, :lead_id)} />
+      <.live_component module={C.UserSelectionComponent} id={:select_user} selected_user_id={@program.lead_id} input_name={input_name(f, :lead_id)} />
     </div>
   </div>
 
