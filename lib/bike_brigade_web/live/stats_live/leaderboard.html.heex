@@ -71,7 +71,7 @@
               <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                 <div class="inline-flex align-top">
                   Name
-                  <%= sort_icon(:rider_name, @options) %>
+                  <.sort_icon field={:rider_name} options={@options} />
                 </div>
               </th>
               <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase ">
@@ -80,19 +80,19 @@
               <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase ">
                 <div class="inline-flex align-baseline">
                   Campaigns
-                  <%= sort_icon(:campaigns, @options) %>
+                  <.sort_icon field={:campaigns} options={@options} />
                 </div>
               </th>
               <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase ">
                 <div class="inline-flex">
                   Deliveries
-                  <%= sort_icon(:deliveries, @options) %>
+                  <.sort_icon field={:deliveries} options={@options} />
                 </div>
               </th>
               <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase ">
                 <div class="inline-flex">
                   Distance
-                   <%= sort_icon(:distance, @options) %>
+                  <.sort_icon field={:distance} options={@options} />
                 </div>
               </th>
               <th scope="col" class="relative px-6 py-3">
