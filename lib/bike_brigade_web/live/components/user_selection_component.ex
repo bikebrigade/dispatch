@@ -111,7 +111,6 @@ defmodule BikeBrigadeWeb.Components.UserSelectionComponent do
         </li>
       <% end %>
     </ul>
-    <%= render_slot @inner_block %>
     <% end %>
     </div>
     """

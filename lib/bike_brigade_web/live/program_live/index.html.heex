@@ -1,20 +1,15 @@
 <%= if @live_action in [:new, :edit] do %>
-<%= live_modal BikeBrigadeWeb.ProgramLive.FormComponent,
-    id: @program.id || :new,
-    title: @page_title,
-    action: @live_action,
-    program: @program,
-    return_to: Routes.program_index_path(@socket, :index) %>
+  <UI.modal show id={:edit} return_to={Routes.program_index_path(@socket, :index)} >
+    <:title><%= Atom.to_string(@live_action) |> String.capitalize() %> Program</:title>
+    <.live_component module={BikeBrigadeWeb.ProgramLive.FormComponent} id={@program.id || :new} action={@live_action} program={@program} />
+  </UI.modal>
 <% end %>
 
 <%= if @live_action in [:new_item, :edit_item] do %>
-<%= live_modal BikeBrigadeWeb.ProgramLive.ItemFormComponent,
-    id: @item.id || :new,
-    title: @page_title,
-    action: @live_action,
-    program: @program,
-    item: @item,
-    return_to: Routes.program_index_path(@socket, :edit, @program.id) %>
+  <UI.modal show id={:edit_item} return_to={Routes.program_index_path(@socket, :edit, @program)}>
+    <:title>Edit Item</:title>
+    <.live_component module={BikeBrigadeWeb.ProgramLive.ItemFormComponent} id={@item.id || :new} action={@live_action} program={@program} item={@item}/>
+  </UI.modal>
 <% end %>
 
 <div class="flex flex-col py-4">

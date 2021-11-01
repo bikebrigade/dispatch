@@ -8,6 +8,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   alias BikeBrigade.Delivery.{Campaign, Task, CampaignRider}
   alias BikeBrigade.Riders.Rider
 
+
   @impl true
   def mount(_params, session, socket) do
     if connected?(socket) do
