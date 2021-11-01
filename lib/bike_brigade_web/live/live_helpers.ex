@@ -1,11 +1,7 @@
 defmodule BikeBrigadeWeb.LiveHelpers do
   import Phoenix.LiveView.Helpers
 
-  import Phoenix.LiveView, [:assign_new / 3]
-
   alias BikeBrigade.LocalizedDateTime
-
-  alias BikeBrigade.Accounts
 
   @doc """
   Renders a component inside the `BikeBrigadeWeb.Components.ModalComponent` component.
