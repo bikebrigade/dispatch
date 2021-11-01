@@ -81,6 +81,13 @@ defmodule BikeBrigade.Riders.Rider do
     |> cast_embed(:flags)
     |> update_change(:email, &String.downcase/1)
     |> validate_required([:name, :email, :city, :province, :postal, :country, :phone, :availability, :capacity, :max_distance])
+    |> validate_change(:email, fn :email, email  ->
+      if String.contains?(email, "@") do
+        []
+      else
+        [email: "is invalid"]
+      end
+    end)
     |> unique_constraint(:phone)
     |> unique_constraint(:email)
     |> set_signed_up_on()
