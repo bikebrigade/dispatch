@@ -11,7 +11,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
   import BikeBrigadeWeb.CampaignHelpers
 
   @impl true
-  def mount(_params, session, socket) do
+  def mount(_params, _session, socket) do
     current_week =
       LocalizedDateTime.today()
       |> Date.beginning_of_week()

@@ -7,7 +7,7 @@ defmodule BikeBrigadeWeb.PrintableLive.CampaignAssignments do
   import BikeBrigadeWeb.PrintableLive.Helpers
 
   @impl true
-  def mount(_params, session, socket) do
+  def mount(_params, _session, socket) do
     {:ok, socket}
   end
 

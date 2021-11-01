@@ -5,7 +5,7 @@ defmodule BikeBrigadeWeb.ItemLive.Index do
   alias BikeBrigade.Delivery.Item
 
   @impl true
-  def mount(_params, session, socket) do
+  def mount(_params, _session, socket) do
     {:ok,
      socket
      |> assign(:page, :programs)

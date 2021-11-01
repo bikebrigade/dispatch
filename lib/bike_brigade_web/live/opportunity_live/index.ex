@@ -7,7 +7,7 @@ defmodule BikeBrigadeWeb.OpportunityLive.Index do
   alias BikeBrigadeWeb.OpportunityLive.OpportunityComponent
 
   @impl true
-  def mount(_params, session, socket) do
+  def mount(_params, _session, socket) do
     if connected?(socket) do
       Delivery.subscribe()
     end

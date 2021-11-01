@@ -65,7 +65,7 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
   end
 
   @impl Phoenix.LiveView
-  def mount(_params, session, socket) do
+  def mount(_params, _session, socket) do
     options = Options.default()
 
     {:ok,

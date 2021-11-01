@@ -7,7 +7,7 @@ defmodule BikeBrigadeWeb.CampaignLive.New do
   alias NimbleCSV.RFC4180, as: CSV
 
   @impl Phoenix.LiveView
-  def mount(_params, session, socket) do
+  def mount(_params, _session, socket) do
     {:ok,
      socket
      |> assign(:page, :campaigns)
