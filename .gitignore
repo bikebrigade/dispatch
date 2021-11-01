@@ -41,3 +41,6 @@ npm-debug.log
 /priv/static/assets/
 .env.local
 config/google-service-account.json
+
+# Editor config
+.vscode/
