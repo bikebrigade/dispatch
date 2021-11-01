@@ -15,6 +15,8 @@ config :bike_brigade, :geocoder, adapter: BikeBrigade.Geocoder.LibLatLonGeocoder
 
 config :bike_brigade, BikeBrigade.Google, start: true
 
+config :bike_brigade BikeBrigade.ScheduledMessenger, start: true
+
 # Importers
 config :bike_brigade, BikeBrigade.Importers.Runner,
   start: true,
