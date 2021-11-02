@@ -36,7 +36,7 @@ defmodule BikeBrigade.Geocoder.FakeGeocoder do
   def init(locations), do: {:ok, locations}
 
   def handle_call({:lookup, address}, _from, locations) do
-    Logger.info("Received FakeGeocoder lookup for #{address}")
+    Logger.info("Received FakeGeocoder lookup for #{address}. Only addresses from seeded data are valid.")
 
     result =
       case Map.get(locations, address, :not_found) do
