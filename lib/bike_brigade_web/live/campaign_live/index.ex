@@ -32,8 +32,8 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
 
   @impl true
   def handle_event("delete", %{"id" => id}, socket) do
-    user = Delivery.get_campaign(id)
-    {:ok, _} = Delivery.delete_campaign(user)
+    campaign = Delivery.get_campaign(id)
+    {:ok, _} = Delivery.delete_campaign(campaign)
 
     {:noreply, assign(socket, :campaigns, fetch_campaigns(socket.assigns.current_week))}
   end
@@ -81,6 +81,12 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
     socket
     |> assign(:page_title, "New Campaign")
     |> assign(:campaign, %Campaign{delivery_start: delivery_start, delivery_end: delivery_end})
+  end
+
+  defp apply_action(socket, :duplicate, %{"id" => id}) do
+    socket
+    |> assign(:page_title, "Duplicate Campaign")
+    |> assign(:campaign, Delivery.get_campaign(id))
   end
 
   defp apply_action(socket, :index, _params) do

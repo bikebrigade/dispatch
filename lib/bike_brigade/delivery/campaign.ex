@@ -15,6 +15,25 @@ defmodule BikeBrigade.Delivery.Campaign do
 
   defenum(RiderSpreadsheetLayout, non_foodshare: 0, foodshare: 1)
 
+  @fields [
+    :name,
+    :delivery_date,
+    :delivery_start,
+    :delivery_end,
+    :details,
+    :pickup_address,
+    :pickup_address2,
+    :pickup_city,
+    :pickup_country,
+    :pickup_location,
+    :pickup_postal,
+    :pickup_province,
+    :pickup_window,
+    :rider_spreadsheet_id,
+    :rider_spreadsheet_layout,
+    :program_id
+  ]
+
   schema "campaigns" do
     field(:name, :string)
     field(:delivery_date, :date)
@@ -56,24 +75,7 @@ defmodule BikeBrigade.Delivery.Campaign do
   def changeset(struct, params \\ %{}) do
     changeset =
       struct
-      |> cast(params, [
-        :name,
-        :delivery_date,
-        :delivery_start,
-        :delivery_end,
-        :details,
-        :pickup_address,
-        :pickup_address2,
-        :pickup_city,
-        :pickup_country,
-        :pickup_location,
-        :pickup_postal,
-        :pickup_province,
-        :pickup_window,
-        :rider_spreadsheet_id,
-        :rider_spreadsheet_layout,
-        :program_id
-      ])
+      |> cast(params, @fields)
       |> fetch_pickup_location()
 
     changeset
@@ -142,5 +144,9 @@ defmodule BikeBrigade.Delivery.Campaign do
       _ ->
         changeset
     end
+  end
+
+  def fields_for(campaign) do
+    Map.take(campaign, @fields)
   end
 end

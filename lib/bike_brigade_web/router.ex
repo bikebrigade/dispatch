@@ -88,6 +88,7 @@ defmodule BikeBrigadeWeb.Router do
       live "/campaigns/new", CampaignLive.Index, :new
       live "/campaigns/new2", CampaignLive.New, :new
       live "/campaigns/:id/edit", CampaignLive.Index, :edit
+      live "/campaigns/:id/duplicate", CampaignLive.Index, :duplicate
 
       live "/campaigns/:id", CampaignLive.Show, :show
       live "/campaigns/:id/show/edit", CampaignLive.Show, :edit
