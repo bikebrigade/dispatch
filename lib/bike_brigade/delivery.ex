@@ -216,7 +216,7 @@ defmodule BikeBrigade.Delivery do
   end
 
   @doc """
-  Creates a task collection.
+  Creates a campaign.
   """
   def create_campaign(attrs \\ %{}) do
     %Campaign{}

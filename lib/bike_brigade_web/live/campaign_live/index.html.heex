@@ -6,6 +6,14 @@
     campaign: @campaign,
     return_to: Routes.campaign_index_path(@socket, :index) %>
 <% end %>
+<%= if @live_action == :duplicate do %>
+  <%= live_modal BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent,
+    id: :duplicate,
+    campaign: @campaign,
+    title: "Duplicate campaign",
+    action: @live_action,
+    return_to: Routes.campaign_index_path(@socket, :index) %>
+<% end %>
 <nav class="flex items-center justify-between px-4 py-3 mb-1 border-b-2 border-gray-200" aria-label="Pagination">
   <div class="hidden sm:block">
     <p class="text-sm text-gray-700">
@@ -41,9 +49,12 @@
               <div class="flex items-center space-x-1">
                 <%= live_patch name(c), to: Routes.campaign_show_path(BikeBrigadeWeb.Endpoint, :show, c),  class: "link text-sm font-medium" %>
               </div>
-              <div class="flex flex-shrink-0 ml-2">
-                <C.button size={:xsmall} color={:white} patch_to={Routes.campaign_index_path(@socket, :edit, c)} class="mr-2">
+              <div class="flex flex-shrink-0 space-x-2">
+                <C.button size={:xsmall} color={:white} patch_to={Routes.campaign_index_path(@socket, :edit, c)}>
                   Edit
+                </C.button>
+                <C.button patch_to={Routes.campaign_index_path(@socket, :duplicate, c)}  size={:xsmall} color={:white}>
+                  Duplicate
                 </C.button>
                 <C.button  size={:xsmall} color={:lightred} phx-click="delete" phx-value-id={c.id} data-confirm="Are you sure?">
                   Delete
