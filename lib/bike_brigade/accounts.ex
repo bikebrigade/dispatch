@@ -139,4 +139,12 @@ defmodule BikeBrigade.Accounts do
   def change_user(%User{} = user, attrs \\ %{}) do
     User.changeset(user, attrs)
   end
+
+  def get_dispatcher_phone_numbers() do
+    query =
+      from u in User,
+        select: u.phone
+
+    Repo.all(query)
+  end
 end

@@ -71,8 +71,21 @@ defmodule BikeBrigade.Utils do
   end
 
   def fetch_env!(cfg_section, key) do
-    Application.get_env(:bike_brigade, cfg_section)
+    Application.fetch_env!(:bike_brigade, cfg_section)
     |> Keyword.fetch!(key)
+  end
+
+  def get_env(cfg_section, key, default \\ nil) do
+    Application.get_env(:bike_brigade, cfg_section, [])
+    |> Keyword.get(key, default)
+  end
+
+  def put_env(cfg_section, key, value) do
+    cfg =
+      Application.get_env(:bike_brigade, cfg_section, [])
+      |> Keyword.put(key, value)
+
+    Application.put_env(:bike_brigade, cfg_section, cfg)
   end
 
   @spec change_scheme(String.t(), String.t()) :: String.t()

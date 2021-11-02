@@ -104,6 +104,8 @@ if config_env() == :prod do
           cowboy_opts: [],
           auth_strategy: :none
         ]
+
+      config :bike_brigade, :sms_service, block_non_dispatch_messages: true
   end
 
   # Slack
