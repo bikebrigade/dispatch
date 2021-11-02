@@ -64,9 +64,6 @@ config :bike_brigade, BikeBrigade.AuthenticationMessenger, phone_number: {:syste
 # Config our google clients
 config :bike_brigade, BikeBrigade.GoogleMaps, api_key: {:system, "GOOGLE_MAPS_API_KEY"}
 
-config :bike_brigade, BikeBrigade.Google,
-  credentials: {:system, "GOOGLE_SERVICE_JSON"}
-
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

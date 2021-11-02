@@ -26,14 +26,12 @@ defmodule BikeBrigade.Application do
         BikeBrigade.ScheduledMessenger
       ]
       |> add_child_if_configured(BikeBrigade.Importers.Runner)
-      |> add_child_if_configured(
-        BikeBrigade.Google,
-        {Goth, name: BikeBrigade.Google, source: BikeBrigade.Google.source()}
-      )
+      |> BikeBrigade.Google.append_child_spec()
       |> BikeBrigade.SlackApi.append_child_spec()
       |> BikeBrigade.SmsService.append_child_spec()
       |> BikeBrigade.Geocoder.append_child_spec()
-      
+      |> BikeBrigade.MediaStorage.append_child_spec()
+
     # Hook up telemetry to Honeybadger
     BikeBrigade.HoneybadgerTelemetry.attach()
 

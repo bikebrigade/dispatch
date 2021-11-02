@@ -86,9 +86,6 @@ config :phoenix, :plug_init_mode, :runtime
 # Don't run importers
 config :bike_brigade, BikeBrigade.Importers.Runner, start: false
 
-# Don't connect to google
-config :bike_brigade, BikeBrigade.Google, start: false
-
 config :honeybadger,
   environment_name: :dev
 
@@ -132,4 +129,26 @@ case System.get_env("GOOGLE_MAPS_API_KEY") do
   _ ->
     config :bike_brigade, :geocoder,
       adapter: {BikeBrigade.Geocoder.FakeGeocoder, [locations: :from_seeds]}
+end
+
+case System.get_env("GOOGLE_SERVICE_JSON") do
+  json when is_binary(json) and json != "" ->
+    config :bike_brigade, BikeBrigade.Google, credentials: json
+
+    case System.get_env("GOOGLE_STORAGE_BUCKET") do
+      nil ->
+        config :bike_brigade, :media_storage,
+          adapter: BikeBrigade.MediaStorage.LocalMediaStorage,
+          bucket: "bike-brigade-media"
+
+      bucket ->
+        config :bike_brigade, :media_storage,
+          adapter: BikeBrigade.MediaStorage.GoogleMediaStorage,
+          bucket: bucket
+    end
+
+  _no_json ->
+    config :bike_brigade, :media_storage,
+      adapter: BikeBrigade.MediaStorage.FakeMediaStorage,
+      bucket: System.get_env("GOOGLE_STORAGE_BUCKET", "bike-brigade-fake")
 end

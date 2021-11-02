@@ -27,9 +27,6 @@ config :logger, level: :warn
 # Don't run importers
 config :bike_brigade, BikeBrigade.Importers.Runner, start: false
 
-# Don't start google client
-config :bike_brigade, BikeBrigade.Google, start: false
-
 config :honeybadger,
   environment_name: :test
 
@@ -45,3 +42,7 @@ config :bike_brigade, :sms_service,
   status_callback_url: :local
 
 config :bike_brigade, :geocoder, adapter: BikeBrigade.Geocoder.FakeGeocoder
+
+config :bike_brigade, :media_storage,
+  adapter: BikeBrigade.MediaStorage.FakeMediaStorage,
+  bucket: "bike-brigade-public"
