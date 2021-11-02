@@ -23,9 +23,9 @@ defmodule BikeBrigade.Application do
         BikeBrigade.AuthenticationMessenger,
 
         # Send scheduled campaign messgaes
-        BikeBrigade.ScheduledMessenger
       ]
       |> add_child_if_configured(BikeBrigade.Importers.Runner)
+      |> add_child_if_configured(BikeBrigade.ScheduledMessenger)
       |> add_child_if_configured(
         BikeBrigade.Google,
         {Goth, name: BikeBrigade.Google, source: BikeBrigade.Google.source()}
@@ -33,7 +33,7 @@ defmodule BikeBrigade.Application do
       |> BikeBrigade.SlackApi.append_child_spec()
       |> BikeBrigade.SmsService.append_child_spec()
       |> BikeBrigade.Geocoder.append_child_spec()
-      
+
     # Hook up telemetry to Honeybadger
     BikeBrigade.HoneybadgerTelemetry.attach()
 
