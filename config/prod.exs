@@ -17,8 +17,6 @@ config :bike_brigade, :media_storage,
   bucket: "bike-brigade-public",
   adapter: BikeBrigade.MediaStorage.GoogleMediaStorage
 
-config :bike_brigade, BikeBrigade.Google, start: true
-
 # Importers
 config :bike_brigade, BikeBrigade.Importers.Runner,
   start: true,
