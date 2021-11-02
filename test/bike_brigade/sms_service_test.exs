@@ -1,10 +1,11 @@
 defmodule BikeBrigade.SmsServiceTest do
-  use BikeBrigade.DataCase, async: true
+  use BikeBrigade.DataCase, async: false
 
   alias BikeBrigade.SmsService
   alias BikeBrigade.SmsService.FakeSmsService
   alias BikeBrigadeWeb.Router.Helpers, as: Routes
   alias BikeBrigadeWeb.Endpoint
+  alias BikeBrigade.Utils
 
   test "It sends an sms with the configured adapter" do
     sms = fixture(:sms_message)
@@ -83,5 +84,39 @@ defmodule BikeBrigade.SmsServiceTest do
       )
 
     assert message == "timeout"
+  end
+
+  describe "when blocking non-dispatch messages" do
+    setup do
+      cfg = Application.get_env(:bike_brigade, :sms_service)
+      Utils.put_env(:sms_service, :block_non_dispatch_messages, true)
+
+      on_exit(fn ->
+        Application.put_env(:bike_brigade, :sms_service, cfg)
+      end)
+    end
+
+    test "allows messages to be sent to dispatchers" do
+      dispatcher = fixture(:user, %{phone: "+16475551212"})
+
+      message = fixture(:sms_message, %{to: dispatcher.phone})
+
+      assert {:ok, _} = SmsService.send_sms(message)
+    end
+
+    test "disallows messages to be sent to non-dispatchers" do
+      message = fixture(:sms_message)
+
+      error_message = "Sending real SMS messages to non-dispatchers is not allowed here"
+      assert {:error, ^error_message} = SmsService.send_sms(message)
+    end
+  end
+
+  describe "when allowing non-dispatch messages to be sent" do
+    test "allows messages to be sent to non-dispatchers outside" do
+      message = fixture(:sms_message)
+
+      assert {:ok, _} = SmsService.send_sms(message)
+    end
   end
 end

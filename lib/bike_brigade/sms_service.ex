@@ -5,6 +5,7 @@ defmodule BikeBrigade.SmsService do
   alias BikeBrigade.Utils
   alias BikeBrigadeWeb.Router.Helpers, as: Routes
   alias BikeBrigadeWeb.Endpoint
+  alias BikeBrigade.Accounts
 
   @type sid :: String.t()
   @type status :: String.t()
@@ -42,9 +43,23 @@ defmodule BikeBrigade.SmsService do
       end
 
     # Ensure the adapter returns the correct shape
-    case sms_service.send_sms(payload) do
+    block_non_dispatch_messages = Utils.get_env(:sms_service, :block_non_dispatch_messages, false)
+
+    case maybe_send_sms(sms_service, payload, block_non_dispatch_messages) do
       {:ok, %{status: _, sid: _}} = result -> result
       {:error, reason} = result when is_binary(reason) -> result
+    end
+  end
+
+  defp maybe_send_sms(sms_service, payload, false), do: sms_service.send_sms(payload)
+
+  defp maybe_send_sms(sms_service, payload, true) do
+    dispatcher_numbers = Accounts.get_dispatcher_phone_numbers()
+
+    if Keyword.fetch!(payload, :to) in dispatcher_numbers do
+      sms_service.send_sms(payload)
+    else
+      {:error, "Sending real SMS messages to non-dispatchers is not allowed here"}
     end
   end
 
