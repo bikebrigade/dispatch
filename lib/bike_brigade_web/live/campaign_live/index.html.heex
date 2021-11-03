@@ -1,7 +1,12 @@
 <%= if @live_action in [:new, :edit] do %>
  <UI.modal show id={:edit} return_to={Routes.campaign_index_path(@socket, :index)} >
     <:title><%= Atom.to_string(@live_action) |> String.capitalize() %> Campaign</:title>
-    <.live_component module={BikeBrigadeWeb.CampaignLive.FormComponent} id={@campaign.id || :new} action={@live_action} campaign={@campaign} />
+    <.live_component 
+      module={BikeBrigadeWeb.CampaignLive.FormComponent} 
+      id={@campaign.id || :new} 
+      action={@live_action} 
+      campaign={@campaign} 
+      return_to={Routes.campaign_index_path(@socket, :index)}/>
   </UI.modal>
 <% end %>
 <nav class="flex items-center justify-between px-4 py-3 mb-1 border-b-2 border-gray-200" aria-label="Pagination">

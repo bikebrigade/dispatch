@@ -1,7 +1,12 @@
 <%= if @live_action in [:new, :edit] do %>
   <UI.modal show id={:edit} return_to={Routes.user_index_path(@socket, :index)} >
     <:title><%= Atom.to_string(@live_action) |> String.capitalize() %> Dispatcherlive</:title>
-    <.live_component module={BikeBrigadeWeb.UserLive.FormComponent} id={@user.id || :new} action={@live_action} user={@user} />
+    <.live_component 
+      module={BikeBrigadeWeb.UserLive.FormComponent} 
+      id={@user.id || :new} 
+      action={@live_action} 
+      user={@user} 
+      return_to={Routes.user_index_path(@socket, :index)}/>
   </UI.modal>
 <% end %>
 <div class="flex flex-col h-full">
