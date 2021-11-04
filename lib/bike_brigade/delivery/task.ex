@@ -18,6 +18,44 @@ defmodule BikeBrigade.Delivery.Task do
     removed: "removed"
   )
 
+  @fields [
+    :contact_email,
+    :contact_name,
+    :contact_phone,
+    :delivery_date,
+    :delivery_window,
+    :dropoff_address,
+    :dropoff_address2,
+    :dropoff_city,
+    :dropoff_email,
+    :dropoff_location,
+    :dropoff_name,
+    :dropoff_organization,
+    :dropoff_phone,
+    :dropoff_postal,
+    :dropoff_province,
+    :delivery_status,
+    :delivery_status_notes,
+    :onfleet_dropoff_id,
+    :onfleet_pickup_id,
+    :organization_name,
+    :organization_partner,
+    :other_items,
+    :pickup_address,
+    :pickup_address2,
+    :pickup_city,
+    :pickup_country,
+    :pickup_location,
+    :pickup_postal,
+    :pickup_province,
+    :request_type,
+    :rider_notes,
+    :size,
+    :submitted_on,
+    :assigned_rider_id,
+    :campaign_id
+  ]
+
   # TODO we're missing a dropoff_country field :joy:
   schema "tasks" do
     field :contact_email, :string
@@ -95,43 +133,7 @@ defmodule BikeBrigade.Delivery.Task do
 
   def changeset(task, attrs) do
     task
-    |> cast(attrs, [
-      :contact_email,
-      :contact_name,
-      :contact_phone,
-      :delivery_date,
-      :delivery_window,
-      :dropoff_address,
-      :dropoff_address2,
-      :dropoff_city,
-      :dropoff_email,
-      :dropoff_location,
-      :dropoff_name,
-      :dropoff_organization,
-      :dropoff_phone,
-      :dropoff_postal,
-      :dropoff_province,
-      :delivery_status,
-      :delivery_status_notes,
-      :onfleet_dropoff_id,
-      :onfleet_pickup_id,
-      :organization_name,
-      :organization_partner,
-      :other_items,
-      :pickup_address,
-      :pickup_address2,
-      :pickup_city,
-      :pickup_country,
-      :pickup_location,
-      :pickup_postal,
-      :pickup_province,
-      :request_type,
-      :rider_notes,
-      :size,
-      :submitted_on,
-      :assigned_rider_id,
-      :campaign_id
-    ])
+    |> cast(attrs, @fields)
     |> fetch_pickup_location()
     |> fetch_dropoff_location()
     |> validate_required([
@@ -256,5 +258,11 @@ defmodule BikeBrigade.Delivery.Task do
       _ ->
         changeset
     end
+  end
+
+  def fields_for(task) do
+    fields = @fields
+    |> Enum.filter(fn field -> field not in [:submitted_on, :assigned_rider_id, :campaign_id] end)
+    Map.take(task, fields)
   end
 end
