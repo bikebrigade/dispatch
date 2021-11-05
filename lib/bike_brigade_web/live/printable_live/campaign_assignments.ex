@@ -7,17 +7,16 @@ defmodule BikeBrigadeWeb.PrintableLive.CampaignAssignments do
   import BikeBrigadeWeb.PrintableLive.Helpers
 
   @impl true
-  def mount(_params, _session, socket) do
-    {:ok, socket}
+  def mount(_params, session, socket) do
+    {:ok,
+     socket
+     |> assign_defaults(session)}
   end
 
   @impl true
   def handle_params(%{"id" => id}, _url, socket) do
     campaign = Delivery.get_campaign(id)
-
-    tasks =
-      campaign.tasks
-      |> Enum.sort_by(&(&1.assigned_rider && String.downcase(&1.assigned_rider.name)))
+    tasks = campaign.tasks |> Enum.sort_by(&(&1.assigned_rider && String.downcase(&1.assigned_rider.name)))
 
     {:noreply,
      socket

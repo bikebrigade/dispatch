@@ -5,9 +5,10 @@ defmodule BikeBrigadeWeb.UserLive.Index do
   alias BikeBrigade.Accounts.User
 
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(_params, session, socket) do
     {:ok,
      socket
+     |> assign_defaults(session)
      |> assign(:page, :dispatchers)
      |> assign(:users, list_users())}
   end

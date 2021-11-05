@@ -87,7 +87,7 @@
               size={:xsmall}>
                 Resend
               </C.button>
-              <C.button redirect_to={Routes.sms_message_index_path(@socket, :show, rider.id)} color={:secondary} size={:xsmall}>
+              <C.button patch_to={Routes.sms_message_index_path(@socket, :show, rider.id)} color={:secondary} size={:xsmall}>
                 Message
               </C.button>
             </div>

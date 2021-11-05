@@ -56,7 +56,7 @@ defmodule BikeBrigadeWeb.Components.SlideoverComponent do
                   </div>
                 </div>
                 <div class="relative flex-1 px-4 mt-6 sm:px-6">
-                  <.live_component module={@component} {@opts} />
+                  <%= live_component @component, @opts %>
                 </div>
               </div>
             </div>

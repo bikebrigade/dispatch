@@ -10,7 +10,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
   import BikeBrigadeWeb.MessagingHelpers
 
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(_params, session, socket) do
     conversations = Messaging.list_sms_conversations(limit: 10)
     # Show the most recent conversation if we have any
     rider =
@@ -19,7 +19,8 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
         _ -> nil
       end
 
-    socket = socket
+    socket =
+      assign_defaults(socket, session)
       |> assign(:page_title, "Messages")
       |> assign(:page, :messages)
       |> assign(:presence, [])

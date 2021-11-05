@@ -1,13 +1,12 @@
 <%= if @live_action in [:edit] do %>
-  <UI.modal show id={:edit} return_to={Routes.program_show_path(@socket, :show, @program)} >
-    <:title>Edit Program</:title>
-    <.live_component 
-      module={BikeBrigadeWeb.ProgramLive.FormComponent} 
-      id={@program.id} action={@live_action} 
-      program={@program} 
-      return_to={Routes.program_show_path(@socket, :show, @program)}/>
-  </UI.modal>
+  <%= live_modal BikeBrigadeWeb.ProgramLive.FormComponent,
+    id: @program.id,
+    title: @page_title,
+    action: @live_action,
+    program: @program,
+    return_to: Routes.program_show_path(@socket, :show, @program) %>
 <% end %>
+
 <div class="flex items-center justify-between mb-4">
   <h1 class="text-lg font-medium leading-6 text-gray-900">
     <%= @program.name %>
@@ -34,7 +33,7 @@
               Deliveries
             </th>
             <th class="flex justify-end px-3 py-3 border-b border-gray-200 bg-gray-50">
-              <C.button redirect_to={Routes.campaign_index_path(@socket, :new)}>
+              <C.button patch_to={Routes.campaign_index_path(@socket, :new)}>
                 New Campaign
               </C.button>
             </th>
@@ -58,7 +57,7 @@
               <%= campaign.total_tasks %>
             </td>
             <td class="px-6 py-4 text-sm font-medium leading-5 text-right border-b border-gray-200 whitespace-nowrap">
-              <%= live_redirect "Edit", to: Routes.campaign_index_path(@socket, :edit, campaign), class: "text-indigo-600 hover:text-indigo-900" %>
+              <%= live_patch "Edit", to: Routes.campaign_index_path(@socket, :edit, campaign), class: "text-indigo-600 hover:text-indigo-900" %>
               <%= link "Delete", to: "#", phx_click: "delete", phx_value_id: campaign.id, data: [confirm: "Are you sure?"], class: "pl-2 text-indigo-600 hover:text-indigo-900"  %>
             </td>
           </tr>

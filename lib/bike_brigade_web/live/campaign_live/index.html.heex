@@ -1,13 +1,10 @@
 <%= if @live_action in [:new, :edit] do %>
- <UI.modal show id={:edit} return_to={Routes.campaign_index_path(@socket, :index)} >
-    <:title><%= Atom.to_string(@live_action) |> String.capitalize() %> Campaign</:title>
-    <.live_component 
-      module={BikeBrigadeWeb.CampaignLive.FormComponent} 
-      id={@campaign.id || :new} 
-      action={@live_action} 
-      campaign={@campaign} 
-      return_to={Routes.campaign_index_path(@socket, :index)}/>
-  </UI.modal>
+<%= live_modal BikeBrigadeWeb.CampaignLive.FormComponent,
+    id: @campaign.id || :new,
+    title: @page_title,
+    action: @live_action,
+    campaign: @campaign,
+    return_to: Routes.campaign_index_path(@socket, :index) %>
 <% end %>
 <%= if @live_action == :duplicate do %>
   <%= live_modal BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent,
@@ -50,7 +47,7 @@
           <div class="px-4 py-4">
             <div class="flex items-center justify-between">
               <div class="flex items-center space-x-1">
-                <%= live_redirect name(c), to: Routes.campaign_show_path(@socket, :show, c),  class: "link text-sm font-medium" %>
+                <%= live_patch name(c), to: Routes.campaign_show_path(BikeBrigadeWeb.Endpoint, :show, c),  class: "link text-sm font-medium" %>
               </div>
               <div class="flex flex-shrink-0 space-x-2">
                 <C.button size={:xsmall} color={:white} patch_to={Routes.campaign_index_path(@socket, :edit, c)}>

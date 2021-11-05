@@ -50,7 +50,7 @@
         </div>
         <div class="flex-1 h-0 mt-5 overflow-y-auto">
           <nav class="px-2">
-            <.live_component id={:sidebar_movile} module={C.SidebarComponent} page={@page} />
+            <%= live_component C.SidebarComponent, page: @page %>
           </nav>
         </div>
       </div>
@@ -71,7 +71,7 @@
       <div class="flex flex-col flex-1 h-0 mt-5 overflow-y-auto">
         <!-- Sidebar component, swap this element with another sidebar if you like -->
         <nav class="flex-1 px-2 bg-white">
-          <.live_component id={:sidebar} module={C.SidebarComponent} page={@page} />
+          <%= live_component C.SidebarComponent, page: @page %>
         </nav>
       </div>
       <div class="flex flex-col flex-shrink-0 p-4 border-t border-gray-200">
@@ -108,7 +108,7 @@
     <main class="relative z-0 flex-1 max-h-full overflow-y-auto sm:py-6 overscroll-contain px-auto focus:outline-none" tabindex="0">
       <div class="flex flex-col h-full max-h-full mx-auto max-w-7xl">
         <div class="flex flex-col flex-grow-0 h-full max-h-full min-h-0 px-4 overflow-x-visible sm:px-6 md:px-8">
-          <C.flash_component flash={@flash} />
+          <%= live_component C.FlashComponent, flash: @flash %>
           <%= @inner_content %>
         </div>
       </div>
