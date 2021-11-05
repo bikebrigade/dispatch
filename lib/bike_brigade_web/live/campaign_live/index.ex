@@ -11,14 +11,13 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
   import BikeBrigadeWeb.CampaignHelpers
 
   @impl true
-  def mount(_params, session, socket) do
+  def mount(_params, _session, socket) do
     current_week =
       LocalizedDateTime.today()
       |> Date.beginning_of_week()
 
     {:ok,
      socket
-     |> assign_defaults(session)
      |> assign(:page, :campaigns)
      |> assign(:page_title, "Campaigns")
      |> assign(:current_week, current_week)

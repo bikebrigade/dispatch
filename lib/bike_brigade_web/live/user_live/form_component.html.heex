@@ -6,10 +6,6 @@
     phx-target={@myself}
     phx-change="validate"
     phx-submit="save">
-    <h2 class="my-6 text-3xl font-extrabold leading-9 text-center text-gray-900">
-      <%= if @action == :new, do: "Add Dispatcher", else: "Edit Dispatcher" %>
-    </h2>
-
     <div class="mt-2">
       <%= label f, :name, class: "block text-sm font-medium leading-5 text-gray-700" do %>
       Name
@@ -41,7 +37,7 @@
     </div>
 
     <div class="flex justify-end mt-6">
-      <C.button type="submit" phx_disable_with: "Saving...">
+      <C.button type="submit" phx_disable_with="Saving...">
         Save
       </C.button>
     </div>

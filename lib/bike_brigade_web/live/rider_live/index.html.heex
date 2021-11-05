@@ -1,10 +1,13 @@
 <%= if @live_action in [:new, :edit] do %>
-<%= live_modal BikeBrigadeWeb.RiderLive.FormComponent,
-    id: @rider.id || :new,
-    title: @page_title,
-    action: @live_action,
-    rider: @rider,
-    return_to: Routes.rider_index_path(@socket, :index) %>
+ <UI.modal show id={:edit} return_to={Routes.rider_index_path(@socket, :index)} >
+    <:title><%= Atom.to_string(@live_action) |> String.capitalize() %> Rider</:title>
+    <.live_component 
+      module={BikeBrigadeWeb.RiderLive.FormComponent} 
+      id={@rider.id || :new} 
+      action={@live_action} 
+      rider={@rider} 
+      return_to={Routes.rider_index_path(@socket, :index)}/>
+  </UI.modal>
 <% end %>
 
 <div class="flex flex-row max-h-full min-h-0">
@@ -79,7 +82,7 @@
                   <div>
                     <div class="text-sm font-medium leading-5 text-indigo-600 truncate"><%= @selected_rider.name %></div>
                     <div class="mt-2">
-                      <C.button size={:xsmall} patch_to={Routes.sms_message_index_path(@socket, :show, @selected_rider.id)}>
+                      <C.button size={:xsmall} redirect_to={Routes.sms_message_index_path(@socket, :show, @selected_rider.id)}>
                         Message
                       </C.button>
                       <C.button size={:xsmall} patch_to={Routes.rider_index_path(@socket, :edit, @selected_rider.id)}>
@@ -119,7 +122,7 @@
       </div>
       <% end %>
       <div class="px-4 py-5 sm:p-6" style="height: 80vh">
-        <%= live_component BikeBrigadeWeb.RiderLive.MapComponent, id: :map, riders: @riders, selected_rider: @selected_rider, located_place: @located_place, lat: 43.653960, lng: -79.425820  %>
+        <.live_component module={MapComponent} id={:map} riders={@riders} selected_rider={@selected_rider} located_place={@located_place} lat={43.653960} lng={-79.425820} />
       </div>
     </div>
   </div>

@@ -4,15 +4,11 @@
     phx-target={@myself}
     phx-change="validate"
     phx-submit="save">
-    <h2 class="my-6 text-3xl font-extrabold leading-9 text-center text-gray-900">
-      Add Task
-    </h2>
-    <%= live_component C.FlashComponent, flash: @flash %>
-    <%= if @campaign.program.items == [] do %>
+    <C.flash_component flash={@flash} />    <%= if @campaign.program.items == [] do %>
       <div class="mt-2">
         You'll have to set up the kinds of items that we delivery for <%= @campaign.program.name %> (Meals, Foodshare Boxes, etc) before you can add a task.
         <div class="mt-1">
-          <C.button size={:small} patch_to={Routes.program_index_path(@socket, :edit, @campaign.program)}>
+          <C.button size={:small} redirect_to={Routes.program_index_path(@socket, :edit, @campaign.program)}>
             Set up delivery items
           </C.button>
         </div>
@@ -67,7 +63,7 @@
       </div>
       <%= error_tag g, :item %>
     <% end %>
-    <%= live_patch "Set up program's delivery items", to: Routes.program_index_path(@socket, :edit, @campaign.program.id), class: "text-xs link" %>
+    <%= live_redirect "Set up program's delivery items", to: Routes.program_index_path(@socket, :edit, @campaign.program.id), class: "text-xs link" %>
 
   </div>
 

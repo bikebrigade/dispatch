@@ -90,8 +90,13 @@ defmodule BikeBrigadeWeb do
       import BikeBrigadeWeb.Gettext
       alias BikeBrigadeWeb.Router.Helpers, as: Routes
 
+      # Alias in JS
+      alias Phoenix.LiveView.JS
+
       # Alias in components
       alias BikeBrigadeWeb.Components, as: C
+      alias BikeBrigadeWeb.Components.UI
+
     end
   end
 

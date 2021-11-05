@@ -10,8 +10,8 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
 
   @impl true
   def update(%{campaign: campaign} = assigns, socket) do
-    # reload the task collection cuz we're not updating the message on the main view
-    campaign = Delivery.get_campaign(campaign.id)
+    ## reload the task collection cuz we're not updating the message on the main view
+    #campaign = Delivery.get_campaign(campaign.id)
 
     changeset =
       if campaign.instructions_template do
@@ -27,7 +27,7 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
      |> assign(assigns)
      |> assign(:selected_rider, selected_rider)
      |> assign(:selected_rider_index, 0)
-     |> assign(:campaign, campaign)
+     #|> assign(:campaign, campaign)
      |> assign(:changeset, changeset)}
   end
 

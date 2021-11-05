@@ -1,53 +1,68 @@
 <%= case @live_action do %>
 <% :edit -> %>
-<%= live_modal BikeBrigadeWeb.CampaignLive.FormComponent,
-    id: @campaign.id,
-    title: @page_title,
-    action: @live_action,
-    campaign: @campaign,
-    return_to: Routes.campaign_show_path(@socket, :show, @campaign.id) %>
-<% :messaging -> %>
-<%= live_slideover BikeBrigadeWeb.CampaignLive.MessagingFormComponent,
-  id: :messaging,
-  css: "max-w-4xl",
-  campaign: @campaign,
-  title: "Campaign Messaging",
-  action: @live_action,
-  return_to: Routes.campaign_show_path(@socket, :show, @campaign) %>
+<UI.modal show id={:edit} return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}>
+  <:title><%=@page_title %></:title>
+  <.live_component 
+    module={BikeBrigadeWeb.CampaignLive.FormComponent} 
+    id={@campaign.id} 
+    title={@page_title} 
+    action={@live_action} 
+    campaign={@campaign}
+    return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}/>
+</UI.modal>
 
 <% :add_rider -> %>
-<%= live_modal BikeBrigadeWeb.CampaignLive.AddRiderFormComponent,
-  id: :new_task,
-  campaign: @campaign,
-  title: @page_title,
-  action: @live_action,
-  return_to: Routes.campaign_show_path(@socket, :show, @campaign) %>
+<UI.modal show id={:add_rider} return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}>
+  <:title>Add Rider</:title>
+  <.live_component 
+    module={BikeBrigadeWeb.CampaignLive.AddRiderFormComponent} 
+    id={@campaign.id} 
+    title={@page_title} 
+    action={@live_action} 
+    campaign={@campaign} 
+    return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}/>
+</UI.modal>
 
 <% :new_task -> %>
-<%= live_modal BikeBrigadeWeb.CampaignLive.TaskFormComponent,
-  id: :new_task,
-  campaign: @campaign,
-  title: @page_title,
-  action: :new,
-  task: @form_task,
-  return_to: Routes.campaign_show_path(@socket, :show, @campaign) %>
+<UI.modal show id={:new_task} return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}>
+  <:title>Add Task</:title>
+  <.live_component 
+    module={BikeBrigadeWeb.CampaignLive.TaskFormComponent} 
+    id={@campaign.id} 
+    campaign={@campaign} 
+    task={@form_task}
+    return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}/>
+</UI.modal>
 
 <% :edit_task -> %>
-<%= live_modal BikeBrigadeWeb.CampaignLive.TaskFormComponent,
-  id: :new_task,
-  campaign: @campaign,
-  title: @page_title,
-  action: :edit,
-  task: @form_task,
-  return_to: Routes.campaign_show_path(@socket, :show, @campaign) %>
+<UI.modal show id={:new_task} return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}>
+  <:title>Edit Task</:title>
+  <.live_component 
+    module={BikeBrigadeWeb.CampaignLive.TaskFormComponent} 
+    id={@campaign.id} 
+    campaign={@campaign} 
+    task={@form_task}
+    return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}/>
+</UI.modal>
 
+<% :messaging -> %>
+<UI.slideover id={:messaging} return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)} wide>
+  <:title>
+    Campaign Messaging
+  </:title>
+  <.live_component 
+  module={BikeBrigadeWeb.CampaignLive.MessagingFormComponent} 
+  id={@campaign.id} 
+  campaign={@campaign}
+  return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)} />
+</UI.slideover>
 <% _ -> %>
 <%# do nothing here%>
 
 <% end %>
 <div class="flex flex-col border-">
   <div class="flex flex-row items-center">
-    <C.button patch_to={Routes.campaign_show_path(@socket, :messaging, @campaign)} class="mr-3" do %>
+    <C.button patch_to={Routes.campaign_show_path(@socket, :messaging, @campaign.id)} class="mr-3">
       <%= Heroicons.Outline.chat_alt_2(class: "w-5 h-5 mr-2 -ml-1") %>
       Messaging
     </C.button>
@@ -81,7 +96,7 @@
       </ul>
     </div>
     <div class="flex justify-end w-full">
-      <C.button patch_to={ Routes.campaign_show_path(@socket, :edit, @campaign.id) }>
+      <C.button phx-click={UI.show_modal(:edit)} patch_to={ Routes.campaign_show_path(@socket, :edit, @campaign.id) }>
         Edit
       </C.button>
     </div>
@@ -94,15 +109,15 @@
     </div>
   <div class="flex flex-row space-x-2">
     <div class="w-3/12 h-screen px-2 py-3 bg-white shadow sm:rounded-lg">
-      <%= live_component TasksListComponent, id: :tasks_list, campaign: @campaign, tasks_query: @tasks_query, selected_task: @selected_task, selected_rider: @selected_rider %>
+      <.live_component module={TasksListComponent} id={:tasks_list} campaign={@campaign} tasks_query={@tasks_query} selected_task={@selected_task} selected_rider={@selected_rider} />
     </div>
     <div class="w-6/12 overflow-hidden bg-white shadow sm:rounded-lg">
       <div class="h-screen px-4 py-5 sm:p-6">
-        <%= live_component MapComponent, id: :tasks_map, campaign: @campaign, tasks_query: @tasks_query, riders_query: @riders_query, selected_task: @selected_task, selected_rider: @selected_rider %>
+        <.live_component module={MapComponent} id={:tasks_map} campaign={@campaign} tasks_query={@tasks_query} riders_query={@riders_query} selected_task={@selected_task} selected_rider={@selected_rider} />
       </div>
     </div>
     <div class="w-3/12 h-screen px-2 py-3 bg-white shadow sm:rounded-lg">
-      <%= live_component RidersListComponent, id: :riders_list, campaign: @campaign, riders_query: @riders_query, selected_task: @selected_task, selected_rider: @selected_rider %>
+      <.live_component module={RidersListComponent} id={:riders_list} campaign={@campaign} riders_query={@riders_query} selected_task={@selected_task} selected_rider={@selected_rider} />
     </div>
   </div>
 </div>

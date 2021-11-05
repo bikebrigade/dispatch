@@ -7,10 +7,8 @@ defmodule BikeBrigadeWeb.PrintableLive.SafetyCheck do
   import BikeBrigadeWeb.PrintableLive.Helpers
 
   @impl true
-  def mount(_params, session, socket) do
-    {:ok,
-     socket
-     |> assign_defaults(session)}
+  def mount(_params, _session, socket) do
+    {:ok, socket}
   end
 
   @impl true
