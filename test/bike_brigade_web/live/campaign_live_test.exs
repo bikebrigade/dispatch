@@ -20,7 +20,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
       |> element("##{campaign.id} a", "#{campaign.name}")
       |> render_click()
 
-      assert_patched(view, "/campaigns/#{campaign.id}")
+      assert_redirected(view, "/campaigns/#{campaign.id}")
     end
   end
 
