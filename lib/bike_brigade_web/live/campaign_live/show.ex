@@ -8,15 +8,15 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   alias BikeBrigade.Delivery.{Campaign, Task, CampaignRider}
   alias BikeBrigade.Riders.Rider
 
-
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(_params, session, socket) do
     if connected?(socket) do
       Delivery.subscribe()
     end
 
     {:ok,
      socket
+     |> assign_defaults(session)
      |> assign(:page, :campaigns)}
   end
 

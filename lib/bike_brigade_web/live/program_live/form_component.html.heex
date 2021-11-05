@@ -1,5 +1,7 @@
 <div>
-<C.flash_component flash={@flash} />
+<h2><%= @title %></h2>
+<%= live_component C.FlashComponent, flash: @flash %>
+
 <.form let={c} for={@changeset}
   id="user-form"
   phx-target={@myself}
@@ -40,10 +42,13 @@
     <%= label f, :start_date, class: "block text-sm font-medium leading-5 text-gray-700" do %>
       Start Date
     <% end %>
-    <div class="mt-1 rounded-md shadow-sm">
-      <%= date_input f, :start_date,
+    <div class="relative mt-1 rounded-md shadow-sm" phx-update="append">
+      <%= hidden_input f, :start_date, data_config: ~s({"altInput": true, "altFormat": "D j M Y"}), phx_hook: "DatePicker",
         placeholder: "YYYY-MM-DD",
         class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+      <div class="absolute top-0 right-0 px-3 py-2">
+        <%= Heroicons.Outline.calendar(class: "w-6 h-6 text-gray-400") %>
+      </div>
     </div>
     <%= error_tag f, :start_date %>
   </div>
@@ -55,11 +60,17 @@
     <%= for {s, i} <- Enum.with_index(inputs_for c, :schedules) do  %>
       <div class="flex mt-1">
         <%= select s, :weekday, Ecto.Enum.values(ProgramForm.Schedule, :weekday), class: "capitalize block w-32 px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
-        <div class="ml-2">
-          <%= time_input s, :start_time, required: true, phx_debounce: "blur", class: "block w-32 px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+        <div id={"container:#{input_id(s, :start_time)}"} class="relative ml-2 cursor-pointer" phx-update="append" phx-hook="DatePicker" data-config='{"enableTime": true, "noCalendar": true, "wrap": true, "altInput": true, "altFormat": "h:i K"}'>
+          <%= hidden_input s, :start_time, required: true, data_input: true, phx_debounce: "blur", class: "block w-32 px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+          <div class="absolute top-0 right-0 px-3 py-2">
+            <%= Heroicons.Outline.clock(class: "w-6 h-6 text-gray-400") %>
+          </div>
         </div>
-        <div class="ml-2">
-          <%= time_input s, :end_time, required: true, phx_debounce: "blur", class: "block w-32 px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+        <div id={"container:#{input_id(s, :end_time)}"} class="relative ml-2 cursor-pointer" phx-update="append" phx-hook="DatePicker" data-config='{"enableTime": true, "noCalendar": true, "wrap": true, "altInput": true, "altFormat": "h:i K"}'>
+          <%= hidden_input s, :end_time, required: true, data_input: true, phx_debounce: "blur", class: "block w-32 px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+          <div data-toggle class="absolute top-0 right-0 px-3 py-2">
+            <%= Heroicons.Outline.clock(class: "w-6 h-6 text-gray-400") %>
+          </div>
         </div>
         <div class="justify-center ml-auto">
           <C.button color={:clear} size={:xxsmall} phx-click="remove-schedule" phx-value-index={i} phx-target={@myself} type="button">
@@ -159,7 +170,10 @@
       Program Lead
     <% end %>
       <div class="mt-1 rounded-md shadow-sm">
-      <.live_component module={C.UserSelectionComponent} id={:select_user} selected_user_id={@program.lead_id} input_name={input_name(f, :lead_id)} />
+      <%= live_component C.UserSelectionComponent, id: :select_user, selected_user_id: @program.lead_id do %>
+        <% user_id -> %>
+          <input type="hidden" name={input_name(f, :lead_id)} value={user_id} />
+      <% end %>
     </div>
   </div>
 

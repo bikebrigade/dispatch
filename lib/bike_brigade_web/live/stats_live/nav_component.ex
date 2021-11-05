@@ -14,12 +14,12 @@ defmodule BikeBrigadeWeb.StatsLive.NavComponent do
     ~H"""
     <div class="border-b border-gray-200">
       <nav class="flex -mb-px space-x-4" aria-label="Tabs">
-        <%= live_redirect to: Routes.stats_dashboard_path(@socket, :show), class: @class.(:dashboard) do %>
+        <%= live_patch to: Routes.stats_dashboard_path(@socket, :show), class: @class.(:dashboard) do %>
           <%= Heroicons.Solid.chart_pie(class: @svg_class.(:dashboard)) %>
           <span>Dashboard</span>
         <% end %>
 
-        <%= live_redirect to: Routes.stats_leaderboard_path(@socket, :show), class: @class.(:leaderboard) do %>
+        <%= live_patch to: Routes.stats_leaderboard_path(@socket, :show), class: @class.(:leaderboard) do %>
           <%= Heroicons.Solid.user_group(class:  @svg_class.(:leaderboard)) %>
           <span>Leaderboard</span>
         <% end %>

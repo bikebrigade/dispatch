@@ -1,4 +1,4 @@
-<.live_component id={:nav} module={NavComponent} tab={:leaderboard} />
+<%= live_component NavComponent, tab: :leaderboard %>
 <div class="flex flex-col mt-8">
   <.form
     let={f}
@@ -27,25 +27,35 @@
         </span>
       </div>
       <%= if @options.period == :select do %>
-        <div class="flex items-end space-x-1">
+        <div class="flex items-end space-x-1" phx_update="ignore">
           <div class="w-45">
             <%= label f, :start_date, class: "block mb-1 text-sm font-bold text-gray-700" do %>
               Start Date
             <% end %>
-            <%= date_input f, :start_date,
-              class: "w-full py-2.5 pl-4 pr-4 text-sm font-medium leading-none text-gray-600 rounded-lg shadow-sm focus:outline-none focus:shadow-outline cursor-pointer" %>
+            <div class="relative">
+              <%= text_input f, :start_date, phx_hook: "DateRangePicker", data_second_input: "##{input_id(f, :end_date)}",
+                class: "w-full py-2.5 pl-4 pr-4 text-sm font-medium leading-none text-gray-600 rounded-lg shadow-sm focus:outline-none focus:shadow-outline cursor-pointer" %>
+              <div class="absolute top-0 right-0 px-3 py-2">
+                <%= Heroicons.Outline.calendar(class: "w-6 h-6 text-gray-400") %>
+              </div>
+            </div>
             <%= error_tag f, :start_date %>
           </div>
           <div class="w-45">
             <%= label f, :end_date, class: "block mb-1 text-sm font-bold text-gray-700" do %>
               End Date
             <% end %>
-            <%= date_input f, :end_date,
-              class: "w-full py-2.5 pl-4 pr-4 text-sm font-medium leading-none text-gray-600 rounded-lg shadow-sm focus:outline-none focus:shadow-outline cursor-pointer" %>    
+            <div class="relative">
+              <%= text_input f, :end_date,
+                class: "w-full py-2.5 pl-4 pr-4 text-sm font-medium leading-none text-gray-600 rounded-lg shadow-sm focus:outline-none focus:shadow-outline cursor-pointer" %>
+              <div class="absolute top-0 right-0 px-3 py-2">
+                <%= Heroicons.Outline.calendar(class: "w-6 h-6 text-gray-400") %>
+              </div>
+            </div>
             <%= error_tag f, :end_date %>
           </div>
         </div>
-        <C.button target="_blank" href={download_path(@options)}>Download</C.button>
+        <C.button target="_blank" href={download_path(@options)}">Download</C.button>
       <% else %>
        <C.button target="_blank" href={download_path(@options)}>Download</C.button>
       <% end %>
@@ -61,7 +71,7 @@
               <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                 <div class="inline-flex align-top">
                   Name
-                  <.sort_icon field={:rider_name} options={@options} />
+                  <%= sort_icon(:rider_name, @options) %>
                 </div>
               </th>
               <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase ">
@@ -70,19 +80,19 @@
               <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase ">
                 <div class="inline-flex align-baseline">
                   Campaigns
-                  <.sort_icon field={:campaigns} options={@options} />
+                  <%= sort_icon(:campaigns, @options) %>
                 </div>
               </th>
               <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase ">
                 <div class="inline-flex">
                   Deliveries
-                  <.sort_icon field={:deliveries} options={@options} />
+                  <%= sort_icon(:deliveries, @options) %>
                 </div>
               </th>
               <th scope="col" class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase ">
                 <div class="inline-flex">
                   Distance
-                  <.sort_icon field={:distance} options={@options} />
+                   <%= sort_icon(:distance, @options) %>
                 </div>
               </th>
               <th scope="col" class="relative px-6 py-3">

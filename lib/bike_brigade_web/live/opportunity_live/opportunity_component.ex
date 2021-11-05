@@ -170,7 +170,7 @@ defmodule BikeBrigadeWeb.OpportunityLive.OpportunityComponent do
               class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" %>
           </td>
           <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
-            <%= live_redirect to: Routes.program_show_path(@socket, :show, @opportunity.program), class: "link" do %>
+            <%= live_patch to: Routes.program_show_path(@socket, :show, @opportunity.program), class: "link" do %>
               <%= @opportunity.program.name %>
             <% end %>
           </td>
