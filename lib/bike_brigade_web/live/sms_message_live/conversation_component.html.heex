@@ -90,7 +90,7 @@
                                         <a href={Routes.campaign_show_path(@socket, :show, message.campaign_id)} class="text-xs font-semibold link">
                                            <%= Messaging.campaign_name(message) %>
                                         </a>
-                                    <% message.sent_by_user -> %>
+                                    <% message.sent_by_user_id -> %>
                                         <div class="text-xs font-semibold">
                                             Sent by <%= Messaging.sent_by_user_name(message) %>
                                         </div>
