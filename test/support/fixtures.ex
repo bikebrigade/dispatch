@@ -16,6 +16,24 @@ defmodule BikeBrigade.Fixtures do
     user
   end
 
+  def fixture(:program, attrs) do
+    {:ok, program} =
+      %{
+        name: "program",
+        start_date: DateTime.utc_now()
+      }
+      |> Map.merge(attrs)
+      |> Delivery.create_program()
+
+    {:ok, _item} =
+      fake_item()
+      |> Map.merge(%{program_id: program.id})
+      |> Delivery.create_item()
+
+    program
+    |> Repo.preload(:items)
+  end
+
   def fixture(:campaign, attrs) do
     {:ok, campaign} =
       %{
@@ -86,7 +104,7 @@ defmodule BikeBrigade.Fixtures do
       country: "Canada"
     })
   end
-  
+
   def fixture(:sms_message, attrs) do
     defaults = %{
       incoming: true,
@@ -127,5 +145,14 @@ defmodule BikeBrigade.Fixtures do
 
   defp random_float(a, b) do
     a + :rand.uniform() * (b - a)
+  end
+
+  defp fake_item() do
+    %{
+      name: "Foodshare Box",
+      plural: "Foodshare Boxes",
+      description: "a box",
+      category: "Foodshare Box"
+    }
   end
 end

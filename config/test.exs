@@ -19,7 +19,7 @@ config :bike_brigade, BikeBrigade.Repo,
 config :bike_brigade, BikeBrigadeWeb.Endpoint,
   http: [port: 4002],
   server: false,
-  static_url: [path: "/"]
+  static_url: [path: "/static"]
 
 # Print only warnings and errors during test
 config :logger, level: :warn
@@ -44,4 +44,4 @@ config :bike_brigade, :sms_service,
   adapter: BikeBrigade.SmsService.FakeSmsService,
   status_callback_url: :local
 
-config :bike_brigade, :geocoder, adapter: BikeBrigade.Geocoder.FakeGeocoder
+config :bike_brigade, :geocoder, adapter: {BikeBrigade.Geocoder.FakeGeocoder, [locations: :from_seeds]}
