@@ -244,6 +244,10 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   def handle_info({:task_updated, updated_task}, socket)
       when belongs_to_campaign?(socket.assigns.campaign, updated_task) do
     %{campaign: campaign, selected_task: selected_task} = socket.assigns
+    # TODO this should be as helper in the delivery.ex context?
+    updated_task =
+      updated_task
+      |> BikeBrigade.Repo.preload(task_items: [:item])
 
     campaign =
       campaign
