@@ -183,7 +183,7 @@ defmodule BikeBrigadeWeb.OpportunityLive.OpportunityComponent do
           </td>
           <td class="px-6 py-4 text-sm leading-5 text-gray-500 break-all border-b border-gray-200">
             <a href={@opportunity.signup_link} class="link">
-              <span class="lg:hidden"><%= Heroicons.Outline.link(aria_label: "Pickup Time" , class: "flex-shrink-0 mr-1.5 h-5 w-5" ) %></span>
+              <span class="lg:hidden"><%= Heroicons.Outline.link(aria_label: "Link to signup" , class: "flex-shrink-0 mr-1.5 h-5 w-5" ) %></span>
               <span class="hidden text-xs lg:inline"><%= @opportunity.signup_link %></span>
             </a>
           </td>
