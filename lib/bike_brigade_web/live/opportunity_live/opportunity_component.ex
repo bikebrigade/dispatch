@@ -185,11 +185,7 @@ defmodule BikeBrigadeWeb.OpportunityLive.OpportunityComponent do
             <a href={@opportunity.signup_link} class="link"><%= @opportunity.signup_link %></a>
           </td>
           <td class="px-6 py-4 text-sm leading-5 text-gray-500 break-all border-b border-gray-200 whitespace-nowrap">
-            <%= if @opportunity.program.lead do %>
-              <%= @opportunity.program.lead.name %>
-            <% else %>
-              Not set
-            <% end %>
+            <%= program_lead_name(@opportunity) %>
           </td>
           <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
             <.check_mark value={@opportunity.published} />
@@ -264,5 +260,17 @@ defmodule BikeBrigadeWeb.OpportunityLive.OpportunityComponent do
       end
 
     [{"", nil} | programs]
+  end
+
+  defp program_lead_name(opportunity) do
+    # TODO: move this into an opportunity context
+    opportunity = opportunity
+    |> BikeBrigade.Repo.preload(program: [:lead])
+
+    if opportunity.program.lead do
+      opportunity.program.lead.name
+    else
+      "Not set"
+    end
   end
 end
