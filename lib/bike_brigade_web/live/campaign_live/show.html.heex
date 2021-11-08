@@ -31,6 +31,7 @@
     id={@campaign.id} 
     campaign={@campaign} 
     task={@form_task}
+    action={:new}
     return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}/>
 </UI.modal>
 
@@ -42,6 +43,7 @@
     id={@campaign.id} 
     campaign={@campaign} 
     task={@form_task}
+    action={:edit}
     return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}/>
 </UI.modal>
 
