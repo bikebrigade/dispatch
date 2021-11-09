@@ -3,33 +3,6 @@ defmodule BikeBrigadeWeb.LiveHelpers do
 
   alias BikeBrigade.LocalizedDateTime
 
-  @doc """
-  Renders a component inside the `BikeBrigadeWeb.Components.ModalComponent` component.
-
-  The rendered modal receives a `:return_to` option to properly update
-  the URL when the modal is closed.
-
-  ## Examples
-
-      <%= live_modal BikeBrigadeWeb.RiderLive.FormComponent,
-        id: @rider.id || :new,
-        action: @live_action,
-        rider: @rider,
-        return_to: Routes.rider_index_path(@socket, :index) %>
-  """
-  def live_modal(component, opts) do
-    path = Keyword.fetch!(opts, :return_to)
-    modal_opts = [id: :modal, return_to: path, component: component, opts: opts]
-    live_component(BikeBrigadeWeb.Components.ModalComponent, modal_opts)
-  end
-
-  def live_slideover(component, opts) do
-    path = Keyword.fetch!(opts, :return_to)
-    title = Keyword.fetch!(opts, :title)
-    modal_opts = [id: :modal, title: title, return_to: path, component: component, opts: opts]
-    live_component(BikeBrigadeWeb.Components.SlideoverComponent, modal_opts)
-  end
-
   def gravatar(email) do
     hash =
       email
