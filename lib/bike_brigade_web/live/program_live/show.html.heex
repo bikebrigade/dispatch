@@ -1,10 +1,10 @@
 <%= if @live_action in [:edit] do %>
   <UI.modal show id={:edit} return_to={Routes.program_show_path(@socket, :show, @program)} >
     <:title>Edit Program</:title>
-    <.live_component 
-      module={BikeBrigadeWeb.ProgramLive.FormComponent} 
-      id={@program.id} action={@live_action} 
-      program={@program} 
+    <.live_component
+      module={BikeBrigadeWeb.ProgramLive.FormComponent}
+      id={@program.id} action={@live_action}
+      program={@program}
       return_to={Routes.program_show_path(@socket, :show, @program)}/>
   </UI.modal>
 <% end %>
