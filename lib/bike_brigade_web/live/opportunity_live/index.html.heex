@@ -2,10 +2,10 @@
   <%= if Enum.count(@selected) != 0 do %>
   <div class="my-2">
    <C.button size={:xsmall} color={:white} phx_click="update-selected", phx-value-action="publish"}>
-      ✅ Publish Selected
+      <%= Heroicons.Outline.check_circle(class: "flex-shrink-0 w-6 h-6 mx-1 text-green-500 justify-self-end") %> Publish Selected
     </C.button>
     <C.button size={:xsmall} color={:white} phx_click="update-selected" phx-value-action="unpublish"}>
-      ❌ Unpublish Selected
+      <%= Heroicons.Outline.x_circle(class: "flex-shrink-0 w-6 h-6 mx-1 text-red-500 justify-self-end") %> Unpublish Selected
     </C.button>
   </div>
   <% end %>
@@ -30,7 +30,7 @@
               <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                 Time
               </th>
-              <th class="w-1/2 px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+              <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 xl:w-1/2 bg-gray-50">
                 Link
               </th>
               <th class="w-1/6 px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
