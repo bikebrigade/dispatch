@@ -1,12 +1,12 @@
-{ pkgs ? import <nixpkgs> {} }:
+{ sources ? import ./nix/sources.nix { }, pkgs ? import sources.nixpkgs { } }:
 with pkgs;
 let
   inherit (lib) optional optionals;
 
   basePackages =
     [ git libxml2 openssl zlib curl libiconv docker-compose postgresql_12 ]
-    ++ optional stdenv.isLinux inotify-tools
-    ++ optionals stdenv.isDarwin (with darwin.apple_sdk.frameworks; [
+    ++ optional stdenv.isLinux inotify-tools ++ optionals stdenv.isDarwin
+    (with darwin.apple_sdk.frameworks; [
       # For file_system on macOS.
       CoreFoundation
       CoreServices

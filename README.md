@@ -26,6 +26,17 @@ iex -S mix phx.server
 
 Note: if you want the Elixir language server to be accessible to your editor, you will have to lauch your editor from within the `nix-shell`, or do some [direnv](https://github.com/direnv/direnv/) or [lorri](https://github.com/target/lorri) magic.
 
+### Updating nix dependencies
+[niv](https://github.com/nmattia/niv) is used to ensure everyone is using the same version of nixpkgs.
+To update the nixpkgs version run:
+
+```
+nix-shell -p niv
+niv update
+```
+
+You can then commit the changes.
+
 ## Deploying
 
 ### Staging
