@@ -39,7 +39,9 @@ defmodule BikeBrigadeWeb.Components.UI do
               From: "translate-x-0"
               To: "translate-x-full"
           -->
-          <div class={"w-screen #{width_css} slideover-panel"}>
+          <div class={"w-screen #{width_css} slideover-panel"}
+              phx-window-keydown={hide_slideover(@id)} phx-key="escape"
+              phx-click-away={hide_slideover(@id)}>
             <div class="flex flex-col h-full py-6 overflow-y-scroll bg-white shadow-xl">
               <div class="px-4 sm:px-6">
                 <div class="flex items-start justify-between">
