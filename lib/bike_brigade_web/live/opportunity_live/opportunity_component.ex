@@ -181,9 +181,9 @@ defmodule BikeBrigadeWeb.OpportunityLive.OpportunityComponent do
             <%= just_time(@opportunity.delivery_start) %>-
             <%= just_time(@opportunity.delivery_end) %>
           </td>
-          <td class="px-6 py-4 text-sm leading-5 text-gray-500 break-all border-b border-gray-200">
-            <a href={@opportunity.signup_link} class="link">
-              <span class="xl:hidden"><%= Heroicons.Outline.link(aria_label: "Link to signup" , class: "flex-shrink-0 mr-1.5 h-5 w-5" ) %></span>
+          <td class="px-6 py-4 text-sm leading-5 text-center text-gray-500 break-all border-b border-gray-200 xl:text-left">
+            <a href={@opportunity.signup_link} class="inline-block link">
+              <span class="xl:hidden"><%= Heroicons.Outline.link(aria_label: "Link to signup" , class: "flex-shrink-0 w-5" ) %></span>
               <span class="hidden text-xs xl:inline"><%= @opportunity.signup_link %></span>
             </a>
           </td>
