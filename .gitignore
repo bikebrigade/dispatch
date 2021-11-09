@@ -47,3 +47,4 @@ config/google-service-account.json
 
 # Local path for BikeBrigade.MediaStorage.LocalMediaStorage to store it's files
 /priv/static/images/media_bucket/
+/screenshots/
