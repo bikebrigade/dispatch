@@ -53,7 +53,7 @@ defmodule BikeBrigadeWeb.Components.ModalComponent do
               <%= Heroicons.Outline.x(class: "w-6 h-6") %>
             <% end %>
           </div>
-          <%= live_component @component, @opts %>
+          <.live_component module={@component} {@opts} />
         </div>
       </div>
     </div>

@@ -3,6 +3,8 @@ defmodule BikeBrigadeWeb.CampaignLive.MapComponent do
 
   import BikeBrigadeWeb.CampaignHelpers
 
+  alias BikeBrigadeWeb.CampaignLive.RiderMarkerComponent
+
   @impl true
   def update(assigns, socket) do
     %{campaign: campaign, tasks_query: tasks_query, riders_query: riders_query} = assigns
@@ -30,7 +32,7 @@ defmodule BikeBrigadeWeb.CampaignLive.MapComponent do
 
       <% end %>
       <%= for rider <- @riders_list do %>
-        <%= live_component BikeBrigadeWeb.CampaignLive.RiderMarkerComponent, id: rider.id, rider: rider, selected_rider: @selected_rider, selected_task: @selected_task %>
+        <.live_component module={RiderMarkerComponent} id={rider.id} rider={rider} selected_rider={@selected_rider} selected_task={@selected_task} />
       <% end %>
     </leaflet-map>
     """

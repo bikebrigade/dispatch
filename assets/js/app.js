@@ -321,47 +321,6 @@ Hooks.Chart = {
   }
 };
 
-Hooks.DatePicker = {
-  defaultConfig() {
-    return {};
-  },
-  mounted() {
-    let config = this.defaultConfig();
-    if (this.el.dataset.config) {
-      Object.assign(config, JSON.parse(this.el.dataset.config));
-    }
-    this.flatpickr = flatpickr(this.el, config);
-
-    if (this.flatpickr.altInput) {
-      this.flatpickr.altInput.id = `${this.el.id}_alt_input`
-    }
-  },
-  updated() {
-    this.flatpickr.setDate(this.flatpickr.input.value);
-
-    if (this.el.dataset.config) {
-      const config = JSON.parse(this.el.dataset.config);
-      for (const prop in config) {
-        this.flatpickr.set(prop, config[prop])
-      }
-    }
-  },
-  destroyed() {
-    this.flatpickr.destroy();
-  }
-};
-
-Hooks.DateRangePicker = {
-  ...Hooks.DatePicker,
-  ...{
-    defaultConfig() {
-      return {
-        "plugins": [new rangePlugin({ input: this.el.dataset.secondInput})]
-      };
-    }
-  }
-};
-
 Hooks.FrameHook = {
   mounted() {
     const resizeObserver = new ResizeObserver(_entries => {

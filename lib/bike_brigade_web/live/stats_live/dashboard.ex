@@ -6,12 +6,11 @@ defmodule BikeBrigadeWeb.StatsLive.Dashboard do
   alias BikeBrigadeWeb.StatsLive.NavComponent
 
   @impl Phoenix.LiveView
-  def mount(_params, session, socket) do
+  def mount(_params, _session, socket) do
     {total_riders, active_riders} = Stats.rider_counts()
 
     {:ok,
      socket
-     |> assign_defaults(session)
      |> assign(:page, :stats)
      |> assign(:page_title, "Stats")
      |> assign(:total_riders, total_riders)
