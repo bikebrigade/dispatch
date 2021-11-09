@@ -51,7 +51,11 @@ config :bike_brigade, :sandbox, Ecto.Adapters.SQL.Sandbox
 
 config :wallaby,
   otp_app: :bike_brigade,
-  driver: Wallaby.Chrome,
-  chromedriver: [
-    path: "./tmp/chromedriver"
-  ]
+  driver: Wallaby.Chrome
+
+if System.get_env("IN_NIX_SHELL") do
+  config :wallaby,
+    chromedriver: [
+      path: "./tmp/chromedriver"
+    ]
+end
