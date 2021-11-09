@@ -8,8 +8,7 @@ defmodule BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent do
   def render(assigns) do
     ~H"""
       <div>
-      <h2>Duplicate campaign</h2>
-      <%= live_component C.FlashComponent, flash: @flash %>
+      <C.flash_component flash={@flash} />
       <.form
         let={f}
         for={:duplicate_form}
