@@ -23,7 +23,7 @@
       <ul class="flex-1 overflow-y-auto scrolling-touch " id="rider-list">
         <%= for rider <- @riders do %>
         <li id={"rider-list-#{rider.id}"}>
-          <a phx-click="select-rider" phx-value-id={ rider.id } href="#" class={"block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50 #{if @selected_rider && @selected_rider.id == rider.id, do: "bg-gray-100", else: ""}"}>
+          <a href={Routes.rider_show_path(@socket, :show, rider)} class={"block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50 #{if @selected_rider && @selected_rider.id == rider.id, do: "bg-gray-100", else: ""}"}>
             <div class="flex items-center px-4 py-4 sm:px-6">
               <div class="flex items-center flex-1 min-w-0">
                 <div class="flex-1 min-w-0 px-4 ">
