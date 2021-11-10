@@ -15,7 +15,7 @@ defmodule BikeBrigadeWeb.ConnCase do
   this option is not recommended for other databases.
   """
 
-  import BikeBrigade.Fixtures, only: [fixture: 1]
+  import BikeBrigade.Fixtures, only: [fixture: 1, fixture: 2]
 
   use ExUnit.CaseTemplate
 
@@ -50,15 +50,15 @@ defmodule BikeBrigadeWeb.ConnCase do
   end
 
   def create_campaign(%{}) do
-    campaign = fixture(:campaign)
-    %{campaign: campaign}
+    program = fixture(:program)
+    campaign = fixture(:campaign, %{program_id: program.id})
+    %{campaign: campaign, program: program}
   end
 
   def create_rider(%{}) do
     rider = fixture(:rider)
     %{rider: rider}
   end
-
 
   defp login_user(conn, user) do
     conn

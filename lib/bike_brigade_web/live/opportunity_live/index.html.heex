@@ -47,9 +47,9 @@
             </tr>
           </thead>
           <tbody class="bg-white">
-            <%= live_component OpportunityComponent, id: :new, opportunity: %Opportunity{}%>
+            <.live_component module={OpportunityComponent} id={:new} opportunity={%Opportunity{}} />
             <%= for opportunity <- @opportunities do %>
-              <%= live_component OpportunityComponent, id: opportunity.id, opportunity: opportunity, selected: MapSet.member?(@selected, opportunity.id)%>
+              <.live_component module={OpportunityComponent} id={opportunity.id} opportunity={opportunity} selected={MapSet.member?(@selected, opportunity.id)} />
             <% end %>
           </tbody>
         </table>

@@ -1,4 +1,5 @@
 <div>
+  <C.flash_component flash={@flash} />
   <.form
   let={f}
   for={@changeset}
@@ -6,12 +7,6 @@
   phx-target={@myself}
   phx-change="validate"
   phx-submit="save">
-    <h2 class="my-6 text-3xl font-extrabold leading-9 text-center text-gray-900">
-      <%= if @action == :new, do: "Add Rider", else: "Edit Rider" %>
-    </h2>
-
-    <%= live_component C.FlashComponent, flash: @flash %>
-
     <div class="mt-2">
       <%= label f, :name, class: "block text-sm font-medium leading-5 text-gray-700" do %>
       Name
@@ -85,12 +80,8 @@
       <%= label f, :max_distance, class: "block text-sm font-medium leading-5 text-gray-700" do %>
       Last Safety Check
       <% end %>
-      <div id={"container:#{input_id(f, :last_safety_check)}"}  phx-hook="DatePicker" data-config='{"altInput": true, "altFormat": "D j M Y", "wrap": true}' phx-update="append"
-        class="relative mt-1 rounded-md shadow-sm">
-        <%= hidden_input f, :last_safety_check, required: true, data_input: true, placeholder: "YYYY-MM-DD", phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
-        <div id="last-safety-check-calendar" class="absolute top-0 right-0 px-3 py-2">
-          <%= Heroicons.Outline.calendar(class: "w-6 h-6 text-gray-400") %>
-        </div>
+      <div class="mt-1 rounded-md shadow-sm">
+        <%= date_input f, :last_safety_check, required: true, placeholder: "YYYY-MM-DD", phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
       </div>
       <%= error_tag f, :last_safety_check %>
     </div>
@@ -120,7 +111,7 @@
       <% end %>
     </div>
     <div class="flex justify-end mt-6">
-      <C.button type="submit" phx_disable_with: "Saving...">
+      <C.button type="submit" phx_disable_with="Saving...">
         Save
       </C.button>
     </div>

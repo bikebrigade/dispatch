@@ -2,6 +2,7 @@ defmodule BikeBrigadeWeb.Components.UserSelectionComponent do
   use BikeBrigadeWeb, :live_component
 
   alias BikeBrigade.Accounts
+  Phoenix.LiveView.Helpers
 
   @impl Phoenix.LiveComponent
   def mount(socket) do
@@ -78,7 +79,7 @@ defmodule BikeBrigadeWeb.Components.UserSelectionComponent do
         </div>
       </div>
     </a>
-    <%= render_block @inner_block, @selected_user.id %>
+    <input type="hidden" name={ @input_name } value={ @selected_user.id }>
     <% else %>
     <input phx-keyup="suggest" phx-target={@myself} phx-debounce="50" name="search" type="text"  placeholder="Type to search for users by name" class="block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" />
     <ul id="user-selection-list" class="overflow-y-auto max-h-64">
@@ -110,7 +111,6 @@ defmodule BikeBrigadeWeb.Components.UserSelectionComponent do
         </li>
       <% end %>
     </ul>
-    <%= render_block @inner_block, nil %>
     <% end %>
     </div>
     """

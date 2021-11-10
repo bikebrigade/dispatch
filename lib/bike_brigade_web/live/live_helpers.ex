@@ -1,38 +1,7 @@
 defmodule BikeBrigadeWeb.LiveHelpers do
   import Phoenix.LiveView.Helpers
 
-  import Phoenix.LiveView, [:assign_new / 3]
-
   alias BikeBrigade.LocalizedDateTime
-
-  alias BikeBrigade.Accounts
-
-  @doc """
-  Renders a component inside the `BikeBrigadeWeb.Components.ModalComponent` component.
-
-  The rendered modal receives a `:return_to` option to properly update
-  the URL when the modal is closed.
-
-  ## Examples
-
-      <%= live_modal BikeBrigadeWeb.RiderLive.FormComponent,
-        id: @rider.id || :new,
-        action: @live_action,
-        rider: @rider,
-        return_to: Routes.rider_index_path(@socket, :index) %>
-  """
-  def live_modal(component, opts) do
-    path = Keyword.fetch!(opts, :return_to)
-    modal_opts = [id: :modal, return_to: path, component: component, opts: opts]
-    live_component(BikeBrigadeWeb.Components.ModalComponent, modal_opts)
-  end
-
-  def live_slideover(component, opts) do
-    path = Keyword.fetch!(opts, :return_to)
-    title = Keyword.fetch!(opts, :title)
-    modal_opts = [id: :modal, title: title, return_to: path, component: component, opts: opts]
-    live_component(BikeBrigadeWeb.Components.SlideoverComponent, modal_opts)
-  end
 
   def gravatar(email) do
     hash =
@@ -43,18 +12,6 @@ defmodule BikeBrigadeWeb.LiveHelpers do
       |> Base.encode16(case: :lower)
 
     "https://www.gravatar.com/avatar/#{hash}?s=150&d=identicon"
-  end
-
-  def assign_defaults(socket, %{"user_id" => user_id}) do
-    # can this ever return nil?
-    user = Accounts.get_user(user_id)
-
-    # Set the context for Honeybadger here
-    Honeybadger.context(context: %{user_id: user.id, user_email: user.email})
-
-    socket
-    |> assign_new(:current_user, fn -> user end)
-    |> assign_new(:page_title, fn -> nil end)
   end
 
   def date(datetime) do
