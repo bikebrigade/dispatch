@@ -76,6 +76,11 @@ if config_env() == :prod do
         max_batch_size: 50,
         metadata: [drop: [:hb_breadcrumbs]]
 
+      # Importers
+      config :bike_brigade, BikeBrigade.Importers.Runner,
+        start: true,
+        checkin_url: {:system, "IMPORTER_CHECKIN_URL"}
+
     :staging ->
       _app_name =
         System.get_env("FLY_APP_NAME") ||
