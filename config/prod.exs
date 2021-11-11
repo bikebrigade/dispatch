@@ -17,9 +17,4 @@ config :bike_brigade, :media_storage,
   bucket: "bike-brigade-public",
   adapter: BikeBrigade.MediaStorage.GoogleMediaStorage
 
-# Importers
-config :bike_brigade, BikeBrigade.Importers.Runner,
-  start: true,
-  checkin_url: {:system, "IMPORTER_CHECKIN_URL"}
-
 config :logger, level: :info
