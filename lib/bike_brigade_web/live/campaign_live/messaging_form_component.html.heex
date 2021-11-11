@@ -126,7 +126,11 @@
     <div class="flex items-center w-1/2">
       <%= hidden_inputs_for sm %>
       <div id="schedule-picker" x-show="scheduling" class="mt-1 rounded-md shadow-sm">
-        <%= datetime_local_input sm, :send_at, required: true, data_input: true, placeholder: "YYYY-MM-DD", phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+        <%= if Ecto.Changeset.get_field(sm.source, :send_at) do %>
+          <%= datetime_local_input sm, :send_at, id: "hacky-input-1",  phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+        <% else %>
+          <%= datetime_local_input sm, :send_at, id: "hacky-input-2", value: nil, phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+        <% end %>
       </div>
       <div x-show="!scheduling" class="flex flex-col w-full space-y-0.5 text-sm font-medium text-gray-700">
         <%= if @campaign.latest_message do %>
