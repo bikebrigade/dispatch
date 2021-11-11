@@ -1,5 +1,5 @@
 <%= if @live_action == :new do %>
- <UI.modal show id={:item} return_to={Routes.campaign_index_path(@socket, :index)} >
+ <UI.modal show id={:item} return_to={@current_path} >
     <:title><%= @page_title %></:title>
     <.live_component
       module={BikeBrigadeWeb.SmsMessageLive.FormComponent}
