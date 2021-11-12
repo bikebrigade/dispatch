@@ -169,7 +169,7 @@ defmodule BikeBrigadeWeb.Components.UI do
             <%= live_patch "close", to: @return_to, data: [modal_return: true], class: "hidden" %>
             <button type="button" phx-click={hide_modal(@id)}  class="block text-gray-400 bg-white rounded-md hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
               <span class="sr-only">Close</span>
-              <%= Heroicons.Outline.x(class: "w-6 h-6") %>
+              <Heroicons.Outline.x class="w-6 h-6" />
             </button>
           </div>
           <% end %>

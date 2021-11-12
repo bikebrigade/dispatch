@@ -16,7 +16,7 @@
                         <div class="flex flex-col">
                             <div class="pii"><span><%= @rider.name %></span><span class="ml-1 text-sm text-gray-500">(<%= if @rider.pronouns, do: @rider.pronouns, else: "pronouns unknown" %>)</span></div>
                             <div class="flex inline-flex items-center text-sm text-gray-500 flex-shrink-1">
-                                <%= Heroicons.Outline.phone(class: "w-4 h-4") %>
+                                <Heroicons.Outline.phone class="w-4 h-4" />
                                 <span class="pii"><%= @rider.phone %></span>
                             </div>
                         </div>
@@ -70,11 +70,11 @@
                                             Saved in Drive:
                                             <a href={m.gdrive_folder_url} target="_blank"
                                                 class="ml-1 link">
-                                                <%= Heroicons.Solid.folder_open(class: "w-4 h-4") %>
+                                                <Heroicons.Solid.folder_open class="w-4 h-4" />
                                             </a>
                                             <a href={m.gdrive_url} target="_blank"
                                                 class="ml-1 link">
-                                                <%= Heroicons.Solid.document_download(class: "w-4 h-4") %>
+                                                <Heroicons.Solid.document_download class="w-4 h-4" />
                                             </a>
                                         </div>
                                     <% end %>
@@ -99,15 +99,15 @@
                                     <div class="text-xs text-gray-600">
                                         <%= case message.twilio_status do %>
                                         <% "queued" -> %>
-                                            <%= Heroicons.Solid.dots_horizontal(class: "w-4 h-4") %>
+                                            <Heroicons.Solid.dots_horizontal class="w-4 h-4" />
                                         <% "sent" -> %>
-                                            <%= Heroicons.Solid.arrow_circle_right(class: "w-4 h-4") %>
+                                            <Heroicons.Solid.arrow_circle_right class="w-4 h-4" />
                                         <% "delivered" -> %>
-                                            <%= Heroicons.Solid.check_circle(class: "w-4 h-4") %>
+                                            <Heroicons.Solid.check_circle class="w-4 h-4" />
                                         <% "undelivered" -> %>
-                                            <%= Heroicons.Solid.exclamation_circle(class: "text-red-600 w-4 h-4") %>
+                                            <Heroicons.Solid.exclamation_circle class="text-red-600 w-4 h-4" />
                                         <% "failed" -> %>
-                                            <%= Heroicons.Solid.exclamation_circle(class: "text-red-600 w-4 h-4") %>
+                                            <Heroicons.Solid.exclamation_circle class="text-red-600 w-4 h-4" />
                                         <% _ -> %>
                                         <% end %>
                                     </div>
