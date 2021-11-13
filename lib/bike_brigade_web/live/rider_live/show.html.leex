@@ -9,7 +9,7 @@
             <img class="inline-block rounded-full h-9 w-9" src="https://www.gravatar.com/avatar/1c8811758d51423ed014c1a7b7a9c35c?s=150&amp;d=identicon" alt="">
         </div>
         <div class="">
-            <h1 class="mb-4 text-4xl font-medium leading-none"><%= @rider.name %> <small class="text-sm"><%= @rider.pronouns %></small></h1>
+            <h1 class="mb-4 text-3xl font-medium leading-none sm:text-4xl"><%= @rider.name %> <small class="text-sm"><%= @rider.pronouns %></small></h1>
             <p class="flex flex-col justify-start text-sm leading-6 sm:text-base md:flex-row md:items-center">
                 <span><%= Heroicons.Outline.clipboard_list(aria_label: "Calendar" , class: "flex-shrink-0 sm:mr-1 h-5 w-5 text-gray-400 inline-flex" ) %>Signed up on: <%= @rider.signed_up_on %></span>
                 <span><%= Heroicons.Outline.fire(aria_label: "Fire" , class: "flex-shrink-0 md:ml-4 sm:mr-1 h-5 w-5 text-gray-400 inline-flex" ) %>Latest activity: [date or today]</span>
