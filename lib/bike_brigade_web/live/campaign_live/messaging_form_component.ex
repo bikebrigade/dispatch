@@ -2,6 +2,8 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
   use BikeBrigadeWeb, :live_component
   alias BikeBrigadeWeb.CampaignHelpers
 
+  alias BikeBrigade.LocalizedDateTime
+
   alias BikeBrigade.Messaging
   alias BikeBrigade.Delivery
 
@@ -11,7 +13,7 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
   @impl true
   def update(%{campaign: campaign} = assigns, socket) do
     ## reload the task collection cuz we're not updating the message on the main view
-    #campaign = Delivery.get_campaign(campaign.id)
+    # campaign = Delivery.get_campaign(campaign.id)
 
     changeset =
       if campaign.instructions_template do
@@ -27,7 +29,7 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
      |> assign(assigns)
      |> assign(:selected_rider, selected_rider)
      |> assign(:selected_rider_index, 0)
-     #|> assign(:campaign, campaign)
+     # |> assign(:campaign, campaign)
      |> assign(:changeset, changeset)}
   end
 
@@ -75,7 +77,21 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
   @impl true
   def handle_event("preview", %{"campaign" => campaign_params}, socket) do
     %{campaign: campaign} = socket.assigns
-    IO.inspect campaign_params
+    send_at = campaign_params["scheduled_message"]["send_at"]
+
+    campaign_params =
+      if send_at != "" do
+        localized_send_at =
+          NaiveDateTime.from_iso8601!("#{send_at}:00")
+          |> LocalizedDateTime.localize()
+
+        put_in(
+          campaign_params["scheduled_message"]["send_at"],
+          localized_send_at
+        )
+      else
+        campaign_params
+      end
 
     changeset =
       campaign
@@ -88,9 +104,26 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
   end
 
   def handle_event("save", %{"campaign" => campaign_params}, socket) do
+    send_at = campaign_params["scheduled_message"]["send_at"]
+
+    campaign_params =
+      if send_at != "" do
+        localized_send_at =
+          NaiveDateTime.from_iso8601!("#{send_at}:00")
+          |> LocalizedDateTime.localize()
+
+        put_in(
+          campaign_params["scheduled_message"]["send_at"],
+          localized_send_at
+        )
+      else
+        campaign_params
+      end
+
     case Delivery.update_campaign(socket.assigns.campaign, campaign_params) do
       {:ok, campaign} ->
-        {:noreply, assign(socket, campaign: campaign, changeset:  Delivery.change_campaign(campaign))}
+        {:noreply,
+         assign(socket, campaign: campaign, changeset: Delivery.change_campaign(campaign))}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, changeset: changeset)}
@@ -98,11 +131,11 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
   end
 
   def handle_event("send", _params, socket) do
-
     # Remove schedule
-    {:ok, campaign} = socket.assigns.changeset
-    |> Map.put(:action, :update)
-    |> Delivery.update_campaign(%{"scheduled_message" => nil})
+    {:ok, campaign} =
+      socket.assigns.changeset
+      |> Map.put(:action, :update)
+      |> Delivery.update_campaign(%{"scheduled_message" => nil})
 
     Delivery.send_campaign_messages(campaign)
 
@@ -116,13 +149,13 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
   def handle_event("delete-schedule", _, socket) do
     case Delivery.update_campaign(socket.assigns.campaign, %{"scheduled_message" => nil}) do
       {:ok, campaign} ->
-        {:noreply, assign(socket, campaign: campaign, changeset:  Delivery.change_campaign(campaign))}
+        {:noreply,
+         assign(socket, campaign: campaign, changeset: Delivery.change_campaign(campaign))}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, changeset: changeset)}
     end
   end
-
 
   defp directives do
     ~w(rider_name pickup_address pickup_window task_details task_count directions delivery_details_url)
