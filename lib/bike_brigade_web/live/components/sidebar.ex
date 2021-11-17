@@ -28,7 +28,7 @@ defmodule BikeBrigadeWeb.Components.Sidebar do
       <:icon let={class}>
         <%= Heroicons.Outline.clipboard_list(class: class) %>
       </:icon>
-      Signups
+      Opportunities
     </.sidebar_link>
     <.sidebar_link
       selected={@current_page == :riders}
