@@ -26,7 +26,7 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
       assert_redirected(view, "/programs/#{program.id}")
     end
 
-     # Click on Edit
+    # Click on Edit
 
     test "redirects to edit program", %{conn: conn, program: program} do
       {:ok, view, _html} = live(conn, Routes.program_index_path(conn, :index))
@@ -44,19 +44,57 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
       {:ok, view, html} = live(conn, Routes.program_show_path(conn, :edit, program))
 
       {:ok, view, html} =
-      view
+        view
         |> form("#program-form",
-          program_form: %{program: %{name: "Foodies", campaign_blurb: "Lorem Ipsum is simply dummy text", description: "Food for all foodies", contact_name: "Zizo", contact_email: "zizo@gmail.com"}}
+          program_form: %{
+            program: %{
+              name: "Foodies",
+              campaign_blurb: "Lorem Ipsum is simply dummy text",
+              description: "Food for all foodies",
+              contact_name: "Zizo",
+              contact_email: "zizo@gmail.com"
+            }
+          }
         )
         |> render_submit()
         |> follow_redirect(conn)
 
-        assert html =~ "Foodies"
+      assert html =~ "Foodies"
 
-        updated_program = Delivery.get_program!(program.id) #get the program that had an id of 1
-        assert updated_program.name == "Foodies"
-
+      # get an ID of a program.
+      updated_program = Delivery.get_program!(program.id)
+      assert updated_program.name == "Foodies"
     end
 
+    # New item
+
+    test "can add new item", %{conn: conn, program: program} do
+      {:ok, view, html} = live(conn, Routes.program_show_path(conn, :show, program))
+
+      # Click on New Item
+      view
+      |> element("a", "New item")
+      |> render_click()
+      |> follow_redirect(conn)
+
+      # assert_patched(view, "/programs/#{program.id}/items/new")
+      view
+      |> open_browser()
+
+
+      # {:ok, view, html} =
+      #   view
+      #   |> form("#item-form",
+      #         item: %{
+      #         name: "Food box",
+      #         plural_name: "2758 Yonge St",
+      #         description: "Awesome food box",
+      #         category: "food box"
+      #       }
+      #   )
+      #   |> render_submit()
+
+      # assert html =~ "Food box"
+    end
   end
 end
