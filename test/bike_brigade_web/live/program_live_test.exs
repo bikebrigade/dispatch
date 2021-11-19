@@ -48,7 +48,7 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
         |> form("#program-form",
           program_form: %{
             program: %{
-              name: "Food",
+              name: "Foodies",
               campaign_blurb: "Lorem Ipsum is simply dummy text",
               description: "Food for all foodies",
               contact_name: "Zizo",
@@ -59,7 +59,7 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
         |> render_submit()
         |> follow_redirect(conn)
 
-      assert html =~ "Food"
+      assert html =~ "Foodies"
 
       view
       |> open_browser()
@@ -84,16 +84,15 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
       {:ok, view, html} =
         view
         |> form("#item-form",
-              item: %{
-              name: "good food",
-              plural_name: "Food Hampers",
-              description: "Awesome food hamper",
-              category: "Food Hamper"
-            }
+          item: %{
+            name: "good food",
+            plural_name: "Food Hampers",
+            description: "Awesome food hamper",
+            category: "Food Hamper"
+          }
         )
         |> render_submit()
         |> follow_redirect(conn)
-
     end
   end
 end
