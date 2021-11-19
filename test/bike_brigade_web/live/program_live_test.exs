@@ -69,15 +69,15 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
     # New item
 
     test "can add new item", %{conn: conn, program: program} do
-      {:ok, view, html} = live(conn, Routes.program_show_path(conn, :show, program))
+      {:ok, view, html} = live(conn, Routes.program_index_path(conn, :edit, program))
 
       # Click on New Item
       view
-      |> element("a", "New item")
+      |> element("#program-form a", "New Item")
       |> render_click()
-      |> follow_redirect(conn)
 
-      # assert_patched(view, "/programs/#{program.id}/items/new")
+      assert_patched(view, "/programs/#{program.id}/items/new")
+
       view
       |> open_browser()
 
