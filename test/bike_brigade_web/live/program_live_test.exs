@@ -48,7 +48,7 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
         |> form("#program-form",
           program_form: %{
             program: %{
-              name: "Foodies",
+              name: "Food",
               campaign_blurb: "Lorem Ipsum is simply dummy text",
               description: "Food for all foodies",
               contact_name: "Zizo",
@@ -59,7 +59,10 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
         |> render_submit()
         |> follow_redirect(conn)
 
-      assert html =~ "Foodies"
+      assert html =~ "Food"
+
+      view
+      |> open_browser()
 
       # get an ID of a program.
       updated_program = Delivery.get_program!(program.id)
@@ -78,23 +81,19 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
 
       assert_patched(view, "/programs/#{program.id}/items/new")
 
-      view
-      |> open_browser()
+      {:ok, view, html} =
+        view
+        |> form("#item-form",
+              item: %{
+              name: "good food",
+              plural_name: "Food Hampers",
+              description: "Awesome food hamper",
+              category: "Food Hamper"
+            }
+        )
+        |> render_submit()
+        |> follow_redirect(conn)
 
-
-      # {:ok, view, html} =
-      #   view
-      #   |> form("#item-form",
-      #         item: %{
-      #         name: "Food box",
-      #         plural_name: "2758 Yonge St",
-      #         description: "Awesome food box",
-      #         category: "food box"
-      #       }
-      #   )
-      #   |> render_submit()
-
-      # assert html =~ "Food box"
     end
   end
 end
