@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
+source "$(dirname "$0")/utils.sh"
 
 set -e
 
-if [ "$IN_NIX_SHELL" == "" ]; then
-  nix-shell --run "mix test $@"
-else
-  mix test $@
-fi
+wrap_nix_shell "mix test $@"
