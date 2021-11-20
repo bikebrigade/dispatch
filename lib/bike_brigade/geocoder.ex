@@ -6,7 +6,8 @@ defmodule BikeBrigade.Geocoder do
   @callback lookup(pid, String.t()) :: {:ok, Location.t()} | {:error, any()}
 
   @spec lookup(String.t(), Keyword.t()) :: {:ok, Location.t()} | {:error, any()}
-  def lookup(address, opts \\ []) do
+  def lookup(address, opts \\ [])
+  def lookup(address, opts) when is_binary(address) do
     module = Keyword.get(opts, :module, @geocoder)
     pid = Keyword.get(opts, :pid, module)
 
@@ -19,7 +20,9 @@ defmodule BikeBrigade.Geocoder do
 
     case module.lookup(pid, address) do
       {:ok, location} -> {:ok, location}
-      {:error, :not_found} -> {:error, "unable to geolocate address"}
+      {:error, reason} -> {:error, reason}
     end
   end
+
+  def lookup(nil, opts), do: lookup("", opts)
 end

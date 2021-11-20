@@ -251,8 +251,7 @@ defmodule BikeBrigade.Delivery.Task do
       |> put_change(:dropoff_postal, dropoff_postal)
       |> put_change(:dropoff_province, dropoff_province)
     else
-      {:ok, reason} ->
-        # We aren't getting enough info from the address which means it must be invalid
+      {:error, reason} ->
         add_error(changeset, :dropoff_address, reason)
 
       _ ->
