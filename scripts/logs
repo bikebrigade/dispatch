@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
+source "$(dirname "$0")/utils.sh"
 
 set -e
 
 if [ "$1" == "prod" ]; then
-  flyctl logs
+  wrap_nix_shell "flyctl logs"
 elif [ "$1" == "staging" ]; then
-  flyctl logs -c fly.staging.toml
+  wrap_nix_shell "flyctl logs -c fly.staging.toml"
 else
   echo "usage: scripts/logs <prod|staging>"
 fi
