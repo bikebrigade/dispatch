@@ -1,19 +1,18 @@
-defmodule BikeBrigadeWeb.ProgramLiveTest do  #defining the module
-  use BikeBrigadeWeb.ConnCase                #we are using BikeBrigadeWed.conncase
+defmodule BikeBrigadeWeb.ProgramLiveTest do
+  use BikeBrigadeWeb.ConnCase
 
-  import Phoenix.LiveViewTest                #we are importing Phoenix.LiveViewTest into our file
+  import Phoenix.LiveViewTest
 
-  alias BikeBrigade.Delivery                #We set up an alias for Delivery module so that we can use the module name in line 68
+  alias BikeBrigade.Delivery
 
-  describe "Index" do                       # Function call being called in line 12
-    setup [:create_program, :login]         # is a call back function
+  describe "Index" do
+    setup [:create_program, :login]
 
-    test "lists programs for week programs", %{conn: conn, program: program} do           #this defines a not implemented test a string. program and conn are variables
-      {:ok, index_live, html} = live(conn, Routes.program_index_path(conn, :index))       # this is a function call being made in line 4
-      assert html =~ "Programs"                                                           # thisis the name given when the element of program.name is found
-      assert html =~ program.name                                                         #if the html contain an element of program.name
-                                                                                          #and if it doed give it the name program.
-    end                                                                                   #end of the test
+    test "lists programs for week programs", %{conn: conn, program: program} do
+      {:ok, index_live, html} = live(conn, Routes.program_index_path(conn, :index))
+      assert html =~ "Programs"
+      assert html =~ program.name
+    end
 
     test "redirects to show program", %{conn: conn, program: program} do
       {:ok, view, html} = live(conn, Routes.program_index_path(conn, :index))
