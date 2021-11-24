@@ -24,13 +24,13 @@ defmodule BikeBrigade.Repo.Seeds.Toronto do
   end
 
   def to_location(%{lat: lat, lng: lng, city: city, postal: postal}) do
-    BikeBrigade.Location.new(%{
+    %BikeBrigade.Location{
       lat: lat,
       lon: lng,
       city: city,
       postal: postal,
       province: "Ontario",
       country: "Canada"
-    })
+    }
   end
 end

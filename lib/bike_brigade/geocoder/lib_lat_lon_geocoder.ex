@@ -17,14 +17,14 @@ defmodule BikeBrigade.Geocoder.LibLatLonGeocoder do
          }
        }} ->
         {:ok,
-         Location.new(%{
+         %Location{
            lat: lat,
            lon: lon,
            city: city,
            postal: postal,
            province: province,
            country: country
-         })}
+         }}
 
       {:ok, _} ->
         {:error, "unable to geolocate address"}

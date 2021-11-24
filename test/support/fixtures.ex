@@ -95,14 +95,15 @@ defmodule BikeBrigade.Fixtures do
   end
 
   def fixture(:location, _attrs) do
-    BikeBrigade.Location.new(%{
+    %BikeBrigade.Location{
       lat: random_float(43.633528, 43.772528),
       lon: random_float(-79.548444, -79.232583),
+      address: Faker.Address.street_address(),
       city: "Toronto",
       postal: "H0H 0H0",
       province: "Ontario",
       country: "Canada"
-    })
+    }
   end
 
   def fixture(:sms_message, attrs) do
