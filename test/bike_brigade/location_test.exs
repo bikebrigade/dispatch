@@ -11,4 +11,7 @@ defmodule BikeBrigade.LocationTest do
 
     assert Location.complete(%Location{address: location.address, city: location.city}) == {:ok, location}
   end
+
+  # TODO test merging
+  # TODO test handing of unit
 end

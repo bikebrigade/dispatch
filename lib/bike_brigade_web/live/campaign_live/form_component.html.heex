@@ -51,13 +51,7 @@
   </div>
 
   <div class="my-2">
-    <%= label f, :pickup_address, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-      Pickup Address
-    <% end %>
-    <div class="mt-1 rounded-md shadow-sm">
-      <%= text_input f, :pickup_address, required: true, phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
-    </div>
-    <%= error_tag f, :pickup_address %>
+   <.live_component id={:location} module={LocationComponent} />
   </div>
 
   <div class="my-2">

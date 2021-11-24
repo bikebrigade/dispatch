@@ -30,11 +30,20 @@ defmodule BikeBrigade.Location do
   Fills in missing peices of a location struct using the Geocoder
   """
   @spec complete(__MODULE__.t()) :: {:ok, __MODULE__.t()} | {:error, any()}
-  def complete(%__MODULE__{address: address, city: city, postal: postal}) do
-    [address, city, postal]
-    |> Enum.filter(&(!is_nil(&1) && &1 != ""))
-    |> Enum.join(" ")
-    |> Geocoder.lookup()
+  def complete(%__MODULE__{address: address, city: city, postal: postal} = location) do
+    query =
+      [address, city, postal]
+      |> Enum.filter(&(!is_nil(&1) && &1 != ""))
+      |> Enum.join(" ")
+
+    case Geocoder.lookup(query) do
+      {:ok, complete_location} ->
+        updates = for {k, v} <- Map.from_struct(complete_location), !is_nil(v), do: {k, v}
+        {:ok, struct(location, updates)}
+
+      {:error, error} ->
+        {:error, error}
+    end
   end
 
   @spec set_coords(__MODULE__.t(), number(), number()) :: __MODULE__.t()
