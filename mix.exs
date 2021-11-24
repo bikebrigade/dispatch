@@ -58,7 +58,7 @@ defmodule BikeBrigade.MixProject do
       {:nimble_csv, "~> 0.7.0"},
       {:ex_phone_number, "~> 0.2"},
       {:ecto_enum, "~> 1.4.0"},
-      {:geo_postgis, "~> 3.3.1"},
+      {:geo_postgis, "~> 3.4.0"},
       {:lib_lat_lon, "~> 0.4"},
       {:ex_twilio, "~> 0.9.1"},
       # the author has yet to publish this, but it gives us get list by id: https://github.com/duartejc/mailchimp/pull/20
