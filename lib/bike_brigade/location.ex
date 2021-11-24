@@ -1,4 +1,6 @@
 defmodule BikeBrigade.Location do
+  alias BikeBrigade.Geocoder
+
   defstruct [
     :lat,
     :lon,
@@ -22,4 +24,15 @@ defmodule BikeBrigade.Location do
           unit: String.t(),
           buzzer: String.t()
         }
+
+  @doc """
+  Fills in missing peices of a location struct using the Geocoder
+  """
+  @spec complete(__MODULE__.t()) :: {:ok, __MODULE__.t()} | {:error, any()}
+  def complete(%__MODULE__{address: address, city: city, postal: postal}) do
+    [address, city, postal]
+    |> Enum.filter(&(!is_nil(&1) && &1 != ""))
+    |> Enum.join(" ")
+    |> Geocoder.lookup()
+  end
 end
