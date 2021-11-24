@@ -101,7 +101,7 @@ defmodule BikeBrigade.Delivery.Campaign do
             postal: location_postal,
             province: location_province,
             country: location_country
-          }} <- Geocoder.lookup(address) do
+          }} <- Geocoder.lookup_toronto(address) do
       pickup_location = %Geo.Point{
         coordinates: {lon, lat}
       }
