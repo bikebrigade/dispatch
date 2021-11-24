@@ -1,4 +1,5 @@
 defmodule BikeBrigade.Repo.Seeds.Toronto do
+  alias BikeBrigade.Location
   defmodule LoadAddresses do
     alias NimbleCSV.RFC4180, as: CSV
 
@@ -24,13 +25,11 @@ defmodule BikeBrigade.Repo.Seeds.Toronto do
   end
 
   def to_location(%{lat: lat, lng: lng, city: city, postal: postal}) do
-    %BikeBrigade.Location{
-      lat: lat,
-      lon: lng,
+    %Location{
       city: city,
       postal: postal,
       province: "Ontario",
       country: "Canada"
-    }
+    } |> Location.set_coords(lat, lng)
   end
 end

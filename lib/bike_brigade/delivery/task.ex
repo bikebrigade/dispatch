@@ -159,16 +159,13 @@ defmodule BikeBrigade.Delivery.Task do
          {:changes, address} <- fetch_field(changeset, :pickup_address),
          {:ok,
           %Location{
-            lat: lat,
-            lon: lon,
+            coords: coords,
             city: location_city,
             postal: location_postal,
             province: location_province,
             country: location_country
           }} <- Geocoder.lookup_toronto(address) do
-      pickup_location = %Geo.Point{
-        coordinates: {lon, lat}
-      }
+      pickup_location = coords
 
       pickup_city =
         case fetch_field(changeset, :pickup_city) do
@@ -216,16 +213,13 @@ defmodule BikeBrigade.Delivery.Task do
          {:changes, address} <- fetch_field(changeset, :dropoff_address),
          {:ok,
           %Location{
-            lat: lat,
-            lon: lon,
+            coords: coords,
             city: location_city,
             postal: location_postal,
             province: location_province,
             country: _location_country
           }} <- Geocoder.lookup_toronto(address) do
-      dropoff_location = %Geo.Point{
-        coordinates: {lon, lat}
-      }
+      dropoff_location = coords
 
       dropoff_city =
         case fetch_field(changeset, :dropoff_city) do

@@ -61,14 +61,15 @@ defmodule BikeBrigade.Geocoder.FakeGeocoder do
     |> Enum.into(%{}, fn [address, postal, city, lat, lon] ->
       address = address <> " Toronto"
 
-      location = %Location{
-        lat: lat,
-        lon: lon,
-        city: city,
-        postal: postal,
-        province: "Ontario",
-        country: "Canada"
-      }
+      location =
+        %Location{
+          address: address,
+          city: city,
+          postal: postal,
+          province: "Ontario",
+          country: "Canada"
+        }
+        |> Location.set_coords(lat, lon)
 
       {address, location}
     end)

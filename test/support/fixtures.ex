@@ -1,5 +1,5 @@
 defmodule BikeBrigade.Fixtures do
-  alias BikeBrigade.{Accounts, Delivery, Riders, Messaging, Messaging, Repo}
+  alias BikeBrigade.{Location, Accounts, Delivery, Riders, Messaging, Messaging, Repo}
 
   def fixture(name), do: fixture(name, %{})
 
@@ -95,15 +95,17 @@ defmodule BikeBrigade.Fixtures do
   end
 
   def fixture(:location, _attrs) do
-    %BikeBrigade.Location{
-      lat: random_float(43.633528, 43.772528),
-      lon: random_float(-79.548444, -79.232583),
+    %Location{
       address: Faker.Address.street_address(),
       city: "Toronto",
       postal: "H0H 0H0",
       province: "Ontario",
       country: "Canada"
     }
+    |> Location.set_coords(
+      random_float(43.633528, 43.772528),
+      random_float(-79.548444, -79.232583)
+    )
   end
 
   def fixture(:sms_message, attrs) do
