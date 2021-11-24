@@ -41,29 +41,4 @@ defmodule BikeBrigade.Location do
   def set_coords(location, lat, lon) do
     Map.put(location, :coords, %Geo.Point{coordinates: {lon, lat}, srid: 4326})
   end
-
-  use Ecto.Type
-  def type, do: :map
-
-  def cast(%__MODULE__{} = location) do
-    {:ok, location}
-  end
-
-  def cast(_), do: :error
-
-  def load(data) when is_map(data) do
-    data =
-      for {key, val} <- data do
-        {String.to_existing_atom(key), val}
-      end
-
-    {:ok, struct!(__MODULE__, data)}
-  end
-
-  # def dump(%__MODULE__{} = location), do: {:ok, location}
-  # def dump(_), do: :error
-  def dump(foo) do
-    IO.inspect(foo)
-    foo
-  end
 end

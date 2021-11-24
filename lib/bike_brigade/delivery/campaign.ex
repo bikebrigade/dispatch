@@ -51,6 +51,8 @@ defmodule BikeBrigade.Delivery.Campaign do
     field(:rider_spreadsheet_id, :string)
     field(:rider_spreadsheet_layout, RiderSpreadsheetLayout)
 
+    embeds_one(:location, Location, on_replace: :delete)
+
     belongs_to(:instructions_template, Messaging.Template, on_replace: :update)
     belongs_to(:program, Program)
     has_one(:scheduled_message, Messaging.ScheduledMessage, on_replace: :delete)
@@ -76,6 +78,7 @@ defmodule BikeBrigade.Delivery.Campaign do
     changeset =
       struct
       |> cast(params, @fields)
+      |> put_embed(:location, params[:location])
       |> fetch_pickup_location()
 
     changeset
