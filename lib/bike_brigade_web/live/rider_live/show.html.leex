@@ -1,8 +1,6 @@
 <div class="flex-wrap justify-between mt-5 sm:flex sm:flex-nowrap">
     <div class="mb-5 text-right sm:order-last">
-        <a class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 hover:bg-indigo-700 focus:ring-indigo-500" data-phx-link="patch" data-phx-link-state="push" href="/messages/new">
-            Message
-        </a>
+        <%= link "Message", to: Routes.sms_message_index_path(@socket, :show, @rider.id), class: "inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 hover:bg-indigo-700 focus:ring-indigo-500" %>
     </div>
     <div class="text-sm sm:flex">
         <div class="mb-3 text-center sm:mr-3">
