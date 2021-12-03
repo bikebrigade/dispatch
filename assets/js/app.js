@@ -118,30 +118,30 @@ Hooks.LeafletMap = {
 // Base object for layer callbacks
 const LeafletLayer = {
   mounted() {
-    getMapEl().dispatchEvent(new CustomEvent('layer:created', {
+    withMapEl(el => el.dispatchEvent(new CustomEvent('layer:created', {
       detail: {
         id: this.el.id,
         layer: this.layer()
       }
-    }))
+    })))
   },
 
   updated() {
-    getMapEl().dispatchEvent(new CustomEvent('layer:updated', {
+    withMapEl(el => dispatchEvent(new CustomEvent('layer:updated', {
       detail: {
         id: this.el.id,
         layer: this.layer()
       }
-    }))
+    })))
   },
 
   destroyed() {
-    getMapEl().dispatchEvent(new CustomEvent('layer:destroyed', {
+    withMapEl(el => el.dispatchEvent(new CustomEvent('layer:destroyed', {
       detail: {
         id: this.el.id,
         layer: this.layer()
       }
-    }))
+    })))
   },
 };
 
@@ -211,14 +211,16 @@ Hooks.LeafletCircle = {
   }
 };
 
-function getMapEl() {
-  let els = document.getElementsByTagName('leaflet-map')
+// Call `callback` with mapEl as the argument.
+// `callback` won't be called if `mapEl` isn't found in the DOM
+function withMapEl(callback) {
+  let els = document.getElementsByTagName('leaflet-map');
   if (els.length == 0) {
-    console.error("No leaflet-map elements found!")
+    console.error("No leaflet-map elements found!");
   } else if (els.length > 1) {
-    console.error("Too many leaflet-map elements found!")
+    console.error("Too many leaflet-map elements found!");
   } else {
-    return els[0]
+    return callback(els[0]);
   }
 }
 
