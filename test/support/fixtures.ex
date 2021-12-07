@@ -97,16 +97,14 @@ defmodule BikeBrigade.Fixtures do
 
   def fixture(:location, _attrs) do
     %Location{
-      address: Faker.Address.street_address(),
+      address: "926 College Street",
+      neighborhood: "Palmerston-Little Italy",
       city: "Toronto",
-      postal: "H0H 0H0",
+      postal: "M6H 1A1",
       province: "Ontario",
       country: "Canada"
     }
-    |> Location.set_coords(
-      random_float(43.633528, 43.772528),
-      random_float(-79.548444, -79.232583)
-    )
+    |> Location.set_coords(43.6539952, -79.4258633)
   end
 
   def fixture(:sms_message, attrs) do
