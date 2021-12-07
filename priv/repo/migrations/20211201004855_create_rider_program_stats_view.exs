@@ -19,7 +19,7 @@ defmodule BikeBrigade.Repo.Migrations.CreateRiderProgramStatsView do
     assigned_rider_id, program_id;
   """
 
-  def up do
+  def change do
     execute @view, "drop view rider_program_stats;"
   end
 end
