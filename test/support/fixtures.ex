@@ -40,18 +40,19 @@ defmodule BikeBrigade.Fixtures do
         delivery_start: DateTime.utc_now(),
         delivery_end: DateTime.utc_now() |> DateTime.add(60, :second),
         name: "campaign",
-        pickup_address: "926 College St",
-        pickup_address2: nil,
-        pickup_city: "Toronto",
-        pickup_country: "Canada",
-        pickup_location: %Geo.Point{
-          coordinates: {-79.4258633, 43.6539952},
-          properties: %{},
-          srid: 4326
-        },
-        pickup_postal: "M6H 1A4",
-        pickup_province: "Ontario",
-        pickup_window: "3-4pm"
+        location: %{
+          address: "926 College St",
+          postal: "M6H 1A1",
+          city: "Toronto",
+          province: "Canada",
+          country: "Canada",
+          coords:
+            Jason.encode!(%Geo.Point{
+              coordinates: {-79.4258633, 43.6539952},
+              properties: %{},
+              srid: 4326
+            })
+        }
       }
       |> Map.merge(attrs)
       |> Delivery.create_campaign()
