@@ -27,23 +27,6 @@ defmodule BikeBrigadeWeb.Components.LocationFormComponent do
     {:noreply, socket}
   end
 
-  # TODO maybe this should be a form instead of these two things
-  def handle_event("set-unit", %{"value" => unit}, socket) do
-    location =
-      socket.assigns.location
-      |> Map.put(:unit, unit)
-
-    {:noreply, socket |> assign(:location, location)}
-  end
-
-  def handle_event("set-buzzer", %{"value" => buzzer}, socket) do
-    location =
-      socket.assigns.location
-      |> Map.put(:buzzer, buzzer)
-
-    {:noreply, socket |> assign(:location, location)}
-  end
-
   defp reset_address(location, address) do
     case Regex.run(~r/^\s*(?<unit>[^\s]+)\s*-\s*(?<address>.*)$/, address) do
       [_, unit, parsed_address] ->
