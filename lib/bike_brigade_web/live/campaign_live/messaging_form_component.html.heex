@@ -84,7 +84,7 @@
               </div>
               <div class="inline-flex flex-shrink-0 leading-normal">
                 <%= Heroicons.Outline.location_marker(aria_label: "Pickup Address", class: "w-4 h-4 mr-1 mt-1 text-gray-800") %>
-                <%= @campaign.pickup_address %>
+                <%= CampaignHelpers.pickup_address(@campaign) %>
               </div>
               <div class="inline-flex leading-normal">
                 <%= Heroicons.Outline.shopping_bag(class: "w-4 h-4 mr-1 mt-1 ext-gray-800 flex-shrink-0 ") %>

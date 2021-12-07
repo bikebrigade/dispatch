@@ -202,12 +202,12 @@ defmodule BikeBrigade.Delivery do
     # TODO handle conflicts for multiple task items here
     %Task{
       delivery_date: campaign.delivery_date,
-      pickup_address: campaign.pickup_address,
-      pickup_city: campaign.pickup_city,
-      pickup_postal: campaign.pickup_postal,
-      pickup_province: campaign.pickup_province,
-      pickup_country: campaign.pickup_country,
-      pickup_location: campaign.pickup_location,
+      pickup_address: campaign.location.address,
+      pickup_city: campaign.location.city,
+      pickup_postal: campaign.location.postal,
+      pickup_province: campaign.location.province,
+      pickup_country: campaign.location.country,
+      pickup_location: campaign.location.coords,
       campaign_id: campaign.id
     }
     |> Task.changeset(attrs)
@@ -432,7 +432,7 @@ defmodule BikeBrigade.Delivery do
       |> Enum.sort_by(& &1.delivery_distance)
 
     pickup_address =
-      "#{campaign.pickup_address} #{campaign.pickup_address2} #{campaign.pickup_city} #{campaign.pickup_postal}"
+      BikeBrigadeWeb.CampaignHelpers.pickup_address(campaign)
 
     pickup_window = BikeBrigadeWeb.CampaignHelpers.pickup_window(campaign, rider)
 

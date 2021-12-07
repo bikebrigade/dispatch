@@ -8,7 +8,6 @@ defmodule BikeBrigadeWeb.DeliveryHelpers do
 
   alias BikeBrigadeWeb.CampaignHelpers
 
-
   defdelegate campaign_name(campaign), to: CampaignHelpers, as: :name
 
   def sms_url(_campaign, _rider, %Task{dropoff_phone: nil}), do: nil
@@ -36,16 +35,11 @@ defmodule BikeBrigadeWeb.DeliveryHelpers do
   def embed_directions_url(assigns) do
     %{campaign: campaign, rider: rider} = assigns
 
-    pickup_address =
-      "#{campaign.pickup_address}, #{campaign.pickup_city}, #{campaign.pickup_province}, #{
-        campaign.pickup_postal
-      }"
+    pickup_address = CampaignHelpers.pickup_address(campaign)
 
     dropoff_addresses =
       for task <- rider.assigned_tasks do
-        "#{task.dropoff_address}, #{task.dropoff_city}, #{task.dropoff_province}, #{
-          task.dropoff_postal
-        } "
+        "#{task.dropoff_address}, #{task.dropoff_city}, #{task.dropoff_province}, #{task.dropoff_postal} "
       end
 
     GoogleMaps.embed_directions_url(pickup_address, dropoff_addresses)
@@ -54,16 +48,11 @@ defmodule BikeBrigadeWeb.DeliveryHelpers do
   def directions_url(assigns) do
     %{campaign: campaign, rider: rider} = assigns
 
-    pickup_address =
-      "#{campaign.pickup_address}, #{campaign.pickup_city}, #{campaign.pickup_province}, #{
-        campaign.pickup_postal
-      }"
+    pickup_address = CampaignHelpers.pickup_address(campaign)
 
     dropoff_addresses =
       for task <- rider.assigned_tasks do
-        "#{task.dropoff_address}, #{task.dropoff_city}, #{task.dropoff_province}, #{
-          task.dropoff_postal
-        } "
+        "#{task.dropoff_address}, #{task.dropoff_city}, #{task.dropoff_province}, #{task.dropoff_postal} "
       end
 
     GoogleMaps.directions_url(pickup_address, dropoff_addresses)
@@ -71,17 +60,11 @@ defmodule BikeBrigadeWeb.DeliveryHelpers do
 
   def open_map_url(%Task{} = task) do
     GoogleMaps.open_map_url(
-      "#{task.dropoff_address}, #{task.dropoff_city}, #{task.dropoff_province}, #{
-        task.dropoff_postal
-      }"
+      "#{task.dropoff_address}, #{task.dropoff_city}, #{task.dropoff_province}, #{task.dropoff_postal}"
     )
   end
 
   def open_map_url(%Campaign{} = campaign) do
-    GoogleMaps.open_map_url(
-      "#{campaign.pickup_address}, #{campaign.pickup_address}, #{campaign.pickup_province}, #{
-        campaign.pickup_postal
-      }"
-    )
+    GoogleMaps.open_map_url("#{CampaignHelpers.pickup_address(campaign)}")
   end
 end

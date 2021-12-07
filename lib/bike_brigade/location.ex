@@ -1,16 +1,19 @@
 defmodule BikeBrigade.Location do
   use BikeBrigade.Schema
+  import Ecto.Changeset
 
   alias BikeBrigade.Geocoder
 
+  @fields [:coords, :address, :city, :postal, :province, :country, :unit, :buzzer]
+
   @primary_key false
   embedded_schema do
-    field :coords, Geo.PostGIS.Geometry
+    field :coords, Geo.PostGIS.Geometry, default: %Geo.Point{}
     field :address, :string
-    field :city, :string
+    field :city, :string, default: "Toronto"
     field :postal, :string
-    field :province, :string
-    field :country, :string
+    field :province, :string, default: "Ontario"
+    field :country, :string, default: "Canada"
     field :unit, :string
     field :buzzer, :string
   end
@@ -25,6 +28,12 @@ defmodule BikeBrigade.Location do
           unit: String.t(),
           buzzer: String.t()
         }
+
+  def changeset(struct, params \\ %{}) do
+    struct
+    |> cast(params, @fields)
+    |> validate_required([:coords, :address, :city, :postal, :province, :country])
+  end
 
   @doc """
   Fills in missing peices of a location struct using the Geocoder
@@ -49,5 +58,11 @@ defmodule BikeBrigade.Location do
   @spec set_coords(__MODULE__.t(), number(), number()) :: __MODULE__.t()
   def set_coords(location, lat, lon) do
     Map.put(location, :coords, %Geo.Point{coordinates: {lon, lat}, srid: 4326})
+  end
+
+  defimpl String.Chars do
+    def to_string(location) do
+      "#{location.address}, #{location.city}, #{location.postal}"
+    end
   end
 end
