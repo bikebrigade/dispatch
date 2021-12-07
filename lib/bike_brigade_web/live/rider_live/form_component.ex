@@ -55,9 +55,4 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
         {:noreply, assign(socket, changeset: changeset)}
     end
   end
-
-  def humanized_tags(tags) do
-    Enum.map(tags, & &1.name)
-    |> Enum.join(",")
-  end
 end

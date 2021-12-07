@@ -95,7 +95,6 @@ defmodule BikeBrigade.Riders.Rider do
     |> set_signed_up_on()
 
     if tags = attrs[:tags] || attrs["tags"] do
-      tags = String.split(tags, ",")
       put_assoc(cs, :tags, Enum.map(tags || [], &get_or_insert_tag/1), on_replace: :update)
     else
       cs
