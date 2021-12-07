@@ -29,7 +29,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
 
     socket =
       if connected?(socket) do
-        topic = "messaging_presense"
+        topic = "messaging_presence"
 
         Messaging.subscribe()
 
