@@ -6,7 +6,7 @@ defmodule BikeBrigade.Repo.Migrations.LeftJoinInRiderStats do
   select
     riders.id as rider_id,
     count(tasks.id) as task_count,
-    sum(delivery_distance) as total_distance,
+    coalesce(sum(delivery_distance),0) as total_distance,
     count(distinct campaign_id) as campaign_count,
     count(distinct program_id) as program_count
   from
