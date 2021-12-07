@@ -24,8 +24,6 @@ defmodule BikeBrigadeWeb.Components.LocationFormComponent do
           assign(socket, :error, error) |> assign(:location, location)
       end
 
-    send(self(), {:updated_location, socket.assigns.id, location})
-
     {:noreply, socket}
   end
 
