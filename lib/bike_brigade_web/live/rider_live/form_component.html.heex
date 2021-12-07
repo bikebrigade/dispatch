@@ -89,13 +89,7 @@
       <%= label f, :tags, class: "block text-sm font-medium leading-5 text-gray-700" do %>
       Tags
       <% end %>
-      <div>
-        <%= for t <- @rider.tags do %>
-          <%= t.name %>
-          <input type="hidden" name="rider[tags][]" value={t.name}>
-        <% end  %>
-        <input type="text" name="rider[tags][]">
-      </div>
+      <.live_component module={BikeBrigadeWeb.RiderLive.TagsComponent} id={:rider_tags} tags={@rider.tags} input_name="rider[tags][]"/>
 
       <%= error_tag f, :tags %>
     </div>
