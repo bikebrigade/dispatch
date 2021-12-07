@@ -6,6 +6,7 @@ defmodule BikeBrigade.Riders.Rider do
   alias BikeBrigade.Repo
   alias BikeBrigade.Riders.{Tag, RidersTag}
   alias BikeBrigade.Delivery.{Task, CampaignRider}
+  alias BikeBrigade.Stats.RiderStats
 
   alias BikeBrigade.Geocoder
 
@@ -65,6 +66,7 @@ defmodule BikeBrigade.Riders.Rider do
     has_many :assigned_tasks, Task, foreign_key: :assigned_rider_id
     has_many :campaign_riders, CampaignRider
     has_many :campaigns, through: [:campaign_riders, :campaign]
+    has_one :stats, RiderStats
 
     embeds_one :flags, Flags, on_replace: :update
 
@@ -115,7 +117,7 @@ defmodule BikeBrigade.Riders.Rider do
           {_, postal} <- fetch_field(changeset, :postal),
           {_, province} <- fetch_field(changeset, :province),
           {_, country} <- fetch_field(changeset, :country),
-          {:ok, location} <- Geocoder.lookup("#{address} #{city} #{postal} #{province} #{country}")
+          {:ok, location} <- Ge3ocoder.lookup("#{address} #{city} #{postal} #{province} #{country}")
     do
       location = %Geo.Point{
         coordinates: {location.lon, location.lat}

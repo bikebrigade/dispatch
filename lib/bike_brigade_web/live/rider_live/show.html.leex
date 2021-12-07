@@ -11,7 +11,7 @@
             <p class="flex flex-col justify-start text-sm leading-6 sm:text-base md:flex-row md:items-center">
                 <span><%= Heroicons.Outline.clipboard_list(aria_label: "Calendar" , class: "flex-shrink-0 sm:mr-1 h-5 w-5 text-gray-400 inline-flex" ) %>Signed up on: <%= @rider.signed_up_on %></span>
                 <%# TODO: make this a link to the campaign %>
-                <span><%= Heroicons.Outline.fire(aria_label: "Fire" , class: "flex-shrink-0 md:ml-4 sm:mr-1 h-5 w-5 text-gray-400 inline-flex" ) %>Latest activity: <%= @stats[:latest_campaign_info] %></span>
+                <span><%= Heroicons.Outline.fire(aria_label: "Fire" , class: "flex-shrink-0 md:ml-4 sm:mr-1 h-5 w-5 text-gray-400 inline-flex" ) %>Latest activity: <%= @latest_campaign_info %></span>
             </p>
             <p class="flex flex-col justify-start text-sm leading-6 sm:text-base md:flex-row md:items-center">
                 <span><%= Heroicons.Outline.location_marker(aria_label: "Marker" , class: "flex-shrink-0 sm:mr-1 h-5 w-5 text-gray-400 inline-flex" ) %><%= @rider.address %></span>
@@ -38,7 +38,7 @@
                 Deliveries
             </dt>
             <dd class="mt-1 text-2xl font-semibold text-green-700 sm:text-4xl">
-                <%= @stats[:deliveries] %>
+                <%= @rider.stats.task_count %>
             </dd>
         </div>
         <div class="flex-initial px-4 py-3 mb-5 mr-5 bg-white rounded-lg shadow sm:p-6">
@@ -46,7 +46,7 @@
                 Campaigns
             </dt>
             <dd class="mt-1 text-2xl font-semibold text-green-700 sm:text-4xl">
-                <%= @stats[:campaigns] %>
+                  <%= @rider.stats.campaign_count %>
             </dd>
         </div>
         <div class="flex-initial px-4 py-3 mb-5 bg-white rounded-lg shadow sm:p-6">
@@ -54,7 +54,7 @@
                 Distance
             </dt>
             <dd class="mt-1 text-2xl font-semibold text-green-700 sm:text-4xl">
-                <%= round_distance(@stats[:distance]) %> km
+                <%= round_distance(@rider.stats.total_distance) %> km
             </dd>
         </div>
     </div>
