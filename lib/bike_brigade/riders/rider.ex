@@ -93,12 +93,11 @@ defmodule BikeBrigade.Riders.Rider do
     |> unique_constraint(:phone)
     |> unique_constraint(:email)
     |> set_signed_up_on()
+  end
 
-    if tags = attrs[:tags] || attrs["tags"] do
-      put_assoc(cs, :tags, Enum.map(tags || [], &get_or_insert_tag/1), on_replace: :update)
-    else
-      cs
-    end
+  def tags_changeset(changeset, tags) do
+    changeset
+    |> put_assoc(:tags, Enum.map(tags, &get_or_insert_tag/1), on_replace: :update)
   end
 
   def set_signed_up_on(%Ecto.Changeset{} = changeset) do
@@ -109,6 +108,8 @@ defmodule BikeBrigade.Riders.Rider do
   end
 
   defp get_or_insert_tag(name) do
+    # This increments the sequence number on every conflict and gives us very high ids
+    # do we care? Probably not...
     Repo.insert!(
       %Tag{name: name},
       on_conflict: [set: [name: name]],

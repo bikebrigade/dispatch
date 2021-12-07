@@ -2,6 +2,7 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
   use BikeBrigadeWeb, :live_component
 
   alias BikeBrigade.Riders
+  alias BikeBrigade.Riders.Rider
   alias BikeBrigade.Repo
 
   @impl true
@@ -26,12 +27,14 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
     {:noreply, assign(socket, :changeset, changeset)}
   end
 
-  def handle_event("save", %{"rider" => rider_params}, socket) do
-    save_rider(socket, socket.assigns.action, rider_params)
+  def handle_event("save", %{"rider" => rider_params} = params, socket) do
+    save_rider(socket, socket.assigns.action, rider_params, params["tags"] || [])
   end
 
-  defp save_rider(socket, :edit, rider_params) do
-    case Riders.update_rider(socket.assigns.rider, rider_params) do
+  defp save_rider(socket, :edit, rider_params, tags_params) do
+    case Rider.changeset(socket.assigns.rider, rider_params)
+         |> Rider.tags_changeset(tags_params)
+         |> Repo.update() do
       {:ok, _rider} ->
         {:noreply,
          socket
@@ -43,8 +46,10 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
     end
   end
 
-  defp save_rider(socket, :new, rider_params) do
-    case Riders.create_rider(rider_params) do
+  defp save_rider(socket, :new, rider_params, tags_params) do
+    case Rider.changeset(socket.assigns.rider, rider_params)
+         |> Rider.tags_changeset(tags_params)
+         |> Repo.insert() do
       {:ok, _rider} ->
         {:noreply,
          socket
