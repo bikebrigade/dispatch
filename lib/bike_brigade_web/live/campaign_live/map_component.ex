@@ -19,10 +19,10 @@ defmodule BikeBrigadeWeb.CampaignLive.MapComponent do
   @impl true
   def render(assigns) do
     ~H"""
-    <leaflet-map phx-hook="LeafletMap" id="task-map" data-lat={ lat(@campaign.pickup_location) } data-lng={ lng(@campaign.pickup_location) }
+    <leaflet-map phx-hook="LeafletMap" id="task-map" data-lat={ lat(@campaign.location) } data-lng={ lng(@campaign.location) }
         data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
         class="h-full">
-      <leaflet-marker phx-hook="LeafletMarker" id={"task-from-marker:#{@campaign.id}"} data-lat={ lat(@campaign.pickup_location) } data-lng={ lng(@campaign.pickup_location) }
+      <leaflet-marker phx-hook="LeafletMarker" id={"task-from-marker:#{@campaign.id}"} data-lat={ lat(@campaign.location) } data-lng={ lng(@campaign.location) }
         data-icon="warehouse" data-color="#1c64f2"></leaflet-marker>
       <%= for task <- @tasks_list do %>
         <leaflet-marker phx-hook="LeafletMarker" id={"task-to-marker:#{task.id}"}

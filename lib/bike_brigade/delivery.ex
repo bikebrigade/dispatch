@@ -176,7 +176,7 @@ defmodule BikeBrigade.Delivery do
         join: r in assoc(cr, :rider),
         left_join: t in assoc(c, :tasks),
         on: t.assigned_rider_id == r.id,
-        order_by: st_distance(t.dropoff_location, c.pickup_location),
+        order_by: t.delivery_distance,
         where: cr.token == ^token,
         preload: [campaign: [:program], rider: {r, assigned_tasks: {t, [task_items: :item]}}]
 
@@ -248,7 +248,7 @@ defmodule BikeBrigade.Delivery do
       from [r, cr] in Rider,
         order_by: r.name,
         select_merge: %{
-          distance: st_distance(r.location, ^campaign.pickup_location),
+          distance: st_distance(r.location, ^campaign.location.coords),
           task_notes: cr.notes,
           task_capacity: cr.rider_capacity,
           task_enter_building: cr.enter_building,
@@ -318,7 +318,7 @@ defmodule BikeBrigade.Delivery do
         on: cr.rider_id == r.id and cr.campaign_id == ^campaign.id,
         order_by: [
           desc: cr.rider_capacity,
-          asc: r.max_distance - st_distance(r.location, ^campaign.pickup_location)
+          asc: r.max_distance - st_distance(r.location, ^campaign.location.coords)
         ],
         left_join: t in Task,
         on: t.assigned_rider_id == r.id and t.campaign_id == ^campaign.id,
