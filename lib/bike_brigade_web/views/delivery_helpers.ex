@@ -35,7 +35,7 @@ defmodule BikeBrigadeWeb.DeliveryHelpers do
   def embed_directions_url(assigns) do
     %{campaign: campaign, rider: rider} = assigns
 
-    pickup_address = CampaignHelpers.pickup_address(campaign)
+    pickup_address = "#{campaign.location}"
 
     dropoff_addresses =
       for task <- rider.assigned_tasks do
@@ -48,7 +48,7 @@ defmodule BikeBrigadeWeb.DeliveryHelpers do
   def directions_url(assigns) do
     %{campaign: campaign, rider: rider} = assigns
 
-    pickup_address = CampaignHelpers.pickup_address(campaign)
+    pickup_address = "#{campaign.location}"
 
     dropoff_addresses =
       for task <- rider.assigned_tasks do
@@ -65,6 +65,6 @@ defmodule BikeBrigadeWeb.DeliveryHelpers do
   end
 
   def open_map_url(%Campaign{} = campaign) do
-    GoogleMaps.open_map_url("#{CampaignHelpers.pickup_address(campaign)}")
+    GoogleMaps.open_map_url("#{campaign.location}")
   end
 end

@@ -431,8 +431,7 @@ defmodule BikeBrigade.Delivery do
       |> Enum.filter(&(&1.assigned_rider_id == rider.id))
       |> Enum.sort_by(& &1.delivery_distance)
 
-    pickup_address =
-      BikeBrigadeWeb.CampaignHelpers.pickup_address(campaign)
+    pickup_address = campaign.location.address
 
     pickup_window = BikeBrigadeWeb.CampaignHelpers.pickup_window(campaign, rider)
 

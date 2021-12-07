@@ -128,15 +128,6 @@ defmodule BikeBrigadeWeb.CampaignHelpers do
     end
   end
 
-  @deprecated "remove when campaign addresses merged"
-  def pickup_address(campaign) do
-    if campaign.location do
-      "#{campaign.location}"
-    else
-      "#{campaign.location} #{campaign.pickup_address2} #{campaign.pickup_city} #{campaign.pickup_postal}"
-    end
-  end
-
   # TODO this could be better
   defp print_item(task_item) do
     if task_item.count == 1 do
