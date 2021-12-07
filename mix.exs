@@ -69,7 +69,7 @@ defmodule BikeBrigade.MixProject do
       {:google_api_storage, "~> 0.29.0"},
       {:google_api_sheets, "~> 0.29.0"},
       {:goth, "~> 1.3-rc", override: true},
-      {:faker, "~> 0.13"},
+      {:faker, "~> 0.17"},
       {:mustache, "~> 0.3.0"},
       {:honeybadger, "~> 0.16.3"},
       {:recase, "~> 0.5"},
