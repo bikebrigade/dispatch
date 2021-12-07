@@ -77,13 +77,22 @@
       <%= error_tag f, :max_distance %>
     </div>
     <div class="mt-2">
-      <%= label f, :max_distance, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+      <%= label f, :last_safety_check, class: "block text-sm font-medium leading-5 text-gray-700" do %>
       Last Safety Check
       <% end %>
       <div class="mt-1 rounded-md shadow-sm">
         <%= date_input f, :last_safety_check, required: true, placeholder: "YYYY-MM-DD", phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
       </div>
       <%= error_tag f, :last_safety_check %>
+    </div>
+    <div class="mt-2">
+      <%= label f, :tags, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+      Tags
+      <% end %>
+      <div class="mt-1 rounded-md shadow-sm">
+        <%= text_input f, :tags, value: humanized_tags(@rider.tags), phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+      </div>
+      <%= error_tag f, :tags %>
     </div>
     <div class="pt-8">
       <div>

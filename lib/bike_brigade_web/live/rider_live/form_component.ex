@@ -2,14 +2,17 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
   use BikeBrigadeWeb, :live_component
 
   alias BikeBrigade.Riders
+  alias BikeBrigade.Repo
 
   @impl true
   def update(%{rider: rider} = assigns, socket) do
+    rider = rider |> Repo.preload(:tags)
     changeset = Riders.change_rider(rider)
 
     {:ok,
      socket
      |> assign(assigns)
+     |> assign(:rider, rider)
      |> assign(:changeset, changeset)}
   end
 
@@ -51,5 +54,10 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, changeset: changeset)}
     end
+  end
+
+  def humanized_tags(tags) do
+    Enum.map(tags, & &1.name)
+    |> Enum.join(",")
   end
 end

@@ -70,7 +70,7 @@ defmodule BikeBrigade.Riders.Rider do
     embeds_one :flags, Flags, on_replace: :update
 
     # TODO cleanup
-    many_to_many :tags, Tag, join_through: RidersTag
+    many_to_many :tags, Tag, join_through: RidersTag, on_replace: :delete
 
     timestamps()
   end
@@ -94,8 +94,9 @@ defmodule BikeBrigade.Riders.Rider do
     |> unique_constraint(:email)
     |> set_signed_up_on()
 
-    if attrs[:tags] do
-      put_assoc(cs, :tags, Enum.map(Access.get(attrs, :tags, []), &get_or_insert_tag/1), on_replace: :update)
+    if tags = attrs[:tags] || attrs["tags"] do
+      tags = String.split(tags, ",")
+      put_assoc(cs, :tags, Enum.map(tags || [], &get_or_insert_tag/1), on_replace: :update)
     else
       cs
     end
