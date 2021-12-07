@@ -46,7 +46,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
 
   @impl true
   def handle_event("locate-place", %{"query" => query}, socket) do
-    {:ok, place} = Geocoder.lookup("#{query} Toronto Canada")
+    {:ok, place} = Geocoder.lookup_toronto(query)
 
     {:noreply, assign(socket, located_place: place)}
   end

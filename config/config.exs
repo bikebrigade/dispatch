@@ -50,6 +50,9 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+config :geo_postgis,
+  json_library: Jason
+
 config :bike_brigade, BikeBrigade.Importers.MailchimpImporter,
   list_id: {:system, "MAILCHIMP_LIST_ID"}
 

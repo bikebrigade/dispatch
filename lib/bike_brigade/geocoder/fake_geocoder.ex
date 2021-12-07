@@ -36,7 +36,9 @@ defmodule BikeBrigade.Geocoder.FakeGeocoder do
   def init(locations), do: {:ok, locations}
 
   def handle_call({:lookup, address}, _from, locations) do
-    Logger.info("Received FakeGeocoder lookup for #{address}. Only addresses from seeded data are valid.")
+    Logger.info(
+      "Received FakeGeocoder lookup for #{address}. Only addresses from seeded data are valid."
+    )
 
     result =
       case Map.get(locations, address, :not_found) do
@@ -60,14 +62,14 @@ defmodule BikeBrigade.Geocoder.FakeGeocoder do
       address = address <> " Toronto"
 
       location =
-        Location.new(%{
-          lat: lat,
-          lon: lon,
+        %Location{
+          address: address,
           city: city,
           postal: postal,
           province: "Ontario",
           country: "Canada"
-        })
+        }
+        |> Location.set_coords(String.to_float(lat), String.to_float(lon))
 
       {address, location}
     end)
