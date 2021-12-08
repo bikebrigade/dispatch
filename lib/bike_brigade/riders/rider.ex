@@ -3,6 +3,7 @@ defmodule BikeBrigade.Riders.Rider do
   import Ecto.Changeset
   import EctoEnum
 
+  alias BikeBrigade.Location
   alias BikeBrigade.Repo
   alias BikeBrigade.Riders.{Tag, RidersTag}
   alias BikeBrigade.Delivery.{Task, CampaignRider}
@@ -31,13 +32,13 @@ defmodule BikeBrigade.Riders.Rider do
   end
 
   schema "riders" do
-    field :address, :string
-    field :address2, :string
+    field :address, :string # remove
+    field :address2, :string # remove
     field :availability, :map
     field :capacity, CapacityEnum
-    field :city, :string
-    field :country, :string
-    field :deliveries_completed, :integer
+    field :city, :string # remove
+    field :country, :string # remove
+    field :deliveries_completed, :integer # remove
     field :email, :string
     field :location, Geo.PostGIS.Geometry
     field :mailchimp_id, :string
@@ -47,11 +48,13 @@ defmodule BikeBrigade.Riders.Rider do
     field :onfleet_id, :string
     field :onfleet_account_status, OnfleetAccountStatusEnum
     field :phone, BikeBrigade.EctoPhoneNumber.Canadian
-    field :postal, :string
+    field :postal, :string # remove
     field :pronouns, :string
-    field :province, :string
+    field :province, :string # remove
     field :signed_up_on, :utc_datetime
     field :last_safety_check, :date
+    embeds_one(:location_struct, Location, on_replace: :delete)
+
 
     field :distance, :integer, virtual: true
     field :remaining_distance, :integer, virtual: true
@@ -79,6 +82,7 @@ defmodule BikeBrigade.Riders.Rider do
     cs = rider
     |> cast(attrs, [:name, :email, :address, :address2, :city, :deliveries_completed, :location, :province, :postal, :country, :onfleet_id, :onfleet_account_status, :phone, :pronouns, :availability, :capacity, :max_distance, :signed_up_on, :mailchimp_id, :mailchimp_status, :last_safety_check])
     |> cast_embed(:flags)
+    |> cast_embed(:location_struct)
     |> update_change(:email, &String.downcase/1)
     |> validate_required([:name, :email, :city, :province, :postal, :country, :phone, :availability, :capacity, :max_distance])
     |> validate_change(:email, fn :email, email  ->

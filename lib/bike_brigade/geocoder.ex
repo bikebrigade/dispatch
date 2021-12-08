@@ -3,6 +3,12 @@ defmodule BikeBrigade.Geocoder do
 
   alias BikeBrigade.Location
 
+  @neighborhoods :code.priv_dir(:bike_brigade)
+                 |> Path.join("repo/seeds/toronto_crs84.geojson")
+                 |> File.read!()
+                 |> Jason.decode!()
+                 |> Geo.JSON.decode!()
+
   @callback lookup(pid, String.t()) :: {:ok, Location.t()} | {:error, any()}
 
   @doc """
@@ -16,8 +22,12 @@ defmodule BikeBrigade.Geocoder do
     pid = Keyword.get(opts, :pid, module)
 
     case module.lookup(pid, search) do
-      {:ok, location} -> {:ok, location}
-      {:error, reason} -> {:error, reason}
+      {:ok, location} ->
+        location = %{location | neighborhood: get_neighborhood(location.coords)}
+        {:ok, location}
+
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 
@@ -26,5 +36,14 @@ defmodule BikeBrigade.Geocoder do
   @deprecated "To be removed when moving to Location.complete"
   def lookup_toronto(address, opts \\ []) do
     lookup(address <> " Toronto", opts)
+  end
+
+  def get_neighborhood(coords) do
+    @neighborhoods.geometries
+    |> Enum.find_value(fn geo ->
+      if Topo.contains?(geo, coords) do
+        Regex.replace(~r/(.*) \(\d+\)/, geo.properties["AREA_NAME"], "\\1")
+      end
+    end)
   end
 end
