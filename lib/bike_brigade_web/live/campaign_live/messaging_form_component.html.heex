@@ -71,7 +71,7 @@
       <div class="w-full overflow-hidden bg-white shadow-md sm:mt-2 sm:rounded-lg">
         <div class="flex items-start space-x-1 p-2.5 bg-white border-b border-gray-200 sm:p-4">
           <div class="flex items-center justify-center flex-shrink-0 w-8 h-8 bg-green-700 rounded-full ring-8 ring-white">
-            <%= Heroicons.Solid.clipboard_check(class: "w-5 h-5 text-white") %>
+            <Heroicons.Solid.clipboard_check class="w-5 h-5 text-white" />
           </div>
           <div class="flex flex-wrap justify-between w-full pl-1 border-l border-gray-200 sm:flex-nowrap">
             <div class="flex flex-col space-y-.5">
@@ -79,21 +79,21 @@
                 Pick up
               </h3>
               <div class="inline-flex flex-shrink-0 leading-normal">
-                <%= Heroicons.Outline.clock(aria_label: "Pickup Time", class: "w-4 h-4 mr-1 mt-1 text-gray-800") %>
+                <Heroicons.Outline.clock aria-label="Pickup Time" class="w-4 h-4 mr-1 mt-1 text-gray-800" />
                 <%= CampaignHelpers.pickup_window(@campaign, @selected_rider) %>
               </div>
               <div class="inline-flex flex-shrink-0 leading-normal">
-                <%= Heroicons.Outline.location_marker(aria_label: "Pickup Address", class: "w-4 h-4 mr-1 mt-1 text-gray-800") %>
+                <Heroicons.Outline.location_marker aria-label="Pickup Address" class="w-4 h-4 mr-1 mt-1 text-gray-800" />
                 <%= @campaign.location.address %>
               </div>
               <div class="inline-flex leading-normal">
-                <%= Heroicons.Outline.shopping_bag(class: "w-4 h-4 mr-1 mt-1 ext-gray-800 flex-shrink-0 ") %>
+                <Heroicons.Outline.shopping_bag class="w-4 h-4 mr-1 mt-1 ext-gray-800 flex-shrink-0 " />
                 <%= humanized_task_count(@selected_rider.assigned_tasks) %>
               </div>
             </div>
             <div class="flex flex-wrap items-start justify-end flex-shrink ml-auto">
               <C.button href={open_map_url(@campaign)} color={:green} size={:small}>
-                <%= Heroicons.Outline.map(class: "icon") %>
+                <Heroicons.Outline.map class="icon" />
                 Map
               </C.button>
             </div>

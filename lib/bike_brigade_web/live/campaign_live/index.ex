@@ -104,7 +104,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
     case assigns.campaign do
       %{scheduled_message: %{send_at: send_at}} when not is_nil(send_at) ->
         ~H"""
-        <%= Heroicons.Solid.clock(class: "flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400") %>
+        <Heroicons.Solid.clock class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
         <p>
           Message scheduled for
           <time datetime={send_at}>
@@ -115,7 +115,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
 
       %{latest_message: %SmsMessage{sent_at: sent_at}} ->
         ~H"""
-        <%= Heroicons.Solid.chat_alt_2(class: "flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400") %>
+        <Heroicons.Solid.chat_alt_2 class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
         <p>
           Last messaged at
           <time datetime={sent_at}>

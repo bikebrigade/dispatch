@@ -10,7 +10,7 @@ defmodule BikeBrigadeWeb.Components.Sidebar do
       selected={@current_page == :programs}
       to={Routes.program_index_path(@socket, :index)}>
       <:icon let={class}>
-        <%= Heroicons.Outline.collection(class: class) %>
+        <Heroicons.Outline.collection class={class} />
       </:icon>
       Programs
     </.sidebar_link>
@@ -18,7 +18,7 @@ defmodule BikeBrigadeWeb.Components.Sidebar do
       selected={@current_page == :campaigns}
       to={Routes.campaign_index_path(@socket, :index)}>
       <:icon let={class}>
-        <%= Heroicons.Outline.cube(class: class) %>
+        <Heroicons.Outline.cube class={class} />
       </:icon>
       Campaigns
     </.sidebar_link>
@@ -26,7 +26,7 @@ defmodule BikeBrigadeWeb.Components.Sidebar do
       selected={@current_page == :opportunities}
       to={Routes.opportunity_index_path(@socket, :index)}>
       <:icon let={class}>
-        <%= Heroicons.Outline.clipboard_list(class: class) %>
+        <Heroicons.Outline.clipboard_list class={class} />
       </:icon>
       Opportunities
     </.sidebar_link>
@@ -34,7 +34,7 @@ defmodule BikeBrigadeWeb.Components.Sidebar do
       selected={@current_page == :riders}
       to={Routes.rider_index_path(@socket, :index)}>
       <:icon let={class}>
-        <%= Heroicons.Outline.user_group(class: class) %>
+        <Heroicons.Outline.user_group class={class} />
       </:icon>
       Riders
     </.sidebar_link>
@@ -42,7 +42,7 @@ defmodule BikeBrigadeWeb.Components.Sidebar do
       selected={@current_page == :stats}
       to={Routes.stats_dashboard_path(@socket, :show)}>
       <:icon let={class}>
-        <%= Heroicons.Outline.chart_bar(class: class) %>
+        <Heroicons.Outline.chart_bar class={class} />
       </:icon>
       Stats
     </.sidebar_link>
@@ -50,7 +50,7 @@ defmodule BikeBrigadeWeb.Components.Sidebar do
       selected={@current_page == :dispatchers}
       to={Routes.user_index_path(@socket, :index)}>
       <:icon let={class}>
-        <%= Heroicons.Outline.users(class: class) %>
+        <Heroicons.Outline.users class={class} />
       </:icon>
       Dispatchers
     </.sidebar_link>
@@ -58,7 +58,7 @@ defmodule BikeBrigadeWeb.Components.Sidebar do
       selected={@current_page == :messages}
       to={Routes.sms_message_index_path(@socket, :index)}>
       <:icon let={class}>
-        <%= Heroicons.Outline.chat(class: class) %>
+        <Heroicons.Outline.chat class={class} />
       </:icon>
       Messages
     </.sidebar_link>
@@ -66,7 +66,7 @@ defmodule BikeBrigadeWeb.Components.Sidebar do
       selected={@current_page == :logout}
       to={Routes.authentication_path(@socket, :logout)}>
       <:icon let={class}>
-        <%= Heroicons.Outline.logout(class: class) %>
+        <Heroicons.Outline.logout class={class} />
       </:icon>
       Log out
     </.sidebar_link>
