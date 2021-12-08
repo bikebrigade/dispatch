@@ -1,63 +1,46 @@
 <%= if @live_action in [:new, :edit] do %>
   <UI.modal show id={:edit} return_to={Routes.user_index_path(@socket, :index)} >
     <:title><%= Atom.to_string(@live_action) |> String.capitalize() %> Dispatcherlive</:title>
-    <.live_component 
-      module={BikeBrigadeWeb.UserLive.FormComponent} 
-      id={@user.id || :new} 
-      action={@live_action} 
-      user={@user} 
+    <.live_component
+      module={BikeBrigadeWeb.UserLive.FormComponent}
+      id={@user.id || :new}
+      action={@live_action}
+      user={@user}
       return_to={Routes.user_index_path(@socket, :index)}/>
   </UI.modal>
 <% end %>
-<div class="flex flex-col h-full">
-  <div class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-    <div class="inline-block min-w-full overflow-hidden align-middle border-b border-gray-200 shadow sm:rounded-lg">
-      <table class="min-w-full">
-        <thead>
-          <tr>
-            <th
-              class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-              Name
-            </th>
-            <th
-              class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-              Phone
-            </th>
-            <th class="flex justify-end px-3 py-3 border-b border-gray-200 bg-gray-50">
-              <C.button patch_to={Routes.user_index_path(@socket, :new)}>
-                Create new dispatcher
-              </C.button>
-            </th>
-          </tr>
-        </thead>
-        <tbody id="users" class="bg-white">
-          <%= for user <- @users do %>
-          <tr>
-            <td class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
-              <div class="flex items-center">
-                <div class="flex-shrink-0 w-10 h-10">
-                  <img class="w-10 h-10 rounded-full" src={gravatar(user.email)}
-                    alt="" />
-                </div>
-                <div class="ml-4 ">
-                  <div class="text-sm font-medium leading-5 text-gray-900"><%= user.name %>
-                  </div>
-                  <div class="text-sm leading-5 text-gray-500"><%= user.email %>
-                  </div>
-                </div>
-              </div>
-            </td>
-            <td class="px-6 py-4 border-b border-gray-200 whitespace-nowrap">
-              <%= user.phone %>
-            </td>
-            <td class="px-6 py-4 text-sm font-medium leading-5 text-right border-b border-gray-200 whitespace-nowrap">
-              <%= live_patch "Edit", to: Routes.user_index_path(@socket, :edit, user),  class: "pl-2 text-indigo-600 hover:text-indigo-900" %>
-              <%= link "Delete", to: "#", phx_click: "delete", phx_value_id: user.id, data: [confirm: "Are you sure?"], class: "pl-2 text-indigo-600 hover:text-indigo-900"  %>
-            </td>
-          </tr>
-          <% end %>
-        </tbody>
-      </table>
+<UI.table rows={@users}>
+  <:th>
+    Name
+  </:th>
+  <:th>
+    Phone
+  </:th>
+  <:th class="flex justify-end" padding="px-3 py-3" uppercase={false}>
+    <C.button patch_to={Routes.user_index_path(@socket, :new)}>
+      Create new dispatcher
+    </C.button>
+  </:th>
+
+  <:td let={user}>
+    <div class="flex items-center">
+      <div class="flex-shrink-0 w-10 h-10">
+        <img class="w-10 h-10 rounded-full" src={gravatar(user.email)}
+          alt="" />
+      </div>
+      <div class="ml-4 ">
+        <div class="text-sm font-medium leading-5 text-gray-900"><%= user.name %>
+        </div>
+        <div class="text-sm leading-5 text-gray-500"><%= user.email %>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
+  </:td>
+  <:td let={user}>
+    <%= user.phone %>
+  </:td>
+  <:td class="text-right" let={user}>
+    <%= live_patch "Edit", to: Routes.user_index_path(@socket, :edit, user),  class: "pl-2 text-indigo-600 hover:text-indigo-900" %>
+    <%= link "Delete", to: "#", phx_click: "delete", phx_value_id: user.id, data: [confirm: "Are you sure?"], class: "pl-2 text-indigo-600 hover:text-indigo-900"  %>
+  </:td>
+</UI.table>

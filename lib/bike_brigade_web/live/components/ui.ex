@@ -188,15 +188,16 @@ defmodule BikeBrigadeWeb.Components.UI do
   end
 
   def table(assigns) do
+    assigns = assign_new(assigns, :class, fn -> "" end)
     ~H"""
     <div class="flex flex-col py-4">
       <div class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
         <div class="inline-block min-w-full overflow-hidden align-middle border-b border-gray-200 shadow sm:rounded-lg">
-          <table class="min-w-full">
+          <table class={"min-w-full #{@class}"} >
             <thead>
               <tr>
                 <%= for th <- @th do %>
-                <th class={"px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50 #{Map.get(th, :class)}"}>
+                <th class={"text-xs font-medium leading-4 tracking-wider text-left text-gray-500 border-b border-gray-200 bg-gray-50 #{if Map.get(th, :uppercase, true), do: "uppercase"} #{Map.get(th, :padding, "px-6 py-3")} #{Map.get(th, :class)}"}>
                   <%= render_slot(th) %>
                 </th>
                 <% end %>
@@ -205,7 +206,7 @@ defmodule BikeBrigadeWeb.Components.UI do
             <%= for row <- @rows do %>
               <tr>
                 <%= for td <- @td do %>
-                  <td class={"px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200 whitespace-nowrap #{Map.get(td, :class)}"}>
+                  <td class={"text-sm leading-5 text-gray-500 border-b border-gray-200 whitespace-nowrap #{Map.get(td, :padding, "px-6 py-4")} #{Map.get(td, :class)}"}>
                     <%= render_slot(td, row) %>
                   </td>
                 <% end %>
