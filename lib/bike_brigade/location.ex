@@ -34,7 +34,7 @@ defmodule BikeBrigade.Location do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @fields)
-    |> validate_required([:coords, :address, :city, :postal, :province, :country])
+    |> validate_required([:coords, :city, :province, :country])
   end
 
   @doc """
