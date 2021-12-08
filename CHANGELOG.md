@@ -1,3 +1,5 @@
+# 2021-12-06
+  - Add location picker to campaigns
 # 2021-11-02
   - Duplicate previous campaign and message template
 # 2021-10-25
