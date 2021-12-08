@@ -96,20 +96,20 @@
             New Item
           </C.button>
         </:th>
-              <:td let={item}>
-                <%= item.name %>
-              </:td>
-              <:td let={item}>
-                <%= item.description %>
-              </:td>
-              <:td let={item}>
-                <%= item.category %>
-              </:td>
-              <:td class="text-right" let={item}>
-              <%= live_patch "Edit", to: Routes.program_index_path(@socket, :edit_item, @program.id, item.id), class: "text-indigo-600 hover:text-indigo-900" %>
-              <%#= link "Delete", to: "#", phx_click: "delete", phx_value_id: item.id, data: [confirm: "Are you sure?"], class: "pl-2 text-indigo-600 hover:text-indigo-900"  %>
-            </:td>
 
+        <:td let={item}>
+          <%= item.name %>
+        </:td>
+        <:td let={item}>
+          <%= item.description %>
+        </:td>
+        <:td let={item}>
+          <%= item.category %>
+        </:td>
+        <:td class="text-right" let={item}>
+        <%= live_patch "Edit", to: Routes.program_index_path(@socket, :edit_item, @program.id, item.id), class: "text-indigo-600 hover:text-indigo-900" %>
+        <%#= link "Delete", to: "#", phx_click: "delete", phx_value_id: item.id, data: [confirm: "Are you sure?"], class: "pl-2 text-indigo-600 hover:text-indigo-900"  %>
+        </:td>
       </UI.table>
     </div>
   <% end %>
