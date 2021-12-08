@@ -81,7 +81,6 @@ defmodule BikeBrigadeWeb.CampaignHelpers do
   def has_notes?(%Rider{task_notes: nil}), do: false
   def has_notes?(%Rider{task_notes: notes}), do: String.trim(notes) != ""
 
-  @deprecated "Remove soon"
   def pickup_window(campaign, rider) do
     cond do
       rider.pickup_window ->
@@ -96,7 +95,6 @@ defmodule BikeBrigadeWeb.CampaignHelpers do
     end
   end
 
-  @deprecated "remove soon"
   def name(campaign) do
     campaign = campaign
 
@@ -108,7 +106,6 @@ defmodule BikeBrigadeWeb.CampaignHelpers do
   end
 
   # TODO: this is no-longer needed as all campaigns have delivery_start now
-  @deprecated "remove soon"
   def campaign_date(campaign) do
     if campaign.delivery_start do
       LocalizedDateTime.to_date(campaign.delivery_start)
@@ -117,7 +114,6 @@ defmodule BikeBrigadeWeb.CampaignHelpers do
     end
   end
 
-  @deprecated "remove soon"
   def request_type(task) do
     if task.task_items != [] do
       task.task_items
