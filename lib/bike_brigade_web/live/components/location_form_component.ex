@@ -91,7 +91,7 @@ defmodule BikeBrigadeWeb.Components.LocationFormComponent do
               </div>
             </div>
           </div>
-        <%= if @location.coords.coordinates != {0,0} do %>
+        <%= if @location.coords do %>
           <div class="w-full h-64 mt-2 ">
             <leaflet-map phx-hook="LeafletMap" id={"location-map-#{inspect(@location.coords.coordinates)}"} data-lat={ lat(@location.coords) } data-lng={ lng(@location.coords) }
               data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
