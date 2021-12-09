@@ -19,7 +19,7 @@ defmodule BikeBrigade.Fixtures do
   def fixture(:program, attrs) do
     {:ok, program} =
       %{
-        name: Faker.Superhero.name(),
+        name: "program",
         start_date: DateTime.utc_now()
       }
       |> Map.merge(attrs)
