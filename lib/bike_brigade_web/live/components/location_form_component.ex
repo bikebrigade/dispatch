@@ -12,28 +12,39 @@ defmodule BikeBrigadeWeb.Components.LocationFormComponent do
     {:ok, socket}
   end
 
-  def handle_event("fetch-location", %{"value" => address}, socket) do
-    location = reset_address(socket.assigns.location, address)
-
+  @impl Phoenix.LiveComponent
+  def update(%{location: location} = assigns, socket) do
     socket =
-      case Location.complete(location) do
-        {:ok, complete_location} ->
-          assign(socket, :error, nil) |> assign(:location, complete_location)
+      socket
+      |> assign(:error, nil)
+      |> maybe_complete_location(location)
+      |> assign(Map.delete(assigns, :location))
 
-        {:error, error} ->
-          assign(socket, :error, error) |> assign(:location, location)
-      end
-
-    {:noreply, socket}
+    {:ok, socket}
   end
 
-  defp reset_address(location, address) do
-    case Regex.run(~r/^\s*(?<unit>[^\s]+)\s*-\s*(?<address>.*)$/, address) do
-      [_, unit, parsed_address] ->
-        %{location | unit: unit, address: parsed_address, postal: nil}
+  defp maybe_complete_location(socket, location) do
+    case socket.assigns do
+      %{location: ^location} ->
+        # If we haven't changed location, don't complete it
+        socket
 
-      _ ->
-        %{location | address: address, postal: nil}
+      %{location: _} ->
+        complete_location(socket, location)
+
+      %{} ->
+        # If this is the first time loading the component, don't autocomplete
+        assign(socket, :location, location)
+    end
+  end
+
+  def complete_location(socket, location) do
+    case Location.complete(%{location | postal: nil}) do
+      {:ok, complete_location} ->
+        assign(socket, :location, complete_location)
+
+      {:error, error} ->
+        assign(socket, :error, error)
     end
   end
 
@@ -57,7 +68,7 @@ defmodule BikeBrigadeWeb.Components.LocationFormComponent do
                 Address
               </label>
               <div class="mt-1 rounded-md shadow-sm">
-                <%= text_input @for, :address, required: true, phx_blur: "fetch-location", value: @location.address, phx_target: @myself, class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+                <%= text_input @for, :address, required: true, value: @location.address, phx_target: @myself, phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
               </div>
               <%= if @error do %>
                 <p class="mt-2 text-xs text-red-600"><%= @error %></p>
