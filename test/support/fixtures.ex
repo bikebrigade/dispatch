@@ -19,7 +19,7 @@ defmodule BikeBrigade.Fixtures do
   def fixture(:program, attrs) do
     {:ok, program} =
       %{
-        name: "program",
+        name: Faker.Superhero.name(),
         start_date: DateTime.utc_now()
       }
       |> Map.merge(attrs)
@@ -92,6 +92,19 @@ defmodule BikeBrigade.Fixtures do
       |> Riders.create_rider()
 
     rider
+  end
+
+  def fixture(:opportunity, attrs) do
+    {:ok, opportunity} =
+      %{
+        delivery_start: DateTime.utc_now(),
+        delivery_end: DateTime.utc_now() |> DateTime.add(60, :second),
+        signup_link: Faker.Internet.url()
+      }
+      |> Map.merge(attrs)
+      |> Delivery.create_opportunity()
+
+      opportunity
   end
 
   def fixture(:location, _attrs) do

@@ -65,6 +65,12 @@ defmodule BikeBrigadeWeb.ConnCase do
     %{rider: rider}
   end
 
+  def create_opportunity(%{}) do
+    program = fixture(:program)
+    opportunity = fixture(:opportunity, %{program_id: program.id})
+    %{opportunity: opportunity, program: program}
+  end
+
   defp login_user(conn, user) do
     conn
     |> Phoenix.ConnTest.init_test_session(%{})
