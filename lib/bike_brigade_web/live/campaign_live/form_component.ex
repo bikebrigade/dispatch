@@ -69,6 +69,13 @@ defmodule BikeBrigadeWeb.CampaignLive.FormComponent do
 
       %__MODULE__{campaign: campaign, date_time_form: date_time_form}
     end
+
+    # Location is kind of buried here
+    def fetch_location(changeset) do
+      campaign = fetch_field!(changeset, :campaign)
+
+      campaign.location || %BikeBrigade.Location{}
+    end
   end
 
   @impl true
