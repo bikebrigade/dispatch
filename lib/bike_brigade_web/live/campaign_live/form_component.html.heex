@@ -51,7 +51,7 @@
   </div>
 
   <%= for l <- inputs_for(f, :location) do %>
-    <.live_component id={:location_form} module={LocationFormComponent} for={l} location={@campaign.location || %BikeBrigade.Location{}}>
+    <.live_component id={:location_form} module={LocationFormComponent} for={l} location={CampaignForm.fetch_location(@changeset)}>
         <:label>Pickup Location</:label>
     </.live_component>
   <% end %>
