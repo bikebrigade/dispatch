@@ -40,8 +40,7 @@ defmodule BikeBrigadeWeb.Components.UI do
               To: "translate-x-full"
           -->
           <div class={"w-screen #{width_css} slideover-panel"}
-              phx-window-keydown={hide_slideover(@id)} phx-key="escape"
-              phx-click-away={hide_slideover(@id)}>
+              phx-window-keydown={hide_slideover(@id)} phx-key="escape">
             <div class="flex flex-col h-full py-6 overflow-y-scroll bg-white shadow-xl">
               <div class="px-4 sm:px-6">
                 <div class="flex items-start justify-between">
@@ -161,9 +160,7 @@ defmodule BikeBrigadeWeb.Components.UI do
         </div>
         <div
           class={"#{if @show, do: "fade-in-scale", else: "hidden"} modal-content inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full sm:p-6"}
-          phx-window-keydown={hide_modal(@id)} phx-key="escape"
-          phx-click-away={hide_modal(@id)}
-        >
+          phx-window-keydown={hide_modal(@id)} phx-key="escape"}>
           <%= if @return_to do %>
           <div class="absolute top-0 right-0 pt-4 pr-4">
             <%= live_patch "close", to: @return_to, data: [modal_return: true], class: "hidden" %>
