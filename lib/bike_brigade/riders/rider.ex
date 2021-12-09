@@ -84,7 +84,7 @@ defmodule BikeBrigade.Riders.Rider do
     |> cast_embed(:flags)
     |> cast_embed(:location_struct)
     |> update_change(:email, &String.downcase/1)
-    |> validate_required([:name, :email, :city, :province, :postal, :country, :phone, :availability, :capacity, :max_distance])
+    |> validate_required([:name, :email, :phone, :availability, :capacity, :max_distance, :location_struct])
     |> validate_change(:email, fn :email, email  ->
       if String.contains?(email, "@") do
         []
@@ -95,7 +95,6 @@ defmodule BikeBrigade.Riders.Rider do
     |> unique_constraint(:phone)
     |> unique_constraint(:email)
     |> set_signed_up_on()
-    |> fetch_location()
 
     if attrs[:tags] do
       put_assoc(cs, :tags, Enum.map(Access.get(attrs, :tags, []), &get_or_insert_tag/1), on_replace: :update)
@@ -108,27 +107,6 @@ defmodule BikeBrigade.Riders.Rider do
     case fetch_field(changeset, :signed_up_on) do
       {_, signed_up_on} when not is_nil(signed_up_on)-> changeset
       _ -> put_change(changeset, :signed_up_on, DateTime.utc_now() |> DateTime.truncate(:second))
-    end
-  end
-
-  defp fetch_location(%Ecto.Changeset{} = changeset) do
-    # We only fetch the location if we changed the address but *not* the location[]
-    with  {:data, _location} <- fetch_field(changeset, :location),
-          {:changes, address} <- fetch_field(changeset, :address),
-          {_, city} <- fetch_field(changeset, :city),
-          {_, postal} <- fetch_field(changeset, :postal),
-          {_, province} <- fetch_field(changeset, :province),
-          {_, country} <- fetch_field(changeset, :country),
-          {:ok, location} <- Geocoder.lookup("#{address} #{city} #{postal} #{province} #{country}")
-    do
-      location = %Geo.Point{
-        coordinates: {location.lon, location.lat}
-      }
-
-      changeset
-      |> put_change(:location, location)
-    else
-      _ -> changeset
     end
   end
 
