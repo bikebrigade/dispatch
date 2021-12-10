@@ -61,6 +61,12 @@ defmodule BikeBrigade.Fixtures do
   end
 
   def fixture(:rider, attrs) do
+    location = %Geo.Point{
+      coordinates: {-79.4258633, 43.6539952},
+      properties: %{},
+      srid: 4326
+    }
+
     {:ok, rider} =
       %{
         name: fake_name(),
@@ -70,11 +76,8 @@ defmodule BikeBrigade.Fixtures do
         address2: nil,
         city: "Toronto",
         country: "Canada",
-        location: %Geo.Point{
-          coordinates: {-79.4258633, 43.6539952},
-          properties: %{},
-          srid: 4326
-        },
+        location: location,
+        location_struct: %{coords: location},
         postal: "M6H 1A4",
         province: "Ontario",
         availability: %{
