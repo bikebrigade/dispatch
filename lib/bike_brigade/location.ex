@@ -8,7 +8,7 @@ defmodule BikeBrigade.Location do
 
   @primary_key false
   embedded_schema do
-    field :coords, Geo.PostGIS.Geometry
+    field :coords, Geo.PostGIS.Geometry, default: %Geo.Point{}
     field :address, :string
     field :neighborhood, :string
     field :city, :string, default: "Toronto"
