@@ -6,7 +6,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
   describe "Index" do
     setup [:create_campaign, :login]
 
-    test "lists campaigns for week campaigns", %{conn: conn, campaign: campaign, program: program} do
+    test "lists campaigns for week campaigns", %{conn: conn, program: program} do
       {:ok, _index_live, html} = live(conn, Routes.campaign_index_path(conn, :index))
 
       assert html =~ "Campaigns"
@@ -42,7 +42,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
       |> element("a", "Add Task")
       |> render_click()
 
-      {:ok, view, html} =
+      {:ok, _view, html} =
         view
         |> form("#task_form",
           task: %{dropoff_name: "Recipient Mcgee", dropoff_address: "2758 Yonge St"}

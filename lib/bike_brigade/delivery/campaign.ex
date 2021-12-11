@@ -11,7 +11,6 @@ defmodule BikeBrigade.Delivery.Campaign do
   alias BikeBrigade.Messaging.SmsMessage
 
   alias BikeBrigade.Location
-  alias BikeBrigade.Geocoder
 
   defenum(RiderSpreadsheetLayout, non_foodshare: 0, foodshare: 1)
 

@@ -117,7 +117,7 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
       name = String.trim("#{member.merge_fields[:FNAME]} #{member.merge_fields[:LNAME]}")
       pronouns = member.merge_fields[:RADIOYUI_]
       address = member.merge_fields[:TEXTYUI_3]
-      address2 = member.merge_fields[:TEXT2]
+      _address2 = member.merge_fields[:TEXT2]
       postal = member.merge_fields[:TEXT5]
       city = with_default(member.merge_fields[:TEXT3], "Toronto")
       province = with_default(member.merge_fields[:SELECTYUI], "Ontario")

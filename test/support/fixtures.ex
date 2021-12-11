@@ -148,10 +148,6 @@ defmodule BikeBrigade.Fixtures do
     "647-#{Enum.random(200..999)}-#{Enum.random(1000..9999)}"
   end
 
-  defp random_float(a, b) do
-    a + :rand.uniform() * (b - a)
-  end
-
   defp fake_item() do
     %{
       name: "Foodshare Box",
