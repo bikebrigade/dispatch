@@ -142,6 +142,7 @@ defmodule BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent do
   defp copy_delivery_tasks(old_campaign, new_campaign) do
     for old_task <- old_campaign.tasks do
       task_params = Delivery.Task.fields_for(old_task)
+        |> Map.drop([:delivery_status, :delivery_status_notes])
       {:ok, new_task} = Delivery.create_task_for_campaign(new_campaign, task_params)
 
       old_task = old_task |> Repo.preload(:task_items)
