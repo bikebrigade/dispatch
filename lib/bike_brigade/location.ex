@@ -8,7 +8,7 @@ defmodule BikeBrigade.Location do
 
   @primary_key false
   embedded_schema do
-    field :coords, Geo.PostGIS.Geometry, default: %Geo.Point{}
+    field :coords, Geo.PostGIS.Geometry
     field :address, :string
     field :neighborhood, :string
     field :city, :string, default: "Toronto"
@@ -41,11 +41,13 @@ defmodule BikeBrigade.Location do
   Fills in missing peices of a location struct using the Geocoder
   """
   @spec complete(__MODULE__.t()) :: {:ok, __MODULE__.t()} | {:error, any()}
-  def complete(%__MODULE__{address: address, city: city, postal: postal} = location) do
+  def complete(location) do
+    location = fill_unit(location)
+
     query =
-      [address, city, postal]
-      |> Enum.filter(&(!is_nil(&1) && &1 != ""))
-      |> Enum.join(" ")
+      "#{location.address} #{location.city} #{location.postal}"
+      |> String.trim()
+      |> String.replace(~r/\s+/, " ")
 
     case Geocoder.lookup(query) do
       {:ok, complete_location} ->
@@ -57,6 +59,18 @@ defmodule BikeBrigade.Location do
         {:error, error}
     end
   end
+
+  defp fill_unit(%__MODULE__{address: address} = location) when is_binary(address) do
+    case Regex.run(~r/^\s*(?<unit>[^\s]+)\s*-\s*(?<address>.*)$/, address) do
+      [_, unit, parsed_address] ->
+        %{location | address: parsed_address, unit: unit}
+
+      _ ->
+        location
+    end
+  end
+
+  defp fill_unit(location), do: location
 
   @spec set_coords(__MODULE__.t(), number(), number()) :: __MODULE__.t()
   def set_coords(location, lat, lon) when is_float(lat) and is_float(lon) do
