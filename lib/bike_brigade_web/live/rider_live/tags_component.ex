@@ -13,12 +13,27 @@ defmodule BikeBrigadeWeb.RiderLive.TagsComponent do
   end
 
   @impl Phoenix.LiveComponent
-  def handle_event("suggest", %{"value" => search}, socket) do
+  def handle_event("suggest", %{"value" => search, "key" => "Enter"}, socket) do
+    %{tags: tags} = socket.assigns
+
+    tag = Riders.create_tag(search)
+
+    {:noreply,
+    socket
+    |> assign(:tags, tags ++ [tag])
+    |> assign(:suggested_tags, [])}
+  end
+
+  @impl Phoenix.LiveComponent
+  def handle_event("suggest", %{"value" => search, "key" => key}, socket) do
     suggested_tags = case String.length(search) do
       0 -> []
       _ -> Riders.search_tags(search, 10)
     end
-    {:noreply, assign(socket, :suggested_tags, suggested_tags)}
+
+    {:noreply,
+     socket
+     |> assign(:suggested_tags, suggested_tags)}
   end
 
   def handle_event("select", %{"id" => id}, socket) do

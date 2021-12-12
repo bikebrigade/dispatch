@@ -189,6 +189,16 @@ defmodule BikeBrigade.Riders do
     |> Repo.one()
   end
 
+  def create_tag(name) do
+    # This increments the sequence number on every conflict and gives us very high ids
+    # do we care? Probably not...
+    Repo.insert!(
+      %Tag{name: name},
+      on_conflict: [set: [name: name]],
+      conflict_target: :name
+    )
+  end
+
   def subscribe do
     Phoenix.PubSub.subscribe(BikeBrigade.PubSub, "riders")
   end
