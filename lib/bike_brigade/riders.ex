@@ -29,6 +29,13 @@ defmodule BikeBrigade.Riders do
     if tag, do: tag.riders, else: []
   end
 
+  def search_tags(search \\ "", limit \\ 10) do
+    Tag
+    |> where([u], ilike(u.name, ^"%#{search}%"))
+    |> limit(^limit)
+    |> Repo.all
+  end
+
   def search_riders(search \\ "", limit \\ 100) do
     name_search = dynamic([r], ilike(r.name, ^"%#{search}%"))
     email_search = dynamic([r], ilike(r.email, ^"%#{search}%"))
