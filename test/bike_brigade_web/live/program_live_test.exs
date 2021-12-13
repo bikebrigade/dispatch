@@ -21,7 +21,7 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
       # Select the program
 
       view
-      |> element("##{program.id} a", program.name)
+      |> element("a", program.name)
       |> render_click()
 
       assert_redirected(view, "/programs/#{program.id}")
@@ -33,7 +33,7 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
       {:ok, view, _html} = live(conn, Routes.program_index_path(conn, :index))
 
       view
-      |> element("##{program.id} a", "Edit")
+      |> element("# a", "Edit")
       |> render_click()
 
       assert_patched(view, "/programs/#{program.id}/edit")
