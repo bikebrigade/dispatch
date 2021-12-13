@@ -7,6 +7,8 @@ defmodule BikeBrigadeWeb.CampaignLive.FormComponent do
   alias BikeBrigade.Delivery.Campaign
   alias BikeBrigade.Importers.GSheetsImporter
 
+  alias BikeBrigadeWeb.Components.LocationFormComponent
+
   defmodule CampaignForm do
     use BikeBrigade.Schema
     import Ecto.Changeset
@@ -66,6 +68,13 @@ defmodule BikeBrigadeWeb.CampaignLive.FormComponent do
         DeliveryDateTimeForm.from_date_times(campaign.delivery_start, campaign.delivery_end)
 
       %__MODULE__{campaign: campaign, date_time_form: date_time_form}
+    end
+
+    # Location is kind of buried here
+    def fetch_location(changeset) do
+      campaign = fetch_field!(changeset, :campaign)
+
+      campaign.location || %BikeBrigade.Location{}
     end
   end
 

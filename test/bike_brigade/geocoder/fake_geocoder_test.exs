@@ -4,7 +4,7 @@ defmodule BikeBrigade.Geocoder.FakeGeocoderTest do
   alias BikeBrigade.Geocoder
   alias BikeBrigade.Geocoder.FakeGeocoder
 
-  @address "1 Blue Jays Way Toronto"
+  @address "1 Blue Jays Way"
 
   test "Fake geocoder" do
     location = fixture(:location)

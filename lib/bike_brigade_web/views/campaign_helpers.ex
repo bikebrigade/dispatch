@@ -51,7 +51,8 @@ defmodule BikeBrigadeWeb.CampaignHelpers do
       Enum.filter(
         tasks,
         fn t ->
-          t.dropoff_name =~ ~r/#{query[:search]}/i or t.dropoff_address =~ ~r/#{query[:search]}/i
+          t.dropoff_name =~ ~r/#{Regex.escape(query[:search])}/i or
+            t.dropoff_address =~ ~r/#{Regex.escape(query[:search])}/i
         end
       )
     else

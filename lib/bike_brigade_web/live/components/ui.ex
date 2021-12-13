@@ -40,8 +40,7 @@ defmodule BikeBrigadeWeb.Components.UI do
               To: "translate-x-full"
           -->
           <div class={"w-screen #{width_css} slideover-panel"}
-              phx-window-keydown={hide_slideover(@id)} phx-key="escape"
-              phx-click-away={hide_slideover(@id)}>
+              phx-window-keydown={hide_slideover(@id)} phx-key="escape">
             <div class="flex flex-col h-full py-6 overflow-y-scroll bg-white shadow-xl">
               <div class="px-4 sm:px-6">
                 <div class="flex items-start justify-between">
@@ -161,15 +160,13 @@ defmodule BikeBrigadeWeb.Components.UI do
         </div>
         <div
           class={"#{if @show, do: "fade-in-scale", else: "hidden"} modal-content inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full sm:p-6"}
-          phx-window-keydown={hide_modal(@id)} phx-key="escape"
-          phx-click-away={hide_modal(@id)}
-        >
+          phx-window-keydown={hide_modal(@id)} phx-key="escape"}>
           <%= if @return_to do %>
           <div class="absolute top-0 right-0 pt-4 pr-4">
             <%= live_patch "close", to: @return_to, data: [modal_return: true], class: "hidden" %>
             <button type="button" phx-click={hide_modal(@id)}  class="block text-gray-400 bg-white rounded-md hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
               <span class="sr-only">Close</span>
-              <%= Heroicons.Outline.x(class: "w-6 h-6") %>
+              <Heroicons.Outline.x class="w-6 h-6" />
             </button>
           </div>
           <% end %>
@@ -181,6 +178,38 @@ defmodule BikeBrigadeWeb.Components.UI do
               <%= render_slot(@inner_block) %>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+    """
+  end
+
+  def table(assigns) do
+    assigns = assign_new(assigns, :class, fn -> "" end)
+    ~H"""
+    <div class="flex flex-col py-4">
+      <div class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+        <div class="inline-block min-w-full overflow-hidden align-middle border-b border-gray-200 shadow sm:rounded-lg">
+          <table class={"min-w-full #{@class}"} >
+            <thead>
+              <tr>
+                <%= for th <- @th do %>
+                <th class={"text-xs font-medium leading-4 tracking-wider text-left text-gray-500 border-b border-gray-200 bg-gray-50 #{if Map.get(th, :uppercase, true), do: "uppercase"} #{Map.get(th, :padding, "px-6 py-3")} #{Map.get(th, :class)}"}>
+                  <%= render_slot(th) %>
+                </th>
+                <% end %>
+              </tr>
+            </thead>
+            <%= for row <- @rows do %>
+              <tr>
+                <%= for td <- @td do %>
+                  <td class={"text-sm leading-5 text-gray-500 border-b border-gray-200 whitespace-nowrap #{Map.get(td, :padding, "px-6 py-4")} #{Map.get(td, :class)}"}>
+                    <%= render_slot(td, row) %>
+                  </td>
+                <% end %>
+              </tr>
+            <% end %>
+          </table>
         </div>
       </div>
     </div>

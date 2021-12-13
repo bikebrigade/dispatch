@@ -1,5 +1,5 @@
 defmodule BikeBrigade.Delivery.Item do
-  use Ecto.Schema
+  use BikeBrigade.Schema
   import Ecto.Changeset
 
   alias BikeBrigade.Delivery.Program

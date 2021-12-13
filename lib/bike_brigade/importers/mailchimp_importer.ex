@@ -3,7 +3,7 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
   alias Ecto.Multi
   import BikeBrigade.Utils, only: [get_config: 1, with_default: 2]
   alias BikeBrigade.Repo
-
+  alias BikeBrigade.Location
   alias BikeBrigade.Importers.Importer
   alias BikeBrigade.Riders
   alias BikeBrigade.Riders.Rider
@@ -117,7 +117,7 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
       name = String.trim("#{member.merge_fields[:FNAME]} #{member.merge_fields[:LNAME]}")
       pronouns = member.merge_fields[:RADIOYUI_]
       address = member.merge_fields[:TEXTYUI_3]
-      address2 = member.merge_fields[:TEXT2]
+      _address2 = member.merge_fields[:TEXT2]
       postal = member.merge_fields[:TEXT5]
       city = with_default(member.merge_fields[:TEXT3], "Toronto")
       province = with_default(member.merge_fields[:SELECTYUI], "Ontario")
@@ -136,6 +136,16 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
       max_distance = translate_max_distance(member.merge_fields[:RADIO16])
       capacity = translate_capacity(member.merge_fields[:RADIO17])
 
+      {:ok, location} =
+        %Location{
+          address: address,
+          postal: postal,
+          city: city,
+          province: province,
+          country: country
+        }
+        |> Location.complete()
+
       rider_attrs = %{
         mailchimp_id: member.id,
         mailchimp_status: member.status,
@@ -143,12 +153,7 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
         email: email,
         name: name,
         pronouns: pronouns,
-        address: address,
-        address2: address2,
-        postal: postal,
-        city: city,
-        province: province,
-        country: country,
+        location_struct: location,
         signed_up_on: member.timestamp_opt,
         max_distance: max_distance,
         capacity: capacity,

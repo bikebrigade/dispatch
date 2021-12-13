@@ -11,7 +11,6 @@ defmodule BikeBrigade.Delivery.Campaign do
   alias BikeBrigade.Messaging.SmsMessage
 
   alias BikeBrigade.Location
-  alias BikeBrigade.Geocoder
 
   defenum(RiderSpreadsheetLayout, non_foodshare: 0, foodshare: 1)
 
@@ -34,22 +33,38 @@ defmodule BikeBrigade.Delivery.Campaign do
     :program_id
   ]
 
+  @embedded_fields [
+    :location
+  ]
+
   schema "campaigns" do
     field(:name, :string)
     field(:delivery_date, :date)
     field(:delivery_start, :utc_datetime)
     field(:delivery_end, :utc_datetime)
     field(:details, :string)
+    # TODO remove
     field(:pickup_address, :string)
+    # TODO remove
     field(:pickup_address2, :string)
+    # TODO remove
     field(:pickup_city, :string)
+    # TODO remove
     field(:pickup_country, :string)
+    # TODO remove
     field(:pickup_location, Geo.PostGIS.Geometry)
+    # TODO remove
     field(:pickup_postal, :string)
+    # TODO remove
     field(:pickup_province, :string)
+    # TODO remove
     field(:pickup_window, :string)
+    # TODO remove
     field(:rider_spreadsheet_id, :string)
+    # TODO remove
     field(:rider_spreadsheet_layout, RiderSpreadsheetLayout)
+
+    embeds_one(:location, Location, on_replace: :delete)
 
     belongs_to(:instructions_template, Messaging.Template, on_replace: :update)
     belongs_to(:program, Program)
@@ -65,88 +80,37 @@ defmodule BikeBrigade.Delivery.Campaign do
 
     field :delivery_url_token, :string, virtual: true
 
-  #  field :campaign_message_id, :integer, virtual: true
+    #  field :campaign_message_id, :integer, virtual: true
     belongs_to :latest_message, SmsMessage, define_field: false
 
     timestamps()
   end
 
-  # TODO: maybe call this something like changeset! because it makes an API call
   def changeset(struct, params \\ %{}) do
     changeset =
       struct
       |> cast(params, @fields)
-      |> fetch_pickup_location()
+      |> cast_embed(:location)
 
     changeset
     |> cast_assoc(:tasks, with: Task.changeset_for_campaign(changeset), required: false)
     |> cast_assoc(:riders, required: false)
     |> cast_assoc(:instructions_template, required: false)
     |> cast_assoc(:scheduled_message, required: false)
-    |> validate_required([:delivery_start, :delivery_end, :pickup_location])
+    |> validate_required([:delivery_start, :delivery_end, :location])
     # TODO is this actually unique
     |> unique_constraint(:name)
   end
 
-  # TODO: this is acopy of the one from Task, make this a shared lib
-  def fetch_pickup_location(%Ecto.Changeset{} = changeset) do
-    # We only fetch the location if we changed the address but *not* the location[]
-    with {:data, _location} <- fetch_field(changeset, :pickup_location),
-         {:changes, address} <- fetch_field(changeset, :pickup_address),
-         {:ok,
-          %Location{
-            lat: lat,
-            lon: lon,
-            city: location_city,
-            postal: location_postal,
-            province: location_province,
-            country: location_country
-          }} <- Geocoder.lookup(address) do
-      pickup_location = %Geo.Point{
-        coordinates: {lon, lat}
-      }
-
-      pickup_city =
-        case fetch_field(changeset, :pickup_city) do
-          {:changes, city} -> city
-          {:data, _} -> location_city
-        end
-
-      pickup_postal =
-        case fetch_field(changeset, :pickup_postal) do
-          {:changes, postal} -> postal
-          {:data, _} -> location_postal
-        end
-
-      pickup_province =
-        case fetch_field(changeset, :pickup_province) do
-          {:changes, province} -> province
-          {:data, _} -> location_province
-        end
-
-      pickup_country =
-        case fetch_field(changeset, :pickup_country) do
-          {:changes, country} -> country
-          {:data, _} -> location_country
-        end
-
-      changeset
-      |> put_change(:pickup_location, pickup_location)
-      |> put_change(:pickup_city, pickup_city)
-      |> put_change(:pickup_postal, pickup_postal)
-      |> put_change(:pickup_province, pickup_province)
-      |> put_change(:pickup_country, pickup_country)
-    else
-      {:error, reason} ->
-        # We aren't getting enough info from the address which means it must be invalid
-        add_error(changeset, :pickup_address, reason)
-
-      _ ->
-        changeset
-    end
-  end
-
   def fields_for(campaign) do
+    embedded =
+      for k <- @embedded_fields, into: %{} do
+        value =  Map.get(campaign, k)
+        |> Map.from_struct()
+        {k, value}
+      end
+
     Map.take(campaign, @fields)
+    |> Map.merge(embedded)
   end
 end

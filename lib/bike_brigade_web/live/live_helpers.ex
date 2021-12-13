@@ -1,6 +1,7 @@
 defmodule BikeBrigadeWeb.LiveHelpers do
   import Phoenix.LiveView.Helpers
 
+  alias BikeBrigade.Location
   alias BikeBrigade.LocalizedDateTime
 
   def gravatar(email) do
@@ -42,9 +43,12 @@ defmodule BikeBrigadeWeb.LiveHelpers do
   end
 
   def lat(%Geo.Point{coordinates: {_lng, lat}}), do: lat
+  def lat(%Location{coords: coords}), do: lat(coords)
+
   def lat(_), do: nil
 
   def lng(%Geo.Point{coordinates: {lng, _lat}}), do: lng
+  def lng(%Location{coords: coords}), do: lng(coords)
   def lng(_), do: nil
 
   @doc """

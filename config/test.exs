@@ -18,7 +18,7 @@ config :bike_brigade, BikeBrigade.Repo,
 # you can enable the server option below.
 config :bike_brigade, BikeBrigadeWeb.Endpoint,
   http: [port: 4002],
-  server: false,
+  server: true,
   static_url: [path: "/static"]
 
 # Print only warnings and errors during test
@@ -46,3 +46,16 @@ config :bike_brigade, :geocoder, adapter: {BikeBrigade.Geocoder.FakeGeocoder, [l
 config :bike_brigade, :media_storage,
   adapter: BikeBrigade.MediaStorage.FakeMediaStorage,
   bucket: "bike-brigade-public"
+
+config :bike_brigade, :sandbox, Ecto.Adapters.SQL.Sandbox
+
+config :wallaby,
+  otp_app: :bike_brigade,
+  driver: Wallaby.Chrome
+
+if System.get_env("IN_NIX_SHELL") do
+  config :wallaby,
+    chromedriver: [
+      path: "./tmp/chromedriver"
+    ]
+end

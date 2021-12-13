@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+set -e
+
+dir="./tmp"
+
+# get the major version of Chrome
+version_str=$("$1" --version)
+pattern='Google Chrome ([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)'
+[[ $version_str =~ $pattern ]]
+major=${BASH_REMATCH[1]};
+
+if [ ! -f "${dir}/chromedriver-${major}" ]; then
+  # we don't have the file for the current version of chrome
+  echo "Getting new version of chromedriver..."
+
+  # lookup the latest version for this series
+  latest_version=$(curl https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${major})
+  url="https://chromedriver.storage.googleapis.com/${latest_version}/chromedriver_mac64.zip"
+
+  # download it and unzip it
+  mkdir -p ${dir}
+  pushd ${dir}
+  curl $url --output chromedriver.zip
+  unzip -o chromedriver.zip
+
+  mv chromedriver "chromedriver-${major}"
+  ln -snf "chromedriver-${major}" chromedriver
+  rm chromedriver.zip
+  popd
+fi

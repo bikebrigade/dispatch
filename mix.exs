@@ -58,8 +58,9 @@ defmodule BikeBrigade.MixProject do
       {:nimble_csv, "~> 0.7.0"},
       {:ex_phone_number, "~> 0.2"},
       {:ecto_enum, "~> 1.4.0"},
-      {:geo_postgis, "~> 3.3.1"},
+      {:geo_postgis, "~> 3.4.0"},
       {:lib_lat_lon, "~> 0.4"},
+      {:topo, "~> 0.4.0"},
       {:ex_twilio, "~> 0.9.1"},
       # the author has yet to publish this, but it gives us get list by id: https://github.com/duartejc/mailchimp/pull/20
       {:mailchimp,
@@ -69,11 +70,11 @@ defmodule BikeBrigade.MixProject do
       {:google_api_storage, "~> 0.29.0"},
       {:google_api_sheets, "~> 0.29.0"},
       {:goth, "~> 1.3-rc", override: true},
-      {:faker, "~> 0.13"},
+      {:faker, "~> 0.17"},
       {:mustache, "~> 0.3.0"},
       {:honeybadger, "~> 0.16.3"},
       {:recase, "~> 0.5"},
-      {:heroicons, "~> 0.2.4"},
+      {:heroicons, "~> 0.3.0"},
       {:linkify, git: "https://github.com/mveytsman/linkify", ref: "42c1aca5da2c2ab28abf8f304b211c2a5d2c89c7"},
       {:crontab, "~> 1.1"},
       {:tzdata, "~> 1.1"},
@@ -82,6 +83,7 @@ defmodule BikeBrigade.MixProject do
       {:prom_ex, "~> 1.4.1"},
       {:esbuild, "~> 0.3.0", runtime: Mix.env() == :dev},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
+      {:wallaby, "~> 0.29.1", runtime: false, only: :test},
 
       # LiveBook Stuff
       {:kino, "~> 0.3.0"},
