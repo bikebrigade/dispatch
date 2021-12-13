@@ -85,22 +85,22 @@
         <span class="sr-only">Message</span>
       </:th>
 
-      <:td let={{rider, campaigns, tasks, distance}}>
+      <:td let={{rider, _campaigns, _tasks, _distance}}>
         <%= rider.name %>
       </:td>
-      <:td let={{rider, campaigns, tasks, distance}}>
+      <:td let={{rider, _campaigns, _tasks, _distance}}>
         <%= link rider.email, to: "mailto:#{rider.email}", class: "text-indigo-600 hover:text-indigo-900"%>
       </:td>
-      <:td let={{rider, campaigns, tasks, distance}}>
+      <:td let={{_rider, campaigns, _tasks, _distance}}>
         <%= campaigns %>
       </:td>
-      <:td let={{rider, campaigns, tasks, distance}}>
+      <:td let={{_rider, _campaigns, tasks, _distance}}>
         <%= tasks %>
       </:td>
-      <:td let={{rider, campaigns, tasks, distance}}>
+      <:td let={{_rider, _campaigns, _tasks, distance}}>
         <%= round_distance(distance) %> km
       </:td>
-      <:td let={{rider, campaigns, tasks, distance}}>
+      <:td let={{rider, _campaigns, _tasks, _distance}}>
         <C.button size={:xsmall} patch-to={Routes.sms_message_index_path(@socket, :show, rider.id)}>
           Message
         </C.button>

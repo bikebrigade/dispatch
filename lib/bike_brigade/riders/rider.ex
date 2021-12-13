@@ -8,8 +8,6 @@ defmodule BikeBrigade.Riders.Rider do
   alias BikeBrigade.Riders.{Tag, RidersTag}
   alias BikeBrigade.Delivery.{Task, CampaignRider}
 
-  alias BikeBrigade.Geocoder
-
   defenum OnfleetAccountStatusEnum, invited: "invited", accepted: "accepted"
   defenum MailchimpStatusEnum, subscribed: "subscribed", unsubscribed: "unsubscribed", cleaned: "cleaned", pending: "pending", transactional: "transactional"
   defenum CapacityEnum, small: 1, medium: 4, large: 9
