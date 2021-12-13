@@ -1,59 +1,103 @@
 <div>
 <C.flash_component flash={@flash} />
 <.form
-  let={c}
+  let={f}
   for={@changeset}
   id="user-form"
   phx-target={@myself}
   phx-change="validate"
   phx-submit="save">
-  <%= for d <- inputs_for(c, :date_time_form) do %>
   <div class="flex my-2 space-x-2">
     <div>
-      <%= label d, :delivery_date, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+      <%= label f, :delivery_date, class: "block text-sm font-medium leading-5 text-gray-700" do %>
         Delivery Date
       <% end %>
       <div class="mt-1 rounded-md shadow-sm">
-        <%= date_input d, :delivery_date, required: true, placeholder: "YYYY-MM-DD", phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+        <%= date_input f, :delivery_date, required: true, placeholder: "YYYY-MM-DD", phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
       </div>
-      <%= error_tag d, :delivery_date %>
+      <%= error_tag f, :delivery_date %>
     </div>
     <div>
-      <%= label d, :start_time, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+      <%= label f, :start_time, class: "block text-sm font-medium leading-5 text-gray-700" do %>
         Start
       <% end %>
       <div class="mt-1">
-        <%= time_input d, :start_time, required: true, phx_debounce: "blur", class: "block w-28 px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+        <%= time_input f, :start_time, required: true, phx_debounce: "blur", class: "block w-28 px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
       </div>
-      <%= error_tag d, :start_time %>
+      <%= error_tag f, :start_time %>
     </div>
     <div>
-      <%= label d, :end_time, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+      <%= label f, :end_time, class: "block text-sm font-medium leading-5 text-gray-700" do %>
         End
       <% end %>
       <div class="mt-1">
-        <%= time_input d, :end_time, required: true, phx_debounce: "blur", class: "block w-28 px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
-        <%= error_tag d, :end_time %>
+        <%= time_input f, :end_time, required: true, phx_debounce: "blur", class: "block w-28 px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+        <%= error_tag f, :end_time %>
       </div>
     </div>
   </div>
- <% end %>
- <%= for f <- inputs_for(c, :campaign) do %>
   <div class="my-2">
     <%= label f, :program_id, class: "block text-sm font-medium leading-5 text-gray-700" do %>
       Program
     <% end %>
     <div class="mt-1 rounded-md shadow-sm">
-      <%= select f, :program_id,  program_options(), phx_debounce: "blur", class: "block w-full py-2 pl-3 pr-10 mt-1 text-xs border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" %>
+      <%= select f, :program_id,  @program_options, phx_debounce: "blur", class: "block w-full py-2 pl-3 pr-10 mt-1 text-xs border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" %>
     </div>
     <%= error_tag f, :program_id %>
     <%= live_redirect "Create New Program", to: Routes.program_index_path(@socket, :new), class: "text-xs link" %>
   </div>
 
   <%= for l <- inputs_for(f, :location) do %>
-    <.live_component id={:location_form} module={LocationFormComponent} for={l} location={CampaignForm.fetch_location(@changeset)}>
-        <:label>Pickup Location</:label>
-    </.live_component>
+      <%= hidden_input l, :coords, value: Jason.encode!(input_value(l, :coords))  %>
+      <%= hidden_input l, :neighborhood %>
+      <%= hidden_input l, :postal %>
+      <%= hidden_input l, :city  %>
+      <%= hidden_input l, :province %>
+      <%= hidden_input l, :country %>
+    <div class="my-2">
+      <div class="text-sm font-medium leading-5 text-gray-700">
+        Pickup Location
+      </div>
+      <div class="p-2 my-1 border-2 border-dashed">
+        <div class="flex space-x-1">
+          <div class="w-1/2">
+            <label class="block text-xs font-medium leading-5 text-gray-700">
+              Address
+            </label>
+            <div class="mt-1 rounded-md shadow-sm">
+              <%= text_input l, :address, required: true, phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+            </div>
+            <%= error_tag f, :location %>
+          </div>
+          <div class="w-1/4">
+            <label class="block text-xs font-medium leading-5 text-gray-700">
+              Unit
+            </label>
+            <div class="mt-1 rounded-md shadow-sm">
+            <%= text_input l, :unit, class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+            </div>
+          </div>
+          <div class="w-1/4">
+            <label class="block text-xs font-medium leading-5 text-gray-700">
+              Buzzer
+            </label>
+            <div class="mt-1 rounded-md shadow-sm">
+            <%= text_input l, :buzzer, class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+            </div>
+          </div>
+        </div>
+          <%= if @campaign_form.location.coords != %Geo.Point{} do %>
+          <div class="w-full h-64 mt-2 ">
+            <leaflet-map phx-hook="LeafletMap" id={"location-map-#{inspect(@campaign_form.location.coords.coordinates)}"} data-lat={ lat(@campaign_form.location.coords) } data-lng={ lng(@campaign_form.location.coords) }
+              data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
+              class="h-full">
+              <leaflet-marker phx-hook="LeafletMarker" id={"location-marker-#{inspect(@campaign_form.location.coords.coordinates)}"} data-lat={ lat(@campaign_form.location.coords) } data-lng={ lng(@campaign_form.location.coords) }
+              data-icon="warehouse" data-color="#1c64f2"></leaflet-marker>
+            </leaflet-map>
+          </div>
+        <% end %>
+      </div>
+    </div>
   <% end %>
 
   <div class="my-2">
@@ -85,7 +129,6 @@
     </div>
     <%= error_tag f, :rider_spreadsheet_layout %>
   </div>
-  <% end %>
   <div class="flex justify-end mt-2">
     <C.button type="submit" phx-disable-with="Saving...">
       Save
