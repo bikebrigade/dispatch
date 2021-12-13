@@ -74,7 +74,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
                ~s|#rider-select input[name="campaign_rider[rider_id]"][value="#{rider.id}"]|
              )
 
-      {:ok, view, html} =
+      {:ok, _view, html} =
         view
         |> form("#add_rider_form")
         |> render_submit()

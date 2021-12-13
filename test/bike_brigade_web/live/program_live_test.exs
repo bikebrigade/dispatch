@@ -10,13 +10,13 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
 
     test "lists programs for week programs", %{conn: conn, program: program} do
 
-      {:ok, index_live, html} = live(conn, Routes.program_index_path(conn, :index))
+      {:ok, _index_live, html} = live(conn, Routes.program_index_path(conn, :index))
       assert html =~ "Programs"
       assert html =~ program.name
     end
 
     test "redirects to show program", %{conn: conn, program: program} do
-      {:ok, view, html} = live(conn, Routes.program_index_path(conn, :index))
+      {:ok, view, _html} = live(conn, Routes.program_index_path(conn, :index))
 
       # Select the program
 
@@ -44,7 +44,7 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
     test "can edit a program", %{conn: conn, program: program} do
       {:ok, view, html} = live(conn, Routes.program_show_path(conn, :edit, program))
 
-      {:ok, view, html} =
+      {:ok, _view, html} =
         view
         |> form("#program-form",
           program_form: %{
@@ -62,9 +62,6 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
 
       assert html =~ "Foodies"
 
-      view
-      |> open_browser()
-
       # get an ID of a program.
       updated_program = Delivery.get_program!(program.id)
       assert updated_program.name == "Foodies"
@@ -73,7 +70,7 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
     # New item
 
     test "can add new item", %{conn: conn, program: program} do
-      {:ok, view, html} = live(conn, Routes.program_index_path(conn, :edit, program))
+      {:ok, view, _html} = live(conn, Routes.program_index_path(conn, :edit, program))
 
       # Click on New Item
       view
