@@ -71,7 +71,7 @@ defmodule BikeBrigade.Fixtures do
         location: @location.coords,
         location_struct: Map.from_struct(@location),
         postal: @location.postal,
-        province: "Ontario",
+        province: @location.province,
         availability: %{
           "fri" => "all_day",
           "mon" => "all_day",
