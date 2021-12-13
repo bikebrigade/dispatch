@@ -137,14 +137,15 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
       capacity = translate_capacity(member.merge_fields[:RADIO17])
 
       {:ok, location} =
-        %Location{
+        Location.changeset(%Location{}, %{
           address: address,
           postal: postal,
           city: city,
           province: province,
           country: country
-        }
-        |> Location.complete()
+        })
+        |> Location.geocode_changeset()
+        |> Ecto.Changeset.apply_action(:save)
 
       rider_attrs = %{
         mailchimp_id: member.id,

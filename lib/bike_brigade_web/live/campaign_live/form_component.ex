@@ -66,19 +66,8 @@ defmodule BikeBrigadeWeb.CampaignLive.FormComponent do
     def update(%__MODULE__{} = campaign_form, params) do
       campaign_form
       |> changeset(params)
-      |> maybe_complete_location(campaign_form.location)
+      |> update_change(:location, &Location.geocode_changeset/1)
       |> apply_action(:save)
-    end
-
-    defp maybe_complete_location(changeset, old_location) do
-      with {_, location} <- fetch_field(changeset, :location),
-           true <- location != old_location,
-           {:ok, location} <- Location.complete(location) do
-        put_embed(changeset, :location, location)
-      else
-        {:error, error} -> add_error(changeset, :location, error)
-        _ -> changeset
-      end
     end
   end
 
