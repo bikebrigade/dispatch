@@ -110,7 +110,7 @@ defmodule BikeBrigade.Delivery.Task do
         do
         attrs =
           %{
-            delivery_date: delivery_date,
+            delivery_date: delivery_date, # TODO remove
             pickup_address: pickup_location.address,
             pickup_city: pickup_location.city,
             pickup_country: pickup_location.country,
