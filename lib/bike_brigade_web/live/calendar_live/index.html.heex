@@ -40,13 +40,14 @@
               <%= if !opportunity.hide_address && opportunity.program.latest_campaign do %>
               <div class="flex items-center text-sm text-gray-300">
                 <Heroicons.Outline.location_marker class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
-                  <%= link to: DeliveryHelpers.open_map_url(opportunity.program.latest_campaign), target: "_blank", class: "underline hover:text-gray-300" do %>
+               <%= link to: DeliveryHelpers.open_map_url(opportunity.program.latest_campaign), target: "_blank", class: "underline hover:text-gray-300" do %>
                   <%= opportunity.program.latest_campaign.location.address %>
                 <% end %>
+                <span class="ml-1 font-medium">(<%= opportunity.program.latest_campaign.location.neighborhood %>)</span>
               </div>
               <% end %>
               <%= if opportunity.program.campaign_blurb  do %>
-                <div class="flex items-center text-sm text-gray-300">
+                <div class="flex items-start text-sm text-gray-300">
                   <Heroicons.Outline.information_circle aria-label="Pickup Time" class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
                   <%= opportunity.program.campaign_blurb %>
                 </div>
