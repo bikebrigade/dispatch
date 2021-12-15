@@ -81,6 +81,7 @@ defmodule BikeBrigadeWeb.Router do
 
     live_session :dispatch, on_mount: LiveHooks.Authentication do
       live "/riders", RiderLive.Index, :index
+      live "/riders-next", RiderLive.IndexNext, :index
       live "/riders/new", RiderLive.Index, :new
       live "/riders/:id/edit", RiderLive.Index, :edit
 
