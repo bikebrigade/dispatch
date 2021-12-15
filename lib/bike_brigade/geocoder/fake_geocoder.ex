@@ -71,6 +71,8 @@ defmodule BikeBrigade.Geocoder.FakeGeocoder do
         }
         |> Location.set_coords(lat, lon)
 
+        #TODO include neighborhood here
+
       {address, location}
     end)
   end

@@ -23,27 +23,19 @@ defmodule BikeBrigade.Repo.Seeds.Toronto do
 
   @before_compile LoadAddresses
 
-  def random_address do
+  def random_location do
     [address, postal, city, lat, lng] = Enum.random(addresses())
 
-    %{
+    location = %Location{
       address: address,
       postal: postal,
       city: city,
-      lat: lat,
-      lng: lng,
       country: "Canada",
       province: "Ontario"
     }
-  end
-
-  def to_location(%{lat: lat, lng: lng, city: city, postal: postal}) do
-    %Location{
-      city: city,
-      postal: postal,
-      province: "Ontario",
-      country: "Canada"
-    }
     |> Location.set_coords(lat, lng)
+
+    %{location | neighborhood: BikeBrigade.Geocoder.get_neighborhood(location.coords)}
+
   end
 end
