@@ -38,42 +38,42 @@ defmodule BikeBrigade.Delivery.Campaign do
   ]
 
   schema "campaigns" do
-    field(:name, :string)
-    field(:delivery_date, :date)
-    field(:delivery_start, :utc_datetime)
-    field(:delivery_end, :utc_datetime)
-    field(:details, :string)
+    field :name, :string
+    field :delivery_date, :date
+    field :delivery_start, :utc_datetime
+    field :delivery_end, :utc_datetime
+    field :details, :string
     # TODO remove
-    field(:pickup_address, :string)
+    field :pickup_address, :string
     # TODO remove
-    field(:pickup_address2, :string)
+    field :pickup_address2, :string
     # TODO remove
-    field(:pickup_city, :string)
+    field :pickup_city, :string
     # TODO remove
-    field(:pickup_country, :string)
+    field :pickup_country, :string
     # TODO remove
-    field(:pickup_location, Geo.PostGIS.Geometry)
+    field :pickup_location, Geo.PostGIS.Geometry
     # TODO remove
-    field(:pickup_postal, :string)
+    field :pickup_postal, :string
     # TODO remove
-    field(:pickup_province, :string)
+    field :pickup_province, :string
     # TODO remove
-    field(:pickup_window, :string)
+    field :pickup_window, :string
     # TODO remove
-    field(:rider_spreadsheet_id, :string)
+    field :rider_spreadsheet_id, :string
     # TODO remove
-    field(:rider_spreadsheet_layout, RiderSpreadsheetLayout)
+    field :rider_spreadsheet_layout, RiderSpreadsheetLayout
 
     embeds_one :location, Location, on_replace: :update
 
-    belongs_to(:instructions_template, Messaging.Template, on_replace: :update)
-    belongs_to(:program, Program)
-    has_one(:scheduled_message, Messaging.ScheduledMessage, on_replace: :delete)
+    belongs_to :instructions_template, Messaging.Template, on_replace: :update
+    belongs_to :program, Program
+    has_one :scheduled_message, Messaging.ScheduledMessage, on_replace: :delete
 
     # todo possibly a has_many
-    has_many(:tasks, Task)
-    has_many(:campaign_riders, CampaignRider)
-    many_to_many(:riders, Rider, join_through: CampaignRider)
+    has_many :tasks, Task
+    has_many :campaign_riders, CampaignRider
+    many_to_many :riders, Rider, join_through: CampaignRider
 
     field :total_riders, :integer, virtual: true
     field :total_tasks, :integer, virtual: true
@@ -105,8 +105,10 @@ defmodule BikeBrigade.Delivery.Campaign do
   def fields_for(campaign) do
     embedded =
       for k <- @embedded_fields, into: %{} do
-        value =  Map.get(campaign, k)
-        |> Map.from_struct()
+        value =
+          Map.get(campaign, k)
+          |> Map.from_struct()
+
         {k, value}
       end
 

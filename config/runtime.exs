@@ -50,32 +50,6 @@ if config_env() == :prod do
         breadcrumbs_enabled: true,
         ecto_repos: [BikeBrigade.Repo]
 
-      # Use LogFlare in prod
-      # config :logger,
-      #   level: :info,
-      #   backends: [LogflareLogger.HttpBackend]
-
-      logflare_api_key =
-        System.get_env("LOGFLARE_API_KEY") ||
-          raise "LOGFLARE_API_KEY not available"
-
-      logflare_source_id =
-        System.get_env("LOGFLARE_SOURCE_ID") ||
-          raise "LOGFLARE_SOURCE_ID not available"
-
-      config :logflare_logger_backend,
-        # https://api.logflare.app is configured by default and you can set your own url
-        url: "https://api.logflare.app",
-        # Default LogflareLogger level is :info. Note that log messages are filtered by the :logger application first
-        level: :info,
-        api_key: logflare_api_key,
-        source_id: logflare_source_id,
-        # minimum time in ms before a log batch is sent to the server ",
-        flush_interval: 1_000,
-        # maximum number of events before a log batch is sent to the server
-        max_batch_size: 50,
-        metadata: [drop: [:hb_breadcrumbs]]
-
       # Importers
       config :bike_brigade, BikeBrigade.Importers.Runner,
         start: true,
