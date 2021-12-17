@@ -52,7 +52,7 @@ defmodule BikeBrigade.Riders.Rider do
     field :province, :string # remove
     field :signed_up_on, :utc_datetime
     field :last_safety_check, :date
-    embeds_one(:location_struct, Location, on_replace: :delete)
+    embeds_one :location_struct, Location, on_replace: :delete
 
 
     field :distance, :integer, virtual: true

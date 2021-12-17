@@ -33,7 +33,7 @@ defmodule BikeBrigade.Geocoder do
 
   def lookup(nil, opts), do: lookup("", opts)
 
-  @deprecated "To be removed when moving to Location.complete"
+  @deprecated "To be removed when moving to Location.geocode_changeset"
   def lookup_toronto(address, opts \\ []) do
     lookup(address <> " Toronto", opts)
   end

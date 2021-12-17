@@ -1,6 +1,6 @@
 # Contributors
 
-This project's history has been squashed as part of open-sourcing, so not all contributirons are reflected in the Git history.
+This project's history has been squashed as part of open-sourcing, so not all contributions are reflected in the Git history.
 
 ## Contributors (sorted alphabetically by last name)
 

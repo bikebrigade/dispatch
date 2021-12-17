@@ -32,45 +32,45 @@ defmodule BikeBrigade.Location do
         }
 
   def changeset(struct, params \\ %{}) do
+    #  require IEx; IEx.pry
     struct
     |> cast(params, @fields)
     |> validate_required([:coords, :city, :province, :country])
   end
 
-  @doc """
-  Fills in missing peices of a location struct using the Geocoder
-  """
-  @spec complete(__MODULE__.t()) :: {:ok, __MODULE__.t()} | {:error, any()}
-  def complete(location) do
-    location = fill_unit(location)
+  def geocoding_changeset(struct, params \\ %{}) do
+    cs =
+      changeset(struct, params)
+      |> IO.inspect()
 
-    query =
-      "#{location.address} #{location.city} #{location.postal}"
-      |> String.trim()
-      |> String.replace(~r/\s+/, " ")
+    IO.inspect(fetch_field(cs, :address))
 
-    case Geocoder.lookup(query) do
-      {:ok, complete_location} ->
-        updates = for {k, v} <- Map.from_struct(complete_location), !is_nil(v), do: {k, v}
-
-        {:ok, struct(location, updates)}
-
-      {:error, error} ->
-        {:error, error}
+    with {:changes, address} <- fetch_field(cs, :address),
+         {address, unit} <- parse_unit(address),
+         {_, city} <- fetch_field(cs, :city),
+         {:ok, location} <- String.trim("#{address} #{city}") |> Geocoder.lookup() do
+      for {k, v} <- %{location | unit: unit} |> Map.from_struct(),
+          !is_nil(v),
+          reduce: cs do
+        cs -> put_change(cs, k, v)
+      end
+    else
+      {:data, _} -> cs
+      {:error, error} -> add_error(cs, :address, "#{error}")
     end
   end
 
-  defp fill_unit(%__MODULE__{address: address} = location) when is_binary(address) do
+  defp parse_unit(address) when is_binary(address) do
     case Regex.run(~r/^\s*(?<unit>[^\s]+)\s*-\s*(?<address>.*)$/, address) do
       [_, unit, parsed_address] ->
-        %{location | address: parsed_address, unit: unit}
+        {parsed_address, unit}
 
       _ ->
-        location
+        {address, nil}
     end
   end
 
-  defp fill_unit(location), do: location
+  defp parse_unit(address), do: {address, nil}
 
   @spec set_coords(__MODULE__.t(), number(), number()) :: __MODULE__.t()
   def set_coords(location, lat, lon) when is_float(lat) and is_float(lon) do

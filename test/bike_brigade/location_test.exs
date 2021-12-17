@@ -4,14 +4,62 @@ defmodule BikeBrigade.LocationTest do
   alias BikeBrigade.Geocoder.FakeGeocoder
   alias BikeBrigade.Location
 
-  test "completes a location" do
-    location = fixture(:location)
+  describe "Geolocation" do
+    setup do
+      location = fixture(:location)
+      FakeGeocoder.inject_address("#{location.address} #{location.city}", location)
 
-    FakeGeocoder.inject_address("#{location.address} #{location.city}", location)
+      %{location: location}
+    end
 
-    assert Location.complete(%Location{address: location.address, city: location.city}) == {:ok, location}
+    test "geolocate a location", %{location: location} do
+      geocoded =
+        %Location{}
+        |> Location.geocoding_changeset(%{address: location.address, city: location.city})
+        |> Ecto.Changeset.apply_changes()
+
+      assert geocoded == location
+    end
+
+    test "only re-geocode when changing address", %{location: location} do
+      FakeGeocoder.inject_address("#{location.address} #{location.city}", %{
+        location
+        | postal: "Fake Postal"
+      })
+
+      location =
+        location
+        |> Location.geocoding_changeset(%{unit: "37"})
+        |> Ecto.Changeset.apply_changes()
+
+      assert location.postal != "Fake Postal"
+
+      location =
+        location
+        |> Location.geocoding_changeset(%{unit: "   #{location.address}"})
+        |> Ecto.Changeset.apply_changes()
+
+      assert location.postal != "Fake Postal"
+    end
+
+    test "keep unit and buzzer when geocoding", %{location: location} do
+      geocoded =
+        %Location{unit: "10", buzzer: "Q"}
+        |> Location.geocoding_changeset(%{address: location.address, city: location.city})
+        |> Ecto.Changeset.apply_changes()
+
+      assert geocoded.unit == "10"
+      assert geocoded.buzzer == "Q"
+    end
+
+
+    test "parse unit", %{location: location} do
+      geocoded =
+        %Location{}
+        |> Location.geocoding_changeset(%{address: "11-#{location.address}", city: location.city})
+        |> Ecto.Changeset.apply_changes()
+
+      assert geocoded.unit == "11"
+    end
   end
-
-  # TODO test merging
-  # TODO test handing of unit
 end
