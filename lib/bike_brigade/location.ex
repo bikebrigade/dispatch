@@ -32,24 +32,31 @@ defmodule BikeBrigade.Location do
         }
 
   def changeset(struct, params \\ %{}) do
+    #  require IEx; IEx.pry
     struct
     |> cast(params, @fields)
     |> validate_required([:coords, :city, :province, :country])
   end
 
-  def geocode_changeset(changeset) do
-    with {:changes, address} <- fetch_field(changeset, :address),
+  def geocoding_changeset(struct, params \\ %{}) do
+    cs =
+      changeset(struct, params)
+      |> IO.inspect()
+
+    IO.inspect(fetch_field(cs, :address))
+
+    with {:changes, address} <- fetch_field(cs, :address),
          {address, unit} <- parse_unit(address),
-         {_, city} <- fetch_field(changeset, :city),
+         {_, city} <- fetch_field(cs, :city),
          {:ok, location} <- String.trim("#{address} #{city}") |> Geocoder.lookup() do
       for {k, v} <- %{location | unit: unit} |> Map.from_struct(),
           !is_nil(v),
-          reduce: changeset do
-        changeset -> put_change(changeset, k, v)
+          reduce: cs do
+        cs -> put_change(cs, k, v)
       end
     else
-      {:data, _} -> changeset
-      {:error, error} -> add_error(changeset, :address, "#{error}")
+      {:data, _} -> cs
+      {:error, error} -> add_error(cs, :address, "#{error}")
     end
   end
 

@@ -20,7 +20,7 @@ defmodule BikeBrigadeWeb.Components.LocationForm do
               Address
             </label>
             <div class="mt-1 rounded-md shadow-sm">
-              <%= text_input @for, :address, required: true, phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+              <%= text_input @for, :address, required: true, phx_debounce: "blur", autocomplete: "street-address", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
             </div>
             <%= error_tag @for, :address %>
           </div>
@@ -41,24 +41,33 @@ defmodule BikeBrigadeWeb.Components.LocationForm do
             </div>
           </div>
         </div>
-        <.map coords={input_value(@for, :coords)} />
+        <.map for={@for} />
       </div>
     </div>
     """
   end
 
   defp map(assigns) do
+    assigns = assign(assigns, :coords, coords(assigns.for))
+
     ~H"""
-    <%= if @coords != %Geo.Point{} do %>
-      <div class="w-full h-64 mt-2 ">
-        <leaflet-map phx-hook="LeafletMap" id={"location-map-#{inspect(@coords.coordinates)}"} data-lat={ lat(@coords) } data-lng={ lng(@coords) }
-          data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
-          class="h-full">
-          <leaflet-marker phx-hook="LeafletMarker" id={"location-marker-#{inspect(@coords.coordinates)}"} data-lat={ lat(@coords) } data-lng={ lng(@coords) }
-          data-icon="warehouse" data-color="#1c64f2"></leaflet-marker>
-        </leaflet-map>
-      </div>
-    <% end %>
-  """
+      <%= if @coords != %Geo.Point{} do %>
+        <div class="w-full h-64 mt-2 ">
+          <leaflet-map phx-hook="LeafletMap" id={"location-map-#{inspect(@coords.coordinates)}"} data-lat={ lat(@coords) } data-lng={ lng(@coords) }
+            data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
+            class="h-full">
+            <leaflet-marker phx-hook="LeafletMarker" id={"location-marker-#{inspect(@coords.coordinates)}"} data-lat={ lat(@coords) } data-lng={ lng(@coords) }
+            data-icon="warehouse" data-color="#1c64f2"></leaflet-marker>
+          </leaflet-map>
+        </div>
+      <% end %>
+    """
+  end
+
+  defp coords(form) do
+    case input_value(form, :coords) do
+      %Geo.Point{} = coords -> coords
+      json when is_binary(json) -> Jason.decode!(json) |> Geo.JSON.decode!()
+    end
   end
 end

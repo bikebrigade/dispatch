@@ -23,7 +23,7 @@ defmodule BikeBrigadeWeb.CampaignLive.FormComponent do
       field :rider_spreadsheet_url, :string
       field :rider_spreadsheet_layout, :string
 
-      embeds_one :location, Location, on_replace: :delete
+      embeds_one :location, Location, on_replace: :update
       belongs_to :program, Program
     end
 
@@ -38,7 +38,7 @@ defmodule BikeBrigadeWeb.CampaignLive.FormComponent do
         :rider_spreadsheet_layout,
         :program_id
       ])
-      |> cast_embed(:location)
+      |> cast_embed(:location, with: &Location.geocoding_changeset/2)
       |> validate_required([:delivery_date, :start_time, :end_time, :location, :program_id])
     end
 
@@ -67,7 +67,6 @@ defmodule BikeBrigadeWeb.CampaignLive.FormComponent do
     def update(%__MODULE__{} = campaign_form, params) do
       campaign_form
       |> changeset(params)
-      |> update_change(:location, &Location.geocode_changeset/1)
       |> apply_action(:save)
     end
   end
