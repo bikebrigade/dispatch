@@ -15,8 +15,7 @@ defmodule BikeBrigade.LocationTest do
     test "geolocate a location", %{location: location} do
       geocoded =
         %Location{}
-        |> Location.changeset(%{address: location.address, city: location.city})
-        |> Location.geocode_changeset()
+        |> Location.geocoding_changeset(%{address: location.address, city: location.city})
         |> Ecto.Changeset.apply_changes()
 
       assert geocoded == location
@@ -30,16 +29,14 @@ defmodule BikeBrigade.LocationTest do
 
       location =
         location
-        |> Location.changeset(%{unit: "37"})
-        |> Location.geocode_changeset()
+        |> Location.geocoding_changeset(%{unit: "37"})
         |> Ecto.Changeset.apply_changes()
 
       assert location.postal != "Fake Postal"
 
       location =
         location
-        |> Location.changeset(%{unit: "   #{location.address}"})
-        |> Location.geocode_changeset()
+        |> Location.geocoding_changeset(%{unit: "   #{location.address}"})
         |> Ecto.Changeset.apply_changes()
 
       assert location.postal != "Fake Postal"
@@ -48,8 +45,7 @@ defmodule BikeBrigade.LocationTest do
     test "keep unit and buzzer when geocoding", %{location: location} do
       geocoded =
         %Location{unit: "10", buzzer: "Q"}
-        |> Location.changeset(%{address: location.address, city: location.city})
-        |> Location.geocode_changeset()
+        |> Location.geocoding_changeset(%{address: location.address, city: location.city})
         |> Ecto.Changeset.apply_changes()
 
       assert geocoded.unit == "10"
@@ -60,8 +56,7 @@ defmodule BikeBrigade.LocationTest do
     test "parse unit", %{location: location} do
       geocoded =
         %Location{}
-        |> Location.changeset(%{address: "11-#{location.address}", city: location.city})
-        |> Location.geocode_changeset()
+        |> Location.geocoding_changeset(%{address: "11-#{location.address}", city: location.city})
         |> Ecto.Changeset.apply_changes()
 
       assert geocoded.unit == "11"
