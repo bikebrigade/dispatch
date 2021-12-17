@@ -18,27 +18,25 @@ alias BikeBrigade.LocalizedDateTime
 # Create some riders
 
 for _ <- 0..100 do
-  address = Toronto.random_address()
-
-  coords = %Geo.Point{coordinates: {address[:lng], address[:lat]}}
+  location = Toronto.random_location()
 
   {:ok, _rider} =
     BikeBrigade.Riders.create_rider(%{
-      address: address[:address],
+      address: location.address,
       # TODO
       availability: %{},
       capacity: Utils.random_enum(Rider.CapacityEnum),
-      city: address[:city],
-      country: address[:country],
+      city: location.city,
+      country: location.country,
       email: Faker.Internet.email(),
-      location: coords,
-      location_struct: %{coords: coords},
+      location: location.coords,
+      location_struct: Map.from_struct(location),
       max_distance: 20,
       name: "#{Faker.Person.first_name()} #{Faker.Person.last_name()}",
       phone: "647-#{Enum.random(200..999)}-#{Enum.random(1000..9999)}",
-      postal: address[:postal],
+      postal: location.postal,
       pronouns: Enum.random(~w(He/Him She/Her They/Them)),
-      province: address[:province],
+      province: location.province,
       signed_up_on: LocalizedDateTime.now()
     })
 end

@@ -153,7 +153,7 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
         email: email,
         name: name,
         pronouns: pronouns,
-        location_struct: location,
+        location_struct: Map.from_struct(location),
         signed_up_on: member.timestamp_opt,
         max_distance: max_distance,
         capacity: capacity,

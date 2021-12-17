@@ -12,7 +12,7 @@ let
       CoreServices
     ]);
 
-  elixirPackages = [ beam.packages.erlangR24.elixir_1_12 ];
+  elixirPackages = [ beam.packages.erlangR24.elixir_1_13 ];
 
   nodePackages = [ nodejs yarn ];
 
