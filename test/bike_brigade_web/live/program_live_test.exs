@@ -9,7 +9,6 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
     setup [:create_program, :login]
 
     test "lists programs for week programs", %{conn: conn, program: program} do
-
       {:ok, _index_live, html} = live(conn, Routes.program_index_path(conn, :index))
       assert html =~ "Programs"
       assert html =~ program.name
@@ -42,7 +41,7 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
     # Edit form
 
     test "can edit a program", %{conn: conn, program: program} do
-      {:ok, view, html} = live(conn, Routes.program_show_path(conn, :edit, program))
+      {:ok, view, _html} = live(conn, Routes.program_show_path(conn, :edit, program))
 
       {:ok, _view, html} =
         view
@@ -70,7 +69,9 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
     # New item
 
     test "can add new item", %{conn: conn, program: program} do
-      {:ok, view, _html} = live(conn, Routes.program_index_path(conn, :edit, program))
+      {:ok, view, html} = live(conn, Routes.program_index_path(conn, :edit, program))
+
+      refute html =~ "Awesome food hamper"
 
       # Click on New Item
       view
@@ -79,18 +80,21 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
 
       assert_patched(view, "/programs/#{program.id}/items/new")
 
-      {:ok, view, html} =
-        view
-        |> form("#item-form",
-          item: %{
-            name: "good food",
-            plural_name: "Food Hampers",
-            description: "Awesome food hamper",
-            category: "Food Hamper"
-          }
-        )
-        |> render_submit()
-        |> follow_redirect(conn)
+      view
+      |> form("#item-form",
+        item: %{
+          name: "good food",
+          plural_name: "Food Hampers",
+          description: "Awesome food hamper",
+          category: "Food Hamper"
+        }
+      )
+      |> render_submit()
+
+      # Open the edit page again to make sure we have the new item type
+      {:ok, _view, html} = live(conn, Routes.program_index_path(conn, :edit, program))
+
+      assert html =~ "Awesome food hamper"
     end
   end
 end

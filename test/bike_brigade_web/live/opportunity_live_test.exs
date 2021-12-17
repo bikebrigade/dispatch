@@ -33,18 +33,17 @@ defmodule BikeBrigadeWeb.OpportunityLiveTest do
       |> element("button", "New Signup Link")
       |> render_click()
 
-      view
+      link = Faker.Internet.url()
+      assert view
         |> form("#opportunity-form-new",
         opportunity_form: %{
-              program_id: "",
               delivery_date: "2021-12-13",
               start_time: "15:00pm",
               end_time: "17:00pm",
-              signup_link: "https://www.example.com/"
+              signup_link: link
             }
         )
-
-        |> render_submit()
+        |> render_submit() =~ link
     end
   end
 end
