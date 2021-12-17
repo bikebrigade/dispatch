@@ -21,10 +21,24 @@ You'll want to be inside the `nix-shell` when working on this project. Make sure
 To start the server & console run:
 
 ```
-iex -S mix phx.server
+scripts/server
 ```
 
 Note: if you want the Elixir language server to be accessible to your editor, you will have to lauch your editor from within the `nix-shell`, or do some [direnv](https://github.com/direnv/direnv/) or [lorri](https://github.com/target/lorri) magic.
+
+### Testing
+
+You can run the entire test suite with
+
+```
+scripts/test
+```
+
+If you wish to run a specific test you can provide a file and optionally a line number
+
+```
+scripts/test path/to/test.exs:LINENUMBER
+```
 
 ### Updating nix dependencies
 [niv](https://github.com/nmattia/niv) is used to ensure everyone is using the same version of nixpkgs.
@@ -44,7 +58,7 @@ You can then commit the changes.
 Force push to the staging branch in order to deploy to staging
 
 ```
-git push origin +HEAD:staging
+scripts/deploy_staging
 ```
 
 ### Production
