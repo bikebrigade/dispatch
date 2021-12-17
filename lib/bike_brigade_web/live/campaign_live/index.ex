@@ -4,6 +4,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
   alias BikeBrigade.Utils
   alias BikeBrigade.LocalizedDateTime
 
+  alias BikeBrigade.Location
   alias BikeBrigade.Delivery
   alias BikeBrigade.Delivery.Campaign
   alias BikeBrigade.Messaging.SmsMessage
@@ -79,7 +80,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
 
     socket
     |> assign(:page_title, "New Campaign")
-    |> assign(:campaign, %Campaign{delivery_start: delivery_start, delivery_end: delivery_end})
+    |> assign(:campaign, %Campaign{delivery_start: delivery_start, delivery_end: delivery_end, location: %Location{}})
   end
 
   defp apply_action(socket, :duplicate, %{"id" => id}) do

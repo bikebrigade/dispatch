@@ -64,7 +64,7 @@ defmodule BikeBrigade.Delivery.Campaign do
     # TODO remove
     field :rider_spreadsheet_layout, RiderSpreadsheetLayout
 
-    embeds_one :location, Location, on_replace: :delete
+    embeds_one :location, Location, on_replace: :update
 
     belongs_to :instructions_template, Messaging.Template, on_replace: :update
     belongs_to :program, Program
