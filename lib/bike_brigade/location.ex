@@ -5,6 +5,7 @@ defmodule BikeBrigade.Location do
   alias BikeBrigade.Geocoder
 
   @fields [:coords, :address, :neighborhood, :city, :postal, :province, :country, :unit, :buzzer]
+  @user_provided_fields [:address, :unit, :buzzer]
 
   @primary_key false
   embedded_schema do
@@ -40,10 +41,8 @@ defmodule BikeBrigade.Location do
 
   def geocoding_changeset(struct, params \\ %{}) do
     cs =
-      changeset(struct, params)
-      |> IO.inspect()
-
-    IO.inspect(fetch_field(cs, :address))
+      struct
+      |> cast(params, @user_provided_fields)
 
     with {:changes, address} <- fetch_field(cs, :address),
          {address, unit} <- parse_unit(address),
