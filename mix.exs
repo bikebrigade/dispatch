@@ -81,6 +81,7 @@ defmodule BikeBrigade.MixProject do
       {:benchee, "~> 1.0.1"},
       {:prom_ex, "~> 1.4.1"},
       {:esbuild, "~> 0.3.0", runtime: Mix.env() == :dev},
+      {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:wallaby, "~> 0.29.1", runtime: false, only: :test},
 
@@ -102,7 +103,7 @@ defmodule BikeBrigade.MixProject do
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate", "test"],
-      "assets.deploy": ["esbuild default --minify", "cmd npm run deploy --prefix assets", "phx.digest"]
+      "assets.deploy": ["esbuild default --minify", "tailwind default --minify", "phx.digest"]
     ]
   end
 end
