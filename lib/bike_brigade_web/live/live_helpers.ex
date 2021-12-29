@@ -1,6 +1,4 @@
 defmodule BikeBrigadeWeb.LiveHelpers do
-  import Phoenix.LiveView.Helpers
-
   alias BikeBrigade.Location
   alias BikeBrigade.LocalizedDateTime
 
