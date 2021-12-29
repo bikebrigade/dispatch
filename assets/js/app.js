@@ -17,9 +17,6 @@ import "@ryangjchandler/alpine-clipboard"
 import "alpinejs"
 import Tribute from "tributejs";
 import Chart from 'chart.js/auto';
-import flatpickr from "flatpickr";
-import rangePlugin from 'flatpickr/dist/plugins/rangePlugin';
-
 
 
 

@@ -101,20 +101,4 @@ defmodule BikeBrigadeWeb.Components.Sidebar do
     <% end %>
     """
   end
-
-  defp class(selected, link_to) do
-    if selected == link_to do
-      "group flex items-center mb-1 px-2 py-2 text-base leading-6 font-medium text-gray-900 rounded-md bg-gray-100 focus:outline-none focus:bg-gray-200 transition ease-in-out duration-150"
-    else
-      "group flex items-center mb-1 px-2 py-2 text-base leading-6 font-medium text-gray-600 rounded-md hover:text-gray-900 hover:bg-gray-50 focus:outline-none focus:text-gray-900 focus:bg-gray-100 transition ease-in-out duration-150"
-    end
-  end
-
-  def svg_class(selected, link_to) do
-    if selected == link_to do
-      "mr-4 h-6 w-6 text-gray-500 group-hover:text-gray-500 group-focus:text-gray-600 transition ease-in-out duration-150"
-    else
-      "mr-4 h-6 w-6 text-gray-400 group-hover:text-gray-500 group-focus:text-gray-500 transition ease-in-out duration-150"
-    end
-  end
 end

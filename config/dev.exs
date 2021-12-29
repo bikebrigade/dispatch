@@ -25,9 +25,7 @@ config :bike_brigade, BikeBrigadeWeb.Endpoint,
   check_origin: false,
   watchers: [
     esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
-    npx:
-      ~w(postcss css/app.css --output ../priv/static/assets/app.css --watch) ++
-        [cd: Path.expand("../assets", __DIR__)]
+    tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]}
   ]
 
 # ## SSL Support
