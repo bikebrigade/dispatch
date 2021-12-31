@@ -29,15 +29,27 @@ defmodule BikeBrigade.Riders do
     if tag, do: tag.riders, else: []
   end
 
-  def search_riders(search \\ "", limit \\ 100) do
-    name_search = dynamic([r], ilike(r.name, ^"%#{search}%"))
-    email_search = dynamic([r], ilike(r.email, ^"%#{search}%"))
-    phone_search = dynamic([r], ilike(r.phone, ^"%#{Regex.replace(~r/[^\d]/, search, "")}%"))
+  def search_riders(search \\ "", opts \\ []) do
+    opts = Keyword.merge([limit: 100, name_search: true, email_search: false, phone_search: false], opts)
 
-    where = if Regex.match?(~r/\d/, search) do
-      dynamic(^name_search or ^email_search or ^phone_search)
+
+    where = false
+    where = if Keyword.get(opts, :name_search) do
+      dynamic([r], ^where or ilike(r.name, ^"%#{search}%"))
     else
-      dynamic(^name_search or ^email_search)
+      where
+    end
+
+    where = if Keyword.get(opts, :email_search) do
+      dynamic([r], ^where or ilike(r.email, ^"%#{search}%"))
+    else
+      where
+    end
+
+    where = if Keyword.get(opts, :phone_search) and search =~ ~r/\d/ do
+      dynamic([r], ^where or ilike(r.phone, ^"%#{Regex.replace(~r/[^\d]/, search, "")}%"))
+    else
+      where
     end
 
     query =
@@ -45,7 +57,7 @@ defmodule BikeBrigade.Riders do
         where: ^where,
         left_join: cr in CampaignRider,
         on: cr.rider_id == r.id,
-        limit: ^limit,
+        limit: ^Keyword.get(opts, :limit),
         group_by: r.id,
         order_by: [desc: count(cr.id)]
 
