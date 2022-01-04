@@ -83,7 +83,7 @@
       <%= label f, :tags, class: "block text-sm font-medium leading-5 text-gray-700" do %>
       Tags
       <% end %>
-      <.live_component module={BikeBrigadeWeb.RiderLive.TagsComponent} id={:rider_tags} tags={@rider.tags} input_name="tags[]"/>
+      <.live_component module={BikeBrigadeWeb.RiderLive.TagsComponent} id={:rider_tags} tags={@rider.tags} input_name={"#{input_name(f, :tags)}[]"}/>
 
       <%= error_tag f, :tags %>
     </div>

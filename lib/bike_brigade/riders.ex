@@ -33,7 +33,7 @@ defmodule BikeBrigade.Riders do
     Tag
     |> where([u], ilike(u.name, ^"%#{search}%"))
     |> limit(^limit)
-    |> Repo.all
+    |> Repo.all()
   end
 
   def search_riders(search \\ "", limit \\ 100) do
@@ -41,11 +41,12 @@ defmodule BikeBrigade.Riders do
     email_search = dynamic([r], ilike(r.email, ^"%#{search}%"))
     phone_search = dynamic([r], ilike(r.phone, ^"%#{Regex.replace(~r/[^\d]/, search, "")}%"))
 
-    where = if Regex.match?(~r/\d/, search) do
-      dynamic(^name_search or ^email_search or ^phone_search)
-    else
-      dynamic(^name_search or ^email_search)
-    end
+    where =
+      if Regex.match?(~r/\d/, search) do
+        dynamic(^name_search or ^email_search or ^phone_search)
+      else
+        dynamic(^name_search or ^email_search)
+      end
 
     query =
       from r in Rider,
@@ -135,6 +136,16 @@ defmodule BikeBrigade.Riders do
     |> broadcast(:rider_created)
   end
 
+    # TODO: make it pretty
+
+  def create_rider_with_tags(attrs \\ %{}, tags \\ [], opts \\ []) do
+    %Rider{}
+    |> Rider.changeset(attrs)
+    |> Rider.tags_changeset(tags)
+    |> Repo.insert(opts)
+    |> broadcast(:rider_created)
+  end
+
   @doc """
   Updates a rider.
 
@@ -150,6 +161,15 @@ defmodule BikeBrigade.Riders do
   def update_rider(%Rider{} = rider, attrs) do
     rider
     |> Rider.changeset(attrs)
+    |> Repo.update()
+    |> broadcast(:rider_updated)
+  end
+
+  # TODO: make it pretty
+  def update_rider_with_tags(%Rider{} = rider, attrs, tags \\ []) do
+    rider
+    |> Rider.changeset(attrs)
+    |> Rider.tags_changeset(tags)
     |> Repo.update()
     |> broadcast(:rider_updated)
   end
@@ -189,14 +209,20 @@ defmodule BikeBrigade.Riders do
     |> Repo.one()
   end
 
-  def create_tag(name) do
-    # This increments the sequence number on every conflict and gives us very high ids
-    # do we care? Probably not...
-    Repo.insert!(
-      %Tag{name: name},
-      on_conflict: [set: [name: name]],
-      conflict_target: :name
-    )
+  def find_or_create_tag(name) do
+    case Repo.get_by(Tag, name: name) do
+      %Tag{} = tag ->
+        tag
+
+      nil ->
+        # This increments the sequence number on every conflict and gives us very high ids
+        # do we care? Probably not...
+        Repo.insert!(
+          %Tag{name: name},
+          on_conflict: [set: [name: name]],
+          conflict_target: :name
+        )
+    end
   end
 
   def subscribe do

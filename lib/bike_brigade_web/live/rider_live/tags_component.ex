@@ -16,7 +16,7 @@ defmodule BikeBrigadeWeb.RiderLive.TagsComponent do
   def handle_event("suggest", %{"value" => search, "key" => "Enter"}, socket) do
     %{tags: tags} = socket.assigns
 
-    tag = Riders.create_tag(search)
+    tag = Riders.find_or_create_tag(search)
 
     {:noreply,
     socket
@@ -57,7 +57,7 @@ defmodule BikeBrigadeWeb.RiderLive.TagsComponent do
 
   def render(assigns) do
     ~H"""
-    <div class="block w-full px-3 my-1 py-2 border border-gray-300 rounded-md">
+    <div class="block w-full px-3 py-2 my-1 border border-gray-300 rounded-md">
       <%= for {tag, i} <- Enum.with_index(@tags) do %>
         <span class="inline-flex items-center px-2.5 py-1.5 rounded-md text-md font-medium bg-indigo-100 text-indigo-800 hover">
         <%= tag.name %>
@@ -65,7 +65,7 @@ defmodule BikeBrigadeWeb.RiderLive.TagsComponent do
         </span>
         <input type="hidden" name={@input_name} value={tag.name}>
       <% end  %>
-      <input class="appearance-none border-transparent focus:border-transparent outline-transparent ring-transparent focus:ring-0" type="text" phx-keyup="suggest" phx-target={ @myself } phx-debounce="50" name="search" placeholder="Type to search for tags">
+      <input class="border-transparent appearance-none focus:border-transparent outline-transparent ring-transparent focus:ring-0" type="text" phx-keyup="suggest" phx-target={ @myself } phx-debounce="50" name="search" placeholder="Type to search for tags">
       <ul id="tag-selection-list" class="overflow-y-auto max-h-64">
         <%= for tag <- @suggested_tags do %>
           <li id={"tag-selection:#{tag.id}"} class="p-1">

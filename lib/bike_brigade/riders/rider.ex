@@ -96,9 +96,10 @@ defmodule BikeBrigade.Riders.Rider do
     |> set_signed_up_on()
   end
 
+  # TODO strip all space chracters from names
   def tags_changeset(changeset, tags) do
     changeset
-    |> put_assoc(:tags, Enum.map(tags, &Riders.create_tag/1), on_replace: :update)
+    |> put_assoc(:tags, Enum.map(tags, &Riders.find_or_create_tag/1), on_replace: :update)
   end
 
   def set_signed_up_on(%Ecto.Changeset{} = changeset) do
