@@ -1,18 +1,15 @@
+// See the Tailwind configuration guide for advanced usage
+// https://tailwindcss.com/docs/configuration
+
 const defaultTheme = require('tailwindcss/defaultTheme')
 
 module.exports = {
-  purge: {
-    content: [
-      '../**/*.ex',
-      '../**/*.eex',
-      '../**/*.leex',
-      '../**/*.heex',
-      './js/**/*.js'
-    ],
-    options: {
-      safelist: ['tribute-container']
-    }
-  },
+  content: [
+    './js/**/*.js',
+    '../lib/*_web.ex',
+    '../lib/*_web/**/*.*ex'
+  ],
+  safelist: ['tribute-container'],
   theme: {
     extend: {
       screens: {
@@ -27,5 +24,5 @@ module.exports = {
     require('@tailwindcss/forms'),
     require('@tailwindcss/typography'),
     require('@tailwindcss/aspect-ratio'),
-  ],
+  ]
 }

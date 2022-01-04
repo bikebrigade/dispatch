@@ -42,7 +42,7 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="">
+    <div id="rider-select">
     <%= for rider <- @selected_riders do %>
       <div class="flex px-3 py-4">
         <div class="flex items-center flex-1 min-w-0">
