@@ -5,7 +5,7 @@ config :bike_brigade, :app_env, "development"
 
 # Configure your database
 config :bike_brigade, BikeBrigade.Repo,
-  username: "postgres",
+  username: System.get_env("POSTGRES_USERNAME") || "postgres",
   password: "postgres",
   database: "bike_brigade_dev",
   hostname: "localhost",
