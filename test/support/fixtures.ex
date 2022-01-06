@@ -100,7 +100,7 @@ defmodule BikeBrigade.Fixtures do
       |> Map.merge(attrs)
       |> Delivery.create_opportunity()
 
-      opportunity
+    opportunity
   end
 
   def fixture(:location, _attrs) do
@@ -137,7 +137,10 @@ defmodule BikeBrigade.Fixtures do
   end
 
   defp fake_name() do
+    # Faker has names like O'Connel, and the apostrophe gets translated to &#39; in HTML output
+    # This is annoying in tests so we'll just filter out the apostrophe.
     "#{Faker.Person.first_name()} #{Faker.Person.last_name()}"
+    |> String.replace(~r/[^a-zA-Z\s]/, "")
   end
 
   # Faker's phone doesn't always pass canadian validation
