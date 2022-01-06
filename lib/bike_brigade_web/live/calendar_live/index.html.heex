@@ -7,12 +7,12 @@
     </h1>
   </div>
 
-  <div class="w-full py-2 text-center flex justify-center gap-5">
-  <%= for {date, opportunties} <- @opportunities  do %>
-   <h4 class="font-serif text-4xl font-medium">
-      <div class="mt-3 text-lg"><%= Calendar.strftime(date, "%a") %> <%= Calendar.strftime(date, "%-d") %></div>
-   </h4>
-  <% end %>
+  <div class="flex justify-center w-full gap-5 py-2 text-center">
+    <%= for {date, _opportunties} <- @opportunities  do %>
+      <h4 class="font-serif text-4xl font-medium">
+          <div class="mt-3 text-lg"><%= Calendar.strftime(date, "%a") %> <%= Calendar.strftime(date, "%-d") %></div>
+      </h4>
+    <% end %>
   </div>
 
   <div class="flex flex-col my-6 mt-14">
