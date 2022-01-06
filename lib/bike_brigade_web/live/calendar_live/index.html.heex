@@ -9,9 +9,14 @@
 
   <div class="flex justify-center w-full gap-5 py-2 text-center mt-14">
     <%= for {date, _opportunties} <- @opportunities  do %>
-      <C.button size={:xlarge} color={:black} class="font-medium flex-col">
-          <div class="text-lg"><%= Calendar.strftime(date, "%a") %> </div>
-          <div class="text-3xl font-serif"> <%= Calendar.strftime(date, "%-d") %></div>
+      <C.button size={:xlarge} color={:black} class="flex-col font-medium">
+        <div class="text-lg"><%= Calendar.strftime(date, "%a") %> </div>
+        <div class="font-serif text-3xl"> <%= Calendar.strftime(date, "%-d") %></div>
+        <%= if date == @today do %>
+          <div class="mt-1">
+            <C.Icons.circle class="w-2 h-2" />
+          </div>
+        <% end %>
       </C.button>
     <% end %>
   </div>
