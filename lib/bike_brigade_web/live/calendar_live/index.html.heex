@@ -9,7 +9,7 @@
 
   <div class="flex justify-center w-full gap-5 py-2 text-center mt-14">
     <%= for {date, _opportunties} <- @opportunities  do %>
-      <C.button size={:xlarge} color={:black} class="flex-col font-medium">
+      <C.button href={"##{date}"} size={:xlarge} color={:black} class="flex-col font-medium">
         <div class="text-lg"><%= Calendar.strftime(date, "%a") %> </div>
         <div class="font-serif text-3xl"> <%= Calendar.strftime(date, "%-d") %></div>
         <%= if date == @today do %>
@@ -23,7 +23,7 @@
 
   <div class="flex flex-col my-4">
     <%= for {date, opportunties} <- @opportunities  do %>
-    <div class="flex flex-col items-start border-gray-400 sm:pt-3 sm:border-t-2 sm:flex-row">
+    <div id={date} class="flex flex-col items-start border-gray-400 sm:pt-3 sm:border-t-2 sm:flex-row">
       <div class="sticky top-0 flex-col items-center flex-shrink-0 hidden w-2/12 sm:flex">
         <div class="mt-2 text-lg font-normal "><%= Calendar.strftime(date, "%a") %></div>
           <div class="my-2 font-serif text-3xl"><%= Calendar.strftime(date, "%-d") %></div>
