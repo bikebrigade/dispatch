@@ -33,7 +33,7 @@
       </div>
       <div class="flex flex-col mb-5 space-y-1 border-gray-400 divide-y ml-14">
         <%= for opportunity <- opportunties do %>
-          <div class="flex flex-row w-4/5 pb-5 space-x-1">
+          <div class="flex flex-row w-4/5 pb-5 space-x-1 min-w-32 sm:min-w-96">
             <!-- don't show images yet
             <div class="hidden md:block">
               <img class="w-full h-full" src={Routes.static_path(@socket, "/images/wordmark-black.png")}/>
@@ -50,10 +50,12 @@
               <%= if !opportunity.hide_address && opportunity.program.latest_campaign do %>
               <div class="flex items-center text-sm text-gray-300">
                 <Heroicons.Outline.location_marker class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
-               <%= link to: DeliveryHelpers.open_map_url(opportunity.program.latest_campaign), target: "_blank", class: "underline hover:text-gray-300" do %>
-                  <%= opportunity.program.latest_campaign.location.address %>
-                <% end %>
-                <span class="ml-1 font-medium">(<%= opportunity.program.latest_campaign.location.neighborhood %>)</span>
+                <div class="flex flex-col sm:flex-row">
+                  <%= link to: DeliveryHelpers.open_map_url(opportunity.program.latest_campaign), target: "_blank", class: "underline hover:text-gray-300 mr-1" do %>
+                    <%= opportunity.program.latest_campaign.location.address %>
+                  <% end %>
+                  <div class="font-medium">(<%= opportunity.program.latest_campaign.location.neighborhood %>)</div>
+                </div>
               </div>
               <% end %>
               <%= if opportunity.program.campaign_blurb  do %>
