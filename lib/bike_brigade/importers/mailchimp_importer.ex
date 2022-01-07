@@ -7,6 +7,7 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
   alias BikeBrigade.Importers.Importer
   alias BikeBrigade.Riders
   alias BikeBrigade.Riders.Rider
+  alias BikeBrigade.Messaging.SlackWebhook
 
   @count 100
   @mailchimp "mailchimp"
@@ -136,15 +137,20 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
       max_distance = translate_max_distance(member.merge_fields[:RADIO16])
       capacity = translate_capacity(member.merge_fields[:RADIO17])
 
-      {:ok, location} =
-        Location.geocoding_changeset(%Location{}, %{
-          address: address,
-          postal: postal,
-          city: city,
-          province: province,
-          country: country
-        })
-        |> Ecto.Changeset.apply_action(:save)
+      location_changeset = Location.geocoding_changeset(%Location{}, %{
+        address: address,
+        postal: postal,
+        city: city,
+        province: province,
+        country: country
+      })
+      location = case Ecto.Changeset.apply_action(location_changeset, :save) do
+          {:ok, location} -> location
+          {:error, _errors} ->
+            error_message = "Address error for ${:name} (${:email}): ${:address}. Please look up their rider page and edit manually!"
+            Task.start(SlackWebhook, :post_message, [error_message])
+            %Location{address: "1 Front St"}
+      end
 
       rider_attrs = %{
         mailchimp_id: member.id,

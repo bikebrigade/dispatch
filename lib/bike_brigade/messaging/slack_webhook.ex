@@ -40,6 +40,23 @@ defmodule BikeBrigade.Messaging.SlackWebhook do
     :ok = SlackApi.send_webook(payload)
   end
 
+  def post_message(message) do
+    payload =
+      %{
+        blocks: [
+          %{
+            type: "section",
+            text: %{
+              type: "mrkdwn",
+              text: message
+            },
+          }
+        ]
+      }
+      |> Jason.encode!()
+    :ok = SlackApi.send_webook(payload)
+  end
+
   def filter_mrkdwn(nil) do
     ""
   end
