@@ -2,8 +2,6 @@ defmodule BikeBrigadeWeb.RiderLive.TagsComponent do
   use BikeBrigadeWeb, :live_component
 
   alias BikeBrigade.Riders
-  alias BikeBrigade.Riders.Tag
-  alias BikeBrigade.Repo
 
   @impl Phoenix.LiveComponent
   def mount(socket) do
@@ -25,29 +23,13 @@ defmodule BikeBrigadeWeb.RiderLive.TagsComponent do
      |> assign(:suggested_tags, suggested_tags)}
   end
 
-  def handle_event("create", %{"name" =>  name}, socket) do
-    %{tags: tags} = socket.assigns
 
-    tag =
-      name
-      |> String.trim()
-      |> Riders.find_or_create_tag()
+  def handle_event("select", %{"name" => name}, socket) do
+    %{tags: tags} = socket.assigns
 
     {:noreply,
      socket
-     |> assign(:tags, tags ++ [tag])
-     |> assign(:suggested_tags, [])}
-  end
-
-
-  def handle_event("select", %{"id" => id}, socket) do
-    %{tags: tags} = socket.assigns
-
-    tag = Tag |> Repo.get(id)
-
-    {:noreply,
-     socket
-     |> assign(:tags, tags ++ [tag])
+     |> assign(:tags, tags ++ [name])
      |> assign(:suggested_tags, [])}
   end
 
@@ -65,11 +47,11 @@ defmodule BikeBrigadeWeb.RiderLive.TagsComponent do
     ~H"""
     <div class="block w-full px-3 py-2 my-1 border border-gray-300 rounded-md">
       <%= for {tag, i} <- Enum.with_index(@tags) do %>
-        <span class="inline-flex items-center px-2.5 py-1.5 rounded-md text-md font-medium bg-indigo-100 text-indigo-800 hover">
-        <%= tag.name %>
+        <span class="my-0.5 inline-flex items-center px-2.5 py-1.5 rounded-md text-md font-medium bg-indigo-100 text-indigo-800 hover">
+        <%= tag %>
         <Heroicons.Outline.x_circle class="w-5 h-5 ml-1 cursor-pointer" phx-click="remove-tag" phx-target={@myself} phx-value-index={i} />
         </span>
-        <input type="hidden" name={@input_name} value={tag.name}>
+        <input type="hidden" name={@input_name} value={tag}>
       <% end  %>
       <input
         form={"#{@id}-form"}
@@ -81,7 +63,7 @@ defmodule BikeBrigadeWeb.RiderLive.TagsComponent do
       <ul id="tag-selection-list" class="overflow-y-auto max-h-64">
         <%= for tag <- @suggested_tags do %>
           <li id={"tag-selection:#{tag.id}"} class="p-1">
-            <a href="#" phx-click="select" phx-value-id={ tag.id } phx-target={ @myself } class="block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50">
+            <a href="#" phx-click="select" phx-value-name={ tag.name } phx-target={ @myself } class="block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50">
               <p><%= tag.name %></p>
             </a>
           </li>

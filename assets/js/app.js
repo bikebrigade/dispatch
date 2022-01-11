@@ -335,7 +335,7 @@ Hooks.TagsComponentHook = {
     this.el.addEventListener('keydown', e => {
       if (e.key == 'Enter') {
         e.preventDefault();
-        this.pushEventTo(this.el, 'create', {name: this.el.value})
+        this.pushEventTo(this.el, 'select', {name: this.el.value})
         this.el.value = ""
       }
     });
