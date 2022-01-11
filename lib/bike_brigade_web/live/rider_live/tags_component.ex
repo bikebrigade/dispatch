@@ -13,28 +13,32 @@ defmodule BikeBrigadeWeb.RiderLive.TagsComponent do
   end
 
   @impl Phoenix.LiveComponent
-  def handle_event("suggest", %{"value" => search, "key" => "Enter"}, socket) do
-    %{tags: tags} = socket.assigns
-
-    tag = Riders.find_or_create_tag(search)
-
-    {:noreply,
-    socket
-    |> assign(:tags, tags ++ [tag])
-    |> assign(:suggested_tags, [])}
-  end
-
-  @impl Phoenix.LiveComponent
-  def handle_event("suggest", %{"value" => search, "key" => key}, socket) do
-    suggested_tags = case String.length(search) do
-      0 -> []
-      _ -> Riders.search_tags(search, 10)
-    end
+  def handle_event("suggest", %{"value" => search}, socket) do
+    suggested_tags =
+      case String.length(search) do
+        0 -> []
+        _ -> Riders.search_tags(search, 10)
+      end
 
     {:noreply,
      socket
      |> assign(:suggested_tags, suggested_tags)}
   end
+
+  def handle_event("create", %{"name" =>  name}, socket) do
+    %{tags: tags} = socket.assigns
+
+    tag =
+      name
+      |> String.trim()
+      |> Riders.find_or_create_tag()
+
+    {:noreply,
+     socket
+     |> assign(:tags, tags ++ [tag])
+     |> assign(:suggested_tags, [])}
+  end
+
 
   def handle_event("select", %{"id" => id}, socket) do
     %{tags: tags} = socket.assigns
@@ -50,11 +54,13 @@ defmodule BikeBrigadeWeb.RiderLive.TagsComponent do
   def handle_event("remove-tag", %{"index" => index}, socket) do
     index = String.to_integer(index)
     new_tags = List.delete_at(socket.assigns.tags, index)
+
     {:noreply,
      socket
      |> assign(:tags, new_tags)}
   end
 
+  @impl Phoenix.LiveComponent
   def render(assigns) do
     ~H"""
     <div class="block w-full px-3 py-2 my-1 border border-gray-300 rounded-md">
@@ -65,7 +71,13 @@ defmodule BikeBrigadeWeb.RiderLive.TagsComponent do
         </span>
         <input type="hidden" name={@input_name} value={tag.name}>
       <% end  %>
-      <input class="border-transparent appearance-none focus:border-transparent outline-transparent ring-transparent focus:ring-0" type="text" phx-keyup="suggest" phx-target={ @myself } phx-debounce="50" name="search" placeholder="Type to search for tags">
+      <input
+        form={"#{@id}-form"}
+        id={"#{@id}-tag-input"}
+        type="text"
+        class="border-transparent appearance-none focus:border-transparent outline-transparent ring-transparent focus:ring-0"
+        phx-hook="TagsComponentHook" phx-keyup="suggest" phx-target={@myself} autocomplete="off"
+        phx-debounce="50" name="search" placeholder="Type to search for tags">
       <ul id="tag-selection-list" class="overflow-y-auto max-h-64">
         <%= for tag <- @suggested_tags do %>
           <li id={"tag-selection:#{tag.id}"} class="p-1">
