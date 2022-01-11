@@ -133,6 +133,7 @@
                     <label for={@uploads.media.ref} class="inline-flex items-center px-1.5 py-1.5 text-xs font-medium text-gray-700 bg-white border border-transparent border-gray-300 rounded shadow-sm cursor-pointer hover:bg-gray-50 focus:ring-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2">
                         <C.Icons.tailwindui_upload_photo class="w-6 h-6" aria-hidden="true"/>
                     </label>
+                    <C.button id="emoji-button" phx-hook="EmojiButtonHook" type="button" color={:white}>EMOJI</C.button>
                     <C.button type="submit" data-confirm={@confirm_send} phx-disable-with="Sending...">Send</C.button>
                 </div>
                 <%= error_tag f, :body %>

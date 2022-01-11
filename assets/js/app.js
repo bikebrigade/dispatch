@@ -17,7 +17,7 @@ import "@ryangjchandler/alpine-clipboard"
 import "alpinejs"
 import Tribute from "tributejs";
 import Chart from 'chart.js/auto';
-
+import { EmojiButton } from '@joeattardi/emoji-button';
 
 
 let Hooks = {}
@@ -343,6 +343,18 @@ let liveSocket = new LiveSocket("/live", Socket, {
     }
   }
 })
+
+Hooks.EmojiButtonHook = {
+  mounted() {
+    const picker = new EmojiButton();
+    const trigger = document.querySelector("#emoji-button");
+    picker.on("emoji", selection => {
+      document.querySelector("#conversation-form_body").value += selection.emoji;
+  })
+    trigger.addEventListener("click", () => picker.togglePicker(trigger));
+  }
+
+}
 
 // Show progress bar on live navigation & form submits w/ delay of 100 ms
 let progressTimeout
