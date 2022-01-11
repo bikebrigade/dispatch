@@ -6,7 +6,6 @@
       <%= Calendar.strftime(@end_date, "%b %-d, %Y") %>
     </h1>
   </div>
-
   <div class="flex sm:justify-center pl-0.5 w-full gap-5 py-2 text-center mt-14 overflow-x-auto">
     <%= for {date, _opportunties} <- @opportunities  do %>
       <C.button href={"##{date}"} size={:xlarge} color={:black} class="flex-col font-medium">
@@ -14,15 +13,14 @@
         <div class="text-sm sm:text-lg pr-2 sm:pr-0"><%= Calendar.strftime(date, "%a") %></div>
         <div class="font-serif text-sm sm:text-3xl pr-1 sm:pr-0"><%= Calendar.strftime(date, "%-d") %></div>
         <%= if date == @today do %>
-          <div class="mt-1">
-            <C.Icons.circle class="w-2 h-2" />
+          <div class="mt-2 ml-0.5 sm:ml-3">
+            <C.Icons.circle class="w-2 h-2 mt-0" />
           </div>
         <% end %> 
         </div>
       </C.button>
     <% end %>
   </div>
-
   <div class="flex flex-col my-4">
     <%= for {date, opportunties} <- @opportunities  do %>
     <div id={date} class="flex flex-col items-start border-gray-400 sm:pt-3 sm:border-t-2 sm:flex-row">
