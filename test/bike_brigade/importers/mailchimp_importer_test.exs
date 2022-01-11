@@ -6,9 +6,10 @@ defmodule BikeBrigade.Importers.MailchimpImporterTest do
   @valid_attrs %{
     id: "123",
     email_address: "dispatcher@example.com",
-    "status": "subscribed",
-    "timestamp_opt": "2019-08-24T14:15:22Z",
+    status: "subscribed",
+    timestamp_opt: "2019-08-24T14:15:22Z",
     merge_fields: %{
+      FNAME: "Morty",
       PHONEYUI_: "647-555-5555",
       PHONE: "647-555-5555",
       TEXTYUI_3: "1508 Davenport Rd"

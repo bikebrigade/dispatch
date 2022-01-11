@@ -147,7 +147,7 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
       location = case Ecto.Changeset.apply_action(location_changeset, :save) do
           {:ok, location} -> location
           {:error, _errors} ->
-            error_message = "Address error for ${:name} (${:email}): ${:address}. Please look up their rider page and edit manually!"
+            error_message = "Address error for #{name} (#{email}): #{address}. Please look up their rider page and edit manually!"
             Task.start(SlackWebhook, :post_message, [error_message])
             %Location{address: "1 Front St"}
       end
