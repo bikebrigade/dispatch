@@ -1,11 +1,11 @@
 defmodule BikeBrigade.Riders.Rider do
   use BikeBrigade.Schema
   import Ecto.Changeset
+  import Ecto.Query, warn: false
   import EctoEnum
 
   alias BikeBrigade.Location
   alias BikeBrigade.Repo
-  alias BikeBrigade.Riders
   alias BikeBrigade.Riders.{Tag, RidersTag}
   alias BikeBrigade.Delivery.{Task, CampaignRider}
 
@@ -78,7 +78,7 @@ defmodule BikeBrigade.Riders.Rider do
 
   @doc false
   def changeset(rider, attrs) do
-    cs = rider
+    rider
     |> cast(attrs, [:name, :email, :address, :address2, :city, :deliveries_completed, :location, :province, :postal, :country, :onfleet_id, :onfleet_account_status, :phone, :pronouns, :availability, :capacity, :max_distance, :signed_up_on, :mailchimp_id, :mailchimp_status, :last_safety_check])
     |> cast_embed(:flags)
     |> cast_embed(:location_struct)
@@ -96,10 +96,9 @@ defmodule BikeBrigade.Riders.Rider do
     |> set_signed_up_on()
   end
 
-  # TODO strip all space chracters from names
   def tags_changeset(changeset, tags) do
     changeset
-    |> put_assoc(:tags, Enum.map(tags, &Riders.find_or_create_tag/1), on_replace: :update)
+    |> put_assoc(:tags, insert_and_get_all_tags(tags))
   end
 
   def set_signed_up_on(%Ecto.Changeset{} = changeset) do
@@ -107,5 +106,27 @@ defmodule BikeBrigade.Riders.Rider do
       {_, signed_up_on} when not is_nil(signed_up_on)-> changeset
       _ -> put_change(changeset, :signed_up_on, DateTime.utc_now() |> DateTime.truncate(:second))
     end
+  end
+
+
+  defp insert_and_get_all_tags(names) do
+    # Adapted from https://hexdocs.pm/ecto/constraints-and-upserts.html#upserts-and-insert_all
+
+    Repo.insert_all(
+      Tag,
+      for name <- names do
+        name = String.trim(name)
+
+        %{
+          name: name,
+          inserted_at: {:placeholder, :timestamp},
+          updated_at: {:placeholder, :timestamp}
+        }
+      end,
+      placeholders: %{timestamp: DateTime.utc_now()},
+      on_conflict: :nothing
+    )
+
+    Repo.all(from t in Tag, where: t.name in ^names)
   end
 end

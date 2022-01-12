@@ -136,7 +136,7 @@ defmodule BikeBrigade.Riders do
     |> broadcast(:rider_created)
   end
 
-    # TODO: make it pretty
+  # TODO: make it pretty
 
   def create_rider_with_tags(attrs \\ %{}, tags \\ [], opts \\ []) do
     %Rider{}
@@ -207,22 +207,6 @@ defmodule BikeBrigade.Riders do
     Rider
     |> select([r], count(r.id))
     |> Repo.one()
-  end
-
-  def find_or_create_tag(name) do
-    case Repo.get_by(Tag, name: name) do
-      %Tag{} = tag ->
-        tag
-
-      nil ->
-        # This increments the sequence number on every conflict and gives us very high ids
-        # do we care? Probably not...
-        Repo.insert!(
-          %Tag{name: name},
-          on_conflict: [set: [name: name]],
-          conflict_target: :name
-        )
-    end
   end
 
   def subscribe do
