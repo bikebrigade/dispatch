@@ -22,14 +22,17 @@
     autocomplete="off" phx-submit="save">
   <div class="flex flex-row mt-2 space-x-3">
     <div class="w-1/2">
-      <%= label f, :body, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-        Text Message
+      <%= label f, :text_body, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+        Text Message 
+        <C.button id="emoji-button" phx-hook="EmojiButtonHook" data-input-id={input_id(f, :textbody)} type="button" color={:white} size={:xxsmall}>
+            <Heroicons.Outline.emoji_happy aria-label="Emoji Picker" class="h-3.5 w-3.5 m-0.5 text-gray-400" />
+        </C.button>
       <% end %>
       <%= for instructions_template_form <- inputs_for(f, :instructions_template) do %>
         <%= hidden_inputs_for(instructions_template_form) %>
         <div class="mt-1 rounded-md shadow-sm">
           <%= textarea instructions_template_form, :body, required: true,
-            id: "text-body",
+            id: "campaign_message-form_textbody",
             phx_hook: "Autocomplete",
             data_autocomplete: inspect(directives()),
             class: "h-80 block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
@@ -51,12 +54,15 @@
   </p>
   <div class="flex flex-row my-3 space-x-3">
     <div class="w-1/2">
-      <%= label f, :details, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+      <%= label f, :details_body, class: "block text-sm font-medium leading-5 text-gray-700" do %>
         App Details
+        <C.button id="emoji-button" phx-hook="EmojiButtonHook" data-input-id={input_id(f, :details_body)} type="button" color={:white} size={:xxsmall}>
+            <Heroicons.Outline.emoji_happy aria-label="Emoji Picker" class="h-3.5 w-3.5 m-0.5 text-gray-400" />
+        </C.button>
       <% end %>
       <div class="mt-1 rounded-md shadow-sm">
         <%= textarea f, :details, required: false,
-          id: "details-body",
+          id: "campaign_message-form_details_body",
           class: "h-60 block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
           %>
       </div>
