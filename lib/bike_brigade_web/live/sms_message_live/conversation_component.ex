@@ -113,7 +113,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.ConversationComponent do
   end
 
   defp assign_new_sms_message(socket) do
-    sms_message = Messaging.new_sms_message(socket.assigns.rider, socket.assigns.current_user)
+    sms_message = Messaging.new_sms_message(socket.assigns.rider, sent_by: socket.assigns.current_user)
     changeset = Messaging.send_sms_message_changeset(sms_message)
 
     socket
