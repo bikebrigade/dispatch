@@ -329,6 +329,19 @@ Hooks.FrameHook = {
   }
 }
 
+
+Hooks.TagsComponentHook = {
+  mounted() {
+    this.el.addEventListener('keydown', e => {
+      if (e.key == 'Enter') {
+        e.preventDefault();
+        this.pushEventTo(this.el, 'select', {name: this.el.value})
+        this.el.value = ""
+      }
+    });
+  }
+};
+
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {
   hooks: Hooks,

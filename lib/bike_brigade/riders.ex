@@ -29,16 +29,24 @@ defmodule BikeBrigade.Riders do
     if tag, do: tag.riders, else: []
   end
 
+  def search_tags(search \\ "", limit \\ 10) do
+    Tag
+    |> where([u], ilike(u.name, ^"%#{search}%"))
+    |> limit(^limit)
+    |> Repo.all()
+  end
+
   def search_riders(search \\ "", limit \\ 100) do
     name_search = dynamic([r], ilike(r.name, ^"%#{search}%"))
     email_search = dynamic([r], ilike(r.email, ^"%#{search}%"))
     phone_search = dynamic([r], ilike(r.phone, ^"%#{Regex.replace(~r/[^\d]/, search, "")}%"))
 
-    where = if Regex.match?(~r/\d/, search) do
-      dynamic(^name_search or ^email_search or ^phone_search)
-    else
-      dynamic(^name_search or ^email_search)
-    end
+    where =
+      if Regex.match?(~r/\d/, search) do
+        dynamic(^name_search or ^email_search or ^phone_search)
+      else
+        dynamic(^name_search or ^email_search)
+      end
 
     query =
       from r in Rider,
@@ -128,6 +136,16 @@ defmodule BikeBrigade.Riders do
     |> broadcast(:rider_created)
   end
 
+  # TODO: make it pretty
+
+  def create_rider_with_tags(attrs \\ %{}, tags \\ [], opts \\ []) do
+    %Rider{}
+    |> Rider.changeset(attrs)
+    |> Rider.tags_changeset(tags)
+    |> Repo.insert(opts)
+    |> broadcast(:rider_created)
+  end
+
   @doc """
   Updates a rider.
 
@@ -143,6 +161,15 @@ defmodule BikeBrigade.Riders do
   def update_rider(%Rider{} = rider, attrs) do
     rider
     |> Rider.changeset(attrs)
+    |> Repo.update()
+    |> broadcast(:rider_updated)
+  end
+
+  # TODO: make it pretty
+  def update_rider_with_tags(%Rider{} = rider, attrs, tags \\ []) do
+    rider
+    |> Rider.changeset(attrs)
+    |> Rider.tags_changeset(tags)
     |> Repo.update()
     |> broadcast(:rider_updated)
   end
