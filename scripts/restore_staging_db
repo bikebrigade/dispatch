@@ -13,17 +13,12 @@ if [ "$STAGING_DATABASE_URL" == "" ]; then
   exit 1
 fi
 
-DUMP_PATH="$(dirname "$0")/../tmp/db_dump"
-
-#!/bin/bash
-function finish {
-  echo "Cleaning up"
-  rm $DUMP_PATH
-}
-trap finish EXIT
-
-echo "Dumping production database"
-wrap_nix_shell "pg_dump $PROD_DATABASE_URL -Fc -f $DUMP_PATH"
-echo "Restoring to staging"
-wrap_nix_shell "pg_restore --clean --no-acl -d $STAGING_DATABASE_URL $DUMP_PATH"
+echo "Taking staging down"
+wrap_nix_shell "flyctl suspend bike-brigade-staging"
+echo "Droping staging database"
+wrap_nix_shell "psql -d $STAGING_DATABASE_URL -c 'DROP DATABASE bike_brigade'"
+echo "Restoring production database"
+wrap_nix_shell "pg_dump $PROD_DATABASE_URL --exclude-table-data scheduled_messages -Fc | pg_restore --create --no-acl --no-owner -d $STAGING_DATABASE_URL"
+echo "Bringing staging back up"
+wrap_nix_shell "flyctl resume  bike-brigade-staging"
 echo "Staging restore complete"
