@@ -21,12 +21,16 @@
         Message
       <% end %>
       <div class="mt-1 rounded-md shadow-sm">
-        <%= textarea f, :body, required: true, phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+        <%= textarea f, :sms_message_form, required: true, phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
       </div>
       <%= error_tag f, :body %>
     </div>
 
     <div class="flex justify-end mt-6">
+                                                                                                <%# This looks wrong %>
+      <C.button class="mr-2" id="emoji-button" phx-hook="EmojiButtonHook" data-input-id={input_id(f, :sms_message_form)} type="button" color={:white} size={:xxsmall}>
+        <Heroicons.Outline.emoji_happy aria-label="Emoji Picker" class="h-6 w-6 m-1.5 text-gray-400" />
+      </C.button>
       <C.button type="submit" data-confirm={@confirm_send} phx-disable-with="Sending...">
         Send
       </C.button>
