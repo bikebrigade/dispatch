@@ -27,6 +27,9 @@
     </div>
 
     <div class="flex justify-end mt-6">
+      <C.button class="mr-2" id="emoji-button2" phx-hook="EmojiButtonHook" data-input-id={input_id(f, :body)} type="button" color={:white} size={:xxsmall}>
+        <Heroicons.Outline.emoji_happy aria-label="Emoji Picker" class="h-6 w-6 m-1.5 text-gray-400" />
+      </C.button>
       <C.button type="submit" data-confirm={@confirm_send} phx-disable-with="Sending...">
         Send
       </C.button>
