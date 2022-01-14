@@ -6,9 +6,10 @@
       <%= Calendar.strftime(@end_date, "%b %-d, %Y") %>
     </h1>
   </div>
-  <div class="flex sm:justify-center pl-0.5 w-full gap-5 py-2 text-center mt-14 overflow-x-auto">
+  <%= if @show_buttons do %>
+  <div class="sticky top-0 z-10 h-28 bg-black flex sm:justify-center pl-0.5 w-full gap-5 py-2 text-center mt-14 overflow-x-auto">
     <%= for {date, _opportunties} <- @opportunities  do %>
-      <C.button href={"##{date}"} size={:xlarge} color={:black} class="flex-col font-medium" target="calendar-iframe">
+      <C.button href={"##{date}"} size={:xlarge} color={:black} class="flex-col font-medium">
       <div class="flex flex-row sm:flex-col">
         <div class="pr-2 text-sm sm:text-lg sm:pr-0"><%= Calendar.strftime(date, "%a") %></div>
         <div class="pr-1 font-serif text-sm sm:text-3xl sm:pr-0"><%= Calendar.strftime(date, "%-d") %></div>
@@ -21,9 +22,11 @@
       </C.button>
     <% end %>
   </div>
+  <% end %>
   <div class="flex flex-col my-4">
     <%= for {date, opportunties} <- @opportunities  do %>
-    <div id={date} class="flex flex-col items-start border-gray-400 sm:pt-3 sm:border-t-2 sm:flex-row">
+    <div id={date} class="relative -top-28"></div>
+    <div class="flex flex-col items-start border-gray-400 sm:pt-3 sm:border-t-2 sm:flex-row">
       <div class="sticky top-0 flex-col items-center flex-shrink-0 hidden w-2/12 sm:flex">
         <div class="mt-2 text-lg font-normal "><%= Calendar.strftime(date, "%a") %></div>
           <div class="my-2 font-serif text-3xl"><%= Calendar.strftime(date, "%-d") %></div>
