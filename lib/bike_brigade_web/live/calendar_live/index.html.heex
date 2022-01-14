@@ -8,15 +8,15 @@
   </div>
   <div class="flex sm:justify-center pl-0.5 w-full gap-5 py-2 text-center mt-14 overflow-x-auto">
     <%= for {date, _opportunties} <- @opportunities  do %>
-      <C.button href={"##{date}"} size={:xlarge} color={:black} class="flex-col font-medium">
+      <C.button href={"##{date}"} size={:xlarge} color={:black} class="flex-col font-medium" target="calendar-iframe">
       <div class="flex flex-row sm:flex-col">
-        <div class="text-sm sm:text-lg pr-2 sm:pr-0"><%= Calendar.strftime(date, "%a") %></div>
-        <div class="font-serif text-sm sm:text-3xl pr-1 sm:pr-0"><%= Calendar.strftime(date, "%-d") %></div>
+        <div class="pr-2 text-sm sm:text-lg sm:pr-0"><%= Calendar.strftime(date, "%a") %></div>
+        <div class="pr-1 font-serif text-sm sm:text-3xl sm:pr-0"><%= Calendar.strftime(date, "%-d") %></div>
         <%= if date == @today do %>
           <div class="mt-2 ml-0.5 sm:ml-3">
             <C.Icons.circle class="w-2 h-2 mt-0" />
           </div>
-        <% end %> 
+        <% end %>
         </div>
       </C.button>
     <% end %>

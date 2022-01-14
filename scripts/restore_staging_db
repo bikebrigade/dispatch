@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+source "$(dirname "$0")/utils.sh"
+
+set -e
+
+if [ "$PROD_DATABASE_URL" == "" ]; then
+  echo 'Missing $PROD_DATABASE_URL'
+  exit 1
+fi
+
+if [ "$STAGING_DATABASE_URL" == "" ]; then
+  echo 'Missing $STAGING_DATABASE_URL'
+  exit 1
+fi
+
+echo "Taking staging down"
+wrap_nix_shell "flyctl suspend bike-brigade-staging"
+echo "Droping staging database"
+wrap_nix_shell "psql -d $STAGING_DATABASE_URL -c 'DROP DATABASE bike_brigade'"
+echo "Restoring production database"
+wrap_nix_shell "pg_dump $PROD_DATABASE_URL --exclude-table-data scheduled_messages -Fc | pg_restore --create --no-acl --no-owner -d $STAGING_DATABASE_URL"
+echo "Bringing staging back up"
+wrap_nix_shell "flyctl resume  bike-brigade-staging"
+echo "Staging restore complete"
