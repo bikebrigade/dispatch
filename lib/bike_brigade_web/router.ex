@@ -74,7 +74,7 @@ defmodule BikeBrigadeWeb.Router do
     live "/calendar", CalendarLive.Index, :index
     live "/calendar/:id", CalendarLive.Index, :show
 
-    if dev? do
+    if dev?() do
       get "/test", EmbedTestController, :index
     end
   end
