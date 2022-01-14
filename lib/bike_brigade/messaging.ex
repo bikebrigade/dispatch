@@ -148,12 +148,21 @@ defmodule BikeBrigade.Messaging do
     Repo.delete(sms_message)
   end
 
-  @doc "Creates a struct for a new outgoing message"
+  @doc """
+  Creates a struct for a new outgoing message
+  """
   def new_sms_message() do
     from = outbound_number()
     %SmsMessage{from: from}
   end
 
+  @doc """
+  Creates a struct for a new outgoing message for a given a `%Rider{}`
+
+  Optional arguments
+    - `sent_by:` - `%Accounts.User{}` that's sending the message
+    - `body:` - string containing the body of the message
+  """
   def new_sms_message(%Rider{} = rider, options \\ []) do
     from =
       if rider.flags.opt_in_to_new_number do
