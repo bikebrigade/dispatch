@@ -1,5 +1,5 @@
 <div id="calendar-frame" class="w-full p-2 text-base leading-7 text-white bg-black" phx-hook="FrameHook">
-  <div class="w-full py-3 text-center">
+  <div class="w-full py-3 text-center mb-14">
     <h1 class="font-serif text-4xl font-medium ">
       <%= Calendar.strftime(@start_date, "%b %-d") %>
       -
@@ -7,7 +7,7 @@
     </h1>
   </div>
   <%= if @show_buttons do %>
-  <div class="sticky top-0 z-10 h-28 bg-black flex sm:justify-center pl-0.5 w-full gap-5 py-2 text-center mt-14 overflow-x-auto">
+  <div class="sticky top-0 z-10 h-28 bg-black flex sm:justify-center pl-0.5 w-full gap-5 py-2 text-center  overflow-x-auto">
     <%= for {date, _opportunties} <- @opportunities  do %>
       <C.button href={"##{date}"} size={:xlarge} color={:black} class="flex-col font-medium">
       <div class="flex flex-row sm:flex-col">
