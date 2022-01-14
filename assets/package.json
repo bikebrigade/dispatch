@@ -3,6 +3,7 @@
   "description": " ",
   "license": "MIT",
   "dependencies": {
+    "@joeattardi/emoji-button": "^4.6.2",
     "@ryangjchandler/alpine-clipboard": "^1.0.0",
     "@types/leaflet": "^1.7.4",
     "alpinejs": "^2.8.2",
