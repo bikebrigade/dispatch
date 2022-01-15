@@ -1,6 +1,7 @@
 defmodule BikeBrigadeWeb.RiderLive.FormComponent do
   use BikeBrigadeWeb, :live_component
 
+  alias BikeBrigade.Repo
   alias BikeBrigade.Location
   alias BikeBrigade.Riders
   alias BikeBrigade.Riders.Rider
@@ -20,6 +21,8 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
       field :capacity, Rider.CapacityEnum
       field :max_distance, :integer
       field :last_safety_check, :date
+      field :tags, {:array, :string}
+
       embeds_one :flags, Rider.Flags, on_replace: :update
       embeds_one :location_struct, Location, on_replace: :update
     end
@@ -33,7 +36,8 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
         :phone,
         :capacity,
         :max_distance,
-        :last_safety_check
+        :last_safety_check,
+        :tags
       ])
       |> cast_embed(:flags)
       |> cast_embed(:location_struct, with: &Location.geocoding_changeset/2)
@@ -49,7 +53,12 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
     end
 
     def from_rider(%Rider{} = rider) do
-      map = Map.from_struct(rider)
+      map =
+        rider
+        |> Repo.preload(:tags)
+        |> Map.from_struct()
+        |> Map.update!(:tags, fn tags -> Enum.map(tags, & &1.name) end)
+
       struct(__MODULE__, map)
     end
 
@@ -62,20 +71,20 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
     def update_form(%__MODULE__{} = form, params) do
       form
       |> changeset(params)
-      #|> IO.inspect()
       |> apply_action(:save)
     end
   end
 
   @impl true
   def update(%{rider: rider} = assigns, socket) do
-    IO.puts("update")
+    rider = rider |> Repo.preload(:tags)
     form = RiderForm.from_rider(rider)
     changeset = RiderForm.changeset(form)
 
     {:ok,
      socket
      |> assign(assigns)
+     |> assign(:rider, rider)
      |> assign(:form, form)
      |> assign(:changeset, changeset)}
   end
@@ -103,7 +112,7 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
            RiderForm.update_form(socket.assigns.form, rider_form_params),
          params = RiderForm.to_params(form),
          {:ok, _rider} <-
-           Riders.update_rider(socket.assigns.rider, params) do
+           Riders.update_rider_with_tags(socket.assigns.rider, params, params[:tags]) do
       {:noreply,
        socket
        |> put_flash(:info, "Rider updated successfully")
@@ -114,7 +123,7 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
   end
 
   defp save_rider(socket, :new, rider_params) do
-    case Riders.create_rider(rider_params) do
+    case Riders.create_rider_with_tags(rider_params, rider_params["tags"]) do
       {:ok, _rider} ->
         {:noreply,
          socket

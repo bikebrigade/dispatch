@@ -1,11 +1,12 @@
 defmodule BikeBrigadeWeb.Router do
   use BikeBrigadeWeb, :router
 
-  import BikeBrigade.Utils, only: [get_config: 1]
+  import BikeBrigade.Utils, only: [get_config: 1, dev?: 0]
 
   require Logger
 
   alias BikeBrigadeWeb.LiveHooks
+
 
   # Don't alert expired deliviers to honeybadger
   use Honeybadger.Plug
@@ -72,6 +73,10 @@ defmodule BikeBrigadeWeb.Router do
     pipe_through [:browser, :allow_framing]
     live "/calendar", CalendarLive.Index, :index
     live "/calendar/:id", CalendarLive.Index, :show
+
+    if dev?() do
+      get "/test", EmbedTestController, :index
+    end
   end
 
   scope "/", BikeBrigadeWeb do

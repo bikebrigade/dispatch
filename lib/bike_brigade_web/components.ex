@@ -4,6 +4,7 @@ defmodule BikeBrigadeWeb.Components do
   use Phoenix.HTML
 
   alias BikeBrigade.LocalizedDateTime
+  alias BikeBrigadeWeb.Components.Icons
 
   def date(assigns) do
     assigns =
@@ -34,9 +35,7 @@ defmodule BikeBrigadeWeb.Components do
         <%= Calendar.strftime(@date, "%b") %>
       </span>
       <%= if @date == @today do %>
-        <svg class="w-2 h-2 ml-1 text-indigo-400" fill="currentColor" viewBox="0 0 8 8">
-          <circle cx="4" cy="4" r="3" />
-        </svg>
+        <Icons.circle class="w-2 h-2 ml-1 text-indigo-400" />
       <% end %>
       <%= if @date.year != @today.year do %>
         <span class="ml-1 text-sm font-semibold">

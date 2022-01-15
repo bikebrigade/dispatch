@@ -29,4 +29,13 @@ defmodule BikeBrigadeWeb.Components.Icons do
     </svg>
     """
   end
+
+  def circle(assigns) do
+    assigns = assign(assigns, :attrs, assigns_to_attributes(assigns))
+    ~H"""
+    <svg {@attrs} class="w-2 h-2" fill="currentColor" viewBox="0 0 8 8">
+      <circle cx="4" cy="4" r="3" />
+    </svg>
+    """
+  end
 end

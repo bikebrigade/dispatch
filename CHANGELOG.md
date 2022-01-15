@@ -1,3 +1,8 @@
+
+# 2022-01-12
+  - Added emoji keyboard 
+# 2022-01-13
+  - Edit tags for riders
 # 2021-12-06
   - Add location picker to campaigns
 # 2021-11-02
