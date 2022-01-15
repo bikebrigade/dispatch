@@ -139,6 +139,7 @@
                     <C.button type="submit" data-confirm={@confirm_send} phx-disable-with="Sending...">Send</C.button>
                 </div>
                 <%= error_tag f, :body %>
+                <%= error_tag f, :other_error %>
                 <div class="grid grid-cols-3 gap-4">
                 <%= for entry <- @uploads.media.entries do %>
                     <figure>
