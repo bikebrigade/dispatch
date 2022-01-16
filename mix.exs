@@ -81,6 +81,8 @@ defmodule BikeBrigade.MixProject do
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:wallaby, "~> 0.29.1", runtime: false, only: :test},
+      {:libcluster, "~> 3.3"},
+
 
       # LiveBook Stuff
       {:kino, "~> 0.4.1"},
