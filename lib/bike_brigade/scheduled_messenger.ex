@@ -2,7 +2,7 @@ defmodule BikeBrigade.ScheduledMessenger do
   use GenServer
   alias BikeBrigade.Messaging
   alias BikeBrigade.Delivery
-  alias Ecto.Multi
+  alias BikeBrigade.Repo
 
   require Logger
 
@@ -43,19 +43,20 @@ defmodule BikeBrigade.ScheduledMessenger do
 
   @impl true
   def handle_info(:send_messages, state) do
-    for m <- Messaging.list_unsent_scheduled_messages() do
-      # TODO join this in
-      c = Delivery.get_campaign(m.campaign_id)
-      # TODO make this a proper multi
-      # the delivery code isnt referencing the right repo :(
-      Multi.new()
-      |> Multi.run(:send_messges, fn _repo, _changes ->
-        Logger.info("Sending messages for campaign #{c.id}")
+    Repo.transaction(fn ->
+      unsent_messages = Messaging.list_unsent_scheduled_messages_locking()
+
+      for s <- unsent_messages do
+        Logger.info("Sending messages for campaign #{s.campaign_id}")
+
+        # We have some non-decoupled preloads in get_campaign so we load it here instead of joining
+        # TODO: make this work with joins and preloads where we need things
+        c = Delivery.get_campaign(s.campaign_id)
         Delivery.send_campaign_messages(c)
-      end)
-      |> Multi.delete(:delete_schedule, m)
-      |> BikeBrigade.Repo.transaction()
-    end
+
+        Repo.delete(s)
+      end
+    end)
 
     {:noreply, state}
   end
