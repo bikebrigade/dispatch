@@ -1,5 +1,7 @@
 defmodule BikeBrigadeWeb.Components.Sidebar do
+  # TODO make this part of `use BikeBrigadeWeb, :component`
   use Phoenix.Component
+  use Phoenix.HTML
 
   alias BikeBrigadeWeb.Router.Helpers, as: Routes
 
@@ -64,7 +66,8 @@ defmodule BikeBrigadeWeb.Components.Sidebar do
     </.sidebar_link>
     <.sidebar_link
       selected={@current_page == :logout}
-      to={Routes.authentication_path(@socket, :logout)}>
+      to={Routes.authentication_path(@socket, :logout)}
+      method={:post}>
       <:icon let={class}>
         <Heroicons.Outline.logout class={class} />
       </:icon>
@@ -93,11 +96,19 @@ defmodule BikeBrigadeWeb.Components.Sidebar do
       assigns
       |> assign(:class, class)
       |> assign(:icon_class, icon_class)
+      |> assign_new(:method, fn -> nil end)
 
     ~H"""
-    <%= live_redirect to: @to, class: @class do %>
-      <%= render_slot(@icon, @icon_class) %>
-      <%= render_slot(@inner_block) %>
+    <%= if @method do %>
+      <%= link to: @to, class: @class, method: @method do %>
+        <%= render_slot(@icon, @icon_class) %>
+        <%= render_slot(@inner_block) %>
+      <% end %>
+    <% else %>
+      <%= live_redirect to: @to, class: @class do %>
+        <%= render_slot(@icon, @icon_class) %>
+        <%= render_slot(@inner_block) %>
+      <% end %>
     <% end %>
     """
   end
