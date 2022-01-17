@@ -8,9 +8,29 @@ defmodule BikeBrigade.ScheduledMessenger do
 
   # Client
 
-  def start_link(opts \\ []) do
-    opts = Keyword.put_new(opts, :name, __MODULE__)
-    GenServer.start_link(opts[:name], %{}, opts)
+  @name {:via, Horde.Registry, {BikeBrigade.HordeRegistry, __MODULE__}}
+
+  def start_link([]) do
+    # When we are in non-distributed mode start us using Horde
+    # TODO: this + @name can be abstracted to a Singleton Genserver or the like
+    Horde.DynamicSupervisor.start_child(
+      BikeBrigade.HordeSupervisor,
+      {__MODULE__, distributed: true}
+    )
+
+    # Ignore since this is called from the main supervisor
+    :ignore
+  end
+
+  def start_link(distributed: true) do
+    case GenServer.start_link(__MODULE__, %{}, name: @name) do
+      {:ok, pid} ->
+        {:ok, pid}
+
+      {:error, {:already_started, pid}} ->
+        Logger.info("#{inspect(__MODULE__)}: already started at #{inspect(pid)}, returning :ignore")
+        :ignore
+    end
   end
 
   # Server (callbacks)
