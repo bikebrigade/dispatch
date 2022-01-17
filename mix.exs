@@ -82,7 +82,7 @@ defmodule BikeBrigade.MixProject do
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:wallaby, "~> 0.29.1", runtime: false, only: :test},
       {:libcluster, "~> 3.3"},
-
+      {:horde, "~> 0.8.6"},
 
       # LiveBook Stuff
       {:kino, "~> 0.4.1"},
