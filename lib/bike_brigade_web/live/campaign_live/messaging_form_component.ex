@@ -189,4 +189,12 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
 
     options_for_select(options, selected_rider_index)
   end
+
+  defp message_length_indicator(assigns) do
+    ~H"""
+    <div class="text-xs font-medium">
+      <%= @length %>/1600
+    </div>
+    """
+  end
 end

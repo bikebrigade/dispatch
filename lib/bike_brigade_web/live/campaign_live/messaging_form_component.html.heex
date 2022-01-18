@@ -35,9 +35,7 @@
               <Heroicons.Outline.emoji_happy aria-label="Emoji Picker" class="h-3.5 w-3.5 m-0.5 text-gray-400" />
           </C.button>
         <% end %>
-        <div class="text-xs font-medium">
-          <%= @message_length %>/1600
-        </div>
+        <.message_length_indicator length={@message_length} />
       </div>
       <%= for instructions_template_form <- inputs_for(f, :instructions_template) do %>
         <%= hidden_inputs_for(instructions_template_form) %>
