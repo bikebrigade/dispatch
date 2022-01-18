@@ -19,7 +19,8 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
         _ -> nil
       end
 
-    socket = socket
+    socket =
+      socket
       |> assign(:page_title, "Messages")
       |> assign(:page, :messages)
       |> assign(:presence, [])
@@ -59,7 +60,10 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
 
   @impl true
   def handle_params(params, url, socket) do
-    {:noreply, socket |> put_path(url) |> apply_action(socket.assigns.live_action, params)}
+    {:noreply,
+     socket
+     |> put_path(url)
+     |> apply_action(socket.assigns.live_action, params)}
   end
 
   @impl true
@@ -148,8 +152,13 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
   @doc "silently ignore new kinds of messages"
   def handle_info(_, socket), do: {:noreply, socket}
 
-  defp apply_action(socket, :new, _params) do
+  defp apply_action(socket, :new, params) do
+    riders =
+      Map.get(params, "r", [])
+      |> Riders.get_riders()
+
     socket
+    |> assign(:initial_riders, riders)
   end
 
   defp apply_action(socket, :show, %{"id" => id}) do
@@ -198,11 +207,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
 
   defp details_buffer(campaign) do
     for task <- campaign.tasks do
-      "Name: #{task.dropoff_name}\nPhone: #{task.dropoff_phone}\nType: #{task.request_type}\nAddress: #{
-        task.dropoff_address
-      } #{task.dropoff_address2} #{task.dropoff_city} #{task.dropoff_postal}\nNotes: #{
-        task.rider_notes
-      }"
+      "Name: #{task.dropoff_name}\nPhone: #{task.dropoff_phone}\nType: #{task.request_type}\nAddress: #{task.dropoff_address} #{task.dropoff_address2} #{task.dropoff_city} #{task.dropoff_postal}\nNotes: #{task.rider_notes}"
     end
     |> Enum.join("\n\n")
     |> inspect()

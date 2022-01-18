@@ -11,7 +11,7 @@
         To
       <% end %>
       <div class="mt-1 rounded-md shadow-sm">
-        <.live_component module={C.RiderSelectionComponent} id={:select_rider} input_name="rider_ids[]" multi={true} />
+        <.live_component module={C.RiderSelectionComponent} id={:select_rider} input_name="rider_ids[]" multi={true} selected_riders={@initial_riders}/>
       </div>
       <%= error_tag f, :to %>
     </div>
