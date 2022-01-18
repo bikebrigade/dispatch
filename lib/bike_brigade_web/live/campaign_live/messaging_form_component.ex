@@ -15,11 +15,12 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
     ## reload the task collection cuz we're not updating the message on the main view
     # campaign = Delivery.get_campaign(campaign.id)
 
-    changeset =
+    # TODO this is a smell, and frankly is happening because instructions template shouldn't be its own table :(
+    {changeset, message_length} =
       if campaign.instructions_template do
-        Delivery.change_campaign(campaign)
+        {Delivery.change_campaign(campaign), String.length(campaign.instructions_template.body)}
       else
-        Delivery.change_campaign(campaign, %{instructions_template: %{body: ""}})
+        {Delivery.change_campaign(campaign, %{instructions_template: %{body: ""}}), 0}
       end
 
     selected_rider = campaign.riders |> List.first()
@@ -30,9 +31,11 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
      |> assign(:selected_rider, selected_rider)
      |> assign(:selected_rider_index, 0)
      # |> assign(:campaign, campaign)
-     |> assign(:changeset, changeset)}
+     |> assign(:changeset, changeset)
+     |> assign(:message_length, message_length)}
   end
 
+  # TODO is this dead code?
   @impl true
   def handle_event("validate", %{"sms_message" => sms_message_params}, socket) do
     changeset =
@@ -76,6 +79,7 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
 
   @impl true
   def handle_event("preview", %{"campaign" => campaign_params}, socket) do
+    IO.inspect(campaign_params, label: "preview")
     %{campaign: campaign} = socket.assigns
     send_at = campaign_params["scheduled_message"]["send_at"]
 
@@ -98,9 +102,12 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
       |> Delivery.change_campaign(campaign_params)
       |> Map.put(:action, :validate)
 
+    message_length = String.length(campaign_params["instructions_template"]["body"])
+
     {:noreply,
      socket
-     |> assign(changeset: changeset)}
+     |> assign(:changeset, changeset)
+     |> assign(:message_length, message_length)}
   end
 
   def handle_event("save", %{"campaign" => campaign_params}, socket) do
