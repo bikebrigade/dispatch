@@ -3,7 +3,6 @@ defmodule BikeBrigade.ScheduledMessenger do
   alias BikeBrigade.Messaging
   alias BikeBrigade.Delivery
   alias BikeBrigade.Repo
-
   require Logger
 
   # Client
@@ -28,7 +27,10 @@ defmodule BikeBrigade.ScheduledMessenger do
         {:ok, pid}
 
       {:error, {:already_started, pid}} ->
-        Logger.info("#{inspect(__MODULE__)}: already started at #{inspect(pid)}, returning :ignore")
+        Logger.info(
+          "#{inspect(__MODULE__)}: already started at #{inspect(pid)}, returning :ignore"
+        )
+
         :ignore
     end
   end
@@ -43,11 +45,14 @@ defmodule BikeBrigade.ScheduledMessenger do
 
   @impl true
   def handle_info(:send_messages, state) do
+    foo(state)
+  end
+  def foo(state) do
     Repo.transaction(fn ->
-      unsent_messages = Messaging.list_unsent_scheduled_messages_locking()
+      unsent_messages = Messaging.list_unsent_scheduled_messages(lock: true, log: false)
 
       for s <- unsent_messages do
-        Logger.info("Sending messages for campaign #{s.campaign_id}")
+        Logger.info("Sending scheduled messages for campaign #{s.campaign_id}")
 
         # We have some non-decoupled preloads in get_campaign so we load it here instead of joining
         # TODO: make this work with joins and preloads where we need things
@@ -56,7 +61,8 @@ defmodule BikeBrigade.ScheduledMessenger do
 
         Repo.delete(s)
       end
-    end)
+    end,
+    log: false)
 
     {:noreply, state}
   end
