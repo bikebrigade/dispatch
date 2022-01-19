@@ -15,17 +15,36 @@ defmodule BikeBrigade.Importers.MailchimpImporterTest do
       TEXTYUI_3: "1508 Davenport Rd"
     }
   }
-  test "build_rider is successful if fields from Mailchimp are valid" do
-    {:ok, expected_fields} = MailchimpImporter.build_rider(@valid_attrs)
+  test "parse_mailchimp_attrs is successful if fields from Mailchimp are valid" do
+    {:ok, expected_fields} = MailchimpImporter.parse_mailchimp_attrs(@valid_attrs)
     address = expected_fields[:location_struct][:address]
     assert address == "1508 Davenport Rd Toronto"
   end
 
-  test "build_rider fails gracefully if address fails geocoding" do
+  test "parse_mailchimp_attrs returns an error if the phone number is not a valid Canadian number" do
+    invalid_attrs = put_in(@valid_attrs, [:merge_fields, :PHONEYUI_], "oops")
+    {:error, _} = MailchimpImporter.parse_mailchimp_attrs(invalid_attrs)
+  end
+
+  test "parse_mailchimp_attrs returns an error if address fails geocoding" do
     invalid_attrs = put_in(@valid_attrs, [:merge_fields, :TEXTYUI_3], "oops")
 
-    {:ok, expected_fields} = MailchimpImporter.build_rider(invalid_attrs)
-    address = expected_fields[:location_struct][:address]
-    assert address == "1 Front St"
+    {:error, {:update_location, _}} = MailchimpImporter.parse_mailchimp_attrs(invalid_attrs)
+  end
+
+  test "sync_riders is successful when all required attributes are valid" do
+    {:ok, _} = MailchimpImporter.sync_riders({:ok, [@valid_attrs]})
+  end
+
+  test "sync_riders handles case where phone is invalid" do
+    invalid_attrs = put_in(@valid_attrs, [:merge_fields, :TEXTYUI_3], "oops")
+
+    {:ok, _} = MailchimpImporter.sync_riders({:ok, [invalid_attrs]})
+  end
+
+  test "sync_riders handles case where address is invalid" do
+    invalid_attrs = put_in(@valid_attrs, [:merge_fields, :TEXTYUI_3], "oops")
+
+    {:ok, _} = MailchimpImporter.sync_riders({:ok, [invalid_attrs]})
   end
 end

@@ -13,77 +13,70 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
   @mailchimp "mailchimp"
   @import_failed_tag %{name: "Dispatch Import Failed", status: "active"}
 
-  def sync_existing_rider(%Rider{} = rider) do
-    with {:ok, account} <- Mailchimp.Account.get(),
-         {:ok, list} <- Mailchimp.Account.get_list(account, get_config(:list_id)),
-         {:ok, member} <- Mailchimp.List.get_member(list, rider.email),
-         {:ok, rider_attrs} <- build_rider(member) do
-      Riders.update_rider(rider, rider_attrs)
-    end
-  end
-
-  def sync_riders do
-    Multi.new()
-    |> Multi.run(:get_last_synced, fn repo, _changes ->
+  # TODO make this a singleton? / add locking
+  def sync_riders(opts \\ nil) do
+    Repo.transaction(fn ->
       last_synced =
-        case repo.get_by(Importer, name: @mailchimp) do
+        # TODO add a row lock here.
+        case Repo.get_by(Importer, name: @mailchimp) do
           nil -> nil
           importer -> importer.data["last_synced"]
         end
 
-      {:ok, last_synced}
-    end)
-    |> Multi.run(:get_mailchimp_members, fn _repo, %{get_last_synced: last_synced} ->
-      get_members(last_synced)
-    end)
-    |> Multi.merge(fn %{get_mailchimp_members: mailchimp_members} ->
-      multi = Multi.new()
+      {:ok, members} = opts || get_members(last_synced)
 
-      Enum.reduce(mailchimp_members, multi, fn member, multi ->
-        with {:ok, rider_attrs} <- build_rider(member) do
-          # TODO: we are not doing PubSub broadcasts here. Is this okay?
+      for member <- members do
+        case parse_mailchimp_attrs(member) do
+          {:ok, rider_attrs} ->
+            create_or_update(rider_attrs)
+          {:error, {:update_location, rider_attrs}} ->
+            {:ok, rider} = rider_attrs
+              |> put_default_location()
+              |> create_or_update()
 
-          case find_existing_rider(rider_attrs) do
-            {:phone, rider} ->
-              # the rider exists, update
-              # TODO: when we are source of truth for these don't need to update all the fields?
+            notify_location_error(rider)
 
-              multi
-              |> Multi.update({:update_rider, member.id}, Rider.changeset(rider, rider_attrs))
-
-            {:email, rider} ->
-              # the rider exists, but mailchimp has the wrong phone
-              # Assume ours is correct!
-
-              rider_attrs = Map.delete(rider_attrs, :phone)
-
-              multi
-              |> Multi.update({:update_rider, member.id}, Rider.changeset(rider, rider_attrs))
-
-            nil ->
-              # create a new rider
-              multi
-              |> Multi.insert(
-                {:create_rider, member.id},
-                Rider.changeset(%Rider{}, rider_attrs)
-              )
-          end
-        else
-          {:error, _err} ->
-            tag_failed_import!(member.email_address)
-            multi
+          {:error, error} ->
+            notify_import_error(member, error)
         end
-      end)
+      end
     end)
-    |> Multi.insert(
-      :set_last_synced,
-      %Importer{name: @mailchimp, data: %{last_synced: DateTime.utc_now()}},
-      returning: true,
-      on_conflict: update_data_map(),
-      conflict_target: :name
-    )
-    |> Repo.transaction(timeout: :infinity)
   end
+
+  def create_or_update(rider_attrs) do
+    case find_existing_rider(rider_attrs) do
+      {:phone, rider} ->
+        # the rider exists, update
+        # TODO: when we are source of truth for these don't need to update all the fields?
+        Riders.update_rider(rider, rider_attrs)
+
+      {:email, rider} ->
+        # the rider exists, but mailchimp has the wrong phone
+        # Assume ours is correct!
+        rider_attrs = Map.delete(rider_attrs, :phone)
+        Riders.update_rider(rider, rider_attrs)
+
+      nil ->
+        Riders.create_rider(rider_attrs)
+    end
+  end
+
+  def put_default_location(rider_attrs) do
+    Map.put(rider_attrs, :location_struct, %{address: "1 Front St"})
+  end
+
+  def notify_location_error(rider) do
+    error_message = """
+      We had trouble with the address for #{rider.name}. Please edit manually: https://dispatch.bikebrigade.ca/riders/#{rider.id}/edit
+    """
+    Task.start(SlackWebhook, :post_message, [error_message])
+  end
+
+  def notify_import_error(member, error) do
+    error_message = "An error ocurred when importing #{member.email_address} #{Kernel.inspect(error)}"
+    Task.start(SlackWebhook, :post_message, [error_message])
+  end
+
 
   def get_members(last_changed \\ nil) do
     with {:ok, account} <- Mailchimp.Account.get(),
@@ -110,7 +103,7 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
     end
   end
 
-  def build_rider(member) do
+  def parse_mailchimp_attrs(member) do
     phone = with_default(member.merge_fields[:PHONEYUI_], member.merge_fields[:PHONE])
 
     with {:ok, phone} <- BikeBrigade.EctoPhoneNumber.Canadian.cast(phone) do
@@ -137,20 +130,13 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
       max_distance = translate_max_distance(member.merge_fields[:RADIO16])
       capacity = translate_capacity(member.merge_fields[:RADIO17])
 
-      location_changeset = Location.geocoding_changeset(%Location{}, %{
+      raw_location = %{
         address: address,
         postal: postal,
         city: city,
         province: province,
         country: country
-      })
-      location = case Ecto.Changeset.apply_action(location_changeset, :save) do
-          {:ok, location} -> location
-          {:error, _errors} ->
-            error_message = "Address error for #{name} (#{email}): #{address}. Please look up their rider page and edit manually!"
-            Task.start(SlackWebhook, :post_message, [error_message])
-            %Location{address: "1 Front St"}
-      end
+      }
 
       rider_attrs = %{
         mailchimp_id: member.id,
@@ -159,14 +145,17 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
         email: email,
         name: name,
         pronouns: pronouns,
-        location_struct: Map.from_struct(location),
         signed_up_on: member.timestamp_opt,
         max_distance: max_distance,
         capacity: capacity,
-        availability: availability
+        availability: availability,
+        raw_location: raw_location
       }
 
-      {:ok, rider_attrs}
+      case geolocate_raw_location(raw_location) do
+        {:ok, location} -> {:ok, Map.put(rider_attrs, :location_struct, Map.from_struct(location))}
+        {:error, _} -> {:error, {:update_location, rider_attrs}}
+      end
     else
       {:error, err} ->
         {:error, err}
@@ -183,6 +172,18 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
     end
   end
 
+  def geolocate_raw_location(location) do
+    Location.geocoding_changeset(%Location{}, %{
+      address: location.address,
+      postal: location.postal,
+      city: location.city,
+      province: location.province,
+      country: location.country
+    })
+    |> Ecto.Changeset.apply_action(:save) #TODO: this should be a method on the location struct to validate
+  end
+
+  # TODO: do we need this?
   def tag_failed_import!(email) do
     with {:ok, account} <- Mailchimp.Account.get(),
          {:ok, list} <- Mailchimp.Account.get_list(account, get_config(:list_id)),
