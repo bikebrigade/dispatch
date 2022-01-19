@@ -200,15 +200,17 @@ defmodule BikeBrigadeWeb.Components.UI do
                 <% end %>
               </tr>
             </thead>
-            <%= for row <- @rows do %>
-              <tr>
-                <%= for td <- @td do %>
-                  <td class={"text-sm leading-5 text-gray-500 border-b border-gray-200 whitespace-nowrap #{Map.get(td, :padding, "px-6 py-4")} #{Map.get(td, :class)}"}>
-                    <%= render_slot(td, row) %>
-                  </td>
-                <% end %>
-              </tr>
-            <% end %>
+            <tbody class="bg-white">
+              <%= for row <- @rows do %>
+                <tr>
+                  <%= for td <- @td do %>
+                    <td class={"text-sm leading-5 text-gray-500 border-b border-gray-200 whitespace-nowrap #{Map.get(td, :padding, "px-6 py-4")} #{Map.get(td, :class)}"}>
+                      <%= render_slot(td, row) %>
+                    </td>
+                  <% end %>
+                </tr>
+              <% end %>
+            </tbody>
           </table>
         </div>
       </div>
