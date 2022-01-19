@@ -153,6 +153,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
   def handle_info(_, socket), do: {:noreply, socket}
 
   defp apply_action(socket, :new, params) do
+    # TODO this should be in a url anchor / handled by js maybe?
     riders =
       Map.get(params, "r", [])
       |> Riders.get_riders()
