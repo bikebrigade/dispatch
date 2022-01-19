@@ -60,6 +60,40 @@ defmodule BikeBrigade.Riders do
     Repo.all(query)
   end
 
+  def search_riders_next(sort_by, sort_order)
+      when sort_order in [:desc, :asc] do
+    order_by =
+      case sort_by do
+        :name ->
+          ["#{sort_order}": :name]
+
+        :last_active ->
+          ["#{sort_order}_nulls_last": dynamic(as(:latest_campaign).delivery_start), asc: :name]
+      end
+
+    limit = 25
+
+    latest_campaign_query =
+      from cr in CampaignRider,
+        where: cr.rider_id == parent_as(:rider).id,
+        join: c in assoc(cr, :campaign),
+        select: c,
+        # TODO do we have an index here?
+        order_by: [desc: c.delivery_date],
+        limit: 1
+
+    query =
+      from r in Rider,
+        as: :rider,
+        left_lateral_join: l in subquery(latest_campaign_query),
+        as: :latest_campaign,
+        limit: ^limit,
+        select_merge: %{latest_campaign_id: l.id},
+        order_by: ^order_by
+
+    Repo.all(query)
+  end
+
   @doc """
   Gets a single rider.
 

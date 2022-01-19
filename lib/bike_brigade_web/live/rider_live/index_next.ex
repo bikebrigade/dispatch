@@ -6,13 +6,62 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
   alias BikeBrigade.Delivery
   alias BikeBrigade.LocalizedDateTime
 
+  alias BikeBrigadeWeb.Components.Icons
+
+  defmodule SortOptions do
+    # This is a streamlined version of the one from leaderboard.ex
+    # Deciding if we need all the ecto stuff here
+
+    defstruct [:field, :order]
+
+    def link(%{field: field, sort_options: sort_options} = assigns) do
+      assigns =
+        case sort_options do
+          %{field: ^field, order: order} ->
+            # This field selected
+            assign(assigns,
+              icon_class: "w-5 h-5 text-gray-500 hover:text-gray-700",
+              order: order,
+              next: next(order)
+            )
+
+          _ ->
+            # Another field selected
+            assign(assigns,
+              icon_class: "w-5 h-5 text-gray-300 hover:text-gray-700",
+              order: :desc,
+              next: :desc
+            )
+        end
+
+      assigns =
+        assign(
+          assigns,
+          :attrs,
+          assigns_to_attributes(assigns, [:sort_options, :field, :order, :icon_class, :next])
+        )
+
+      ~H"""
+      <button type="button" phx-value-field={@field} phx-value-order={@next} {@attrs}>
+        <Icons.sort order={@order} class={@icon_class}/>
+      </button>
+      """
+    end
+
+    defp next(:desc), do: :asc
+    defp next(:asc), do: :desc
+  end
+
   @impl Phoenix.LiveView
   def mount(_params, _session, socket) do
+    sort_options = %SortOptions{field: :name, order: :asc}
+
     {:ok,
      socket
-     |> assign(:riders, fetch_riders())
+     |> assign(:riders, fetch_riders(sort_options))
      |> assign(:page, :riders)
-     |> assign(:selected, MapSet.new())}
+     |> assign(:selected, MapSet.new())
+     |> assign(:sort_options, sort_options)}
   end
 
   @impl Phoenix.LiveView
@@ -77,18 +126,20 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
      )}
   end
 
-  defp fetch_riders() do
-    Riders.search_riders()
-    |> Repo.preload(:tags)
+  def handle_event("sort", %{"field" => field, "order" => order}, socket) do
+    field = String.to_existing_atom(field)
+    order = String.to_existing_atom(order)
+    sort_options = %SortOptions{field: field, order: order}
+
+    {:noreply,
+     socket
+     |> assign(:sort_options, sort_options)
+     |> assign(:riders, fetch_riders(sort_options))}
   end
 
-  defp latest_campaign_date(assigns) do
-    assigns = assign(assigns, :date, Delivery.latest_campaign_date(assigns.rider))
-    ~H"""
-    <%= if @date do %>
-      <%=  @date |> LocalizedDateTime.to_date() |> Calendar.strftime("%b %-d, %Y") %>
-    <% end %>
-    """
+  defp fetch_riders(%SortOptions{field: field, order: order}) do
+    Riders.search_riders_next(field, order)
+    |> Repo.preload([:tags, :latest_campaign])
   end
 
   @impl Phoenix.LiveView
@@ -111,7 +162,10 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
           class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" %>
         </:th>
         <:th padding="px-3">
-          Name
+          <div class="inline-flex">
+            Name
+            <SortOptions.link phx-click="sort" field={:name} sort_options={@sort_options} class="pl-2" />
+          </div>
         </:th>
         <:th>
           Location
@@ -120,7 +174,10 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
           Tags
         </:th>
         <:th>
-          Last Active
+          <div class="inline-flex">
+            Last Active
+            <SortOptions.link phx-click="sort" field={:last_active} sort_options={@sort_options} class="pl-2"/>
+          </div>
         </:th>
 
         <:td let={rider} class="text-center" padding="px-3">
@@ -138,10 +195,12 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
           <%= rider.location_struct.neighborhood %>
         </:td>
         <:td let={rider}>
-          <%= rider.tags |> Enum.map(& &1.name) |> Enum.join(",") %>
+          <%= rider.tags |> Enum.map(& &1.name) |> Enum.join(", ") %>
         </:td>
         <:td let={rider}>
-          <.latest_campaign_date rider={rider}/>
+          <%= if rider.latest_campaign do %>
+            <%=  rider.latest_campaign.delivery_start |> LocalizedDateTime.to_date() |> Calendar.strftime("%b %-d, %Y") %>
+          <% end %>
         </:td>
       </UI.table>
     </div>

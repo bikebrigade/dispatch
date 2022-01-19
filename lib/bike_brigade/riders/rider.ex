@@ -7,7 +7,7 @@ defmodule BikeBrigade.Riders.Rider do
   alias BikeBrigade.Location
   alias BikeBrigade.Repo
   alias BikeBrigade.Riders.{Tag, RidersTag}
-  alias BikeBrigade.Delivery.{Task, CampaignRider}
+  alias BikeBrigade.Delivery.{Task, Campaign, CampaignRider}
 
   defenum OnfleetAccountStatusEnum, invited: "invited", accepted: "accepted"
   defenum MailchimpStatusEnum, subscribed: "subscribed", unsubscribed: "unsubscribed", cleaned: "cleaned", pending: "pending", transactional: "transactional"
@@ -62,6 +62,9 @@ defmodule BikeBrigade.Riders.Rider do
     field :task_capacity, :integer, virtual: true
     field :task_enter_building, :boolean, virtual: true
     field :delivery_url_token, :string, virtual: true
+
+    field :latest_campaign_id, :integer, virtual: true
+    belongs_to :latest_campaign, Campaign, define_field: false
 
     field :pickup_window, :string, virtual: true
     has_many :assigned_tasks, Task, foreign_key: :assigned_rider_id
