@@ -1,19 +1,16 @@
 defmodule BikeBrigade.Importers.MailchimpImporter do
   import Ecto.Query, warn: false
-  alias Ecto.Multi
   import BikeBrigade.Utils, only: [get_config: 1, with_default: 2]
   alias BikeBrigade.Repo
   alias BikeBrigade.Location
   alias BikeBrigade.Importers.Importer
   alias BikeBrigade.Riders
-  alias BikeBrigade.Riders.Rider
   alias BikeBrigade.Messaging.SlackWebhook
 
   @count 100
   @mailchimp "mailchimp"
   @import_failed_tag %{name: "Dispatch Import Failed", status: "active"}
 
-  # TODO make this a singleton? / add locking
   def sync_riders(opts \\ nil) do
     Repo.transaction(fn ->
       last_synced =
@@ -30,8 +27,10 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
         case parse_mailchimp_attrs(member) do
           {:ok, rider_attrs} ->
             create_or_update(rider_attrs)
+
           {:error, {:update_location, rider_attrs}} ->
-            {:ok, rider} = rider_attrs
+            {:ok, rider} =
+              rider_attrs
               |> put_default_location()
               |> create_or_update()
 
@@ -41,6 +40,12 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
             notify_import_error(member, error)
         end
       end
+
+      Repo.insert(%Importer{name: @mailchimp, data: %{last_synced: DateTime.utc_now()}},
+        returning: true,
+        on_conflict: update_data_map(),
+        conflict_target: :name
+      )
     end)
   end
 
@@ -70,14 +75,16 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
     error_message = """
       We had trouble with the address for #{rider.name}. Please edit manually: https://dispatch.bikebrigade.ca/riders/#{rider.id}/edit
     """
+
     Task.start(SlackWebhook, :post_message, [error_message])
   end
 
   def notify_import_error(member, error) do
-    error_message = "An error ocurred when importing #{member.email_address} #{Kernel.inspect(error)}"
+    error_message =
+      "An error ocurred when importing #{member.email_address} #{Kernel.inspect(error)}"
+
     Task.start(SlackWebhook, :post_message, [error_message])
   end
-
 
   def get_members(last_changed \\ nil) do
     with {:ok, account} <- Mailchimp.Account.get(),
@@ -154,8 +161,11 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
       }
 
       case geolocate_raw_location(raw_location) do
-        {:ok, location} -> {:ok, Map.put(rider_attrs, :location_struct, Map.from_struct(location))}
-        {:error, _} -> {:error, {:update_location, rider_attrs}}
+        {:ok, location} ->
+          {:ok, Map.put(rider_attrs, :location_struct, Map.from_struct(location))}
+
+        {:error, _} ->
+          {:error, {:update_location, rider_attrs}}
       end
     else
       {:error, err} ->
@@ -181,7 +191,8 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
       province: location.province,
       country: location.country
     })
-    |> Ecto.Changeset.apply_action(:save) #TODO: this should be a method on the location struct to validate
+    # TODO: this should be a method on the location struct to validate
+    |> Ecto.Changeset.apply_action(:save)
   end
 
   # TODO: do we need this?
