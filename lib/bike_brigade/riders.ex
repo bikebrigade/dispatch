@@ -60,12 +60,22 @@ defmodule BikeBrigade.Riders do
     Repo.all(query)
   end
 
-  def search_riders_next(sort_by, sort_order)
+  def search_riders_next(queries, {sort_order, sort_field})
       when sort_order in [:desc, :asc] do
+    where =
+      queries
+      |> Enum.reduce(dynamic(true), fn
+        {:name, search}, query ->
+          dynamic(^query and ilike(as(:rider).name, ^"%#{search}%"))
+
+        {:tag, tag}, query ->
+          dynamic(^query and fragment("? = ANY(?)", ^tag, as(:tags).tags))
+      end)
+
     order_by =
-      case sort_by do
+      case sort_field do
         :name ->
-          ["#{sort_order}": :name]
+          [{sort_order, sort_field}]
 
         :last_active ->
           ["#{sort_order}_nulls_last": dynamic(as(:latest_campaign).delivery_start), asc: :name]
@@ -82,11 +92,20 @@ defmodule BikeBrigade.Riders do
         order_by: [desc: c.delivery_date],
         limit: 1
 
+    tags_query =
+      from t in Tag,
+        join: r in assoc(t, :riders),
+        where: r.id == parent_as(:rider).id,
+        select: %{tags: fragment("array_agg(?)", t.name)}
+
     query =
       from r in Rider,
         as: :rider,
+        left_lateral_join: t in subquery(tags_query),
+        as: :tags,
         left_lateral_join: l in subquery(latest_campaign_query),
         as: :latest_campaign,
+        where: ^where,
         limit: ^limit,
         select_merge: %{latest_campaign_id: l.id},
         order_by: ^order_by
