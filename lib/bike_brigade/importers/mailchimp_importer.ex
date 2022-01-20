@@ -17,11 +17,12 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
   def sync_riders(opts \\ nil) do
     Repo.transaction(fn ->
       last_synced =
-        # TODO add a row lock here.
-        case Repo.get_by(Importer, name: @mailchimp) do
-          nil -> nil
-          importer -> importer.data["last_synced"]
-        end
+        Repo.one(
+          from i in Importer,
+            where: i.name == ^@mailchimp,
+            lock: "FOR UPDATE SKIP LOCKED",
+            select: fragment("? ->> 'last_synced'", i.data)
+        )
 
       {:ok, members} = opts || get_members(last_synced)
 
