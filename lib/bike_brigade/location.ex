@@ -33,7 +33,6 @@ defmodule BikeBrigade.Location do
         }
 
   def changeset(struct, params \\ %{}) do
-    #  require IEx; IEx.pry
     struct
     |> cast(params, @fields)
     |> validate_required([:coords, :city, :province, :country])
