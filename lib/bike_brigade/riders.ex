@@ -66,7 +66,7 @@ defmodule BikeBrigade.Riders do
       queries
       |> Enum.reduce(dynamic(true), fn
         {:name, search}, query ->
-          dynamic(^query and ilike(as(:rider).name, ^"%#{search}%"))
+          dynamic(^query and (ilike(as(:rider).name, ^"#{search}%") or ilike(as(:rider).name, ^"% #{search}%")))
 
         {:tag, tag}, query ->
           dynamic(^query and fragment("? = ANY(?)", ^tag, as(:tags).tags))
@@ -89,7 +89,7 @@ defmodule BikeBrigade.Riders do
         join: c in assoc(cr, :campaign),
         select: c,
         # TODO do we have an index here?
-        order_by: [desc: c.delivery_date],
+        order_by: [desc: c.delivery_start],
         limit: 1
 
     tags_query =
