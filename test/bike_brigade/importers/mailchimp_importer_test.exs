@@ -32,13 +32,14 @@ defmodule BikeBrigade.Importers.MailchimpImporterTest do
 
     test "returns an error if the phone number is not a valid Canadian number" do
       invalid_attrs = put_in(@valid_attrs, [:merge_fields, :PHONEYUI_], "oops")
-      {:error, _} = MailchimpImporter.parse_mailchimp_attrs(invalid_attrs)
+      assert {:error, _} = MailchimpImporter.parse_mailchimp_attrs(invalid_attrs)
     end
 
     test "returns an error if address fails geocoding" do
       invalid_attrs = put_in(@valid_attrs, [:merge_fields, :TEXTYUI_3], "oops")
 
-      {:error, {:update_location, _}} = MailchimpImporter.parse_mailchimp_attrs(invalid_attrs)
+      assert {:error, {:update_location, _}} =
+               MailchimpImporter.parse_mailchimp_attrs(invalid_attrs)
     end
   end
 
@@ -90,7 +91,6 @@ defmodule BikeBrigade.Importers.MailchimpImporterTest do
       assert {:ok, _} = MailchimpImporter.sync_riders()
 
       r = Riders.get_rider_by_email("dispatcher@example.com")
-
       assert r.name == "Morty"
 
       # The rider has a default location
@@ -102,6 +102,22 @@ defmodule BikeBrigade.Importers.MailchimpImporterTest do
 
       # We tag the rider
       assert [%{name: "invalid_location"}] = Repo.preload(r, :tags).tags
+    end
+
+    test "updates riders" do
+      FakeMailchimp.add_members(@list_id, [@valid_attrs])
+
+      assert {:ok, _} = MailchimpImporter.sync_riders()
+
+      FakeMailchimp.clear_members(@list_id)
+
+      FakeMailchimp.add_members(@list_id, [
+        put_in(@valid_attrs, [:merge_fields, :FNAME], "Mortimus")
+      ])
+
+      assert {:ok, _} = MailchimpImporter.sync_riders()
+      r = Riders.get_rider_by_email("dispatcher@example.com")
+      assert r.name == "Mortimus"
     end
   end
 end
