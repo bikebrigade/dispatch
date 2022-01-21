@@ -101,12 +101,6 @@ if config_env() == :prod do
          System.get_env("GOOGLE_MAPS_API_KEY") ||
            raise("environment variable GOOGLE_MAPS_API_KEY is missing.")
 
-  # Mailchimp
-  config :mailchimp,
-    api_key:
-      System.get_env("MAILCHIMP_API_KEY") ||
-        raise("environment variable MAILCHIMP_API_KEY is missing")
-
   # Twilio
   config :ex_twilio,
     account_sid: System.fetch_env!("TWILIO_ACCOUNT_SID"),
@@ -115,6 +109,10 @@ if config_env() == :prod do
   # SmsService
   config :bike_brigade, :sms_service,
     status_callback_url: System.fetch_env!("TWILIO_STATUS_CALLBACK")
+
+  # Mailchimp
+  config :mailchimp,
+    api_key: System.fetch_env("MAILCHIMP_API_KEY")
 end
 
 # LibLatLon uses porcelain with the basic driver so we don't need to worry about goon

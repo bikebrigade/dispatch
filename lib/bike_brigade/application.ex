@@ -31,6 +31,7 @@ defmodule BikeBrigade.Application do
       |> BikeBrigade.SmsService.append_child_spec()
       |> BikeBrigade.Geocoder.append_child_spec()
       |> BikeBrigade.MediaStorage.append_child_spec()
+      |> BikeBrigade.MailchimpApi.append_child_spec()
 
     # Hook up telemetry to Honeybadger
     BikeBrigade.HoneybadgerTelemetry.attach()
