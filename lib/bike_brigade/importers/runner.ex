@@ -1,9 +1,8 @@
 defmodule BikeBrigade.Importers.Runner do
-  use GenServer
-
   import BikeBrigade.Utils, only: [get_config: 1]
-
   alias BikeBrigade.Importers.MailchimpImporter
+
+  use BikeBrigade.SingleGlobalGenServer, initial_state: %{}
 
   def append_child_spec(children) do
     config = Application.get_env(:bike_brigade, __MODULE__)
@@ -15,15 +14,13 @@ defmodule BikeBrigade.Importers.Runner do
     end
   end
 
-  def start_link([]) do
-    GenServer.start_link(__MODULE__, %{})
-  end
-
+  @impl GenServer
   def init(state) do
     schedule_work()
     {:ok, state}
   end
 
+  @impl GenServer
   def handle_info(:run_importers, state) do
     honeybadger_checkin()
     MailchimpImporter.sync_riders()

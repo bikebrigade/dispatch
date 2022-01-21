@@ -1,39 +1,12 @@
 defmodule BikeBrigade.AuthenticationMessenger do
-  use GenServer
-
   import BikeBrigade.Utils
-
   alias BikeBrigade.Messaging
   alias BikeBrigade.SmsService
-
   require Logger
 
-  @name {:via, Horde.Registry, {BikeBrigade.HordeRegistry, __MODULE__}}
+  use BikeBrigade.SingleGlobalGenServer, initial_state: %{}
 
   # Client
-
-  def start_link([]) do
-    # When we are in non-distributed mode start us using Horde
-    # TODO: this + @name can be abstracted to a Singleton Genserver or the like
-    Horde.DynamicSupervisor.start_child(
-      BikeBrigade.HordeSupervisor,
-      {__MODULE__, distributed: true}
-    )
-
-    # Ignore since this is called from the main supervisor
-    :ignore
-  end
-
-  def start_link(distributed: true) do
-    case GenServer.start_link(__MODULE__, %{}, name: @name) do
-      {:ok, pid} ->
-        {:ok, pid}
-
-      {:error, {:already_started, pid}} ->
-        Logger.info("#{inspect(__MODULE__)}: already started at #{inspect(pid)}, returning :ignore")
-        :ignore
-    end
-  end
 
   def generate_token(phone), do: generate_token(@name, phone)
 
@@ -58,12 +31,12 @@ defmodule BikeBrigade.AuthenticationMessenger do
 
   # Server (callbacks)
 
-  @impl true
+  @impl GenServer
   def init(state) do
     {:ok, state}
   end
 
-  @impl true
+  @impl GenServer
   def handle_call({:generate_token, phone}, _from, state) do
     # Generate a 6 digit token
     token = :rand.uniform(899_999) + 100_000
@@ -78,7 +51,6 @@ defmodule BikeBrigade.AuthenticationMessenger do
     end
   end
 
-  @impl true
   def handle_call({:validate_token, phone, token_attempt}, _from, state) do
     # TODO refactor
     if !dev?() do
@@ -96,7 +68,7 @@ defmodule BikeBrigade.AuthenticationMessenger do
     end
   end
 
-  @impl true
+  @impl GenServer
   def handle_info({:expire, phone}, state) do
     {:noreply, Map.delete(state, phone)}
   end
