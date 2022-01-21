@@ -6,46 +6,52 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
   alias BikeBrigade.Importers.Importer
   alias BikeBrigade.Riders
   alias BikeBrigade.Messaging.SlackWebhook
+  alias BikeBrigade.MailchimpApi
 
-  @count 100
-  @mailchimp "mailchimp"
-  @import_failed_tag %{name: "Dispatch Import Failed", status: "active"}
+  @importer_name "mailchimp"
 
-  def sync_riders(opts \\ nil) do
+  # Lets us update values in maps stored as jsonb without losing keys we dont care about
+  @update_data_map from(i in Importer,
+                     update: [set: [data: fragment("? || excluded.data", i.data)]]
+                   )
+
+  def sync_riders() do
     Repo.transaction(fn ->
       last_synced =
         Repo.one(
           from i in Importer,
-            where: i.name == ^@mailchimp,
+            where: i.name == ^@importer_name,
             lock: "FOR UPDATE SKIP LOCKED",
             select: fragment("? ->> 'last_synced'", i.data)
         )
 
-      {:ok, members} = opts || get_members(last_synced)
+      list_id = get_config(:list_id)
 
-      for member <- members do
-        case parse_mailchimp_attrs(member) do
-          {:ok, rider_attrs} ->
-            create_or_update(rider_attrs)
+      with {:ok, members} <- MailchimpApi.get_list(list_id, last_synced) do
+        for member <- members do
+          case parse_mailchimp_attrs(member) do
+            {:ok, rider_attrs} ->
+              create_or_update(rider_attrs)
 
-          {:error, {:update_location, rider_attrs}} ->
-            {:ok, rider} =
-              rider_attrs
-              |> put_default_location()
-              |> create_or_update()
+            {:error, {:update_location, rider_attrs}} ->
+              {:ok, rider} =
+                rider_attrs
+                |> put_default_location()
+                |> create_or_update()
 
-            notify_location_error(rider)
+              notify_location_error(rider)
 
-          {:error, error} ->
-            notify_import_error(member, error)
+            {:error, error} ->
+              notify_import_error(member, error)
+          end
         end
-      end
 
-      Repo.insert(%Importer{name: @mailchimp, data: %{last_synced: DateTime.utc_now()}},
-        returning: true,
-        on_conflict: update_data_map(),
-        conflict_target: :name
-      )
+        Repo.insert(%Importer{name: @importer_name, data: %{last_synced: DateTime.utc_now()}},
+          returning: true,
+          on_conflict: @update_data_map,
+          conflict_target: :name
+        )
+      end
     end)
   end
 
@@ -84,31 +90,6 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
       "An error ocurred when importing #{member.email_address} #{Kernel.inspect(error)}"
 
     Task.start(SlackWebhook, :post_message, [error_message])
-  end
-
-  def get_members(last_changed \\ nil) do
-    with {:ok, account} <- Mailchimp.Account.get(),
-         {:ok, list} <- Mailchimp.Account.get_list(account, get_config(:list_id)) do
-      # Infinite sequence of offsets 0,100,200,...
-      offsets = Stream.iterate(0, &(&1 + @count))
-
-      {members, status} =
-        Enum.flat_map_reduce(offsets, :ok, fn offset, _status ->
-          case Mailchimp.List.members(list, %{
-                 count: @count,
-                 offset: offset,
-                 fields:
-                   "members.email_address,members.id,members.status,members.merge_fields,members.timestamp_opt",
-                 since_last_changed: last_changed
-               }) do
-            {:ok, []} -> {:halt, :ok}
-            {:ok, members} -> {members, :ok}
-            {:error, err} -> {:error, err}
-          end
-        end)
-
-      {status, members}
-    end
   end
 
   def parse_mailchimp_attrs(member) do
@@ -193,34 +174,6 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
     })
     # TODO: this should be a method on the location struct to validate
     |> Ecto.Changeset.apply_action(:save)
-  end
-
-  # TODO: do we need this?
-  def tag_failed_import!(email) do
-    with {:ok, account} <- Mailchimp.Account.get(),
-         {:ok, list} <- Mailchimp.Account.get_list(account, get_config(:list_id)),
-         {:ok, member} <-
-           Mailchimp.List.get_member(list, email) do
-      %{member | tags: [@import_failed_tag]}
-      |> Mailchimp.Member.update_tags!()
-    end
-  end
-
-  def get_last_synced(repo \\ Repo) do
-    case repo.get_by(Importer, name: @mailchimp) do
-      importer when not is_nil(importer) -> importer.data["last_synced"]
-      nil -> nil
-    end
-  end
-
-  def set_last_synced(timestamp \\ DateTime.utc_now()) do
-    %Importer{name: @mailchimp, data: %{last_synced: timestamp}}
-    |> Repo.insert!(returning: true, on_conflict: update_data_map(), conflict_target: :name)
-  end
-
-  # Lets us update values in maps stored as jsonb without losing keys we dont care about
-  defp update_data_map do
-    from(i in Importer, update: [set: [data: fragment("? || excluded.data", i.data)]])
   end
 
   defp translate_availability(availability) do
