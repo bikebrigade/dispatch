@@ -40,6 +40,7 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
                 |> create_or_update()
 
               notify_location_error(rider)
+              tag_invalid_location(rider)
 
             {:error, error} ->
               notify_import_error(member, error)
@@ -77,9 +78,20 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
     Map.put(rider_attrs, :location_struct, %{address: "1 Front St"})
   end
 
+  def tag_invalid_location(rider) do
+    # TODO make this an idempotent Riders.add_tag
+    rider =
+      rider
+      |> Repo.preload(:tags)
+
+    tags = Enum.map(rider.tags, & &1.name) ++ ["invalid_location"]
+
+    Riders.update_rider_with_tags(rider, %{}, tags)
+  end
+
   def notify_location_error(rider) do
     error_message = """
-      We had trouble with the address for #{rider.name}. Please edit manually: https://dispatch.bikebrigade.ca/riders/#{rider.id}/edit
+      We had trouble with the address for #{rider.name}. Please edit manually: #{BikeBrigadeWeb.Router.Helpers.rider_index_url(BikeBrigadeWeb.Endpoint, :edit, rider.id)}
     """
 
     Task.start(SlackWebhook, :post_message, [error_message])

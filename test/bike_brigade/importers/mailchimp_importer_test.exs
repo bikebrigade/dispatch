@@ -80,7 +80,6 @@ defmodule BikeBrigade.Importers.MailchimpImporterTest do
       assert Riders.get_rider_by_email("dispatcher@example.com") == nil
 
       call = FakeSlack.get_last_call()
-
       assert call[:body] =~ "An error ocurred when importing dispatcher@example.com"
     end
 
@@ -93,7 +92,16 @@ defmodule BikeBrigade.Importers.MailchimpImporterTest do
       r = Riders.get_rider_by_email("dispatcher@example.com")
 
       assert r.name == "Morty"
+
+      # The rider has a default location
       assert r.location_struct.address == "1 Front St"
+
+      # We alert on slack
+      call = FakeSlack.get_last_call()
+      assert call[:body] =~ "We had trouble with the address for Morty."
+
+      # We tag the rider
+      assert [%{name: "invalid_location"}] = Repo.preload(r, :tags).tags
     end
   end
 end
