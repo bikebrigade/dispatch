@@ -9,12 +9,7 @@ defmodule BikeBrigade.MailchimpApi.FakeMailchimp do
   end
 
   @impl MailchimpApi
-  def get_list(list_id) do
-    GenServer.call(__MODULE__, {:get_list, list_id})
-  end
-
-  @impl MailchimpApi
-  def get_list(list_id, last_changed) do
+  def get_list(list_id, last_changed \\ nil) do
     GenServer.call(__MODULE__, {:get_list, list_id, last_changed})
   end
 
@@ -32,7 +27,7 @@ defmodule BikeBrigade.MailchimpApi.FakeMailchimp do
   end
 
   @impl GenServer
-  def handle_call({:get_list, list_id}, _from, lists) do
+  def handle_call({:get_list, list_id, nil}, _from, lists) do
     members =
       Map.get(lists, list_id, [])
       |> Enum.map(fn {_inserted_at, member} -> member end)
