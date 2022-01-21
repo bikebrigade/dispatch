@@ -25,12 +25,13 @@ defmodule BikeBrigade.Application do
         # Send scheduled campaign messgaes
         BikeBrigade.ScheduledMessenger
       ]
-      |> add_child_if_configured(BikeBrigade.Importers.Runner)
+      |> BikeBrigade.Importers.Runner.append_child_spec()
       |> BikeBrigade.Google.append_child_spec()
       |> BikeBrigade.SlackApi.append_child_spec()
       |> BikeBrigade.SmsService.append_child_spec()
       |> BikeBrigade.Geocoder.append_child_spec()
       |> BikeBrigade.MediaStorage.append_child_spec()
+      |> BikeBrigade.MailchimpApi.append_child_spec()
 
     # Hook up telemetry to Honeybadger
     BikeBrigade.HoneybadgerTelemetry.attach()
@@ -39,16 +40,6 @@ defmodule BikeBrigade.Application do
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: BikeBrigade.Supervisor]
     Supervisor.start_link(children, opts)
-  end
-
-  defp add_child_if_configured(children, module, child_spec \\ nil) do
-    config = Application.get_env(:bike_brigade, module, [])
-
-    if config[:start] do
-      children ++ [child_spec || module]
-    else
-      children
-    end
   end
 
   # Tell Phoenix to update the endpoint configuration
