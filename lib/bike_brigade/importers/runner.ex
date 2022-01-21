@@ -9,7 +9,7 @@ defmodule BikeBrigade.Importers.Runner do
     config = Application.get_env(:bike_brigade, __MODULE__)
 
     if config[:start] do
-      children ++ [{{__MODULE__, []}}]
+      children ++ [{__MODULE__, []}]
     else
       children
     end
