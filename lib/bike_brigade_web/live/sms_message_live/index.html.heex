@@ -1,12 +1,9 @@
 <%= if @live_action == :new do %>
- <UI.modal show id={:item} return_to={@current_path} >
+ <UI.modal show id={:new_message} return_to={Routes.sms_message_index_path(@socket, :index)} >
     <:title><%= @page_title %></:title>
     <.live_component
       module={BikeBrigadeWeb.SmsMessageLive.FormComponent}
-      id={:new}
-      action={@live_action}
-      current_user={@current_user}
-      return_to={@current_path}/>
+      id={:new} />
   </UI.modal>
 <% end %>
 <div class="flex flex-wrap h-full max-h-full min-h-0 -mx-3">
