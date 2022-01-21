@@ -154,6 +154,7 @@ case System.get_env("MAILCHIMP_API_KEY") do
   nil ->
     config :bike_brigade, :mailchimp, adapter: BikeBrigade.MailchimpApi.FakeMailchimp
 
-  url ->
-    config :bike_brigade, :mailchimp, adapter: BikeBrigade.MailchimpApi.FakeMailchimp
+  key ->
+    config :bike_brigade, :mailchimp, adapter: BikeBrigade.MailchimpApi.Http
+    config :mailchimp, api_key: key
 end

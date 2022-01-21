@@ -9,7 +9,7 @@ config :bike_brigade, BikeBrigadeWeb.Endpoint,
 # Adapters
 config :bike_brigade, :geocoder, adapter: BikeBrigade.Geocoder.LibLatLonGeocoder
 
-config :bike_brigade, :mailchimp,  BikeBrigade.MailchimpApi.Http
+config :bike_brigade, :mailchimp, adapter: BikeBrigade.MailchimpApi.Http
 
 config :bike_brigade, :media_storage,
   bucket: "bike-brigade-public",

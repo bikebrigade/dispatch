@@ -112,7 +112,7 @@ if config_env() == :prod do
 
   # Mailchimp
   config :mailchimp,
-    api_key: System.fetch_env("MAILCHIMP_API_KEY")
+    api_key: System.fetch_env!("MAILCHIMP_API_KEY")
 end
 
 # LibLatLon uses porcelain with the basic driver so we don't need to worry about goon
