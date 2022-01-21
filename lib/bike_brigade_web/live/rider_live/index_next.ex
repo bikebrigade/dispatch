@@ -3,7 +3,6 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
 
   alias BikeBrigade.Repo
   alias BikeBrigade.Riders
-  alias BikeBrigade.Delivery
   alias BikeBrigade.LocalizedDateTime
 
   alias BikeBrigadeWeb.Components.Icons
@@ -102,6 +101,16 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
      socket
      |> assign(:queries, socket.assigns.queries ++ query)
      |> clear_search()
+     |> clear_selected()
+     |> fetch_riders()}
+  end
+
+  def handle_event("clear-queries", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(:queries, [])
+     |> clear_search()
+     |> clear_selected()
      |> fetch_riders()}
   end
 
@@ -206,6 +215,11 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
     |> assign(:suggestions, [])
   end
 
+  defp clear_selected(socket) do
+    socket
+    |> assign(:selected, MapSet.new())
+  end
+
   defp fetch_riders(socket) do
     sort = SortOptions.to_tuple(socket.assigns.sort_options)
 
@@ -230,7 +244,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
     <div>
       <%= if @live_action == :message do %>
         <UI.modal id={:new_message} show return_to={Routes.rider_index_next_path(@socket, :index)} >
-          <:title><%= @page_title %></:title>
+          <:title>Bulk Message</:title>
           <.live_component
             module={BikeBrigadeWeb.SmsMessageLive.FormComponent}
             id={:new_message}
@@ -238,12 +252,13 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
         </UI.modal>
       <% end %>
       <div class="flex items-baseline justify-between ">
-        <div class="relative w-2/3">
-          <.query_list queries={@queries} />
+        <div class="relative flex flex-col w-2/3">
           <input type="text" phx-keydown="suggest" phx-debounce="100"
             value={}
             class="block w-full px-3 py-2 placeholder-gray-400 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             placeholder="Name, email, phone, tag, neighborhood" />
+            <.query_list queries={@queries} />
+
           <.suggestion_list suggestions={@suggestions} />
         </div>
         <C.button patch_to={Routes.rider_index_next_path(@socket, :message)}>Bulk Message</C.button>
@@ -253,7 +268,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
         <:th class="text-center" padding="px-3">
         <%= checkbox :selected, :all,
           form: "selected",
-          value: Enum.count(@selected) == Enum.count(@riders),
+          value: all_selected?(@riders, @selected),
           class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" %>
         </:th>
         <:th padding="px-3">
@@ -308,7 +323,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
 
   defp suggestion_list(assigns) do
     ~H"""
-    <ul id="suggestion-list" class="absolute w-full p-1 mt-1 overflow-y-auto bg-white border rounded shadow-xl top-100 max-h-64">
+    <ul id="suggestion-list" class="absolute w-full p-1 mt-10 overflow-y-auto bg-white border rounded shadow-xl top-100 max-h-64">
       <%= for {type, search} <- @suggestions do %>
         <li class="p-1">
           <.suggestion type={type} search={search} />
@@ -330,12 +345,22 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
 
   defp query_list(assigns) do
     ~H"""
-    <%= for {{type, search}, i} <- Enum.with_index(@queries) do %>
-      <div class={"my-0.5 inline-flex items-center px-2.5 py-1.5 rounded-md text-md font-medium #{color(type)}"}>
-        <span class="text-700 mr-0.5 font-base"><%= type %></span><%= search %>
-        <Heroicons.Outline.x_circle class="w-5 h-5 ml-1 cursor-pointer" phx-click="remove-query" phx-value-index={i} />
+    <%= if @queries != [] do %>
+      <div class="flex items-center w-full mt-0.5">
+        <div class="space-x-0.5">
+          <%= for {{type, search}, i} <- Enum.with_index(@queries) do %>
+            <div class={"my-0.5 inline-flex items-center px-2.5 py-1.5 rounded-md text-md font-medium #{color(type)}"}>
+              <span class="text-700 mr-0.5 font-base"><%= type %>:</span><%= search %>
+              <Heroicons.Outline.x_circle class="w-5 h-5 ml-1 cursor-pointer" phx-click="remove-query" phx-value-index={i} />
+            </div>
+          <% end  %>
+        </div>
+        <button type="button" phx-click="clear-queries"  class="ml-auto text-gray-400 rounded-md hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          <span class="sr-only">Clear Search</span>
+          <Heroicons.Outline.x class="w-6 h-6" />
+        </button>
       </div>
-    <% end  %>
+    <% end %>
     """
   end
 
@@ -344,5 +369,9 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
       :name -> "text-emerald-800 bg-emerald-100"
       :tag -> "text-indigo-800 bg-indigo-100"
     end
+  end
+
+  defp all_selected?(riders, selected) do
+    MapSet.size(selected) != 0 && Enum.count(riders) == MapSet.size(selected)
   end
 end
