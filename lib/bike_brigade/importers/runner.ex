@@ -6,7 +6,9 @@ defmodule BikeBrigade.Importers.Runner do
   alias BikeBrigade.Importers.MailchimpImporter
 
   def append_child_spec(children) do
-    if get_config(:start) do
+    config = Application.get_env(:bike_brigade, __MODULE__)
+
+    if config[:start] do
       children ++ [{{__MODULE__, []}}]
     else
       children
