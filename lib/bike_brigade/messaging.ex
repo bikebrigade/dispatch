@@ -268,12 +268,20 @@ defmodule BikeBrigade.Messaging do
     |> Ecto.Changeset.apply_action(:save)
   end
 
-  def list_unsent_scheduled_messages do
-    q =
-      from s in ScheduledMessage,
-        where: s.send_at <= ^DateTime.utc_now()
+  def list_unsent_scheduled_messages(opts \\ []) do
+    {lock, opts} = Keyword.pop(opts, :lock, false)
 
-    Repo.all(q)
+    q =
+      if lock do
+        from s in ScheduledMessage,
+          where: s.send_at <= ^DateTime.utc_now(),
+          lock: "FOR UPDATE SKIP LOCKED"
+      else
+        from s in ScheduledMessage,
+          where: s.send_at <= ^DateTime.utc_now()
+      end
+
+    Repo.all(q, opts)
   end
 
   @doc """

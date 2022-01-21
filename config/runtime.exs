@@ -38,6 +38,24 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
+  app_name =
+    System.get_env("FLY_APP_NAME") ||
+      raise "FLY_APP_NAME not available"
+
+  config :libcluster,
+    debug: true,
+    topologies: [
+      fly6pn: [
+        strategy: Cluster.Strategy.DNSPoll,
+        config: [
+          polling_interval: 5_000,
+          query: "#{app_name}.internal",
+          node_basename: app_name
+        ]
+      ]
+    ]
+
+  # Production / staging differences
   case app_env do
     :production ->
       config :bike_brigade, BikeBrigadeWeb.Endpoint,
@@ -56,10 +74,6 @@ if config_env() == :prod do
         checkin_url: {:system, "IMPORTER_CHECKIN_URL"}
 
     :staging ->
-      _app_name =
-        System.get_env("FLY_APP_NAME") ||
-          raise "FLY_APP_NAME not available"
-
       config :bike_brigade, BikeBrigade.Repo, socket_options: [:inet6]
 
       config :bike_brigade, BikeBrigadeWeb.Endpoint,

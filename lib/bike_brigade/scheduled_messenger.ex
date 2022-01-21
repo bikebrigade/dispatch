@@ -1,41 +1,36 @@
 defmodule BikeBrigade.ScheduledMessenger do
-  use GenServer
   alias BikeBrigade.Messaging
   alias BikeBrigade.Delivery
-  alias Ecto.Multi
-
+  alias BikeBrigade.Repo
   require Logger
 
-  # Client
+  use BikeBrigade.SingleGlobalGenServer, initial_state: %{}
 
-  def start_link(opts \\ []) do
-    opts = Keyword.put_new(opts, :name, __MODULE__)
-    GenServer.start_link(opts[:name], %{}, opts)
-  end
-
-  # Server (callbacks)
-
-  @impl true
+  @impl GenServer
   def init(state) do
     :timer.send_interval(60_000, :send_messages)
     {:ok, state}
   end
 
-  @impl true
+  @impl GenServer
   def handle_info(:send_messages, state) do
-    for m <- Messaging.list_unsent_scheduled_messages() do
-      # TODO join this in
-      c = Delivery.get_campaign(m.campaign_id)
-      # TODO make this a proper multi
-      # the delivery code isnt referencing the right repo :(
-      Multi.new()
-      |> Multi.run(:send_messges, fn _repo, _changes ->
-        Logger.info("Sending messages for campaign #{c.id}")
-        Delivery.send_campaign_messages(c)
-      end)
-      |> Multi.delete(:delete_schedule, m)
-      |> BikeBrigade.Repo.transaction()
-    end
+    Repo.transaction(
+      fn ->
+        unsent_messages = Messaging.list_unsent_scheduled_messages(lock: true, log: false)
+
+        for s <- unsent_messages do
+          Logger.info("Sending scheduled messages for campaign #{s.campaign_id}")
+
+          # We have some non-decoupled preloads in get_campaign so we load it here instead of joining
+          # TODO: make this work with joins and preloads where we need things
+          c = Delivery.get_campaign(s.campaign_id)
+          Delivery.send_campaign_messages(c)
+
+          Repo.delete(s)
+        end
+      end,
+      log: false
+    )
 
     {:noreply, state}
   end
