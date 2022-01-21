@@ -72,12 +72,31 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
   end
 
   @impl Phoenix.LiveView
+  def handle_params(params, _url, socket) do
+    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+  end
 
+  defp apply_action(socket, :index, _params) do
+    socket
+  end
+
+  defp apply_action(socket, :message, _params) do
+    riders =
+      socket.assigns.selected
+      |> MapSet.to_list()
+      |> Riders.get_riders()
+
+    socket
+    |> assign(:initial_riders, riders)
+  end
+
+  @impl Phoenix.LiveView
   def handle_event("search", %{"type" => type, "search" => search}, socket) do
-    query = case type do
-      "name" -> [name: String.trim(search)]
-      "tag" -> [tag: search]
-    end
+    query =
+      case type do
+        "name" -> [name: String.trim(search)]
+        "tag" -> [tag: search]
+      end
 
     {:noreply,
      socket
@@ -209,6 +228,15 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
   def render(assigns) do
     ~H"""
     <div>
+      <%= if @live_action == :message do %>
+        <UI.modal id={:new_message} show return_to={Routes.rider_index_next_path(@socket, :index)} >
+          <:title><%= @page_title %></:title>
+          <.live_component
+            module={BikeBrigadeWeb.SmsMessageLive.FormComponent}
+            id={:new_message}
+            initial_riders={@initial_riders}/>
+        </UI.modal>
+      <% end %>
       <div class="flex items-baseline justify-between ">
         <div class="relative w-2/3">
           <.query_list queries={@queries} />
@@ -218,7 +246,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
             placeholder="Name, email, phone, tag, neighborhood" />
           <.suggestion_list suggestions={@suggestions} />
         </div>
-        <C.button phx-click="bulk-message">Bulk Message</C.button>
+        <C.button patch_to={Routes.rider_index_next_path(@socket, :message)}>Bulk Message</C.button>
       </div>
       <form id="selected" phx-change="select-rider"></form>
       <UI.table rows={@riders} class="mt-2">
@@ -291,8 +319,6 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
   end
 
   defp suggestion(assigns) do
-
-
     ~H"""
     <a href="#" phx-click="search" phx-value-type={@type} phx-value-search={@search} class="block transition duration-150 ease-in-out w-fit hover:bg-gray-50 focus:outline-none focus:bg-gray-50">
       <p class={"px-2.5 py-1.5 rounded-md text-md font-medium #{color(@type)}"}>

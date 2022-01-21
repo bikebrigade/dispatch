@@ -152,14 +152,8 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
   @doc "silently ignore new kinds of messages"
   def handle_info(_, socket), do: {:noreply, socket}
 
-  defp apply_action(socket, :new, params) do
-    # TODO this should be in a url anchor / handled by js maybe?
-    riders =
-      Map.get(params, "r", [])
-      |> Riders.get_riders()
-
+  defp apply_action(socket, :new, _params) do
     socket
-    |> assign(:initial_riders, riders)
   end
 
   defp apply_action(socket, :show, %{"id" => id}) do

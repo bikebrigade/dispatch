@@ -14,6 +14,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.FormComponent do
     {:ok,
      socket
      |> assign(:changeset, changeset)
+     |> assign(:initial_riders, [])
      |> assign_confirm_send_warning()}
   end
 
