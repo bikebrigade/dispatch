@@ -1,6 +1,8 @@
 defmodule BikeBrigadeWeb.RiderLive.IndexNext do
   use BikeBrigadeWeb, :live_view
 
+  alias Phoenix.LiveView.JS
+
   alias BikeBrigade.Repo
   alias BikeBrigade.Riders
   alias BikeBrigade.LocalizedDateTime
@@ -55,6 +57,52 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
     defp next(:asc), do: :desc
   end
 
+  defmodule Suggestions do
+    @actives ~w(hour day week month year)
+
+    defstruct name: nil, tags: [], active: []
+
+    @type t :: %__MODULE__{
+            name: String.t() | nil,
+            tags: list(String.t()),
+            active: list(atom())
+          }
+
+    @spec suggest(t(), String.t()) :: t()
+    def suggest(suggestions, "") do
+      %{suggestions | name: nil, tags: [], active: []}
+    end
+
+    def suggest(suggestions, search) do
+      case String.split(search, ":", parts: 2) do
+        ["tag", tag] ->
+          tags =
+            Riders.search_tags(tag)
+            |> Enum.map(& &1.name)
+
+          %__MODULE__{tags: tags}
+
+        ["active", active] ->
+          actives =
+            @actives
+            |> Enum.filter(&String.starts_with?(&1, active))
+
+          %__MODULE__{active: actives}
+
+        [search] ->
+          tags =
+            Riders.search_tags(search)
+            |> Enum.map(& &1.name)
+
+          %{suggestions | name: [search], tags: tags, active: @actives}
+
+        [_, _] ->
+          # unknown facet
+          %__MODULE__{}
+      end
+    end
+  end
+
   @impl Phoenix.LiveView
   def mount(_params, _session, socket) do
     sort_options = %SortOptions{field: :name, order: :asc}
@@ -66,7 +114,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
      |> assign(:sort_options, sort_options)
      |> assign(:search, "")
      |> assign(:queries, [])
-     |> assign(:suggestions, [])
+     |> assign(:suggestions, %Suggestions{})
      |> fetch_riders()}
   end
 
@@ -90,12 +138,9 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
   end
 
   @impl Phoenix.LiveView
-  def handle_event("search", %{"type" => type, "search" => search}, socket) do
-    query =
-      case type do
-        "name" -> [name: String.trim(search)]
-        "tag" -> [tag: search]
-      end
+
+  def handle_event("search", %{"value" => search}, socket) do
+    query = parse_search(search)
 
     {:noreply,
      socket
@@ -114,8 +159,16 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
      |> fetch_riders()}
   end
 
+  def handle_event("suggest", %{"_target" => ["choose"], "choose" => choose}, socket) do
+    {:noreply, assign(socket, search: choose)}
+  end
+
   def handle_event("suggest", %{"value" => search}, socket) do
-    {:noreply, assign(socket, search: search, suggestions: suggestions(search))}
+    {:noreply,
+     assign(socket,
+       search: search,
+       suggestions: Suggestions.suggest(socket.assigns.suggestions, search)
+     )}
   end
 
   def handle_event("remove-query", %{"index" => i}, socket) do
@@ -198,21 +251,32 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
      |> fetch_riders()}
   end
 
-  defp suggestions("") do
-    []
+  defp parse_search(search) do
+    with [type, query] <- String.split(search, ":", parts: 2) do
+      query = String.trim(query)
+
+      case type do
+        "name" -> [name: query]
+        "tag" -> [tag: query]
+        "active" -> [active: String.to_atom(query)]
+      end
+    else
+      [query] -> [name: String.trim(query)]
+    end
   end
 
-  defp suggestions(search) do
-    for t <- Riders.search_tags(search) do
-      {:tag, t.name}
-    end ++
-      [name: search]
+  defp display_search(search) do
+    case String.split(search, ":", parts: 2) do
+      [query] -> query
+      ["name", query] -> query
+      [_type, _query] -> search
+    end
   end
 
   defp clear_search(socket) do
     socket
     |> assign(:search, "")
-    |> assign(:suggestions, [])
+    |> assign(:suggestions, %Suggestions{})
   end
 
   defp clear_selected(socket) do
@@ -253,13 +317,20 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
       <% end %>
       <div class="flex items-baseline justify-between ">
         <div class="relative flex flex-col w-2/3">
-          <input type="text" phx-keydown="suggest" phx-debounce="100"
-            value={}
-            class="block w-full px-3 py-2 placeholder-gray-400 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            placeholder="Name, email, phone, tag, neighborhood" />
-            <.query_list queries={@queries} />
-
+          <form id="rider-search" phx-change="suggest" phx-submit="search"  phx-click-away={JS.hide(to: "#suggestion-list")}>
+            <input type="text"
+              id="rider-search-input"
+              phx-focus={JS.show(to: "#suggestion-list")}
+              name="value"
+              value={display_search(@search)}
+              autocomplete="off"
+              class="block w-full px-3 py-2 placeholder-gray-400 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              placeholder="Name, email, phone, tag, neighborhood"
+              />
           <.suggestion_list suggestions={@suggestions} />
+          <.query_list queries={@queries} />
+          <button type="submit" class="sr-only" tabindex="-1"/>
+          </form>
         </div>
         <C.button patch_to={Routes.rider_index_next_path(@socket, :message)}>Bulk Message</C.button>
       </div>
@@ -317,29 +388,64 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
     """
   end
 
-  defp suggestion_list(%{suggestions: []} = assigns) do
-    ~H""
-  end
-
   defp suggestion_list(assigns) do
     ~H"""
-    <ul id="suggestion-list" class="absolute w-full p-1 mt-10 overflow-y-auto bg-white border rounded shadow-xl top-100 max-h-64">
-      <%= for {type, search} <- @suggestions do %>
-        <li class="p-1">
-          <.suggestion type={type} search={search} />
-        </li>
+    <div id="suggestion-list"
+      class="absolute hidden w-full p-2 mt-0 overflow-y-auto bg-white border rounded shadow-xl top-100 max-h-64">
+      <p class="text-sm text-gray-500">Some instructions here...</p>
+      <fieldset>
+      <%= if @suggestions.name do %>
+        <h3 class="my-1 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+          Name
+        </h3>
+        <div class="flex flex-col my-2">
+          <.suggestion type={:name} search={@suggestions.name} />
+        </div>
       <% end %>
-    </ul>
+      <%= if @suggestions.tags != [] do %>
+        <h3 class="my-1 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+          Tag
+        </h3>
+        <div class="flex flex-col my-2">
+          <%= for tag <- @suggestions.tags do %>
+            <.suggestion type={:tag} search={tag} />
+          <% end %>
+        </div>
+      <% end %>
+      <%= if @suggestions.active != [] do %>
+        <h3 class="my-1 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+          Active
+        </h3>
+        <div class="flex flex-col my-2">
+          <%= for period <- @suggestions.active do %>
+            <.suggestion type={:active} search={period} />
+          <% end %>
+        </div>
+      <% end %>
+      </fieldset>
+    </div>
     """
   end
 
   defp suggestion(assigns) do
     ~H"""
-    <a href="#" phx-click="search" phx-value-type={@type} phx-value-search={@search} class="block transition duration-150 ease-in-out w-fit hover:bg-gray-50 focus:outline-none focus:bg-gray-50">
-      <p class={"px-2.5 py-1.5 rounded-md text-md font-medium #{color(@type)}"}>
-        <span class="mr-0.5 text-sm"><%= @type %>:</span><%= @search %>
-      </p>
-    </a>
+    <label id={"#{@type}-#{@search}"} for={"input-#{@type}-#{@search}"} class="px-1 py-0.5 rounded-md">
+      <input id={"input-#{@type}-#{@search}"} class="sr-only"
+        type="radio" name="choose" value={"#{@type}:#{@search}"}
+        phx-focus={JS.add_class("bg-gray-100", to: "##{@type}-#{@search}")}
+        phx-blur={JS.remove_class("bg-gray-100", to: "##{@type}-#{@search}")}/>
+      <button id="foo" type="button" phx-click="search" value={"#{@type}:#{@search}"}
+        class="block ml-1 transition duration-150 ease-in-out w-fit hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
+        tabindex="-1">
+        <p class={"px-2.5 py-1.5 rounded-md text-md font-medium #{color(@type)}"}>
+          <%= if @type == :name do %>
+            "<%= @search %>"<span class="ml-1 text-sm">in name</span>
+          <% else %>
+            <span class="mr-0.5 text-sm"><%= @type %>:</span><%= @search %>
+          <% end %>
+        </p>
+      </button>
+    </label>
     """
   end
 
@@ -368,6 +474,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
     case type do
       :name -> "text-emerald-800 bg-emerald-100"
       :tag -> "text-indigo-800 bg-indigo-100"
+      :active -> "text-amber-900 bg-amber-100"
     end
   end
 

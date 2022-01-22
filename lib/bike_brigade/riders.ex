@@ -60,16 +60,36 @@ defmodule BikeBrigade.Riders do
     Repo.all(query)
   end
 
-  def search_riders_next(queries, {sort_order, sort_field})
+  def search_riders_next(queries \\ [], {sort_order, sort_field} \\ {:desc, :name})
       when sort_order in [:desc, :asc] do
     where =
       queries
       |> Enum.reduce(dynamic(true), fn
         {:name, search}, query ->
-          dynamic(^query and (ilike(as(:rider).name, ^"#{search}%") or ilike(as(:rider).name, ^"% #{search}%")))
+          dynamic(
+            ^query and
+              (ilike(as(:rider).name, ^"#{search}%") or ilike(as(:rider).name, ^"% #{search}%"))
+          )
 
         {:tag, tag}, query ->
           dynamic(^query and fragment("? = ANY(?)", ^tag, as(:tags).tags))
+
+        {:active, :never}, query ->
+          dynamic(^query and is_nil(as(:latest_campaign).id))
+
+        {:active, period}, query ->
+          now = DateTime.utc_now()
+
+          timestamp =
+            case period do
+              :hour -> DateTime.add(now, -@hour)
+              :day -> DateTime.add(now, -@day)
+              :week -> DateTime.add(now, -@week)
+              :month -> DateTime.add(now, -@month)
+              :year -> DateTime.add(now, -@year)
+            end
+
+          dynamic(^query and as(:latest_campaign).delivery_start > ^timestamp)
       end)
 
     order_by =
