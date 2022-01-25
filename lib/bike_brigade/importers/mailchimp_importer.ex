@@ -91,7 +91,7 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
 
   def notify_location_error(rider) do
     error_message = """
-      We had trouble with the address for #{rider.name}. Please edit manually: #{BikeBrigadeWeb.Router.Helpers.rider_index_url(BikeBrigadeWeb.Endpoint, :edit, rider.id)}
+      We had trouble with the address for #{rider.name}. Please edit manually: #{BikeBrigadeWeb.Router.Helpers.rider_index_url(BikeBrigadeWeb.Endpoint, :edit, rider.id)}, and don't forget to remove the `invalid_location` tag!
     """
 
     Task.start(SlackWebhook, :post_message, [error_message])
