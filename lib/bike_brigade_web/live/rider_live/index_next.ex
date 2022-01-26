@@ -159,7 +159,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
      |> fetch_riders()}
   end
 
-  def handle_event("suggest", %{"_target" => ["choose"], "choose" => choose}, socket) do
+  def handle_event("choose", %{"choose" => choose}, socket) do
     {:noreply, assign(socket, search: choose)}
   end
 
@@ -258,7 +258,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
       case type do
         "name" -> [name: query]
         "tag" -> [tag: query]
-        "active" -> [active: String.to_atom(query)]
+        "active" -> [active: query]
       end
     else
       [query] -> [name: String.trim(query)]
@@ -326,6 +326,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
               autocomplete="off"
               class="block w-full px-3 py-2 placeholder-gray-400 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               placeholder="Name, email, phone, tag, neighborhood"
+              tabindex="1"
               />
           <.suggestion_list suggestions={@suggestions} />
           <.query_list queries={@queries} />
@@ -429,14 +430,13 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
 
   defp suggestion(assigns) do
     ~H"""
-    <label id={"#{@type}-#{@search}"} for={"input-#{@type}-#{@search}"} class="px-1 py-0.5 rounded-md">
-      <input id={"input-#{@type}-#{@search}"} class="sr-only"
-        type="radio" name="choose" value={"#{@type}:#{@search}"}
-        phx-focus={JS.add_class("bg-gray-100", to: "##{@type}-#{@search}")}
-        phx-blur={JS.remove_class("bg-gray-100", to: "##{@type}-#{@search}")}/>
-      <button id="foo" type="button" phx-click="search" value={"#{@type}:#{@search}"}
+    <div id={"#{@type}-#{@search}"} class="px-1 py-0.5 rounded-md">
+
+      <button type="button" phx-click="search" value={"#{@type}:#{@search}"}
         class="block ml-1 transition duration-150 ease-in-out w-fit hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
-        tabindex="-1">
+        tabindex="1"
+        phx-focus={JS.add_class("bg-gray-100", to: "##{@type}-#{@search}") |> JS.push("choose", value: %{"choose" => "#{@type}:#{@search}"})}
+        phx-blur={JS.remove_class("bg-gray-100", to: "##{@type}-#{@search}")}>
         <p class={"px-2.5 py-1.5 rounded-md text-md font-medium #{color(@type)}"}>
           <%= if @type == :name do %>
             "<%= @search %>"<span class="ml-1 text-sm">in name</span>
@@ -445,7 +445,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
           <% end %>
         </p>
       </button>
-    </label>
+    </div>
     """
   end
 
