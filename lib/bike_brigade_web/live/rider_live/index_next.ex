@@ -115,6 +115,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
      |> assign(:search, "")
      |> assign(:queries, [])
      |> assign(:suggestions, %Suggestions{})
+     |> assign(:show_suggestions, false)
      |> fetch_riders()}
   end
 
@@ -150,6 +151,12 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
      |> fetch_riders()}
   end
 
+  def handle_event("clear-search", _params, socket) do
+    {:noreply,
+     socket
+     |> clear_search()}
+  end
+
   def handle_event("clear-queries", _params, socket) do
     {:noreply,
      socket
@@ -167,7 +174,8 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
     {:noreply,
      assign(socket,
        search: search,
-       suggestions: Suggestions.suggest(socket.assigns.suggestions, search)
+       suggestions: Suggestions.suggest(socket.assigns.suggestions, search),
+       show_suggestions: true
      )}
   end
 
@@ -277,6 +285,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
     socket
     |> assign(:search, "")
     |> assign(:suggestions, %Suggestions{})
+    |> assign(:show_suggestions, false)
   end
 
   defp clear_selected(socket) do
@@ -317,10 +326,10 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
       <% end %>
       <div class="flex items-baseline justify-between ">
         <div class="relative flex flex-col w-2/3">
-          <form id="rider-search" phx-change="suggest" phx-submit="search"  phx-click-away={JS.hide(to: "#suggestion-list")}>
+          <form id="rider-search" phx-change="suggest" phx-submit="search"}
+            phx-click-away="clear-search">
             <input type="text"
               id="rider-search-input"
-              phx-focus={JS.show(to: "#suggestion-list")}
               name="value"
               value={display_search(@search)}
               autocomplete="off"
@@ -328,9 +337,9 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
               placeholder="Name, email, phone, tag, neighborhood"
               tabindex="1"
               />
-          <.suggestion_list suggestions={@suggestions} />
+          <.suggestion_list suggestions={@suggestions} open={@show_suggestions}/>
           <.query_list queries={@queries} />
-          <button type="submit" class="sr-only" tabindex="-1"/>
+          <button id="submit" type="submit" class="sr-only"/>
           </form>
         </div>
         <C.button patch_to={Routes.rider_index_next_path(@socket, :message)}>Bulk Message</C.button>
@@ -391,9 +400,11 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
 
   defp suggestion_list(assigns) do
     ~H"""
-    <div id="suggestion-list"
-      class="absolute hidden w-full p-2 mt-0 overflow-y-auto bg-white border rounded shadow-xl top-100 max-h-64">
-      <p class="text-sm text-gray-500">Some instructions here...</p>
+    <dialog id="suggestion-list2"
+      open={@open}
+      class="absolute w-full p-2 mt-0 overflow-y-auto bg-white border rounded shadow-xl top-100 max-h-64"
+      phx-window-keydown="clear-search" phx-key="escape">
+      <p class="text-sm text-gray-500">Press Tab to cycle suggestions</p>
       <fieldset>
       <%= if @suggestions.name do %>
         <h3 class="my-1 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
@@ -424,14 +435,13 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
         </div>
       <% end %>
       </fieldset>
-    </div>
+    </dialog>
     """
   end
 
   defp suggestion(assigns) do
     ~H"""
     <div id={"#{@type}-#{@search}"} class="px-1 py-0.5 rounded-md">
-
       <button type="button" phx-click="search" value={"#{@type}:#{@search}"}
         class="block ml-1 transition duration-150 ease-in-out w-fit hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
         tabindex="1"
