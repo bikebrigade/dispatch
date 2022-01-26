@@ -185,7 +185,10 @@ defmodule BikeBrigadeWeb.Components.UI do
   end
 
   def table(assigns) do
-    assigns = assign_new(assigns, :class, fn -> "" end)
+    assigns =
+      assign_new(assigns, :class, fn -> "" end)
+      |> assign_new(:footer, fn -> [] end)
+
     ~H"""
     <div class="flex flex-col py-4">
       <div class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
@@ -212,6 +215,7 @@ defmodule BikeBrigadeWeb.Components.UI do
               <% end %>
             </tbody>
           </table>
+          <%= render_slot @footer %>
         </div>
       </div>
     </div>

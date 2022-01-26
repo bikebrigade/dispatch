@@ -13,10 +13,10 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
     # This is a streamlined version of the one from leaderboard.ex
     # Deciding if we need all the ecto stuff here
 
-    defstruct [:field, :order]
+    defstruct [:field, :order, offset: 0, limit: 20]
 
-    def to_tuple(%__MODULE__{field: field, order: order}) do
-      {order, field}
+    def to_tuple(%__MODULE__{field: field, order: order, offset: offset, limit: limit}) do
+      {order, field, offset, limit}
     end
 
     def link(%{field: field, sort_options: sort_options} = assigns) do
@@ -116,7 +116,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
      |> assign(:queries, [])
      |> assign(:suggestions, %Suggestions{})
      |> assign(:show_suggestions, false)
-     |> fetch_riders()}
+     |> fetch_riders(total: true)}
   end
 
   @impl Phoenix.LiveView
@@ -148,7 +148,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
      |> assign(:queries, socket.assigns.queries ++ query)
      |> clear_search()
      |> clear_selected()
-     |> fetch_riders()}
+     |> fetch_riders(total: true)}
   end
 
   def handle_event("clear-search", _params, socket) do
@@ -163,7 +163,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
      |> assign(:queries, [])
      |> clear_search()
      |> clear_selected()
-     |> fetch_riders()}
+     |> fetch_riders(total: true)}
   end
 
   def handle_event("choose", %{"choose" => choose}, socket) do
@@ -185,7 +185,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
     {:noreply,
      socket
      |> assign(:queries, List.delete_at(socket.assigns.queries, i))
-     |> fetch_riders()}
+     |> fetch_riders(total: true)}
   end
 
   def handle_event(
@@ -259,6 +259,26 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
      |> fetch_riders()}
   end
 
+  def handle_event("next-page", _params, socket) do
+    sort_options = socket.assigns.sort_options
+    sort_options = %{sort_options | offset: sort_options.offset + sort_options.limit}
+
+    {:noreply,
+     socket
+     |> assign(:sort_options, sort_options)
+     |> fetch_riders()}
+  end
+
+  def handle_event("prev-page", _params, socket) do
+    sort_options = socket.assigns.sort_options
+    sort_options = %{sort_options | offset: sort_options.offset - sort_options.limit}
+
+    {:noreply,
+     socket
+     |> assign(:sort_options, sort_options)
+     |> fetch_riders()}
+  end
+
   defp parse_search(search) do
     with [type, query] <- String.split(search, ":", parts: 2) do
       query = String.trim(query)
@@ -293,11 +313,13 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
     |> assign(:selected, MapSet.new())
   end
 
-  defp fetch_riders(socket) do
+  defp fetch_riders(socket, search_opts \\ []) do
     sort = SortOptions.to_tuple(socket.assigns.sort_options)
 
+    {riders, total} = Riders.search_riders_next(socket.assigns.queries, sort, search_opts)
+
     riders =
-      Riders.search_riders_next(socket.assigns.queries, sort)
+      riders
       |> Repo.preload([:tags, :latest_campaign])
 
     selected =
@@ -309,6 +331,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
     socket
     |> assign(:riders, riders)
     |> assign(:selected, selected)
+    |> assign(:total, total || socket.assigns.total)
   end
 
   @impl Phoenix.LiveView
@@ -402,6 +425,40 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
             <%=  rider.latest_campaign.delivery_start |> LocalizedDateTime.to_date() |> Calendar.strftime("%b %-d, %Y") %>
           <% end %>
         </:td>
+        <:footer>
+          <nav class="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6" aria-label="Pagination">
+            <div class="hidden sm:block">
+              <p class="text-sm text-gray-700">
+                Showing
+                <span class="font-medium">
+                  <%= @sort_options.offset + 1 %>
+                </span>
+                to
+                <span class="font-medium">
+                  <%= @sort_options.offset + Enum.count(@riders) %>
+                </span>
+                of
+                <span class="font-medium">
+                <%= @total %>
+                </span>
+                results
+              </p>
+            </div>
+            <div class="flex justify-between flex-1 sm:justify-end">
+              <%= if @sort_options.offset > 0 do %>
+                <C.button phx-click="prev-page" color={:white}>
+                  Previous
+                </C.button>
+              <% end %>
+
+              <%= if @sort_options.offset + @sort_options.limit < @total do %>
+                <C.button phx-click="next-page" color={:white} class="ml-3">
+                  Next
+                </C.button>
+              <% end %>
+            </div>
+          </nav>
+        </:footer>
       </UI.table>
     </div>
     """

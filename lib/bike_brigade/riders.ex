@@ -60,7 +60,11 @@ defmodule BikeBrigade.Riders do
     Repo.all(query)
   end
 
-  def search_riders_next(queries \\ [], {sort_order, sort_field} \\ {:desc, :name})
+  def search_riders_next(
+        queries \\ [],
+        {sort_order, sort_field, offset, limit} \\ {:desc, :name, 0, 20},
+        options \\ [total: false]
+      )
       when sort_order in [:desc, :asc] do
     where =
       queries
@@ -90,8 +94,6 @@ defmodule BikeBrigade.Riders do
           ["#{sort_order}_nulls_last": dynamic(as(:latest_campaign).delivery_start), asc: :name]
       end
 
-    limit = 25
-
     latest_campaign_query =
       from cr in CampaignRider,
         where: cr.rider_id == parent_as(:rider).id,
@@ -115,11 +117,27 @@ defmodule BikeBrigade.Riders do
         left_lateral_join: l in subquery(latest_campaign_query),
         as: :latest_campaign,
         where: ^where,
-        limit: ^limit,
         select_merge: %{latest_campaign_id: l.id},
-        order_by: ^order_by
+        order_by: ^order_by,
+        limit: ^limit,
+        offset: ^offset
 
-    Repo.all(query)
+    riders = Repo.all(query)
+
+    # some half-baked pagination
+    total =
+      if Keyword.get(options, :total) do
+        query
+        |> exclude(:preload)
+        |> exclude(:order_by)
+        |> exclude(:select)
+        |> exclude(:limit)
+        |> exclude(:offset)
+        |> select(count("*"))
+        |> Repo.one()
+      end
+
+    {riders, total}
   end
 
   @doc """
