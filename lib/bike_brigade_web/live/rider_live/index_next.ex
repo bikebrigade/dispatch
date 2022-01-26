@@ -386,7 +386,16 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
           <%= rider.location_struct.neighborhood %>
         </:td>
         <:td let={rider}>
-          <%= rider.tags |> Enum.map(& &1.name) |> Enum.join(", ") %>
+          <ul class="flex">
+            <%= for tag <- rider.tags do %>
+            <li class="before:content-[','] first:before:content-['']">
+              <button type="button" phx-click="search" value={"tag:#{tag.name}"}}
+                class="link">
+                <%= tag.name %>
+              </button>
+            </li>
+            <% end %>
+          </ul>
         </:td>
         <:td let={rider}>
           <%= if rider.latest_campaign do %>
