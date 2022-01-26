@@ -7,7 +7,13 @@ defmodule BikeBrigade.SlackApi do
 
   @callback post!(url, body, headers) :: :ok
 
-  @headers [{"content-type", "application/json"}]
+  @token BikeBrigade.Utils.fetch_env!(:slack, :token)
+  @headers [
+    {"content-type", "application/json"},
+    {"authorization", "Bearer #{@token}"},
+    {"charset", "utf-8"}
+  ]
+  @url "https://slack.com/api/chat.postMessage"
 
   defmodule Error do
     defexception [:message, :response]
@@ -17,15 +23,7 @@ defmodule BikeBrigade.SlackApi do
     end
   end
 
-  @doc """
-  Send a message to an incoming Slack webhook
-  """
-  def send_webook(body, headers \\ @headers, opts \\ []) do
-    url = Keyword.get(opts, :url, webhook_url())
-    @slack.post!(url, body, headers)
-  end
-
-  defp webhook_url() do
-    BikeBrigade.Utils.fetch_env!(:slack, :webhook_url)
+  def post_message(body) do
+    @slack.post!(@url, body, @headers)
   end
 end

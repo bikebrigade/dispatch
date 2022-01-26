@@ -4,12 +4,20 @@ defmodule BikeBrigade.SlackApi.Http do
   @behaviour SlackApi
 
   def post!(url, body, headers) do
-    case HTTPoison.post!(url, body, headers) do
-      %{status_code: 200} ->
-        :ok
+    response = HTTPoison.post!(url, body, headers)
 
-      response ->
-        raise SlackApi.Error, response
+    if response.status_code != 200 do
+      raise SlackApi.Error, response
+    end
+
+    body = response.body
+      |> Jason.decode!()
+
+    # slack returns status_code 200 for some errors
+    unless body["ok"] do
+      raise SlackApi.Error, response
+    else
+      :ok
     end
   end
 end
