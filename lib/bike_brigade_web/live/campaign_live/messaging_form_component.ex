@@ -191,16 +191,6 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
   end
 
   defp message_length_indicator(assigns) do
-    # 1) figure out how to get access to length here
-    # X 2) figure out how to change color based on something in the code
-    # 3) tie the above two together in an if statement
-
-    # indicator_color = if assigns.length < 100 do
-    #   "text-emerald-600"
-    # else
-    #   "text-amber-600"
-    # end
-
     indicator_color = cond do
       assigns.length < 1200 -> "text-emerald-600"
       assigns.length <= 1400 -> "text-amber-400"
