@@ -191,10 +191,22 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
   end
 
   defp message_length_indicator(assigns) do
+    # 1) figure out how to get access to length here
+    # X 2) figure out how to change color based on something in the code
+    # 3) tie the above two together in an if statement
+
+    indicator_color = cond do
+      assigns.length < 1400 -> "text-emerald-600"
+      assigns.length <= 1401 -> "text-amber-400"
+      true -> "text-red-600"
+  end
+
+    assigns = assign(assigns, :color, indicator_color)
+
     ~H"""
     <div class="text-xs font-medium">
-      <%= @length %>/1600
+      <span class={@color}><%= @length %>/1600</span>
     </div>
     """
-  end
+   end
 end
