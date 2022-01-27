@@ -7,7 +7,7 @@ defmodule BikeBrigade.Riders do
   alias BikeBrigade.Repo
 
   alias BikeBrigade.Riders.{Rider, Tag}
-  alias BikeBrigade.Delivery.CampaignRider
+  alias BikeBrigade.Delivery.{Campaign, CampaignRider}
 
   alias BikeBrigade.EctoPhoneNumber
 
@@ -95,13 +95,15 @@ defmodule BikeBrigade.Riders do
       end
 
     latest_campaign_query =
-      from cr in CampaignRider,
-        where: cr.rider_id == parent_as(:rider).id,
-        join: c in assoc(cr, :campaign),
-        select: c,
-        # TODO do we have an index here?
-        order_by: [desc: c.delivery_start],
-        limit: 1
+      from c in Campaign,
+        join: cr in assoc(c, :campaign_riders),
+        windows: [riders: [partition_by: cr.rider_id, order_by: [desc: c.delivery_start]]],
+        select: %{
+          rider_id: cr.rider_id,
+          campaign_id: cr.campaign_id,
+          delivery_start: c.delivery_start,
+          row_number: over(row_number(), :riders)
+        }
 
     tags_query =
       from t in Tag,
@@ -114,10 +116,11 @@ defmodule BikeBrigade.Riders do
         as: :rider,
         left_lateral_join: t in subquery(tags_query),
         as: :tags,
-        left_lateral_join: l in subquery(latest_campaign_query),
+        left_join: l in subquery(latest_campaign_query),
+        on: l.rider_id == r.id and l.row_number == 1,
         as: :latest_campaign,
         where: ^where,
-        select_merge: %{latest_campaign_id: l.id},
+        select_merge: %{latest_campaign_id: l.campaign_id},
         order_by: ^order_by,
         limit: ^limit,
         offset: ^offset
@@ -133,11 +136,13 @@ defmodule BikeBrigade.Riders do
         |> exclude(:select)
         |> exclude(:limit)
         |> exclude(:offset)
-        |> select(count("*"))
+        |> select(count())
         |> Repo.one()
       end
 
     {riders, total}
+
+
   end
 
   @doc """
