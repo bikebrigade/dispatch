@@ -354,7 +354,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
         <div class="relative flex flex-col w-2/3">
           <form id="rider-search" phx-change="suggest" phx-submit="search"}
             phx-click-away="clear-search">
-            <div class="relative flex items-baseline w-full px-1 py-0 bg-white border border-gray-300 rounded-md shadow-sm sm:text-sm focus-within:ring-indigo-500 focus-within:border-indigo-500">
+            <div class="relative flex items-baseline w-full px-1 py-0 bg-white border border-gray-300 rounded-md shadow-sm sm:text-sm focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500">
               <.query_list queries={@queries} />
               <input type="text"
                 id="rider-search-input"
@@ -365,7 +365,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
                 placeholder="Name, email, phone, tag, neighborhood"
                 tabindex="1"/>
                 <%= if @queries != [] do %>
-                    <button type="button" phx-click="clear-queries" class="absolute right-1 text-gray-400 rounded-md top-2.5 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <button type="button" phx-click="clear-queries" class="absolute right-1 text-gray-400 rounded-md top-2.5 hover:text-gray-500">
                       <span class="sr-only">Clear Search</span>
                       <Heroicons.Outline.x class="w-6 h-6" />
                     </button>
