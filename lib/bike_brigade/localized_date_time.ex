@@ -41,4 +41,10 @@ defmodule BikeBrigade.LocalizedDateTime do
     localize(datetime)
     |> DateTime.to_time()
   end
+
+  def format_date(datetime, format_string \\ "%b %-d, %Y") do
+    datetime
+    |> to_date()
+    |> Calendar.strftime(format_string)
+  end
 end
