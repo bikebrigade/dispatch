@@ -29,6 +29,13 @@ defmodule BikeBrigade.Riders do
     if tag, do: tag.riders, else: []
   end
 
+  # TODO cache this
+  def list_tags() do
+    Tag
+    |> Repo.all()
+  end
+
+  # TODO we can do this in memory
   def search_tags(search \\ "", limit \\ 10) do
     Tag
     |> where([u], ilike(u.name, ^"%#{search}%"))

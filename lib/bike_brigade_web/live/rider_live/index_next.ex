@@ -91,8 +91,11 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
 
         [search] ->
           tags =
+           if String.length(search) < 3 do
+            Riders.list_tags()
+           else
             Riders.search_tags(search)
-            |> Enum.map(& &1.name)
+           end |> Enum.map(& &1.name)
 
           %{suggestions | name: [search], tags: tags, active: @actives}
 
@@ -471,7 +474,8 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
       class="absolute w-full p-2 mt-0 overflow-y-auto bg-white border rounded shadow-xl top-100 max-h-64"
       phx-window-keydown="clear-search" phx-key="escape">
       <p class="text-sm text-gray-500">Press Tab to cycle suggestions</p>
-      <fieldset>
+      <div class="grid grid-cols-2 gap-1">
+      <div>
       <%= if @suggestions.name do %>
         <h3 class="my-1 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
           Name
@@ -490,17 +494,20 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
           <% end %>
         </div>
       <% end %>
+      </div>
       <%= if @suggestions.active != [] do %>
-        <h3 class="my-1 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
-          Active
-        </h3>
-        <div class="flex flex-col my-2">
-          <%= for period <- @suggestions.active do %>
-            <.suggestion type={:active} search={period} />
-          <% end %>
+        <div>
+          <h3 class="my-1 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+            Last Active
+          </h3>
+          <div class="flex flex-col my-2">
+            <%= for period <- @suggestions.active do %>
+              <.suggestion type={:active} search={period} />
+            <% end %>
+          </div>
         </div>
       <% end %>
-      </fieldset>
+      </div>
     </dialog>
     """
   end
