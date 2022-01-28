@@ -8,7 +8,7 @@ defmodule BikeBrigade.Riders.Rider do
   alias BikeBrigade.Repo
   alias BikeBrigade.Riders.{Tag, RidersTag}
   alias BikeBrigade.Delivery.{Task, Campaign, CampaignRider}
-  alias BikeBrigade.Stats.RiderStats
+  alias BikeBrigade.Stats.{RiderProgramStats, RiderStats}
 
   defenum OnfleetAccountStatusEnum, invited: "invited", accepted: "accepted"
   defenum MailchimpStatusEnum, subscribed: "subscribed", unsubscribed: "unsubscribed", cleaned: "cleaned", pending: "pending", transactional: "transactional"
@@ -70,8 +70,9 @@ defmodule BikeBrigade.Riders.Rider do
     field :pickup_window, :string, virtual: true
     has_many :assigned_tasks, Task, foreign_key: :assigned_rider_id
     has_many :campaign_riders, CampaignRider
-    has_many :campaigns, through: [:campaign_riders, :campaign]
+    has_many :campaigns, through: [:campaign_riders, :campaign], preload_order: [:desc, :delivery_start]
     has_one :stats, RiderStats
+    has_many :program_stats, RiderProgramStats, preload_order: [desc: :campaign_count]
 
     embeds_one :flags, Flags, on_replace: :update
 

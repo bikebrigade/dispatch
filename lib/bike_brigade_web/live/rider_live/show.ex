@@ -10,18 +10,18 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
   alias BikeBrigade.LocalizedDateTime
   alias BikeBrigade.Repo
 
-  @impl true
-  def mount(_params, session, socket) do
+  @impl Phoenix.LiveView
+  def mount(_params, _session, socket) do
     {:ok,
      socket
      |> assign(:page, :riders)}
   end
 
-  def handle_params(%{"id" => id} = params, _url, socket) do
+  @impl Phoenix.LiveView
+  def handle_params(%{"id" => id}, _url, socket) do
     rider =
       Riders.get_rider!(id)
-      |> Repo.preload(:tags)
-      |> Repo.preload(:stats)
+      |> Repo.preload([:tags, :campaigns, :stats, program_stats: [:program]])
 
     # I don't have a good datastructure for campaign history and the schedule so lets keep those just html for now
 
