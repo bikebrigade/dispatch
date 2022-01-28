@@ -148,13 +148,22 @@ defmodule BikeBrigade.Messaging do
     Repo.delete(sms_message)
   end
 
-  @doc "Creates a struct for a new outgoing message"
+  @doc """
+  Creates a struct for a new outgoing message
+  """
   def new_sms_message() do
     from = outbound_number()
     %SmsMessage{from: from}
   end
 
-  def new_sms_message(%Rider{} = rider, sent_by_user \\ nil) do
+  @doc """
+  Creates a struct for a new outgoing message for a given a `%Rider{}`
+
+  Optional arguments
+    - `sent_by:` - `%Accounts.User{}` that's sending the message
+    - `body:` - string containing the body of the message
+  """
+  def new_sms_message(%Rider{} = rider, options \\ []) do
     from =
       if rider.flags.opt_in_to_new_number do
         new_outbound_number()
@@ -162,12 +171,18 @@ defmodule BikeBrigade.Messaging do
         outbound_number()
       end
 
-    sent_by_user_id = if sent_by_user, do: sent_by_user.id
+    sent_by_user_id =
+      if user = Keyword.get(options, :sent_by) do
+        user.id
+      end
+
+    body = Keyword.get(options, :body)
 
     %SmsMessage{
       from: from,
       to: rider.phone,
       rider_id: rider.id,
+      body: body,
       sent_by_user_id: sent_by_user_id,
       incoming: false
     }
@@ -175,50 +190,98 @@ defmodule BikeBrigade.Messaging do
 
   @doc "Send a message and save it in the database"
   def send_sms_message(%SmsMessage{} = sms_message, attrs \\ %{}) do
-    sms_message_changeset = send_sms_message_changeset(sms_message, attrs)
+    sms_message = sms_message |> Repo.preload(:rider)
 
-    with {:ok, sms_msg} <-
-           Ecto.Changeset.apply_action(sms_message_changeset, :insert),
-         {:ok, _} <- maybe_send_initial_message(sms_msg),
-         # apply action instead of repo.insert since we only want to insert on successful sends
-         {:ok, twilio_msg} <- SmsService.send_sms(sms_msg, send_callback: true) do
-      create_sms_message(sms_msg, %{
-        sent_at: DateTime.utc_now(),
-        twilio_status: twilio_msg.status,
-        twilio_sid: twilio_msg.sid
-      })
-    else
-      {:error, %Ecto.Changeset{} = changeset} ->
+    Ecto.Multi.new()
+    |> maybe_send_initial_message(sms_message.rider)
+    |> Ecto.Multi.run(:create_message, fn _repo, _changes ->
+      send_sms_message_changeset(sms_message, attrs)
+      |> Ecto.Changeset.apply_action(:insert)
+    end)
+    |> Ecto.Multi.run(:send_message, fn _repo, %{create_message: sms_message} ->
+      SmsService.send_sms(sms_message, send_callback: true)
+    end)
+    |> Ecto.Multi.run(
+      :save_message,
+      fn _repo, %{create_message: sms_message, send_message: twilio_msg} ->
+        create_sms_message(sms_message, %{
+          sent_at: DateTime.utc_now(),
+          twilio_status: twilio_msg.status,
+          twilio_sid: twilio_msg.sid
+        })
+      end
+    )
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{save_message: sms_message}} ->
+        {:ok, sms_message}
+
+      {:error, :create_message, changeset, _changes} ->
         {:error, changeset}
 
-      {:error, reason} ->
-        {:error,
-         sms_message_changeset
-         |> Ecto.Changeset.add_error(:body, reason)
-         |> Map.put(:action, :validate)}
+      {:error, :save_message, changeset, _changes} ->
+        {:error, changeset}
+
+      {:error, :send_message, reason, %{create_message: sms_message}} ->
+        message_error(sms_message, "Failed to send message: #{reason}")
+
+      {:error, name, reason, %{create_message: sms_message}} ->
+        message_error(sms_message, "Failed in step #{name} for #{inspect(reason)}")
     end
   end
 
-  defp maybe_send_initial_message(%SmsMessage{rider_id: rider_id}) when not is_nil(rider_id) do
-    with rider when not is_nil(rider) <- BikeBrigade.Riders.get_rider(rider_id),
-         %Rider.Flags{opt_in_to_new_number: true, initial_message_sent: false} <- rider.flags do
-      # TODO: is this a race condition / what happens if this fails?
-      Riders.update_rider(rider, %{flags: %{initial_message_sent: true}})
+  defp maybe_send_initial_message(%Ecto.Multi{} = multi, nil), do: multi
 
-      new_sms_message(rider)
-      |> send_sms_message(%{body: @initial_message})
-    else
-      %Rider.Flags{} -> {:ok, nil}
-      {:error, err} -> {:error, err}
+  defp maybe_send_initial_message(%Ecto.Multi{} = multi, %Rider{} = rider) do
+    case rider.flags do
+      %Rider.Flags{opt_in_to_new_number: true, initial_message_sent: false} ->
+        initial_message = new_sms_message(rider, body: @initial_message)
+
+        multi
+        |> Ecto.Multi.update(
+          :update_rider_flags,
+          Riders.change_rider(rider, %{flags: %{initial_message_sent: true}})
+        )
+        |> Ecto.Multi.run(:send_initial_message, fn _repo, _changes ->
+          SmsService.send_sms(initial_message, send_callback: true)
+        end)
+        |> Ecto.Multi.run(
+          :save_initial_message,
+          fn _repo, %{send_initial_message: twilio_msg} ->
+            create_sms_message(initial_message, %{
+              sent_at: DateTime.utc_now(),
+              twilio_status: twilio_msg.status,
+              twilio_sid: twilio_msg.sid
+            })
+          end
+        )
+
+      _ ->
+        multi
     end
   end
 
-  def list_unsent_scheduled_messages do
+  defp message_error(%SmsMessage{} = sms_message, error) do
+    sms_message
+    |> Ecto.Changeset.change()
+    |> Ecto.Changeset.add_error(:other_error, error)
+    |> Ecto.Changeset.apply_action(:save)
+  end
+
+  def list_unsent_scheduled_messages(opts \\ []) do
+    {lock, opts} = Keyword.pop(opts, :lock, false)
+
     q =
-      from s in ScheduledMessage,
-        where: s.send_at <= ^DateTime.utc_now()
+      if lock do
+        from s in ScheduledMessage,
+          where: s.send_at <= ^DateTime.utc_now(),
+          lock: "FOR UPDATE SKIP LOCKED"
+      else
+        from s in ScheduledMessage,
+          where: s.send_at <= ^DateTime.utc_now()
+      end
 
-    Repo.all(q)
+    Repo.all(q, opts)
   end
 
   @doc """
@@ -274,15 +337,17 @@ defmodule BikeBrigade.Messaging do
 
   # TODO move this?
   def campaign_name(message) do
-    message = message
-    |> Repo.preload(campaign: [:program])
+    message =
+      message
+      |> Repo.preload(campaign: [:program])
 
     message.campaign.program.name
   end
 
   def sent_by_user_name(message) do
-    message = message
-    |> Repo.preload(:sent_by_user)
+    message =
+      message
+      |> Repo.preload(:sent_by_user)
 
     message.sent_by_user.name
   end

@@ -1,14 +1,14 @@
 defmodule BikeBrigade.Riders.Rider do
   use BikeBrigade.Schema
   import Ecto.Changeset
+  import Ecto.Query, warn: false
   import EctoEnum
 
+  alias BikeBrigade.Location
   alias BikeBrigade.Repo
   alias BikeBrigade.Riders.{Tag, RidersTag}
-  alias BikeBrigade.Delivery.{Task, CampaignRider}
+  alias BikeBrigade.Delivery.{Task, Campaign, CampaignRider}
   alias BikeBrigade.Stats.RiderStats
-
-  alias BikeBrigade.Geocoder
 
   defenum OnfleetAccountStatusEnum, invited: "invited", accepted: "accepted"
   defenum MailchimpStatusEnum, subscribed: "subscribed", unsubscribed: "unsubscribed", cleaned: "cleaned", pending: "pending", transactional: "transactional"
@@ -32,13 +32,13 @@ defmodule BikeBrigade.Riders.Rider do
   end
 
   schema "riders" do
-    field :address, :string
-    field :address2, :string
+    field :address, :string # remove
+    field :address2, :string # remove
     field :availability, :map
     field :capacity, CapacityEnum
-    field :city, :string
-    field :country, :string
-    field :deliveries_completed, :integer
+    field :city, :string # remove
+    field :country, :string # remove
+    field :deliveries_completed, :integer # remove
     field :email, :string
     field :location, Geo.PostGIS.Geometry
     field :mailchimp_id, :string
@@ -48,11 +48,13 @@ defmodule BikeBrigade.Riders.Rider do
     field :onfleet_id, :string
     field :onfleet_account_status, OnfleetAccountStatusEnum
     field :phone, BikeBrigade.EctoPhoneNumber.Canadian
-    field :postal, :string
+    field :postal, :string # remove
     field :pronouns, :string
-    field :province, :string
+    field :province, :string # remove
     field :signed_up_on, :utc_datetime
     field :last_safety_check, :date
+    embeds_one :location_struct, Location, on_replace: :delete
+
 
     field :distance, :integer, virtual: true
     field :remaining_distance, :integer, virtual: true
@@ -61,6 +63,9 @@ defmodule BikeBrigade.Riders.Rider do
     field :task_capacity, :integer, virtual: true
     field :task_enter_building, :boolean, virtual: true
     field :delivery_url_token, :string, virtual: true
+
+    field :latest_campaign_id, :integer, virtual: true
+    belongs_to :latest_campaign, Campaign, define_field: false
 
     field :pickup_window, :string, virtual: true
     has_many :assigned_tasks, Task, foreign_key: :assigned_rider_id
@@ -71,18 +76,19 @@ defmodule BikeBrigade.Riders.Rider do
     embeds_one :flags, Flags, on_replace: :update
 
     # TODO cleanup
-    many_to_many :tags, Tag, join_through: RidersTag
+    many_to_many :tags, Tag, join_through: RidersTag, on_replace: :delete
 
     timestamps()
   end
 
   @doc false
   def changeset(rider, attrs) do
-    cs = rider
+    rider
     |> cast(attrs, [:name, :email, :address, :address2, :city, :deliveries_completed, :location, :province, :postal, :country, :onfleet_id, :onfleet_account_status, :phone, :pronouns, :availability, :capacity, :max_distance, :signed_up_on, :mailchimp_id, :mailchimp_status, :last_safety_check])
     |> cast_embed(:flags)
+    |> cast_embed(:location_struct)
     |> update_change(:email, &String.downcase/1)
-    |> validate_required([:name, :email, :city, :province, :postal, :country, :phone, :availability, :capacity, :max_distance])
+    |> validate_required([:name, :email, :phone, :availability, :capacity, :max_distance, :location_struct])
     |> validate_change(:email, fn :email, email  ->
       if String.contains?(email, "@") do
         []
@@ -93,13 +99,11 @@ defmodule BikeBrigade.Riders.Rider do
     |> unique_constraint(:phone)
     |> unique_constraint(:email)
     |> set_signed_up_on()
-    |> fetch_location()
+  end
 
-    if attrs[:tags] do
-      put_assoc(cs, :tags, Enum.map(Access.get(attrs, :tags, []), &get_or_insert_tag/1), on_replace: :update)
-    else
-      cs
-    end
+  def tags_changeset(changeset, tags) do
+    changeset
+    |> put_assoc(:tags, insert_and_get_all_tags(tags))
   end
 
   def set_signed_up_on(%Ecto.Changeset{} = changeset) do
@@ -109,32 +113,24 @@ defmodule BikeBrigade.Riders.Rider do
     end
   end
 
-  defp fetch_location(%Ecto.Changeset{} = changeset) do
-    # We only fetch the location if we changed the address but *not* the location[]
-    with  {:data, _location} <- fetch_field(changeset, :location),
-          {:changes, address} <- fetch_field(changeset, :address),
-          {_, city} <- fetch_field(changeset, :city),
-          {_, postal} <- fetch_field(changeset, :postal),
-          {_, province} <- fetch_field(changeset, :province),
-          {_, country} <- fetch_field(changeset, :country),
-          {:ok, location} <- Ge3ocoder.lookup("#{address} #{city} #{postal} #{province} #{country}")
-    do
-      location = %Geo.Point{
-        coordinates: {location.lon, location.lat}
-      }
+  defp insert_and_get_all_tags(names) do
+    # Adapted from https://hexdocs.pm/ecto/constraints-and-upserts.html#upserts-and-insert_all
 
-      changeset
-      |> put_change(:location, location)
-    else
-      _ -> changeset
-    end
-  end
+    Repo.insert_all(
+      Tag,
+      for name <- names do
+        name = String.trim(name)
 
-  defp get_or_insert_tag(name) do
-    Repo.insert!(
-      %Tag{name: name},
-      on_conflict: [set: [name: name]],
-      conflict_target: :name
+        %{
+          name: name,
+          inserted_at: {:placeholder, :timestamp},
+          updated_at: {:placeholder, :timestamp}
+        }
+      end,
+      placeholders: %{timestamp: DateTime.utc_now()},
+      on_conflict: :nothing
     )
+
+    Repo.all(from t in Tag, where: t.name in ^names)
   end
 end

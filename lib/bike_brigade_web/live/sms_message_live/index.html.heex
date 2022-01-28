@@ -1,12 +1,9 @@
 <%= if @live_action == :new do %>
- <UI.modal show id={:item} return_to={@current_path} >
+ <UI.modal show id={:new_message} return_to={Routes.sms_message_index_path(@socket, :index)} >
     <:title><%= @page_title %></:title>
     <.live_component
       module={BikeBrigadeWeb.SmsMessageLive.FormComponent}
-      id={:new}
-      action={@live_action}
-      current_user={@current_user}
-      return_to={@current_path}/>
+      id={:new} />
   </UI.modal>
 <% end %>
 <div class="flex flex-wrap h-full max-h-full min-h-0 -mx-3">
@@ -151,7 +148,7 @@
       <div class="absolute top-0 right-0 pt-4 pr-4 sm:block">
         <button @click="open = false" type="button" class="block text-gray-400 bg-white rounded-md hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
           <span class="sr-only">Close</span>
-          <%= Heroicons.Outline.x(class: "w-6 h-6") %>
+          <Heroicons.Outline.x class="w-6 h-6" />
         </button>
       </div>
       <div class="flex flex-wrap items-center">
@@ -169,7 +166,7 @@
   </div>
 
   <button x-show="!open" @click="open = true" type="button" class="inline-flex items-center content-end p-3 text-gray-700 bg-white border border-gray-300 rounded-full shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-    <%= Heroicons.Solid.eye(class: "h-5 w-5") %>
+    <Heroicons.Solid.eye class="w-5 h-5" />
       <span class="ml-1 text-sm font-semibold"><%= Enum.count @others_present %></span>
   </button>
 </div>

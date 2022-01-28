@@ -1,22 +1,47 @@
 <div id="calendar-frame" class="w-full p-2 text-base leading-7 text-white bg-black" phx-hook="FrameHook">
-  <div class="w-full py-3 text-center">
+  <div class="w-full py-3 text-center mb-14">
     <h1 class="font-serif text-4xl font-medium ">
       <%= Calendar.strftime(@start_date, "%b %-d") %>
       -
       <%= Calendar.strftime(@end_date, "%b %-d, %Y") %>
     </h1>
   </div>
-  <div class="flex flex-col my-6 space-y-5 mt-14">
+  <%= if @show_buttons do %>
+  <div class="z-10 sticky top-0 h-16 sm:h-28 bg-black flex sm:justify-center pl-0.5 w-full gap-5 py-2 text-center  overflow-x-auto">
+    <%= for {date, _opportunties} <- @opportunities  do %>
+      <C.button href={"##{date}"} size={:xlarge} color={:black} class="flex-col font-medium">
+      <div class="flex flex-row sm:flex-col">
+        <div class="pr-2 text-sm sm:text-lg sm:pr-0"><%= Calendar.strftime(date, "%a") %></div>
+        <div class="pr-1 font-serif text-sm sm:text-3xl sm:pr-0"><%= Calendar.strftime(date, "%-d") %></div>
+        <%= if date == @today do %>
+          <div class="mt-2 ml-0.5 sm:ml-3">
+            <C.Icons.circle class="w-2 h-2 mt-0" />
+          </div>
+        <% end %>
+        </div>
+      </C.button>
+    <% end %>
+  </div>
+  <% end %>
+  <div class="flex flex-col my-4">
     <%= for {date, opportunties} <- @opportunities  do %>
-    <div class="flex flex-col items-start sm:flex-row">
-      <div class="flex flex-col items-center flex-shrink-0 w-2/12 border-t border-gray-600">
+    <div id={date} class="relative -top-16 sm:-top-28"></div>
+    <div class="flex flex-col items-start border-gray-400 sm:pt-3 sm:border-t-2 sm:flex-row">
+      <div class="flex-col items-center flex-shrink-0 hidden w-2/12 sm:flex">
         <div class="mt-2 text-lg font-normal "><%= Calendar.strftime(date, "%a") %></div>
-        <div class="my-2 font-serif text-3xl"><%= Calendar.strftime(date, "%-d") %></div>
-        <div class="mt-2 text-lg font-normal "><%= Calendar.strftime(date, "%b") %></div>
+          <div class="my-2 font-serif text-3xl"><%= Calendar.strftime(date, "%-d") %></div>
+          <div class="mt-2 text-lg font-normal "><%= Calendar.strftime(date, "%b") %></div>
+        </div>
+      <div class="w-full py-2 text-center bg-gray-900 border-t-2 border-b-2 border-gray-400 sm:hidden">
+        <div class="flex items-center justify-center gap-2 font-serif text-xl font-semibold">
+          <div class=""><%= Calendar.strftime(date, "%a") %></div>
+          <div class=""><%= Calendar.strftime(date, "%b") %></div>
+          <div class=""><%= Calendar.strftime(date, "%-d") %></div>
+        </div>
       </div>
-      <div class="space-y-10 ml-14">
+      <div class="flex flex-col mb-5 space-y-1 border-gray-400 divide-y ml-14">
         <%= for opportunity <- opportunties do %>
-          <div class="flex flex-row space-x-1">
+          <div class="flex flex-row w-4/5 pb-5 space-x-1 min-w-32 sm:min-w-96">
             <!-- don't show images yet
             <div class="hidden md:block">
               <img class="w-full h-full" src={Routes.static_path(@socket, "/images/wordmark-black.png")}/>
@@ -27,26 +52,29 @@
                   <%= opportunity.program.name %>
                 </h2>
               <div class="flex items-center text-sm text-gray-300">
-                <%= Heroicons.Outline.clock(aria_label: "Pickup Time" , class: "flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" ) %>
+                <Heroicons.Outline.clock aria-label="Pickup Time" class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
                 <%= time_interval(opportunity.delivery_start, opportunity.delivery_end)%>
               </div>
               <%= if !opportunity.hide_address && opportunity.program.latest_campaign do %>
               <div class="flex items-center text-sm text-gray-300">
-                <%= Heroicons.Outline.location_marker(class: "flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" ) %>
-                  <%= link to: DeliveryHelpers.open_map_url(opportunity.program.latest_campaign), target: "_blank", class: "underline hover:text-gray-300" do %>
-                  <%= opportunity.program.latest_campaign.location.address %>
-                <% end %>
+                <Heroicons.Outline.location_marker class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
+                <div class="flex flex-col sm:flex-row">
+                  <%= link to: DeliveryHelpers.open_map_url(opportunity.program.latest_campaign), target: "_blank", class: "underline hover:text-gray-300 mr-1" do %>
+                    <%= opportunity.program.latest_campaign.location.address %>
+                  <% end %>
+                  <div class="font-medium">(<%= opportunity.program.latest_campaign.location.neighborhood %>)</div>
+                </div>
               </div>
               <% end %>
               <%= if opportunity.program.campaign_blurb  do %>
-                <div class="flex items-center text-sm text-gray-300">
-                  <%= Heroicons.Outline.information_circle(aria_label: "Pickup Time" , class: "flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" ) %>
+                <div class="flex items-start text-sm text-gray-300">
+                  <Heroicons.Outline.information_circle aria-label="Pickup Time" class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
                   <%= opportunity.program.campaign_blurb %>
                 </div>
               <% end %>
               <%= if opportunity.program.items != []  do %>
                 <div class="flex items-start text-sm text-gray-300">
-                  <%= Heroicons.Outline.shopping_bag(aria_label: "Pickup Time" , class: "flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" ) %>
+                  <Heroicons.Outline.shopping_bag aria-label="Pickup Time" class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
                   <div class="flex flex-col">
                     You'll be delivering:
 
@@ -61,7 +89,7 @@
               <% end %>
               <div>
                 <!--<C.button patch_to={Routes.calendar_index_path(@socket, :show, opportunity)} patch_replace color={:black}>More Info</C.button>-->
-                <C.button href={opportunity.signup_link} target="_blank" color={:black}>Sign Up</C.button>
+                <C.button href={opportunity.signup_link} target="_blank" class="ml-7" color={:black}>Sign Up</C.button>
               </div>
 
             </div>

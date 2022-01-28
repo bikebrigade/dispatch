@@ -3,8 +3,9 @@ defmodule BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent do
 
   alias BikeBrigade.LocalizedDateTime
 
-  alias BikeBrigade.{Delivery, Repo, Messaging}
+  alias BikeBrigade.{Delivery, Repo}
 
+  @impl Phoenix.LiveComponent
   def render(assigns) do
     ~H"""
       <div>
@@ -135,13 +136,14 @@ defmodule BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent do
     new_campaign
     |> Repo.preload(:instructions_template)
     |> Delivery.update_campaign(%{
-      instructions_template: %{body: old_campaign.instructions_template.body }
+      instructions_template: %{body: old_campaign.instructions_template.body}
     })
   end
 
   defp copy_delivery_tasks(old_campaign, new_campaign) do
     for old_task <- old_campaign.tasks do
       task_params = Delivery.Task.fields_for(old_task)
+        |> Map.drop([:delivery_status, :delivery_status_notes])
       {:ok, new_task} = Delivery.create_task_for_campaign(new_campaign, task_params)
 
       old_task = old_task |> Repo.preload(:task_items)

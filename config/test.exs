@@ -47,6 +47,8 @@ config :bike_brigade, :media_storage,
   adapter: BikeBrigade.MediaStorage.FakeMediaStorage,
   bucket: "bike-brigade-public"
 
+config :bike_brigade, :mailchimp, adapter: BikeBrigade.MailchimpApi.FakeMailchimp
+
 config :bike_brigade, :sandbox, Ecto.Adapters.SQL.Sandbox
 
 config :wallaby,

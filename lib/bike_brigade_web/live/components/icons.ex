@@ -29,4 +29,33 @@ defmodule BikeBrigadeWeb.Components.Icons do
     </svg>
     """
   end
+
+  def circle(assigns) do
+    assigns = assign(assigns, :attrs, assigns_to_attributes(assigns))
+    ~H"""
+    <svg {@attrs} class="w-2 h-2" fill="currentColor" viewBox="0 0 8 8">
+      <circle cx="4" cy="4" r="3" />
+    </svg>
+    """
+  end
+
+  def sort(%{order: :desc} = assigns) do
+    assigns = assign(assigns, :attrs, assigns_to_attributes(assigns, [:order]))
+
+    ~H"""
+    <svg {@attrs} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4"></path>
+    </svg>
+    """
+  end
+
+  def sort(%{order: :asc} = assigns) do
+    assigns = assign(assigns, :attrs, assigns_to_attributes(assigns, [:order]))
+
+    ~H"""
+    <svg {@attrs} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"></path>
+    </svg>
+    """
+  end
 end

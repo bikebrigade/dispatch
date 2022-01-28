@@ -38,6 +38,24 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
+  app_name =
+    System.get_env("FLY_APP_NAME") ||
+      raise "FLY_APP_NAME not available"
+
+  config :libcluster,
+    debug: true,
+    topologies: [
+      fly6pn: [
+        strategy: Cluster.Strategy.DNSPoll,
+        config: [
+          polling_interval: 5_000,
+          query: "#{app_name}.internal",
+          node_basename: app_name
+        ]
+      ]
+    ]
+
+  # Production / staging differences
   case app_env do
     :production ->
       config :bike_brigade, BikeBrigadeWeb.Endpoint,
@@ -50,42 +68,12 @@ if config_env() == :prod do
         breadcrumbs_enabled: true,
         ecto_repos: [BikeBrigade.Repo]
 
-      # Use LogFlare in prod
-      # config :logger,
-      #   level: :info,
-      #   backends: [LogflareLogger.HttpBackend]
-
-      logflare_api_key =
-        System.get_env("LOGFLARE_API_KEY") ||
-          raise "LOGFLARE_API_KEY not available"
-
-      logflare_source_id =
-        System.get_env("LOGFLARE_SOURCE_ID") ||
-          raise "LOGFLARE_SOURCE_ID not available"
-
-      config :logflare_logger_backend,
-        # https://api.logflare.app is configured by default and you can set your own url
-        url: "https://api.logflare.app",
-        # Default LogflareLogger level is :info. Note that log messages are filtered by the :logger application first
-        level: :info,
-        api_key: logflare_api_key,
-        source_id: logflare_source_id,
-        # minimum time in ms before a log batch is sent to the server ",
-        flush_interval: 1_000,
-        # maximum number of events before a log batch is sent to the server
-        max_batch_size: 50,
-        metadata: [drop: [:hb_breadcrumbs]]
-
       # Importers
       config :bike_brigade, BikeBrigade.Importers.Runner,
         start: true,
         checkin_url: {:system, "IMPORTER_CHECKIN_URL"}
 
     :staging ->
-      _app_name =
-        System.get_env("FLY_APP_NAME") ||
-          raise "FLY_APP_NAME not available"
-
       config :bike_brigade, BikeBrigade.Repo, socket_options: [:inet6]
 
       config :bike_brigade, BikeBrigadeWeb.Endpoint,
@@ -127,12 +115,6 @@ if config_env() == :prod do
          System.get_env("GOOGLE_MAPS_API_KEY") ||
            raise("environment variable GOOGLE_MAPS_API_KEY is missing.")
 
-  # Mailchimp
-  config :mailchimp,
-    api_key:
-      System.get_env("MAILCHIMP_API_KEY") ||
-        raise("environment variable MAILCHIMP_API_KEY is missing")
-
   # Twilio
   config :ex_twilio,
     account_sid: System.fetch_env!("TWILIO_ACCOUNT_SID"),
@@ -141,6 +123,10 @@ if config_env() == :prod do
   # SmsService
   config :bike_brigade, :sms_service,
     status_callback_url: System.fetch_env!("TWILIO_STATUS_CALLBACK")
+
+  # Mailchimp
+  config :mailchimp,
+    api_key: System.fetch_env!("MAILCHIMP_API_KEY")
 end
 
 # LibLatLon uses porcelain with the basic driver so we don't need to worry about goon

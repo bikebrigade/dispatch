@@ -9,7 +9,9 @@ defmodule BikeBrigade.Delivery.Item do
     :"Prepared Food",
     :"Food Hamper",
     :"Groceries",
-    :"Other"
+    :"Community Fridge",
+    :"Other",
+    :"Non Deliveable"
   ]
 
   schema "items" do

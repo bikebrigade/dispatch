@@ -14,58 +14,34 @@
   </h1>
   <C.button patch_to={Routes.program_show_path(@socket, :edit, @program)}>Edit</C.button>
 </div>
+<UI.table class="table-fixed" rows={@program.campaigns}>
+  <:th>Date</:th>
+  <:th>Time</:th>
+  <:th>Riders</:th>
+  <:th>Deliveries</:th>
+  <:th class="flex justify-end" padding="px-3 py-3" uppercase={false}>
+    <C.button redirect_to={Routes.campaign_index_path(@socket, :new)}>
+      New Campaign
+    </C.button>
+  </:th>
 
-<div class="flex flex-col py-4">
-  <div class="py-2 -my-2 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-    <div class="inline-block min-w-full align-middle border-b border-gray-200 shadow sm:rounded-lg">
-      <table class="min-w-full table-fixed">
-        <thead>
-          <tr>
-            <th class="w-24 px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-              Date
-            </th>
-            <th class="w-24 px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-              Time
-            </th>
-            <th class="w-24 px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-              Riders
-            </th>
-            <th class="w-24 px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-              Deliveries
-            </th>
-            <th class="flex justify-end px-3 py-3 border-b border-gray-200 bg-gray-50">
-              <C.button redirect_to={Routes.campaign_index_path(@socket, :new)}>
-                New Campaign
-              </C.button>
-            </th>
-          </tr>
-        </thead>
-        <tbody class="bg-white">
-        <%= for campaign <- @program.campaigns do %>
-          <tr id={campaign.id}>
-            <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200 whitespace-nowrap">
-              <div class="flex items-center space-x-1">
-                <C.date date={campaign_date(campaign)} link_to={Routes.campaign_show_path(@socket, :show, campaign)}/>
-              </div>
-            </td>
-            <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
-              <div class="w-24 truncate"><%= if campaign.delivery_start, do: time_interval(campaign.delivery_start, campaign.delivery_end), else: campaign.pickup_window %></div>
-            </td>
-            <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200 whitespace-nowrap">
-              <%= campaign.total_riders %>
-            </td>
-            <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200 whitespace-nowrap">
-              <%= campaign.total_tasks %>
-            </td>
-            <td class="px-6 py-4 text-sm font-medium leading-5 text-right border-b border-gray-200 whitespace-nowrap">
-              <%= live_redirect "Edit", to: Routes.campaign_index_path(@socket, :edit, campaign), class: "text-indigo-600 hover:text-indigo-900" %>
-              <%= link "Delete", to: "#", phx_click: "delete", phx_value_id: campaign.id, data: [confirm: "Are you sure?"], class: "pl-2 text-indigo-600 hover:text-indigo-900"  %>
-            </td>
-          </tr>
-          <% end %>
-        </tbody>
-      </table>
+  <:td let={campaign}>
+     <div class="flex items-center space-x-1">
+      <C.date date={campaign_date(campaign)} link_to={Routes.campaign_show_path(@socket, :show, campaign)}/>
     </div>
+  </:td>
+  <:td let={campaign}>
+    <div class="w-24 truncate"><%= if campaign.delivery_start, do: time_interval(campaign.delivery_start, campaign.delivery_end), else: campaign.pickup_window %></div>
+  </:td>
+  <:td let={campaign}>
+    <%= campaign.total_riders %>
+  </:td>
+  <:td let={campaign}>
+    <%= campaign.total_tasks %>
+  </:td>
+  <:td let={campaign} class="text-right">
+    <%= live_redirect "Edit", to: Routes.campaign_index_path(@socket, :edit, campaign), class: "text-indigo-600 hover:text-indigo-900" %>
+    <%= link "Delete", to: "#", phx_click: "delete", phx_value_id: campaign.id, data: [confirm: "Are you sure?"], class: "pl-2 text-indigo-600 hover:text-indigo-900"  %>
+  </:td>
+</UI.table>
 
-  </div>
-</div>

@@ -6,7 +6,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
   describe "Index" do
     setup [:create_campaign, :login]
 
-    test "lists campaigns for week campaigns", %{conn: conn, campaign: campaign, program: program} do
+    test "lists campaigns for week campaigns", %{conn: conn, program: program} do
       {:ok, _index_live, html} = live(conn, Routes.campaign_index_path(conn, :index))
 
       assert html =~ "Campaigns"
@@ -25,7 +25,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
   end
 
   describe "Show" do
-    setup [:create_campaign, :login]
+    setup [:create_campaign, :create_rider, :login]
 
     test "displays campaign", %{conn: conn, campaign: campaign} do
       {:ok, _show_live, html} = live(conn, Routes.campaign_show_path(conn, :show, campaign))
@@ -42,7 +42,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
       |> element("a", "Add Task")
       |> render_click()
 
-      {:ok, view, html} =
+      {:ok, _view, html} =
         view
         |> form("#task_form",
           task: %{dropoff_name: "Recipient Mcgee", dropoff_address: "2758 Yonge St"}
@@ -52,6 +52,35 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
         |> follow_redirect(conn)
 
       assert html =~ "Recipient Mcgee"
+    end
+
+    test "can add a rider", %{conn: conn, campaign: campaign, rider: rider} do
+      {:ok, view, html} = live(conn, Routes.campaign_show_path(conn, :show, campaign))
+
+      refute html =~ rider.name
+
+      # Click on add rider
+      view
+      |> element("a", "Add Rider")
+      |> render_click()
+
+      # Select rider
+      view
+      |> select_rider(rider)
+
+      # Make sure we actually selected the rider
+      assert has_element?(
+               view,
+               ~s|#rider-select input[name="campaign_rider[rider_id]"][value="#{rider.id}"]|
+             )
+
+      {:ok, _view, html} =
+        view
+        |> form("#add_rider_form")
+        |> render_submit()
+        |> follow_redirect(conn)
+
+        assert html =~ rider.name
     end
   end
 
@@ -115,5 +144,19 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
       IO.inspect(proxy_pid)
       assert_receive {:EXIT, ^proxy_pid, {:shutdown, :closed}}
     end
+  end
+
+  # Select a rider from the rider selection component
+  defp select_rider(view, rider) do
+    # Find a rider
+    view
+    |> element("#rider-select input")
+    |> render_keyup(%{value: rider.name})
+
+    view
+    |> element("#rider-select a")
+    |> render_click()
+
+    view
   end
 end

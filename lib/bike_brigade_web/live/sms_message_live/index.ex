@@ -19,7 +19,8 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
         _ -> nil
       end
 
-    socket = socket
+    socket =
+      socket
       |> assign(:page_title, "Messages")
       |> assign(:page, :messages)
       |> assign(:presence, [])
@@ -59,7 +60,9 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
 
   @impl true
   def handle_params(params, url, socket) do
-    {:noreply, socket |> put_path(url) |> apply_action(socket.assigns.live_action, params)}
+    {:noreply,
+     socket
+     |> apply_action(socket.assigns.live_action, params)}
   end
 
   @impl true
@@ -181,28 +184,9 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
     |> push_event("select_rider", %{"id" => rider.id})
   end
 
-  defp put_path(socket, url) do
-    # We want the current path for returning to from a modal
-    path =
-      if socket.assigns.live_action == :new do
-        # keep the old path or set it to index
-        if Map.has_key?(socket.assigns, :current_path),
-          do: socket.assigns.current_path,
-          else: Routes.sms_message_index_path(socket, :index)
-      else
-        URI.parse(url).path
-      end
-
-    assign(socket, :current_path, path)
-  end
-
   defp details_buffer(campaign) do
     for task <- campaign.tasks do
-      "Name: #{task.dropoff_name}\nPhone: #{task.dropoff_phone}\nType: #{task.request_type}\nAddress: #{
-        task.dropoff_address
-      } #{task.dropoff_address2} #{task.dropoff_city} #{task.dropoff_postal}\nNotes: #{
-        task.rider_notes
-      }"
+      "Name: #{task.dropoff_name}\nPhone: #{task.dropoff_phone}\nType: #{task.request_type}\nAddress: #{task.dropoff_address} #{task.dropoff_address2} #{task.dropoff_city} #{task.dropoff_postal}\nNotes: #{task.rider_notes}"
     end
     |> Enum.join("\n\n")
     |> inspect()

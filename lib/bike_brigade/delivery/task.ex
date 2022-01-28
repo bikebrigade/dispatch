@@ -106,23 +106,17 @@ defmodule BikeBrigade.Delivery.Task do
   def changeset_for_campaign(campaign_changeset) do
     fn task, attrs ->
       with {_, delivery_date} <- fetch_field(campaign_changeset, :delivery_date),
-           {_, pickup_address} <- fetch_field(campaign_changeset, :pickup_address),
-           {_, pickup_address2} <- fetch_field(campaign_changeset, :pickup_address2),
-           {_, pickup_city} <- fetch_field(campaign_changeset, :pickup_city),
-           {_, pickup_country} <- fetch_field(campaign_changeset, :pickup_country),
-           {_, pickup_location} <- fetch_field(campaign_changeset, :pickup_location),
-           {_, pickup_postal} <- fetch_field(campaign_changeset, :pickup_postal),
-           {_, pickup_province} <- fetch_field(campaign_changeset, :pickup_province) do
+           {_, pickup_location} <- fetch_field(campaign_changeset, :location)
+        do
         attrs =
           %{
-            delivery_date: delivery_date,
-            pickup_address: pickup_address,
-            pickup_address2: pickup_address2,
-            pickup_city: pickup_city,
-            pickup_country: pickup_country,
-            pickup_location: pickup_location,
-            pickup_postal: pickup_postal,
-            pickup_province: pickup_province
+            delivery_date: delivery_date, # TODO remove
+            pickup_address: pickup_location.address,
+            pickup_city: pickup_location.city,
+            pickup_country: pickup_location.country,
+            pickup_location: pickup_location.coords,
+            pickup_postal: pickup_location.postal,
+            pickup_province: pickup_location.province
           }
           |> Map.merge(attrs)
 

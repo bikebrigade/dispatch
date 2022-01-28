@@ -69,7 +69,9 @@ defmodule BikeBrigade.Geocoder.FakeGeocoder do
           province: "Ontario",
           country: "Canada"
         }
-        |> Location.set_coords(String.to_float(lat), String.to_float(lon))
+        |> Location.set_coords(lat, lon)
+
+        #TODO include neighborhood here
 
       {address, location}
     end)

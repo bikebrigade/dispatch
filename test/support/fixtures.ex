@@ -1,6 +1,16 @@
 defmodule BikeBrigade.Fixtures do
   alias BikeBrigade.{Location, Accounts, Delivery, Riders, Messaging, Messaging, Repo}
 
+  @location %Location{
+              address: "926 College Street",
+              neighborhood: "Palmerston-Little Italy",
+              city: "Toronto",
+              postal: "M6H 1A1",
+              province: "Ontario",
+              country: "Canada"
+            }
+            |> Location.set_coords(43.6539952, -79.4258633)
+
   def fixture(name), do: fixture(name, %{})
 
   def fixture(:user, attrs) do
@@ -19,7 +29,7 @@ defmodule BikeBrigade.Fixtures do
   def fixture(:program, attrs) do
     {:ok, program} =
       %{
-        name: "program",
+        name: Faker.Superhero.name(),
         start_date: DateTime.utc_now()
       }
       |> Map.merge(attrs)
@@ -40,19 +50,7 @@ defmodule BikeBrigade.Fixtures do
         delivery_start: DateTime.utc_now(),
         delivery_end: DateTime.utc_now() |> DateTime.add(60, :second),
         name: "campaign",
-        location: %{
-          address: "926 College St",
-          postal: "M6H 1A1",
-          city: "Toronto",
-          province: "Canada",
-          country: "Canada",
-          coords:
-            Jason.encode!(%Geo.Point{
-              coordinates: {-79.4258633, 43.6539952},
-              properties: %{},
-              srid: 4326
-            })
-        }
+        location: Map.from_struct(@location)
       }
       |> Map.merge(attrs)
       |> Delivery.create_campaign()
@@ -66,17 +64,14 @@ defmodule BikeBrigade.Fixtures do
         name: fake_name(),
         email: Faker.Internet.email(),
         phone: fake_phone(),
-        address: "926 College St",
+        address: @location.address,
         address2: nil,
-        city: "Toronto",
-        country: "Canada",
-        location: %Geo.Point{
-          coordinates: {-79.4258633, 43.6539952},
-          properties: %{},
-          srid: 4326
-        },
-        postal: "M6H 1A4",
-        province: "Ontario",
+        city: @location.city,
+        country: @location.country,
+        location: @location.coords,
+        location_struct: Map.from_struct(@location),
+        postal: @location.postal,
+        province: @location.province,
         availability: %{
           "fri" => "all_day",
           "mon" => "all_day",
@@ -95,18 +90,21 @@ defmodule BikeBrigade.Fixtures do
     rider
   end
 
+  def fixture(:opportunity, attrs) do
+    {:ok, opportunity} =
+      %{
+        delivery_start: DateTime.utc_now(),
+        delivery_end: DateTime.utc_now() |> DateTime.add(60, :second),
+        signup_link: Faker.Internet.url()
+      }
+      |> Map.merge(attrs)
+      |> Delivery.create_opportunity()
+
+    opportunity
+  end
+
   def fixture(:location, _attrs) do
-    %Location{
-      address: Faker.Address.street_address(),
-      city: "Toronto",
-      postal: "H0H 0H0",
-      province: "Ontario",
-      country: "Canada"
-    }
-    |> Location.set_coords(
-      random_float(43.633528, 43.772528),
-      random_float(-79.548444, -79.232583)
-    )
+    @location
   end
 
   def fixture(:sms_message, attrs) do
@@ -139,16 +137,15 @@ defmodule BikeBrigade.Fixtures do
   end
 
   defp fake_name() do
+    # Faker has names like O'Connel, and the apostrophe gets translated to &#39; in HTML output
+    # This is annoying in tests so we'll just filter out the apostrophe.
     "#{Faker.Person.first_name()} #{Faker.Person.last_name()}"
+    |> String.replace(~r/[^a-zA-Z\s]/, "")
   end
 
   # Faker's phone doesn't always pass canadian validation
   defp fake_phone() do
     "647-#{Enum.random(200..999)}-#{Enum.random(1000..9999)}"
-  end
-
-  defp random_float(a, b) do
-    a + :rand.uniform() * (b - a)
   end
 
   defp fake_item() do

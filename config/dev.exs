@@ -5,7 +5,7 @@ config :bike_brigade, :app_env, "development"
 
 # Configure your database
 config :bike_brigade, BikeBrigade.Repo,
-  username: "postgres",
+  username: System.get_env("POSTGRES_USERNAME") || "postgres",
   password: "postgres",
   database: "bike_brigade_dev",
   hostname: "localhost",
@@ -25,9 +25,7 @@ config :bike_brigade, BikeBrigadeWeb.Endpoint,
   check_origin: false,
   watchers: [
     esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
-    npx:
-      ~w(postcss css/app.css --output ../priv/static/assets/app.css --watch) ++
-        [cd: Path.expand("../assets", __DIR__)]
+    tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]}
   ]
 
 # ## SSL Support
@@ -150,4 +148,13 @@ case System.get_env("GOOGLE_SERVICE_JSON") do
     config :bike_brigade, :media_storage,
       adapter: BikeBrigade.MediaStorage.FakeMediaStorage,
       bucket: System.get_env("GOOGLE_STORAGE_BUCKET", "bike-brigade-fake")
+end
+
+case System.get_env("MAILCHIMP_API_KEY") do
+  nil ->
+    config :bike_brigade, :mailchimp, adapter: BikeBrigade.MailchimpApi.FakeMailchimp
+
+  key ->
+    config :bike_brigade, :mailchimp, adapter: BikeBrigade.MailchimpApi.Http
+    config :mailchimp, api_key: key
 end

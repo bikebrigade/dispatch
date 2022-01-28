@@ -13,25 +13,32 @@ defmodule BikeBrigadeWeb.CalendarLive.Index do
     #  Delivery.subscribe()
     # end
 
-    start_date =  LocalizedDateTime.today()
+    start_date = today = LocalizedDateTime.today()
     opportunities = list_opportunities(start_date)
 
-    end_date = case List.last(opportunities) do
-      {end_date, _} -> end_date
-      nil -> start_date
-    end
+    end_date =
+      case List.last(opportunities) do
+        {end_date, _} -> end_date
+        nil -> start_date
+      end
 
     {:ok,
      socket
+     |> assign(:show_buttons, false)
+     |> assign(:today, today)
      |> assign(:start_date, start_date)
      |> assign(:end_date, end_date)
      |> assign(:opportunities, list_opportunities(start_date))}
   end
 
-  # @impl true
-  # def handle_params(params, _url, socket) do
-  #   {:noreply, apply_action(socket, socket.assigns.live_action, params)}
-  # end
+  @impl true
+  def handle_params(%{"show_buttons" => "true"}, _url, socket) do
+    {:noreply, assign(socket, :show_buttons, true)}
+  end
+
+  def handle_params(_params, _url, socket) do
+    {:noreply, socket}
+  end
 
   # defp apply_action(socket, :index, _params) do
   #   socket

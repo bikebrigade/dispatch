@@ -10,6 +10,7 @@ defmodule BikeBrigade.GeocoderTest do
     location = fixture(:location)
     FakeGeocoder.inject_address(@address, location)
 
-    {:ok, ^location} = Geocoder.lookup(@address)
+    {:ok, found_location} = Geocoder.lookup(@address)
+    assert found_location == location
   end
 end

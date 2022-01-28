@@ -14,6 +14,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.FormComponent do
     {:ok,
      socket
      |> assign(:changeset, changeset)
+     |> assign(:initial_riders, [])
      |> assign_confirm_send_warning()}
   end
 
@@ -31,7 +32,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.FormComponent do
 
     for rider <- riders do
       # TODO handle errors
-      sms_message = Messaging.new_sms_message(rider, socket.assigns.current_user)
+      sms_message = Messaging.new_sms_message(rider, sent_by: socket.assigns.current_user)
       Messaging.send_sms_message(sms_message, params)
     end
 

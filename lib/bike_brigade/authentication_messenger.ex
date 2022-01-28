@@ -1,27 +1,20 @@
 defmodule BikeBrigade.AuthenticationMessenger do
-  use GenServer
-
   import BikeBrigade.Utils
-
   alias BikeBrigade.Messaging
   alias BikeBrigade.SmsService
-
   require Logger
+
+  use BikeBrigade.SingleGlobalGenServer, initial_state: %{}
 
   # Client
 
-  def start_link(opts \\ []) do
-    opts = Keyword.put_new(opts, :name, __MODULE__)
-    GenServer.start_link(opts[:name], %{}, opts)
-  end
-
-  def generate_token(phone), do: generate_token(__MODULE__, phone)
+  def generate_token(phone), do: generate_token(@name, phone)
 
   def generate_token(pid, phone) do
     GenServer.call(pid, {:generate_token, phone})
   end
 
-  def validate_token(phone, token_attempt), do: validate_token(__MODULE__, phone, token_attempt)
+  def validate_token(phone, token_attempt), do: validate_token(@name, phone, token_attempt)
 
   def validate_token(pid, phone, token_attempt) when is_binary(token_attempt) do
     try do
@@ -38,12 +31,12 @@ defmodule BikeBrigade.AuthenticationMessenger do
 
   # Server (callbacks)
 
-  @impl true
+  @impl GenServer
   def init(state) do
     {:ok, state}
   end
 
-  @impl true
+  @impl GenServer
   def handle_call({:generate_token, phone}, _from, state) do
     # Generate a 6 digit token
     token = :rand.uniform(899_999) + 100_000
@@ -53,12 +46,11 @@ defmodule BikeBrigade.AuthenticationMessenger do
         Process.send_after(self(), {:expire, phone}, 60000)
         {:reply, :ok, Map.put(state, phone, token)}
 
-      {:error, err, _code} ->
-        {:reply, {:error, "Twilio error: #{Map.get(err, "message", "unknown")}"}, state}
+      {:error, error} ->
+        {:reply, {:error, "Twilio error: #{error}"}, state}
     end
   end
 
-  @impl true
   def handle_call({:validate_token, phone, token_attempt}, _from, state) do
     # TODO refactor
     if !dev?() do
@@ -76,12 +68,11 @@ defmodule BikeBrigade.AuthenticationMessenger do
     end
   end
 
-  @impl true
+  @impl GenServer
   def handle_info({:expire, phone}, state) do
     {:noreply, Map.delete(state, phone)}
   end
 
-  # TODO move this to a module that wraps extwilio
   defp send_message(phone, token) do
     msg = [
       from: Messaging.outbound_number(),

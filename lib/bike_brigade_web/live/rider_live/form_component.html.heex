@@ -12,7 +12,7 @@
       Name
       <% end %>
       <div class="mt-1 rounded-md shadow-sm">
-        <%= text_input f, :name, required: true, phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+        <%= text_input f, :name, required: true, autocomplete: "name", phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
       </div>
       <%= error_tag f, :name %>
     </div>
@@ -22,7 +22,7 @@
       Pronouns
       <% end %>
       <div class="mt-1 rounded-md shadow-sm">
-        <%= text_input f, :pronouns, required: true, phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+        <%= text_input f, :pronouns, required: true, autocomplete: "pronounds", phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
       </div>
       <%= error_tag f, :pronouns %>
     </div>
@@ -32,7 +32,7 @@
       Email
       <% end %>
       <div class="mt-1 rounded-md shadow-sm">
-        <%= text_input f, :email, required: true, phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+        <%= text_input f, :email, required: true, autocomplete: "email", phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
       </div>
       <%= error_tag f, :email %>
     </div>
@@ -42,20 +42,14 @@
       Phone number
       <% end %>
       <div class="mt-1 rounded-md shadow-sm">
-        <%= text_input f, :phone, required: true, phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+        <%= text_input f, :phone, required: true, autocomplete: "tel", phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
       </div>
       <%= error_tag f, :phone %>
     </div>
 
-    <div class="mt-2">
-      <%= label f, :address, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-      Address
-      <% end %>
-      <div class="mt-1 rounded-md shadow-sm">
-        <%= text_input f, :address, required: true, phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
-      </div>
-      <%= error_tag f, :address %>
-    </div>
+    <%= for l <- inputs_for(f, :location_struct) do %>
+      <LocationForm.component for={l} label="Rider Location" />
+    <% end %>
 
     <div>
       <%= label f, :capacity, class: "block text-sm font-medium leading-5 text-gray-700" do %>
@@ -77,13 +71,21 @@
       <%= error_tag f, :max_distance %>
     </div>
     <div class="mt-2">
-      <%= label f, :max_distance, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+      <%= label f, :last_safety_check, class: "block text-sm font-medium leading-5 text-gray-700" do %>
       Last Safety Check
       <% end %>
       <div class="mt-1 rounded-md shadow-sm">
-        <%= date_input f, :last_safety_check, required: true, placeholder: "YYYY-MM-DD", phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+        <%= date_input f, :last_safety_check, placeholder: "YYYY-MM-DD", phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
       </div>
       <%= error_tag f, :last_safety_check %>
+    </div>
+    <div class="mt-2">
+      <%= label f, :tags, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+      Tags
+      <% end %>
+      <.live_component module={BikeBrigadeWeb.RiderLive.TagsComponent} id={:rider_tags} tags={@form.tags} input_name={"#{input_name(f, :tags)}[]"}/>
+
+      <%= error_tag f, :tags %>
     </div>
     <div class="pt-8">
       <div>
@@ -111,7 +113,7 @@
       <% end %>
     </div>
     <div class="flex justify-end mt-6">
-      <C.button type="submit" phx_disable_with="Saving...">
+      <C.button type="save" phx_disable_with="Saving...">
         Save
       </C.button>
     </div>
