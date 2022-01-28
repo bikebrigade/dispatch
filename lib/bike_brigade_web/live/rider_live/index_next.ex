@@ -354,17 +354,24 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
         <div class="relative flex flex-col w-2/3">
           <form id="rider-search" phx-change="suggest" phx-submit="search"}
             phx-click-away="clear-search">
-            <input type="text"
-              id="rider-search-input"
-              name="value"
-              value={display_search(@search)}
-              autocomplete="off"
-              class="block w-full px-3 py-2 placeholder-gray-400 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              placeholder="Name, email, phone, tag, neighborhood"
-              tabindex="1"
-              />
+            <div class="relative flex items-baseline w-full px-1 py-0 bg-white border border-gray-300 rounded-md shadow-sm sm:text-sm focus-within:ring-indigo-500 focus-within:border-indigo-500">
+              <.query_list queries={@queries} />
+              <input type="text"
+                id="rider-search-input"
+                name="value"
+                value={display_search(@search)}
+                autocomplete="off"
+                class="w-full placeholder-gray-400 border-transparent appearance-none focus:border-transparent outline-transparent ring-transparent focus:ring-0"
+                placeholder="Name, email, phone, tag, neighborhood"
+                tabindex="1"/>
+                <%= if @queries != [] do %>
+                    <button type="button" phx-click="clear-queries" class="absolute right-1 text-gray-400 rounded-md top-2.5 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                      <span class="sr-only">Clear Search</span>
+                      <Heroicons.Outline.x class="w-6 h-6" />
+                    </button>
+                <% end %>
+              </div>
           <.suggestion_list suggestions={@suggestions} open={@show_suggestions}/>
-          <.query_list queries={@queries} />
           <button id="submit" type="submit" class="sr-only"/>
           </form>
         </div>
@@ -535,19 +542,13 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
   defp query_list(assigns) do
     ~H"""
     <%= if @queries != [] do %>
-      <div class="flex items-center w-full mt-0.5">
-        <div class="space-x-0.5">
-          <%= for {{type, search}, i} <- Enum.with_index(@queries) do %>
-            <div class={"my-0.5 inline-flex items-center px-2.5 py-1.5 rounded-md text-md font-medium #{color(type)}"}>
-              <span class="text-700 mr-0.5 font-base"><%= type %>:</span><%= search %>
-              <Heroicons.Outline.x_circle class="w-5 h-5 ml-1 cursor-pointer" phx-click="remove-query" phx-value-index={i} />
-            </div>
-          <% end  %>
-        </div>
-        <button type="button" phx-click="clear-queries"  class="ml-auto text-gray-400 rounded-md hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-          <span class="sr-only">Clear Search</span>
-          <Heroicons.Outline.x class="w-6 h-6" />
-        </button>
+      <div class="flex flex-wrap space-x-0.5 max-w-xs">
+        <%= for {{type, search}, i} <- Enum.with_index(@queries) do %>
+          <div class={"my-0.5 inline-flex items-center px-2.5 py-1.5 rounded-md text-md font-medium #{color(type)}"}>
+            <span class="text-700 mr-0.5 font-base"><%= type %>:</span><%= search %>
+            <Heroicons.Outline.x_circle class="w-5 h-5 ml-1 cursor-pointer" phx-click="remove-query" phx-value-index={i} />
+          </div>
+        <% end  %>
       </div>
     <% end %>
     """
