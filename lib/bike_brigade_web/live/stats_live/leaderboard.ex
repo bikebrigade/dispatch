@@ -5,6 +5,8 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
 
   alias BikeBrigade.LocalizedDateTime
 
+  alias BikeBrigadeWeb.Components.Icons
+
   defmodule Options do
     # This pattern is from  https://mattpruitt.com/articles/phoenix-forms-with-ecto-embedded-schema
     # evaluating about using it more
@@ -127,7 +129,7 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
   defp sort_icon(assigns = %{field: field, options: %Options{sort_by: field, sort_order: :desc}}) do
     ~H"""
     <a phx-click="sort" phx-value-sort_by={@field} phx-value-sort_order="asc" href="#" class="pl-2 text-gray-500 hover:text-gray-700">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4"></path></svg>
+      <Icons.sort order={:desc} />
     </a>
     """
   end
@@ -135,7 +137,7 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
   defp sort_icon(assigns = %{field: field, options: %Options{sort_by: field, sort_order: :asc}}) do
     ~H"""
     <a phx-click="sort" phx-value-sort_by={@field} phx-value-sort_order="desc" href="#" class="pl-2 text-gray-500 hover:text-gray-700">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"></path></svg>
+      <Icons.sort order={:asc} />
     </a>
     """
   end
@@ -143,7 +145,7 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
   defp sort_icon(assigns) do
     ~H"""
     <a phx-click="sort" phx-value-sort_by={@field} phx-value-sort_order="asc" href="#" class="pl-2 text-gray-300 hover:text-gray-700">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4"></path></svg>
+      <Icons.sort order={:desc} />
     </a>
     """
   end

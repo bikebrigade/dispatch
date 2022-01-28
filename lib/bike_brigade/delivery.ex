@@ -306,6 +306,18 @@ defmodule BikeBrigade.Delivery do
     |> Repo.preload(:program)
   end
 
+  def latest_campaign_date(rider) do
+    query =
+      from c in Campaign,
+        join: cr in CampaignRider,
+        on: cr.rider_id == ^rider.id and cr.campaign_id == c.id,
+        select: c.delivery_start,
+        order_by: [desc: coalesce(date(c.delivery_start), c.delivery_date)],
+        limit: 1
+
+    Repo.one(query)
+  end
+
   def campaigns_per_rider(rider) do
     query = from c in CampaignRider, where: c.rider_id == ^rider.id, select: count(c.id)
     Repo.one(query)
