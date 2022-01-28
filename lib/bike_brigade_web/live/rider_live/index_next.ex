@@ -511,8 +511,8 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
       <button type="button" phx-click="search" value={"#{@type}:#{@search}"}
         class="block ml-1 transition duration-150 ease-in-out w-fit hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
         tabindex="1"
-        phx-focus={JS.add_class("bg-gray-100", to: "##{@type}-#{@search}") |> JS.push("choose", value: %{"choose" => "#{@type}:#{@search}"})}
-        phx-blur={JS.remove_class("bg-gray-100", to: "##{@type}-#{@search}")}>
+        phx-focus={JS.add_class("bg-gray-100", to: "[id='#{@type}-#{@search}']") |> JS.push("choose", value: %{"choose" => "#{@type}:#{@search}"})}
+        phx-blur={JS.remove_class("bg-gray-100", to: "[id='#{@type}-#{@search}']")}>
         <p class={"px-2.5 py-1.5 rounded-md text-md font-medium #{color(@type)}"}>
           <%= if @type == :name do %>
             "<%= @search %>"<span class="ml-1 text-sm">in name</span>
