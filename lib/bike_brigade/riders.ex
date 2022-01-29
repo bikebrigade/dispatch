@@ -95,10 +95,7 @@ defmodule BikeBrigade.Riders do
           dynamic(^query and is_nil(as(:latest_campaign).id))
 
         {:active, period}, query ->
-          dynamic(
-            ^query and as(:latest_campaign).delivery_start < ^DateTime.utc_now() and
-              as(:latest_campaign).delivery_start > ago(1, ^period)
-          )
+          dynamic(^query and as(:latest_campaign).delivery_start > ago(1, ^period))
       end)
 
     order_by =
