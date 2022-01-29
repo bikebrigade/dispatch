@@ -134,7 +134,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
 
     socket
     |> assign(:queries, queries)
-    |> fetch_riders(total: true)
+    |> fetch_riders(repaginate: true)
   end
 
   defp apply_action(socket, :message, _params) do
@@ -157,7 +157,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
      |> assign(:queries, socket.assigns.queries ++ query)
      |> clear_search()
      |> clear_selected()
-     |> fetch_riders(total: true)}
+     |> fetch_riders(repaginate: true)}
   end
 
   def handle_event("clear-search", _params, socket) do
@@ -172,7 +172,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
      |> assign(:queries, [])
      |> clear_search()
      |> clear_selected()
-     |> fetch_riders(total: true)}
+     |> fetch_riders(repaginate: true)}
   end
 
   def handle_event("choose", %{"choose" => choose}, socket) do
@@ -194,7 +194,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
     {:noreply,
      socket
      |> assign(:queries, List.delete_at(socket.assigns.queries, i))
-     |> fetch_riders(total: true)}
+     |> fetch_riders(repaginate: true)}
   end
 
   def handle_event(
@@ -315,7 +315,6 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
     |> assign(:search, "")
     |> assign(:suggestions, %Suggestions{})
     |> assign(:show_suggestions, false)
-    |> assign(:sort_options, %{socket.assigns.sort_options | offset: 0})
   end
 
   defp clear_selected(socket) do
@@ -326,7 +325,20 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
   defp fetch_riders(socket, search_opts \\ []) do
     sort = SortOptions.to_tuple(socket.assigns.sort_options)
 
-    {riders, total} = Riders.search_riders_next(socket.assigns.queries, sort, search_opts)
+    {socket, riders} =
+      if Keyword.get(search_opts, :repaginate) do
+        {riders, total} = Riders.search_riders_next(socket.assigns.queries, sort, total: true)
+
+        socket =
+          socket
+          |> assign(:total, total)
+          |> assign(:sort_options, %{socket.assigns.sort_options | offset: 0})
+
+        {socket, riders}
+      else
+        {riders, nil} = Riders.search_riders_next(socket.assigns.queries, sort)
+        {socket, riders}
+      end
 
     riders =
       riders
@@ -341,7 +353,6 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
     socket
     |> assign(:riders, riders)
     |> assign(:selected, selected)
-    |> assign(:total, total || socket.assigns.total)
   end
 
   @impl Phoenix.LiveView
