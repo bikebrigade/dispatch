@@ -66,12 +66,13 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
     @type t :: %__MODULE__{
             name: String.t() | nil,
             tags: list(String.t()),
-            active: list(atom())
+            active: list(String.t()),
+            capacity: list(String.t())
           }
 
     @spec suggest(t(), String.t()) :: t()
     def suggest(suggestions, "") do
-      %{suggestions | name: nil, tags: [], active: []}
+      %{suggestions | name: nil, tags: [], active: [], capacity: []}
     end
 
     def suggest(suggestions, search) do
@@ -393,7 +394,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
                 value={display_search(@search)}
                 autocomplete="off"
                 class="w-full placeholder-gray-400 border-transparent appearance-none focus:border-transparent outline-transparent ring-transparent focus:ring-0"
-                placeholder="Name, email, phone, tag, neighborhood"
+                placeholder="Name, tag, capacity, last active"
                 tabindex="1"/>
                 <%= if @queries != [] do %>
                     <button type="button" phx-click="clear-queries" class="absolute right-1 text-gray-400 rounded-md top-2.5 hover:text-gray-500">
