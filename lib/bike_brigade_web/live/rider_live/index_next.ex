@@ -315,6 +315,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
     |> assign(:search, "")
     |> assign(:suggestions, %Suggestions{})
     |> assign(:show_suggestions, false)
+    |> assign(:sort_options, %{socket.assigns.sort_options | offset: 0})
   end
 
   defp clear_selected(socket) do
