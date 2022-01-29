@@ -13,9 +13,15 @@ defmodule BikeBrigadeWeb.LiveHelpers do
     "https://www.gravatar.com/avatar/#{hash}?s=150&d=identicon"
   end
 
-  def date(datetime) do
+  def format_date(datetime), do: format_date(datetime, "%b %-d, %Y")
+
+  def format_date(%DateTime{} = datetime, format) do
     LocalizedDateTime.localize(datetime)
-    |> Calendar.strftime("%x")
+    |> Calendar.strftime(format)
+  end
+
+  def format_date(%Date{} = date, format) do
+    Calendar.strftime(date, format)
   end
 
   def datetime(datetime) do
@@ -68,7 +74,7 @@ defmodule BikeBrigadeWeb.LiveHelpers do
   def render_raw(nil), do: ""
 
   def favicon_path(conn) do
-    if BikeBrigade.Utils.dev? do
+    if BikeBrigade.Utils.dev?() do
       BikeBrigadeWeb.Router.Helpers.static_path(conn, "/favicon_dev.png")
     else
       BikeBrigadeWeb.Router.Helpers.static_path(conn, "/favicon.png")
