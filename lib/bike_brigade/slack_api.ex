@@ -7,10 +7,8 @@ defmodule BikeBrigade.SlackApi do
 
   @callback post!(url, body, headers) :: :ok
 
-  @token BikeBrigade.Utils.fetch_env!(:slack, :token)
   @headers [
     {"content-type", "application/json"},
-    {"authorization", "Bearer #{@token}"},
     {"charset", "utf-8"}
   ]
   @url "https://slack.com/api/chat.postMessage"
@@ -24,6 +22,12 @@ defmodule BikeBrigade.SlackApi do
   end
 
   def post_message(body) do
-    @slack.post!(@url, body, @headers)
+    headers = [auth_header() | @headers]
+    @slack.post!(@url, body, headers)
+  end
+
+  defp auth_header() do
+    token = BikeBrigade.Utils.fetch_env!(:slack, :token)
+    {"authorization", "Bearer #{token}"}
   end
 end

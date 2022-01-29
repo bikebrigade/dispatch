@@ -11,7 +11,7 @@ defmodule BikeBrigade.Messaging.SlackTest do
 
       call = FakeSlack.get_last_call()
       payload = body(call)
-      assert payload["channel"] == "C01QU0YVACW"
+      assert payload["channel"] == "C022R3HU9B9"
     end
   end
 
@@ -21,7 +21,7 @@ defmodule BikeBrigade.Messaging.SlackTest do
 
       call = FakeSlack.get_last_call()
       payload = body(call)
-      assert payload["channel"] == "C016VGHETS4"
+      assert payload["channel"] == "C022R3HU9B9"
     end
   end
 
