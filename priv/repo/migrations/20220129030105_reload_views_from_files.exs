@@ -3,10 +3,9 @@ defmodule BikeBrigade.Repo.Migrations.ReloadViewsFromFiles do
 
   def change do
     execute "drop view if exists rider_stats", ""
-    flush()
-    execute load_sql("rider_stats_view.sql"), "drop view rider_stats"
-    execute load_sql("rider_program_stats_view.sql"), "drop view rider_program_stats"
-    execute load_sql("riders_latest_campaigns_view.sql"), "drop view riders_latest_campaigns"
+    execute load_sql("rider_stats_view.sql"), "drop view if exists rider_stats"
+    execute load_sql("rider_program_stats_view.sql"), "drop view if exists rider_program_stats"
+    execute load_sql("riders_latest_campaigns_view.sql"), "drop view if exists riders_latest_campaigns"
 
   end
 
