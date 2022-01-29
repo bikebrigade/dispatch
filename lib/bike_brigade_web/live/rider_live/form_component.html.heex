@@ -64,7 +64,7 @@
       Capacity
       <% end %>
       <div class="mt-1 rounded-md shadow-sm">
-        <%= text_input f, :capacity, required: true, phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+        <%= select f, :capacity,  ["large", "medium", "small"], phx_debounce: "blur", class: "block w-full py-2 pl-3 pr-10 mt-1 text-xs border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" %>
       </div>
       <%= error_tag f, :capacity %>
     </div>
