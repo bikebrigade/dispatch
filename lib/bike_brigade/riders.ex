@@ -86,6 +86,11 @@ defmodule BikeBrigade.Riders do
         {:tag, tag}, query ->
           dynamic(^query and fragment("? = ANY(?)", ^tag, as(:tags).tags))
 
+        {:capacity, capacity}, query ->
+          # TODO this may be easier with Ecto.Enum instead of EctoEnum
+          {:ok, capacity} = Rider.CapacityEnum.dump(capacity)
+          dynamic(^query and as(:rider).capacity == ^capacity)
+
         {:active, :never}, query ->
           dynamic(^query and is_nil(as(:latest_campaign).id))
 
@@ -99,6 +104,9 @@ defmodule BikeBrigade.Riders do
     order_by =
       case sort_field do
         :name ->
+          [{sort_order, sort_field}]
+
+        :capacity ->
           [{sort_order, sort_field}]
 
         :last_active ->

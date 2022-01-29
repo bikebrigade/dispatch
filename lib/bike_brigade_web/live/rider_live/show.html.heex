@@ -20,32 +20,34 @@
         </div>
         <div class="">
             <h1 class="mb-4 text-3xl font-medium leading-none sm:text-4xl"><%= @rider.name %> <small class="text-sm"><%= @rider.pronouns %></small></h1>
-            <p class="flex flex-col justify-start text-sm leading-6 sm:text-base md:flex-row md:items-center">
-                <span><Heroicons.Outline.clipboard_list aria-label="Calendar" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 sm:mr-1" />Signed up on: <%= format_date(@rider.signed_up_on) %></span>
-                <%# TODO: make this a link to the campaign %>
-                <span><Heroicons.Outline.fire aria-label="Fire" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 md:ml-4 sm:mr-1" />Latest activity: <.latest_campaign_info socket={@socket} rider={@rider} /></span>
-            </p>
-            <p class="flex flex-col justify-start text-sm leading-6 sm:text-base md:flex-row md:items-center">
-                <span><Heroicons.Outline.location_marker aria-label="Marker" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 sm:mr-1" /><%= @rider.address %></span>
-                <span><Heroicons.Outline.phone aria-label="Phone" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 md:ml-4 sm:mr-1" /><%= @rider.phone %></span>
-                <span><Heroicons.Outline.mail aria-label="Mail" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 md:ml-4 sm:mr-1" /><%= @rider.email %></span>
-            </p>
-            <p class="flex flex-col justify-start text-sm leading-6 sm:text-base md:flex-row md:items-center">
-                <%# TODO: format tags with links %>
-                <div class="flex"><Heroicons.Outline.tag aria-label="Tag" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 sm:mr-1" />
+            <div class="flex flex-col justify-start text-sm leading-6 sm:text-base md:flex-row md:items-center">
+                <div><Heroicons.Outline.clipboard_list aria-label="Calendar" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 sm:mr-1" />Signed up on: <%= format_date(@rider.signed_up_on) %></div>
+                <div><Heroicons.Outline.fire aria-label="Fire" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 md:ml-4 sm:mr-1" />Latest activity: <.latest_campaign_info socket={@socket} rider={@rider} /></div>
+            </div>
+            <div class="flex flex-col justify-start text-sm leading-6 sm:text-base md:flex-row md:items-center">
+                <div><Heroicons.Outline.location_marker aria-label="Marker" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 sm:mr-1" /><%= @rider.address %></div>
+                <div><Heroicons.Outline.phone aria-label="Phone" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 md:ml-4 sm:mr-1" /><%= @rider.phone %></div>
+                <div><Heroicons.Outline.mail aria-label="Mail" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 md:ml-4 sm:mr-1" /><%= @rider.email %></div>
+            </div>
+            <div class="flex flex-col justify-start text-sm leading-6 sm:text-base md:flex-row md:items-center">
+                <div><Heroicons.Outline.briefcase aria-label="Briefcase" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 sm:mr-1" />
+                    <%= live_redirect @rider.capacity, to: Routes.rider_index_next_path(@socket, :index, %{capacity: [@rider.capacity]}), class: "link" %>
+                </div>
+                <div class="flex items-center"><Heroicons.Outline.tag aria-label="Tag" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 md:ml-4 sm:mr-1" />
                     <%= if Enum.empty?(@rider.tags) do %>
                      No tags
                     <% else %>
                     <ul class="flex">
                         <%= for tag <- @rider.tags do %>
-                            <li class="before:content-[','] first:before:content-['']">
-                                <%= live_redirect tag.name,to: Routes.rider_index_next_path(@socket, :index, %{tags: [tag.name]}), class: "link" %>
-                            </li>
+                            <span class="before:content-[','] first:before:content-['']">
+                                <%= live_redirect tag.name, to: Routes.rider_index_next_path(@socket, :index, %{tags: [tag.name]}), class: "link" %>
+                            </span>
                             <% end %>
                         </ul>
                     <% end %>
                 </div>
-            </p>
+
+            </div>
         </div>
     </div>
 </div>

@@ -59,8 +59,9 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
 
   defmodule Suggestions do
     @actives ~w(hour day week month year)
+    @capacities ~w(large medium small)
 
-    defstruct name: nil, tags: [], active: []
+    defstruct name: nil, tags: [], active: [], capacity: []
 
     @type t :: %__MODULE__{
             name: String.t() | nil,
@@ -89,6 +90,13 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
 
           %__MODULE__{active: actives}
 
+        ["capacty", capacity] ->
+          capacity =
+            @capacities
+            |> Enum.filter(&String.starts_with?(&1, capacity))
+
+          %__MODULE__{capacity: capacity}
+
         [search] ->
           tags =
             if String.length(search) < 3 do
@@ -98,7 +106,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
             end
             |> Enum.map(& &1.name)
 
-          %{suggestions | name: [search], tags: tags, active: @actives}
+          %{suggestions | name: [search], tags: tags, active: @actives, capacity: @capacities}
 
         [_, _] ->
           # unknown facet
@@ -128,12 +136,16 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
   end
 
   defp apply_action(socket, :index, params) do
-    queries =
-      Map.get(params, "tags", [])
+    tag_queries =
+      Map.get(params, "tag", [])
       |> Enum.map(fn tag -> {:tag, tag} end)
 
+    capacity_queries =
+      Map.get(params, "capacity", [])
+      |> Enum.map(fn tag -> {:capacity, tag} end)
+
     socket
-    |> assign(:queries, queries)
+    |> assign(:queries, tag_queries ++ capacity_queries)
     |> fetch_riders(repaginate: true)
   end
 
@@ -296,6 +308,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
         "name" -> [name: query]
         "tag" -> [tag: query]
         "active" -> [active: query]
+        "capacity" -> [capacity: query]
       end
     else
       [query] -> [name: String.trim(query)]
@@ -417,6 +430,12 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
         </:th>
         <:th>
           <div class="inline-flex">
+            Capacity
+            <SortOptions.link phx-click="sort" field={:capacity} sort_options={@sort_options} class="pl-2"/>
+          </div>
+        </:th>
+        <:th>
+          <div class="inline-flex">
             Last Active
             <SortOptions.link phx-click="sort" field={:last_active} sort_options={@sort_options} class="pl-2"/>
           </div>
@@ -447,6 +466,12 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
             </li>
             <% end %>
           </ul>
+        </:td>
+        <:td let={rider}>
+          <button type="button" phx-click="search" value={"capacity:#{rider.capacity}"}}
+          class="link">
+            <%= rider.capacity %>
+          </button>
         </:td>
         <:td let={rider}>
           <%= if rider.latest_campaign do %>
@@ -496,7 +521,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
     ~H"""
     <dialog id="suggestion-list2"
       open={@open}
-      class="absolute w-full p-2 mt-0 overflow-y-auto bg-white border rounded shadow-xl top-100 max-h-64"
+      class="absolute w-full p-2 mt-0 overflow-y-auto bg-white border rounded shadow-xl top-100 max-h-fit"
       phx-window-keydown="clear-search" phx-key="escape">
       <p class="text-sm text-gray-500">Press Tab to cycle suggestions</p>
       <div class="grid grid-cols-2 gap-1">
@@ -520,18 +545,28 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
         </div>
       <% end %>
       </div>
-      <%= if @suggestions.active != [] do %>
-        <div>
-          <h3 class="my-1 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
-            Last Active
-          </h3>
-          <div class="flex flex-col my-2">
-            <%= for period <- @suggestions.active do %>
-              <.suggestion type={:active} search={period} />
-            <% end %>
-          </div>
+      <div>
+      <%= if @suggestions.capacity != [] do %>
+        <h3 class="my-1 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+          Capacity
+        </h3>
+        <div class="flex flex-col my-2">
+          <%= for capacity <- @suggestions.capacity do %>
+            <.suggestion type={:capacity} search={capacity} />
+          <% end %>
         </div>
       <% end %>
+      <%= if @suggestions.active != [] do %>
+        <h3 class="my-1 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+          Last Active
+        </h3>
+        <div class="flex flex-col my-2">
+          <%= for period <- @suggestions.active do %>
+            <.suggestion type={:active} search={period} />
+          <% end %>
+        </div>
+      <% end %>
+      </div>
       </div>
     </dialog>
     """
@@ -576,6 +611,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
       :name -> "text-emerald-800 bg-emerald-100"
       :tag -> "text-indigo-800 bg-indigo-100"
       :active -> "text-amber-900 bg-amber-100"
+      :capacity -> "text-rose-900 bg-rose-100"
     end
   end
 
