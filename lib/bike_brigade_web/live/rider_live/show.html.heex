@@ -1,0 +1,160 @@
+<%= if @live_action == :edit do %>
+ <UI.slideover show id={:edit} return_to={@return_to} >
+    <:title><%= Atom.to_string(@live_action) |> String.capitalize() %> Rider</:title>
+    <.live_component
+      module={BikeBrigadeWeb.RiderLive.FormComponent}
+      id={@rider.id}
+      action={@live_action}
+      rider={@rider}
+      return_to={@return_to}/>
+  </UI.slideover>
+<% end %>
+<div class="flex-wrap justify-between mt-5 sm:flex sm:flex-nowrap">
+    <div class="mb-5 text-right sm:order-last">
+        <C.button redirect_to={Routes.rider_show_path(@socket, :edit, @rider.id)} color={:white}>Edit</C.button>
+        <C.button redirect_to={Routes.sms_message_index_path(@socket, :show, @rider.id)}>Message</C.button>
+    </div>
+    <div class="text-sm sm:flex">
+        <div class="hidden mb-3 text-center sm:mr-3 sm:block">
+            <img class="inline-block rounded-full h-9 w-9" src="https://www.gravatar.com/avatar/1c8811758d51423ed014c1a7b7a9c35c?s=150&amp;d=identicon" alt="">
+        </div>
+        <div class="">
+            <h1 class="mb-4 text-3xl font-medium leading-none sm:text-4xl"><%= @rider.name %> <small class="text-sm"><%= @rider.pronouns %></small></h1>
+            <p class="flex flex-col justify-start text-sm leading-6 sm:text-base md:flex-row md:items-center">
+                <span><Heroicons.Outline.clipboard_list aria-label="Calendar" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 sm:mr-1" />Signed up on: <%= format_date(@rider.signed_up_on) %></span>
+                <%# TODO: make this a link to the campaign %>
+                <span><Heroicons.Outline.fire aria-label="Fire" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 md:ml-4 sm:mr-1" />Latest activity: <.latest_campaign_info socket={@socket} rider={@rider} /></span>
+            </p>
+            <p class="flex flex-col justify-start text-sm leading-6 sm:text-base md:flex-row md:items-center">
+                <span><Heroicons.Outline.location_marker aria-label="Marker" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 sm:mr-1" /><%= @rider.address %></span>
+                <span><Heroicons.Outline.phone aria-label="Phone" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 md:ml-4 sm:mr-1" /><%= @rider.phone %></span>
+                <span><Heroicons.Outline.mail aria-label="Mail" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 md:ml-4 sm:mr-1" /><%= @rider.email %></span>
+            </p>
+            <p class="flex flex-col justify-start text-sm leading-6 sm:text-base md:flex-row md:items-center">
+                <%# TODO: format tags with links %>
+                <div class="flex"><Heroicons.Outline.tag aria-label="Tag" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 sm:mr-1" />
+                    <%= if Enum.empty?(@rider.tags) do %>
+                     "No tags"
+                    <% else %>
+                    <ul class="flex">
+                        <%= for tag <- @rider.tags do %>
+                            <li class="before:content-[','] first:before:content-['']">
+                                <%= live_redirect tag.name,to: Routes.rider_index_next_path(@socket, :index, %{tags: [tag.name]}), class: "link" %>
+                            </li>
+                            <% end %>
+                        </ul>
+                    <% end %>
+                </div>
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 mt-10 gap-x-4 gap-y-8 sm:grid-cols-12 md:gap-x-6 lg:gap-x-8 lg:gap-y-12">
+    <div class="col-span-12 sm:col-span-6">
+        <h2 class="text-sm font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">
+            Rider stats
+        </h2>
+        <div class="flex flex-wrap my-5 ">
+            <div class="flex-initial px-4 py-3 mb-5 mr-5 bg-white rounded-lg shadow sm:p-6">
+                <dt class="text-xs font-medium text-gray-500 truncate sm:text-sm">
+                    Deliveries
+                </dt>
+                <dd class="mt-1 text-2xl font-semibold text-center text-green-700 sm:text-4xl">
+                    <%= @stats.task_count %>
+                </dd>
+            </div>
+            <div class="flex-initial px-4 py-3 mb-5 mr-5 bg-white rounded-lg shadow sm:p-6">
+                <dt class="text-xs font-medium text-gray-500 truncate sm:text-sm">
+                    Campaigns
+                </dt>
+                <dd class="mt-1 text-2xl font-semibold text-center text-green-700 sm:text-4xl">
+                    <%= @stats.campaign_count %>
+                </dd>
+            </div>
+            <div class="flex-initial px-4 py-3 mb-5 bg-white rounded-lg shadow sm:p-6">
+                <dt class="text-xs font-medium text-gray-500 truncate sm:text-sm">
+                    Distance
+                </dt>
+                <dd class="mt-1 text-2xl font-semibold text-center text-green-700 sm:text-4xl">
+                    <%= round_distance(@stats.total_distance) %> km
+                </dd>
+            </div>
+        </div>
+    </div>
+    <div class="col-span-12 sm:col-span-6">
+        <h2 class="text-sm font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">
+            Location
+        </h2>
+        <div class="p-1 my-5 bg-white rounded-lg shadow">
+            <C.map coords={@rider.location_struct.coords} class="w-full h-32 sm:h-40"/>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 mt-10 gap-x-4 gap-y-8 sm:grid-cols-12 md:gap-x-6 lg:gap-x-8 lg:gap-y-12">
+    <div class="col-span-12 sm:col-span-8">
+        <div class="flex items-end justify-between">
+            <h2 class="text-sm font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">
+                Schedule
+            </h2>
+            <div class="flex">
+                <span class="relative z-0 inline-flex rounded-md shadow-sm">
+                    <button type="button" phx-click="prev-week" class="relative inline-flex items-center px-2 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
+                        <Heroicons.Solid.chevron_left class="w-5 h-5" />
+                    </button>
+                    <button type="button" phx-click="next-week" class="relative inline-flex items-center px-2 py-1 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
+                         <Heroicons.Solid.chevron_right class="w-5 h-5" />
+                    </button>
+                </span>
+            </div>
+        </div>
+        <div class="px-4 py-5 my-5 bg-white rounded-lg shadow sm:p-6">
+            <div class="grid grid-cols-3 gap-4">
+                <%= for {date, campaigns} <- @schedule do %>
+                <div class="px-3 border-r last:border-0">
+                    <h4 class="mb-4 font-bold">
+                        <%= if date == @today, do: "Today", else: format_date(date) %>
+                    </h4>
+                    <%= if !Enum.empty?(campaigns) do %>
+                        <%= for {campaign, task_count} <- campaigns do %>
+                        <div class="mb-3">
+                            <span class="text-sm text-gray-500"><%= time_interval(campaign.delivery_start, campaign.delivery_end) %> </span>
+                            <p class="font-bold leading-snug">
+                                <%= live_redirect campaign.program.name, to: Routes.campaign_show_path(@socket, :show, campaign), class: "link" %>
+                            </p>
+                            <p class="text-gray-900"><%= task_count %> <%= Inflex.inflect("delivery", task_count) %></p>
+                        </div>
+                        <% end %>
+                    <% else %>
+                        <p>None</p>
+                    <% end %>
+                </div>
+                <% end %>
+            </div>
+        </div>
+    </div>
+    <div class="col-span-12 sm:col-span-4">
+        <h2 class="pt-3 text-sm font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">
+            Campaign history
+        </h2>
+        <div class="px-4 py-5 my-5 bg-white rounded-lg shadow sm:p-6">
+            <%= if @rider.program_stats != [] do %>
+            <ul class="list-none">
+                <%= for s <- @rider.program_stats do %>
+                <li class="pb-4 mb-4 border-b last:border-b-0">
+                    <span class="block text-xl font-bold"><%= s.program.name %></span>
+                    <span>
+                        <%= s.campaign_count %> <%= Inflex.inflect("ride", s.campaign_count) %>,
+                        <%= s.task_count %> <%= Inflex.inflect("delivery", s.task_count) %>,
+                        <%= round_distance(s.total_distance) %>km
+                    </span>
+                </li>
+                <% end %>
+            </ul>
+            <% else %>
+            None yet.
+            <% end %>
+        </div>
+    </div>
+</div>

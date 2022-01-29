@@ -1,5 +1,5 @@
 defmodule BikeBrigadeWeb.Components do
-  use Phoenix.Component
+  use BikeBrigadeWeb, :phoenix_component
 
   use Phoenix.HTML
 
@@ -231,6 +231,22 @@ defmodule BikeBrigadeWeb.Components do
         </div>
       </div>
     <% end %>
+    """
+  end
+
+  def map(assigns) do
+    assigns = assign_new(assigns, :class, fn -> "" end)
+    ~H"""
+      <%= if @coords != %Geo.Point{} do %>
+        <div class={@class}>
+          <leaflet-map phx-hook="LeafletMap" id={"location-map-#{inspect(@coords.coordinates)}"} data-lat={ lat(@coords) } data-lng={ lng(@coords) }
+            data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
+            class="h-full">
+            <leaflet-marker phx-hook="LeafletMarker" id={"location-marker-#{inspect(@coords.coordinates)}"} data-lat={ lat(@coords) } data-lng={ lng(@coords) }
+            data-icon="warehouse" data-color="#1c64f2"></leaflet-marker>
+          </leaflet-map>
+        </div>
+      <% end %>
     """
   end
 end

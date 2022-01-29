@@ -41,26 +41,9 @@ defmodule BikeBrigadeWeb.Components.LocationForm do
             </div>
           </div>
         </div>
-        <.map for={@for} />
+        <C.map coords={coords(@for)} class="w-full h-64 mt-2"/>
       </div>
     </div>
-    """
-  end
-
-  defp map(assigns) do
-    assigns = assign(assigns, :coords, coords(assigns.for))
-
-    ~H"""
-      <%= if @coords != %Geo.Point{} do %>
-        <div class="w-full h-64 mt-2 ">
-          <leaflet-map phx-hook="LeafletMap" id={"location-map-#{inspect(@coords.coordinates)}"} data-lat={ lat(@coords) } data-lng={ lng(@coords) }
-            data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
-            class="h-full">
-            <leaflet-marker phx-hook="LeafletMarker" id={"location-marker-#{inspect(@coords.coordinates)}"} data-lat={ lat(@coords) } data-lng={ lng(@coords) }
-            data-icon="warehouse" data-color="#1c64f2"></leaflet-marker>
-          </leaflet-map>
-        </div>
-      <% end %>
     """
   end
 

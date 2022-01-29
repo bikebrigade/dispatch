@@ -88,6 +88,9 @@
                       <C.button size={:xsmall} patch_to={Routes.rider_index_path(@socket, :edit, @selected_rider.id)}>
                         Edit
                       </C.button>
+                      <C.button size={:xsmall} patch_to={Routes.rider_show_path(@socket, :show, @selected_rider.id)}>
+                        More rider info
+                      </C.button>
                     </div>
                   </div>
                   <div class="block">

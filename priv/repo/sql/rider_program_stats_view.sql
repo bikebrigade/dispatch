@@ -1,7 +1,3 @@
-defmodule BikeBrigade.Repo.Migrations.CreateRiderProgramStatsView do
-  use Ecto.Migration
-
-  @view """
   create or replace view rider_program_stats as
   select
     assigned_rider_id as rider_id,
@@ -17,9 +13,3 @@ defmodule BikeBrigade.Repo.Migrations.CreateRiderProgramStatsView do
     campaigns.delivery_start <= NOW()
   group by
     assigned_rider_id, program_id;
-  """
-
-  def change do
-    execute @view, "drop view rider_program_stats;"
-  end
-end

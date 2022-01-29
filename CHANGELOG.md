@@ -1,6 +1,7 @@
-
+# 2022-01-29
+  - Refresh of rider page
 # 2022-01-12
-  - Added emoji keyboard 
+  - Added emoji keyboard
 # 2022-01-13
   - Edit tags for riders
 # 2021-12-06

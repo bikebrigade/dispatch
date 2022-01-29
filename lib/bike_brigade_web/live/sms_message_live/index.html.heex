@@ -91,7 +91,7 @@
       <%# TODO get rid of else when we drop delivery date
       TODO make this look proper %>
         <%= if campaign.delivery_start do %>
-         <%= date(campaign.delivery_start) %>
+         <%= format_date(campaign.delivery_start) %>
          <% else %>
          <%= campaign.delivery_date %>
          <% end %>
