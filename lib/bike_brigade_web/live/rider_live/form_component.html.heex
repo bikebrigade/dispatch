@@ -8,14 +8,6 @@
   phx-change="validate"
   phx-submit="save">
     <div class="mt-2">
-      <%= label f, :tags, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-      Tags
-      <% end %>
-      <.live_component module={BikeBrigadeWeb.RiderLive.TagsComponent} id={:rider_tags} tags={@form.tags} input_name={"#{input_name(f, :tags)}[]"}/>
-
-      <%= error_tag f, :tags %>
-    </div>
-    <div class="mt-2">
       <%= label f, :name, class: "block text-sm font-medium leading-5 text-gray-700" do %>
       Name
       <% end %>
@@ -55,9 +47,14 @@
       <%= error_tag f, :phone %>
     </div>
 
-    <%= for l <- inputs_for(f, :location_struct) do %>
-      <LocationForm.component for={l} label="Rider Location" />
-    <% end %>
+    <div class="mt-2">
+      <%= label f, :tags, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+      Tags
+      <% end %>
+      <.live_component module={BikeBrigadeWeb.RiderLive.TagsComponent} id={:rider_tags} tags={@form.tags} input_name={"#{input_name(f, :tags)}[]"}/>
+
+      <%= error_tag f, :tags %>
+    </div>
 
     <div>
       <%= label f, :capacity, class: "block text-sm font-medium leading-5 text-gray-700" do %>
@@ -68,6 +65,10 @@
       </div>
       <%= error_tag f, :capacity %>
     </div>
+
+    <%= for l <- inputs_for(f, :location_struct) do %>
+      <LocationForm.component for={l} label="Rider Location" />
+    <% end %>
 
     <div class="mt-2">
       <%= label f, :max_distance, class: "block text-sm font-medium leading-5 text-gray-700" do %>
