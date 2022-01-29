@@ -6,7 +6,7 @@ defmodule BikeBrigade.Riders.Rider do
 
   alias BikeBrigade.Location
   alias BikeBrigade.Repo
-  alias BikeBrigade.Riders.{Tag, RidersTag}
+  alias BikeBrigade.Riders.{Tag, RidersTag, RiderLatestCampaign}
   alias BikeBrigade.Delivery.{Task, Campaign, CampaignRider}
   alias BikeBrigade.Stats.{RiderProgramStats, RiderStats}
 
@@ -63,15 +63,14 @@ defmodule BikeBrigade.Riders.Rider do
     field :task_capacity, :integer, virtual: true
     field :task_enter_building, :boolean, virtual: true
     field :delivery_url_token, :string, virtual: true
-
-    field :latest_campaign_id, :integer, virtual: true
-    belongs_to :latest_campaign, Campaign, define_field: false
-
     field :pickup_window, :string, virtual: true
     has_many :assigned_tasks, Task, foreign_key: :assigned_rider_id
     has_many :campaign_riders, CampaignRider
     has_many :campaigns, through: [:campaign_riders, :campaign], preload_order: [:desc, :delivery_start]
     has_one :stats, RiderStats
+    has_one :rider_latest_campaign, RiderLatestCampaign
+    has_one :latest_campaign, through: [:rider_latest_campaign, :campaign]
+
     has_many :program_stats, RiderProgramStats, preload_order: [desc: :campaign_count]
 
     embeds_one :flags, Flags, on_replace: :update

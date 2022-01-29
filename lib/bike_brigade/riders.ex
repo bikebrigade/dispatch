@@ -101,17 +101,6 @@ defmodule BikeBrigade.Riders do
           ["#{sort_order}_nulls_last": dynamic(as(:latest_campaign).delivery_start), asc: :name]
       end
 
-    latest_campaign_query =
-      from c in Campaign,
-        join: cr in assoc(c, :campaign_riders),
-        windows: [riders: [partition_by: cr.rider_id, order_by: [desc: c.delivery_start]]],
-        select: %{
-          rider_id: cr.rider_id,
-          campaign_id: cr.campaign_id,
-          delivery_start: c.delivery_start,
-          row_number: over(row_number(), :riders)
-        }
-
     tags_query =
       from t in Tag,
         join: r in assoc(t, :riders),
@@ -123,11 +112,9 @@ defmodule BikeBrigade.Riders do
         as: :rider,
         left_lateral_join: t in subquery(tags_query),
         as: :tags,
-        left_join: l in subquery(latest_campaign_query),
-        on: l.rider_id == r.id and l.row_number == 1,
+        left_join: l in assoc(r, :latest_campaign),
         as: :latest_campaign,
         where: ^where,
-        select_merge: %{latest_campaign_id: l.campaign_id},
         order_by: ^order_by,
         limit: ^limit,
         offset: ^offset

@@ -9,7 +9,7 @@
         <div class="">
             <h1 class="mb-4 text-3xl font-medium leading-none sm:text-4xl"><%= @rider.name %> <small class="text-sm"><%= @rider.pronouns %></small></h1>
             <p class="flex flex-col justify-start text-sm leading-6 sm:text-base md:flex-row md:items-center">
-                <span><Heroicons.Outline.clipboard_list aria-label="Calendar" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 sm:mr-1" />Signed up on: <%= @rider.signed_up_on %></span>
+                <span><Heroicons.Outline.clipboard_list aria-label="Calendar" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 sm:mr-1" />Signed up on: <%= LocalizedDateTime.format_date(@rider.signed_up_on) %></span>
                 <%# TODO: make this a link to the campaign %>
                 <span><Heroicons.Outline.fire aria-label="Fire" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 md:ml-4 sm:mr-1" />Latest activity: <%= @latest_campaign_info %></span>
             </p>
@@ -38,7 +38,7 @@
                 Deliveries
             </dt>
             <dd class="mt-1 text-2xl font-semibold text-green-700 sm:text-4xl">
-                <%= @rider.stats.task_count %>
+                <%= @stats.task_count %>
             </dd>
         </div>
         <div class="flex-initial px-4 py-3 mb-5 mr-5 bg-white rounded-lg shadow sm:p-6">
@@ -46,7 +46,7 @@
                 Campaigns
             </dt>
             <dd class="mt-1 text-2xl font-semibold text-green-700 sm:text-4xl">
-                  <%= @rider.stats.campaign_count %>
+                  <%= @stats.campaign_count %>
             </dd>
         </div>
         <div class="flex-initial px-4 py-3 mb-5 bg-white rounded-lg shadow sm:p-6">
@@ -54,7 +54,7 @@
                 Distance
             </dt>
             <dd class="mt-1 text-2xl font-semibold text-green-700 sm:text-4xl">
-                <%= round_distance(@rider.stats.total_distance) %> km
+                <%= round_distance(@stats.total_distance) %> km
             </dd>
         </div>
     </div>

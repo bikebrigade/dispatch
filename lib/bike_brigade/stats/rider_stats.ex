@@ -6,12 +6,11 @@ defmodule BikeBrigade.Stats.RiderStats do
 
   @primary_key false
   schema "rider_stats" do
-    field :task_count, :integer
-    field :total_distance, :integer
-    field :campaign_count, :integer
-    field :program_count, :integer
+    field :task_count, :integer, default: 0
+    field :total_distance, :integer, default: 0
+    field :campaign_count, :integer, default: 0
+    field :program_count, :integer, default: 0
 
     belongs_to :rider, Rider
-    belongs_to :latest_campaign, Campaign
   end
 end
