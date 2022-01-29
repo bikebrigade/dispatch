@@ -15,7 +15,7 @@
         <C.button redirect_to={Routes.sms_message_index_path(@socket, :show, @rider.id)}>Message</C.button>
     </div>
     <div class="text-sm sm:flex">
-        <div class="mb-3 text-center sm:mr-3">
+        <div class="hidden mb-3 text-center sm:mr-3 sm:block">
             <img class="inline-block rounded-full h-9 w-9" src="https://www.gravatar.com/avatar/1c8811758d51423ed014c1a7b7a9c35c?s=150&amp;d=identicon" alt="">
         </div>
         <div class="">
@@ -50,34 +50,44 @@
     </div>
 </div>
 
-<div class="mt-10">
-    <h2 class="text-sm font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">
-        Rider stats
-    </h2>
-    <div class="flex flex-wrap my-5 sm:flex-nowrap">
-        <div class="flex-initial px-4 py-3 mb-5 mr-5 bg-white rounded-lg shadow sm:p-6">
-            <dt class="text-xs font-medium text-gray-500 truncate sm:text-sm">
-                Deliveries
-            </dt>
-            <dd class="mt-1 text-2xl font-semibold text-center text-green-700 sm:text-4xl">
-                <%= @stats.task_count %>
-            </dd>
+<div class="grid grid-cols-1 mt-10 gap-x-4 gap-y-8 sm:grid-cols-12 md:gap-x-6 lg:gap-x-8 lg:gap-y-12">
+    <div class="col-span-12 sm:col-span-6">
+        <h2 class="text-sm font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">
+            Rider stats
+        </h2>
+        <div class="flex flex-wrap my-5 ">
+            <div class="flex-initial px-4 py-3 mb-5 mr-5 bg-white rounded-lg shadow sm:p-6">
+                <dt class="text-xs font-medium text-gray-500 truncate sm:text-sm">
+                    Deliveries
+                </dt>
+                <dd class="mt-1 text-2xl font-semibold text-center text-green-700 sm:text-4xl">
+                    <%= @stats.task_count %>
+                </dd>
+            </div>
+            <div class="flex-initial px-4 py-3 mb-5 mr-5 bg-white rounded-lg shadow sm:p-6">
+                <dt class="text-xs font-medium text-gray-500 truncate sm:text-sm">
+                    Campaigns
+                </dt>
+                <dd class="mt-1 text-2xl font-semibold text-center text-green-700 sm:text-4xl">
+                    <%= @stats.campaign_count %>
+                </dd>
+            </div>
+            <div class="flex-initial px-4 py-3 mb-5 bg-white rounded-lg shadow sm:p-6">
+                <dt class="text-xs font-medium text-gray-500 truncate sm:text-sm">
+                    Distance
+                </dt>
+                <dd class="mt-1 text-2xl font-semibold text-center text-green-700 sm:text-4xl">
+                    <%= round_distance(@stats.total_distance) %> km
+                </dd>
+            </div>
         </div>
-        <div class="flex-initial px-4 py-3 mb-5 mr-5 bg-white rounded-lg shadow sm:p-6">
-            <dt class="text-xs font-medium text-gray-500 truncate sm:text-sm">
-                Campaigns
-            </dt>
-            <dd class="mt-1 text-2xl font-semibold text-center text-green-700 sm:text-4xl">
-                  <%= @stats.campaign_count %>
-            </dd>
-        </div>
-        <div class="flex-initial px-4 py-3 mb-5 bg-white rounded-lg shadow sm:p-6">
-            <dt class="text-xs font-medium text-gray-500 truncate sm:text-sm">
-                Distance
-            </dt>
-            <dd class="mt-1 text-2xl font-semibold text-center text-green-700 sm:text-4xl">
-                <%= round_distance(@stats.total_distance) %> km
-            </dd>
+    </div>
+    <div class="col-span-12 sm:col-span-6">
+        <h2 class="text-sm font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">
+            Location
+        </h2>
+        <div class="p-1 my-5 bg-white rounded-lg shadow">
+            <C.map coords={@rider.location_struct.coords} class="w-full h-32 sm:h-40"/>
         </div>
     </div>
 </div>
