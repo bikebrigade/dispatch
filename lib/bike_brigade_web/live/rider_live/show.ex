@@ -17,7 +17,7 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
   end
 
   @impl Phoenix.LiveView
-  def handle_params(%{"id" => id}, _url, socket) do
+  def handle_params(%{"id" => id} = params, _url, socket) do
     rider =
       Riders.get_rider!(id)
       |> Repo.preload([
@@ -43,40 +43,45 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
      |> assign(:rider, rider)
      |> assign(:stats, rider.stats || %RiderStats{})
      |> assign(:today, today)
-     |> assign(:schedule, schedule)}
+     |> assign(:schedule, schedule)
+     |> apply_action(socket.assigns.live_action, params)}
   end
 
   @impl Phoenix.LiveView
-  def handle_event("prev-day", _params, socket) do
-    [{date, _} = s1, s2, _] = socket.assigns.schedule
+  def handle_event("prev-week", _params, socket) do
+    [{date, _}, _, _] = socket.assigns.schedule
 
-    prev = Date.add(date, -1)
+    day1 = Date.add(date, -3)
+    day2 = Date.add(date, -2)
+    day3 = Date.add(date, -1)
 
-    scheudle = [
-      {prev, Riders.list_campaigns_with_task_counts(socket.assigns.rider, prev)},
-      s1,
-      s2
+    schedule = [
+      {day1, Riders.list_campaigns_with_task_counts(socket.assigns.rider, day1)},
+      {day2, Riders.list_campaigns_with_task_counts(socket.assigns.rider, day2)},
+      {day3, Riders.list_campaigns_with_task_counts(socket.assigns.rider, day3)}
     ]
 
     {:noreply,
      socket
-     |> assign(:schedule, scheudle)}
+     |> assign(:schedule, schedule)}
   end
 
-  def handle_event("next-day", _params, socket) do
-    [_, s1, {date, _} = s2] = socket.assigns.schedule
+  def handle_event("next-week", _params, socket) do
+    [_, _, {date, _}] = socket.assigns.schedule
 
-    next = Date.add(date, 1)
+    day1 = Date.add(date, 1)
+    day2 = Date.add(date, 2)
+    day3 = Date.add(date, 3)
 
-    scheudle = [
-      s1,
-      s2,
-      {next, Riders.list_campaigns_with_task_counts(socket.assigns.rider, next)}
+    schedule = [
+      {day1, Riders.list_campaigns_with_task_counts(socket.assigns.rider, day1)},
+      {day2, Riders.list_campaigns_with_task_counts(socket.assigns.rider, day2)},
+      {day3, Riders.list_campaigns_with_task_counts(socket.assigns.rider, day3)}
     ]
 
     {:noreply,
      socket
-     |> assign(:schedule, scheudle)}
+     |> assign(:schedule, schedule)}
   end
 
   defp apply_action(socket, :edit, _) do
@@ -89,7 +94,7 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
   defp latest_campaign_info(assigns) do
     if assigns.rider.latest_campaign do
       ~H"""
-      <%= link @rider.latest_campaign.program.name, to: Routes.campaign_show_path(@socket, :show, @rider.latest_campaign), class: "link" %> on <%= LocalizedDateTime.to_date(@rider.latest_campaign.delivery_start) %>
+      <%= link @rider.latest_campaign.program.name, to: Routes.campaign_show_path(@socket, :show, @rider.latest_campaign), class: "link" %> on <%= format_date(@rider.latest_campaign.delivery_start) %>
       """
     else
       ~H"Nothing (yet!)"
