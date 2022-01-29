@@ -109,7 +109,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
 
   @impl Phoenix.LiveView
   def mount(_params, _session, socket) do
-    sort_options = %SortOptions{field: :name, order: :asc}
+    sort_options = %SortOptions{field: :last_active, order: :desc}
 
     {:ok,
      socket
