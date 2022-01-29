@@ -79,6 +79,13 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
      |> assign(:schedule, scheudle)}
   end
 
+  defp apply_action(socket, :edit, _) do
+    socket
+    |> assign(:return_to, Routes.rider_show_path(socket, :show, socket.assigns.rider))
+  end
+
+  defp apply_action(socket, _, _), do: socket
+
   defp latest_campaign_info(assigns) do
     if assigns.rider.latest_campaign do
       ~H"""
