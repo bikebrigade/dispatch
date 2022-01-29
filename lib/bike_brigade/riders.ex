@@ -5,9 +5,10 @@ defmodule BikeBrigade.Riders do
 
   import Ecto.Query, warn: false
   alias BikeBrigade.Repo
+  alias BikeBrigade.LocalizedDateTime
 
   alias BikeBrigade.Riders.{Rider, Tag}
-  alias BikeBrigade.Delivery.{Campaign, CampaignRider}
+  alias BikeBrigade.Delivery.{Campaign, CampaignRider, Task}
 
   alias BikeBrigade.EctoPhoneNumber
 
@@ -89,7 +90,10 @@ defmodule BikeBrigade.Riders do
           dynamic(^query and is_nil(as(:latest_campaign).id))
 
         {:active, period}, query ->
-          dynamic(^query and as(:latest_campaign).delivery_start < ^DateTime.utc_now() and as(:latest_campaign).delivery_start > ago(1, ^period))
+          dynamic(
+            ^query and as(:latest_campaign).delivery_start < ^DateTime.utc_now() and
+              as(:latest_campaign).delivery_start > ago(1, ^period)
+          )
       end)
 
     order_by =
@@ -135,8 +139,6 @@ defmodule BikeBrigade.Riders do
       end
 
     {riders, total}
-
-
   end
 
   @doc """
@@ -194,6 +196,36 @@ defmodule BikeBrigade.Riders do
       {:ok, phone} -> Repo.get_by(Rider, phone: phone)
       {:error, _err} -> nil
     end
+  end
+
+  def list_campaigns_with_task_counts(rider, date \\ nil) do
+    where =
+      if date do
+        start_of_day = LocalizedDateTime.new!(date, ~T[00:00:00])
+        end_of_day = LocalizedDateTime.new!(date, ~T[23:59:59])
+
+        dynamic(
+          as(:campaign).delivery_start >= ^start_of_day and
+            as(:campaign).delivery_start <= ^end_of_day
+        )
+      else
+        true
+      end
+
+    query =
+      from c in Campaign,
+        as: :campaign,
+        join: r in assoc(c, :riders),
+        where: r.id == ^rider.id,
+        left_join: t in assoc(c, :tasks),
+        on: t.assigned_rider_id == ^rider.id,
+        group_by: c.id,
+        order_by: [asc: c.delivery_start],
+        where: ^where,
+        preload: [:program],
+        select: {c, count(t)}
+
+    Repo.all(query)
   end
 
   @doc """

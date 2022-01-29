@@ -11,7 +11,7 @@
             <p class="flex flex-col justify-start text-sm leading-6 sm:text-base md:flex-row md:items-center">
                 <span><Heroicons.Outline.clipboard_list aria-label="Calendar" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 sm:mr-1" />Signed up on: <%= LocalizedDateTime.format_date(@rider.signed_up_on) %></span>
                 <%# TODO: make this a link to the campaign %>
-                <span><Heroicons.Outline.fire aria-label="Fire" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 md:ml-4 sm:mr-1" />Latest activity: <%= @latest_campaign_info %></span>
+                <span><Heroicons.Outline.fire aria-label="Fire" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 md:ml-4 sm:mr-1" />Latest activity: <.latest_campaign_info socket={@socket} rider={@rider} /></span>
             </p>
             <p class="flex flex-col justify-start text-sm leading-6 sm:text-base md:flex-row md:items-center">
                 <span><Heroicons.Outline.location_marker aria-label="Marker" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 sm:mr-1" /><%= @rider.address %></span>
@@ -20,9 +20,19 @@
             </p>
             <p class="flex flex-col justify-start text-sm leading-6 sm:text-base md:flex-row md:items-center">
                 <%# TODO: format tags with links %>
-                <span><Heroicons.Outline.tag aria-label="Tag" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 sm:mr-1" />
-                    <%= if Enum.empty?(@rider.tags), do: "No tags", else: Enum.map(@rider.tags, & &1.name) |> Enum.join(", ") %>
-                </span>
+                <div class="flex"><Heroicons.Outline.tag aria-label="Tag" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 sm:mr-1" />
+                    <%= if Enum.empty?(@rider.tags) do %>
+                     "No tags"
+                    <% else %>
+                    <ul class="flex">
+                        <%= for tag <- @rider.tags do %>
+                            <li class="before:content-[','] first:before:content-['']">
+                                <%= live_redirect tag.name,to: Routes.rider_index_next_path(@socket, :index, %{tags: [tag.name]}), class: "link" %>
+                            </li>
+                            <% end %>
+                        </ul>
+                    <% end %>
+                </div>
             </p>
         </div>
     </div>
@@ -68,43 +78,37 @@
             </h2>
             <div class="flex">
                 <span class="relative z-0 inline-flex rounded-md shadow-sm">
-                    <button type="button" phx-click="prev-week" class="relative inline-flex items-center px-2 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-                        <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                        </svg>
-
+                    <button type="button" phx-click="prev-day" class="relative inline-flex items-center px-2 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
+                        <Heroicons.Solid.chevron_left class="w-5 h-5" />
                     </button>
-                    <button type="button" phx-click="next-week" class="relative inline-flex items-center px-2 py-1 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-                        </svg>
+                    <button type="button" phx-click="next-day" class="relative inline-flex items-center px-2 py-1 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
+                         <Heroicons.Solid.chevron_right class="w-5 h-5" />
                     </button>
                 </span>
             </div>
         </div>
         <div class="px-4 py-5 my-5 bg-white rounded-lg shadow sm:p-6">
             <div class="grid grid-cols-3 gap-4">
-                <div class="px-3 border-r">
-                    <h4 class="mb-4 font-bold">Nov 8</h4>
-                    <p>N/A</p>
+                <%= for {date, campaigns} <- @schedule do %>
+                <div class="px-3 border-r last:border-0">
+                    <h4 class="mb-4 font-bold">
+                        <%= if date == @today, do: "Today", else: Calendar.strftime(date,  "%b %-d, %Y") %>
+                    </h4>
+                    <%= if !Enum.empty?(campaigns) do %>
+                        <%= for {campaign, task_count} <- campaigns do %>
+                        <div class="mb-3">
+                            <span class="text-sm text-gray-500">2:00PM</span>
+                            <p class="font-bold leading-snug">
+                                <%= live_redirect campaign.program.name, to: Routes.campaign_show_path(@socket, :show, campaign), class: "link" %>
+                            </p>
+                            <p class="text-gray-900"><%= task_count %> <%= Inflex.inflect("delivery", task_count) %></p>
+                        </div>
+                        <% end %>
+                    <% else %>
+                        <p>None</p>
+                    <% end %>
                 </div>
-                <div class="px-3 border-r">
-                    <h4 class="mb-4 font-bold">Today</h4>
-                    <div class="mb-3">
-                        <span class="text-sm text-gray-500">2:00PM</span>
-                        <p class="font-bold leading-snug"><a class="link" href="#">Foodshare</a></p>
-                        <p class="text-gray-900">2 deliveries</p>
-                    </div>
-                    <div class="mb-3">
-                        <span class="text-sm text-gray-500">4:00PM</span>
-                        <p class="font-bold leading-snug"><a class="link" href="#">Parkdale Community Foodbank</a></p>
-                        <p class="text-gray-900">1 delivery</p>
-                    </div>
-                </div>
-                <div class="px-3 ">
-                    <h4 class="mb-4 font-bold">Tomorrow</h4>
-                    <p>Nothing yet!</p>
-                </div>
+                <% end %>
             </div>
         </div>
     </div>

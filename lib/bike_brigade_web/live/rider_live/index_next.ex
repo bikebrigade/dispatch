@@ -91,11 +91,12 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
 
         [search] ->
           tags =
-           if String.length(search) < 3 do
-            Riders.list_tags()
-           else
-            Riders.search_tags(search)
-           end |> Enum.map(& &1.name)
+            if String.length(search) < 3 do
+              Riders.list_tags()
+            else
+              Riders.search_tags(search)
+            end
+            |> Enum.map(& &1.name)
 
           %{suggestions | name: [search], tags: tags, active: @actives}
 
@@ -118,8 +119,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
      |> assign(:search, "")
      |> assign(:queries, [])
      |> assign(:suggestions, %Suggestions{})
-     |> assign(:show_suggestions, false)
-     |> fetch_riders(total: true)}
+     |> assign(:show_suggestions, false)}
   end
 
   @impl Phoenix.LiveView
@@ -127,8 +127,14 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
     {:noreply, apply_action(socket, socket.assigns.live_action, params)}
   end
 
-  defp apply_action(socket, :index, _params) do
+  defp apply_action(socket, :index, params) do
+    queries =
+      Map.get(params, "tags", [])
+      |> Enum.map(fn tag -> {:tag, tag} end)
+
     socket
+    |> assign(:queries, queries)
+    |> fetch_riders(total: true)
   end
 
   defp apply_action(socket, :message, _params) do
