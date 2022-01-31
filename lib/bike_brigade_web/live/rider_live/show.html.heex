@@ -40,7 +40,7 @@
                     <ul class="flex">
                         <%= for tag <- @rider.tags do %>
                             <span class="before:content-[','] first:before:content-['']">
-                                <%= live_redirect tag.name, to: Routes.rider_index_next_path(@socket, :index, %{tags: [tag.name]}), class: "link" %>
+                                <%= live_redirect tag.name, to: Routes.rider_index_next_path(@socket, :index, %{tag: [tag.name]}), class: "link" %>
                             </span>
                             <% end %>
                         </ul>
