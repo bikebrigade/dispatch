@@ -61,6 +61,14 @@ if config_env() == :prod do
       config :bike_brigade, BikeBrigadeWeb.Endpoint,
         url: [host: "dispatch.bikebrigade.ca", port: 80]
 
+      config :bike_brigade, BikeBrigade.Messaging.Slack.Operations,
+        chanel_id: "C016VGHETS4",
+        channel_name: "software"
+
+      config :bike_brigade, BikeBrigade.Messaging.Slack.RiderSms,
+        chanel_id: "C01QU0YVACW",
+        channel_name: "dispatch"
+
       # Honeybadger
       config :honeybadger,
         app: :bike_brigade,
@@ -99,13 +107,21 @@ if config_env() == :prod do
         ]
 
       config :bike_brigade, :sms_service, block_non_dispatch_messages: true
+
+      config :bike_brigade, BikeBrigade.Messaging.Slack.Operations,
+        chanel_id: "C022R3HU9B9",
+        channel_name: "api-playground"
+
+      config :bike_brigade, BikeBrigade.Messaging.Slack.RiderSms,
+        chanel_id: "C022R3HU9B9",
+        channel_name: "api-playground"
   end
 
   # Google
   config :bike_brigade, BikeBrigade.Google, credentials: System.fetch_env!("GOOGLE_SERVICE_JSON")
 
   # Slack
-  config :bike_brigade, :slack, webhook_url: System.fetch_env!("SLACK_WEBHOOK_URL")
+  config :bike_brigade, :slack, token: System.fetch_env!("SLACK_OAUTH_TOKEN")
 
   # Geocoding
   config :lib_lat_lon, :provider, LibLatLon.Providers.GoogleMaps

@@ -2,7 +2,8 @@ defmodule BikeBrigadeWeb.Webhooks.Twilio do
   use BikeBrigadeWeb, :controller
 
   alias BikeBrigade.Messaging
-  alias BikeBrigade.Messaging.{SlackWebhook, GoogleDriveUpload}
+  alias BikeBrigade.Messaging.GoogleDriveUpload
+  alias BikeBrigade.Messaging.Slack.RiderSms
   alias BikeBrigade.Riders
   alias BikeBrigade.SmsService
 
@@ -41,7 +42,7 @@ defmodule BikeBrigadeWeb.Webhooks.Twilio do
     msg = %{msg | rider: rider}
 
     if rider do
-      Task.start(SlackWebhook, :post_message, [msg])
+      Task.start(RiderSms, :post_message!, [msg])
       Task.start(GoogleDriveUpload, :upload_media, [msg])
     end
 

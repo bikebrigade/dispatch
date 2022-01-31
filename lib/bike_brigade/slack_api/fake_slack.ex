@@ -5,7 +5,7 @@ defmodule BikeBrigade.SlackApi.FakeSlack do
 
   alias __MODULE__, as: State
 
-  defstruct [:url, calls: []]
+  defstruct [:token, calls: []]
 
   @behaviour BikeBrigade.SlackApi
 
@@ -17,8 +17,8 @@ defmodule BikeBrigade.SlackApi.FakeSlack do
         name -> [name: name]
       end
 
-    expected_url = Application.get_env(:bike_brigade, :slack) |> Keyword.fetch!(:webhook_url)
-    state = %State{url: expected_url}
+    expected_token = BikeBrigade.Utils.fetch_env!(:slack, :token)
+    state = %State{token: expected_token}
     GenServer.start_link(__MODULE__, state, opts)
   end
 

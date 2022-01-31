@@ -5,7 +5,7 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
   alias BikeBrigade.Location
   alias BikeBrigade.Importers.Importer
   alias BikeBrigade.Riders
-  alias BikeBrigade.Messaging.SlackWebhook
+  alias BikeBrigade.Messaging.Slack
   alias BikeBrigade.MailchimpApi
 
   @importer_name "mailchimp"
@@ -94,14 +94,14 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
       We had trouble with the address for #{rider.name}. Please edit manually: #{BikeBrigadeWeb.Router.Helpers.rider_index_url(BikeBrigadeWeb.Endpoint, :edit, rider.id)}, and don't forget to remove the `invalid_location` tag!
     """
 
-    Task.start(SlackWebhook, :post_message, [error_message])
+    Task.start(Slack.Operations, :post_message!, [error_message])
   end
 
   def notify_import_error(member, error) do
     error_message =
       "An error ocurred when importing #{member.email_address} #{Kernel.inspect(error)}"
 
-    Task.start(SlackWebhook, :post_message, [error_message])
+    Task.start(Slack.Operations, :post_message!, [error_message])
   end
 
   def parse_mailchimp_attrs(member) do

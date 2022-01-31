@@ -34,7 +34,7 @@ config :honeybadger,
 config :goth, disabled: true
 
 config :bike_brigade, :slack,
-  webhook_url: System.get_env("SLACK_WEBHOOK_URL", "http://example.com/slack-webhook-url"),
+  token: "token",
   adapter: BikeBrigade.SlackApi.FakeSlack
 
 config :bike_brigade, :sms_service,

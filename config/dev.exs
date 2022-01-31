@@ -90,15 +90,15 @@ config :honeybadger,
 config :bike_brigade, BikeBrigade.Messaging, phone_number: {:system, "PHONE_NUMBER"}
 config :bike_brigade, BikeBrigade.AuthenticationMessenger, phone_number: {:system, "PHONE_NUMBER"}
 
-case System.get_env("SLACK_WEBHOOK_URL") do
+case System.get_env("SLACK_OAUTH_TOKEN") do
   nil ->
     config :bike_brigade, :slack,
-      webhook_url: "http://example.com/fake-slack-api",
+      token: "token",
       adapter: BikeBrigade.SlackApi.FakeSlack
 
-  url ->
+  token ->
     config :bike_brigade, :slack,
-      webhook_url: url,
+      token: token,
       adapter: BikeBrigade.SlackApi.Http
 end
 

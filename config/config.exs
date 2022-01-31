@@ -79,6 +79,15 @@ config :bike_brigade, BikeBrigade.AuthenticationMessenger, phone_number: {:syste
 # Config our google clients
 config :bike_brigade, BikeBrigade.GoogleMaps, api_key: {:system, "GOOGLE_MAPS_API_KEY"}
 
+# Set slack channel IDs for messaging
+config :bike_brigade, BikeBrigade.Messaging.Slack.Operations,
+   chanel_id: "C022R3HU9B9",
+   channel_name: "api-playground"
+
+config :bike_brigade, BikeBrigade.Messaging.Slack.RiderSms,
+   chanel_id: "C022R3HU9B9",
+   channel_name: "api-playground"
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
