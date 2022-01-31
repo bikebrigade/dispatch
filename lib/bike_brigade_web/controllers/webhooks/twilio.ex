@@ -41,7 +41,7 @@ defmodule BikeBrigadeWeb.Webhooks.Twilio do
     msg = %{msg | rider: rider}
 
     if rider do
-      Task.start(Slack.RiderSms, :post_message, [msg])
+      Task.start(Slack.RiderSms, :post_message!, [msg])
       Task.start(GoogleDriveUpload, :upload_media, [msg])
     end
 

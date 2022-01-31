@@ -6,8 +6,8 @@ defmodule BikeBrigade.Messaging.SlackTest do
   alias BikeBrigade.Messaging.Slack.Operations
 
   describe "RiderSms" do
-    test "post_message posts expected payload to Slack" do
-      assert :ok == RiderSms.post_message("hello")
+    test "post_message! posts expected payload to Slack" do
+      assert :ok == RiderSms.post_message!("hello")
 
       call = FakeSlack.get_last_call()
       payload = body(call)
@@ -16,8 +16,8 @@ defmodule BikeBrigade.Messaging.SlackTest do
   end
 
   describe "Operations" do
-    test "post_message posts expected payload to Slack" do
-      assert :ok == Operations.post_message("hello")
+    test "post_message! posts expected payload to Slack" do
+      assert :ok == Operations.post_message!("hello")
 
       call = FakeSlack.get_last_call()
       payload = body(call)

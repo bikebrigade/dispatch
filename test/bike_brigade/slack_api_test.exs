@@ -5,7 +5,7 @@ defmodule BikeBrigade.SlackApiTest do
   alias BikeBrigade.SlackApi.FakeSlack
 
   test "calls include the expected headers" do
-    :ok = SlackApi.post_message("some message")
+    :ok = SlackApi.post_message!("some message")
 
     call = FakeSlack.get_last_call()
 

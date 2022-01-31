@@ -21,7 +21,7 @@ defmodule BikeBrigade.SlackApi do
     end
   end
 
-  def post_message(body) do
+  def post_message!(body) do
     headers = [auth_header() | @headers]
     @slack.post!(@url, body, headers)
   end
