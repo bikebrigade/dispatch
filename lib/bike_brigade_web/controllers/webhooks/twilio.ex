@@ -2,7 +2,8 @@ defmodule BikeBrigadeWeb.Webhooks.Twilio do
   use BikeBrigadeWeb, :controller
 
   alias BikeBrigade.Messaging
-  alias BikeBrigade.Messaging.{Slack.RiderSms, GoogleDriveUpload}
+  BikeBrigade.Messaging.GoogleDriveUpload
+  BikeBrigade.Messaging.Slack.RiderSms
   alias BikeBrigade.Riders
   alias BikeBrigade.SmsService
 
