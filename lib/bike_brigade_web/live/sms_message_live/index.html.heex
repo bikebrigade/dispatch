@@ -3,7 +3,8 @@
     <:title><%= @page_title %></:title>
     <.live_component
       module={BikeBrigadeWeb.SmsMessageLive.FormComponent}
-      id={:new} />
+      id={:new}
+      current_user={@current_user}/>
   </UI.modal>
 <% end %>
 <div class="flex flex-wrap h-full max-h-full min-h-0 -mx-3">
