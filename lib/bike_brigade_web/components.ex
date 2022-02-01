@@ -4,6 +4,7 @@ defmodule BikeBrigadeWeb.Components do
   use Phoenix.HTML
 
   alias BikeBrigade.LocalizedDateTime
+  alias BikeBrigade.QueryContext
   alias BikeBrigadeWeb.Components.Icons
 
   def date(assigns) do
@@ -247,6 +248,43 @@ defmodule BikeBrigadeWeb.Components do
           </leaflet-map>
         </div>
       <% end %>
+    """
+  end
+
+  def sort_link(%{field: field, context: %QueryContext{sort: sort}} = assigns) do
+    next = fn
+      :asc -> :desc
+      :desc -> :asc
+    end
+
+    assigns =
+      if sort.field == field do
+        # This field selected
+        assign(assigns,
+          icon_class: "w-5 h-5 text-gray-500 hover:text-gray-700",
+          order: sort.order,
+          next: next.(sort.order)
+        )
+      else
+        # Another field selected
+        assign(assigns,
+          icon_class: "w-5 h-5 text-gray-300 hover:text-gray-700",
+          order: :desc,
+          next: :desc
+        )
+      end
+
+    assigns =
+      assign(
+        assigns,
+        :attrs,
+        assigns_to_attributes(assigns, [:context, :field, :order, :icon_class, :next])
+      )
+
+    ~H"""
+    <button type="button" phx-value-field={@field} phx-value-order={@next} {@attrs}>
+      <Icons.sort order={@order} class={@icon_class}/>
+    </button>
     """
   end
 end

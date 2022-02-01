@@ -4,58 +4,11 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
   alias Phoenix.LiveView.JS
 
   alias BikeBrigade.Repo
+  alias BikeBrigade.QueryContext
   alias BikeBrigade.Riders
   alias BikeBrigade.LocalizedDateTime
 
   alias BikeBrigadeWeb.Components.Icons
-
-  defmodule SortOptions do
-    # This is a streamlined version of the one from leaderboard.ex
-    # Deciding if we need all the ecto stuff here
-
-    defstruct [:field, :order, offset: 0, limit: 20]
-
-    def to_tuple(%__MODULE__{field: field, order: order, offset: offset, limit: limit}) do
-      {order, field, offset, limit}
-    end
-
-    def link(%{field: field, sort_options: sort_options} = assigns) do
-      assigns =
-        case sort_options do
-          %{field: ^field, order: order} ->
-            # This field selected
-            assign(assigns,
-              icon_class: "w-5 h-5 text-gray-500 hover:text-gray-700",
-              order: order,
-              next: next(order)
-            )
-
-          _ ->
-            # Another field selected
-            assign(assigns,
-              icon_class: "w-5 h-5 text-gray-300 hover:text-gray-700",
-              order: :desc,
-              next: :desc
-            )
-        end
-
-      assigns =
-        assign(
-          assigns,
-          :attrs,
-          assigns_to_attributes(assigns, [:sort_options, :field, :order, :icon_class, :next])
-        )
-
-      ~H"""
-      <button type="button" phx-value-field={@field} phx-value-order={@next} {@attrs}>
-        <Icons.sort order={@order} class={@icon_class}/>
-      </button>
-      """
-    end
-
-    defp next(:desc), do: :asc
-    defp next(:asc), do: :desc
-  end
 
   defmodule Suggestions do
     @actives ~w(hour day week month year)
@@ -116,15 +69,17 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
     end
   end
 
+  @query_ctx QueryContext.new(:last_active, :desc, 20)
+
   @impl Phoenix.LiveView
   def mount(_params, _session, socket) do
-    sort_options = %SortOptions{field: :last_active, order: :desc}
+    query_ctx = @query_ctx
 
     {:ok,
      socket
      |> assign(:page, :riders)
      |> assign(:selected, MapSet.new())
-     |> assign(:sort_options, sort_options)
+     |> assign(:query_ctx, query_ctx)
      |> assign(:search, "")
      |> assign(:queries, [])
      |> assign(:suggestions, %Suggestions{})
@@ -273,31 +228,36 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
   def handle_event("sort", %{"field" => field, "order" => order}, socket) do
     field = String.to_existing_atom(field)
     order = String.to_existing_atom(order)
-    sort_options = %SortOptions{field: field, order: order}
+
+    query_ctx =
+      socket.assigns.query_ctx
+      |> QueryContext.sort(field, order)
 
     {:noreply,
      socket
-     |> assign(:sort_options, sort_options)
+     |> assign(:query_ctx, query_ctx)
      |> fetch_riders()}
   end
 
   def handle_event("next-page", _params, socket) do
-    sort_options = socket.assigns.sort_options
-    sort_options = %{sort_options | offset: sort_options.offset + sort_options.limit}
+    query_ctx =
+      socket.assigns.query_ctx
+      |> QueryContext.next_page()
 
     {:noreply,
      socket
-     |> assign(:sort_options, sort_options)
+     |> assign(:query_ctx, query_ctx)
      |> fetch_riders()}
   end
 
   def handle_event("prev-page", _params, socket) do
-    sort_options = socket.assigns.sort_options
-    sort_options = %{sort_options | offset: sort_options.offset - sort_options.limit}
+    query_ctx =
+      socket.assigns.query_ctx
+      |> QueryContext.prev_page()
 
     {:noreply,
      socket
-     |> assign(:sort_options, sort_options)
+     |> assign(:query_ctx, query_ctx)
      |> fetch_riders()}
   end
 
@@ -337,20 +297,17 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
   end
 
   defp fetch_riders(socket, search_opts \\ []) do
-    sort = SortOptions.to_tuple(socket.assigns.sort_options)
-
     {socket, riders} =
       if Keyword.get(search_opts, :repaginate) do
-        {riders, total} = Riders.search_riders_next(socket.assigns.queries, sort, total: true)
+        {riders, total} = Riders.search_riders_next(socket.assigns.queries, socket.assigns.query_ctx, total: true)
 
         socket =
           socket
           |> assign(:total, total)
-          |> assign(:sort_options, %{socket.assigns.sort_options | offset: 0})
 
         {socket, riders}
       else
-        {riders, nil} = Riders.search_riders_next(socket.assigns.queries, sort)
+        {riders, nil} = Riders.search_riders_next(socket.assigns.queries,  socket.assigns.query_ctx)
         {socket, riders}
       end
 
@@ -420,7 +377,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
         <:th padding="px-3">
           <div class="inline-flex">
             Name
-            <SortOptions.link phx-click="sort" field={:name} sort_options={@sort_options} class="pl-2" />
+            <C.sort_link phx-click="sort" field={:name} context={@query_ctx} class="pl-2" />
           </div>
         </:th>
         <:th>
@@ -432,13 +389,13 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
         <:th>
           <div class="inline-flex">
             Capacity
-            <SortOptions.link phx-click="sort" field={:capacity} sort_options={@sort_options} class="pl-2"/>
+            <C.sort_link phx-click="sort" field={:capacity} context={@query_ctx} class="pl-2"/>
           </div>
         </:th>
         <:th>
           <div class="inline-flex">
             Last Active
-            <SortOptions.link phx-click="sort" field={:last_active} sort_options={@sort_options} class="pl-2"/>
+            <C.sort_link phx-click="sort" field={:last_active} context={@query_ctx} class="pl-2"/>
           </div>
         </:th>
 
@@ -485,11 +442,11 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
               <p class="text-sm text-gray-700">
                 Showing
                 <span class="font-medium">
-                  <%= @sort_options.offset + 1 %>
+                  <%= @query_ctx.pager.offset + 1 %>
                 </span>
                 to
                 <span class="font-medium">
-                  <%= @sort_options.offset + Enum.count(@riders) %>
+                  <%= @query_ctx.pager.offset + Enum.count(@riders) %>
                 </span>
                 of
                 <span class="font-medium">
@@ -499,13 +456,13 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
               </p>
             </div>
             <div class="flex justify-between flex-1 sm:justify-end">
-              <%= if @sort_options.offset > 0 do %>
+              <%= if @query_ctx.pager.offset > 0 do %>
                 <C.button phx-click="prev-page" color={:white}>
                   Previous
                 </C.button>
               <% end %>
 
-              <%= if @sort_options.offset + @sort_options.limit < @total do %>
+              <%= if @query_ctx.pager.offset + @query_ctx.pager.offset < @total do %>
                 <C.button phx-click="next-page" color={:white} class="ml-3">
                   Next
                 </C.button>

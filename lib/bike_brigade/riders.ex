@@ -5,6 +5,7 @@ defmodule BikeBrigade.Riders do
 
   import Ecto.Query, warn: false
   alias BikeBrigade.Repo
+  alias BikeBrigade.QueryContext
   alias BikeBrigade.LocalizedDateTime
 
   alias BikeBrigade.Riders.{Rider, Tag}
@@ -70,10 +71,9 @@ defmodule BikeBrigade.Riders do
 
   def search_riders_next(
         queries \\ [],
-        {sort_order, sort_field, offset, limit} \\ {:desc, :name, 0, 20},
+        %QueryContext{sort: sort, pager: pager},
         options \\ [total: false]
-      )
-      when sort_order in [:desc, :asc] do
+      ) do
     where =
       queries
       |> Enum.reduce(dynamic(true), fn
@@ -99,15 +99,15 @@ defmodule BikeBrigade.Riders do
       end)
 
     order_by =
-      case sort_field do
+      case sort.field do
         :name ->
-          [{sort_order, sort_field}]
+          [{sort.order, sort.field}]
 
         :capacity ->
-          [{sort_order, sort_field}]
+          [{sort.order, sort.field}]
 
         :last_active ->
-          ["#{sort_order}_nulls_last": dynamic(as(:latest_campaign).delivery_start), asc: :name]
+          ["#{sort.order}_nulls_last": dynamic(as(:latest_campaign).delivery_start), asc: :name]
       end
 
     tags_query =
@@ -125,8 +125,8 @@ defmodule BikeBrigade.Riders do
         as: :latest_campaign,
         where: ^where,
         order_by: ^order_by,
-        limit: ^limit,
-        offset: ^offset
+        limit: ^pager.limit,
+        offset: ^pager.offset
 
     riders = Repo.all(query)
 
