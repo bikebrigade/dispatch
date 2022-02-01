@@ -29,8 +29,8 @@ defmodule BikeBrigade.MixProject do
   end
 
   # Specifies which paths to compile per environment.
-  defp elixirc_paths(:test), do: ["lib", "test/support", "priv/repo/seeds"]
-  defp elixirc_paths(:dev), do: ["lib", "priv/repo/seeds"]
+  defp elixirc_paths(:test), do: ["lib", "test/support", "priv/repo"]
+  defp elixirc_paths(:dev), do: ["lib", "priv/repo"]
   defp elixirc_paths(_), do: ["lib"]
 
   # Specifies your project dependencies.
