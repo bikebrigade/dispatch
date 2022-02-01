@@ -18,16 +18,25 @@
       </div>
     <% end %>
   </div>
-  <.form let={f} for={@changeset},  id="campaign_message-form" phx-target={@myself} phx-change="preview"
-    autocomplete="off" phx-submit="save">
+  <.form
+    let={f}
+    for={@changeset}
+    id="campaign_message-form"
+    phx-target={@myself}
+    phx-change="preview"
+    phx-submit="save"
+    autocomplete="off">
   <div class="flex flex-row mt-2 space-x-3">
     <div class="w-1/2">
-      <%= label f, :body, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-        Text Message 
-        <C.button id="emoji-button" phx-hook="EmojiButtonHook" data-input-id={input_id(f, :instructions_template_body)} type="button" color={:white} size={:xxsmall}>
-            <Heroicons.Outline.emoji_happy aria-label="Emoji Picker" class="h-3.5 w-3.5 m-0.5 text-gray-400" />
-        </C.button>
-      <% end %>
+      <div class="flex items-end justify-between">
+        <%= label f, :body, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+          Text Message
+          <C.button id="emoji-button" phx-hook="EmojiButtonHook" data-input-id={input_id(f, :instructions_template_body)} type="button" color={:white} size={:xxsmall}>
+              <Heroicons.Outline.emoji_happy aria-label="Emoji Picker" class="h-3.5 w-3.5 m-0.5 text-gray-400" />
+          </C.button>
+        <% end %>
+        <.message_length_indicator length={@message_length} />
+      </div>
       <%= for instructions_template_form <- inputs_for(f, :instructions_template) do %>
         <%= hidden_inputs_for(instructions_template_form) %>
         <div class="mt-1 rounded-md shadow-sm">
@@ -83,15 +92,15 @@
                 Pick up
               </h3>
               <div class="inline-flex flex-shrink-0 leading-normal">
-                <Heroicons.Outline.clock aria-label="Pickup Time" class="w-4 h-4 mr-1 mt-1 text-gray-800" />
+                <Heroicons.Outline.clock aria-label="Pickup Time" class="w-4 h-4 mt-1 mr-1 text-gray-800" />
                 <%= CampaignHelpers.pickup_window(@campaign, @selected_rider) %>
               </div>
               <div class="inline-flex flex-shrink-0 leading-normal">
-                <Heroicons.Outline.location_marker aria-label="Pickup Address" class="w-4 h-4 mr-1 mt-1 text-gray-800" />
+                <Heroicons.Outline.location_marker aria-label="Pickup Address" class="w-4 h-4 mt-1 mr-1 text-gray-800" />
                 <%= @campaign.location.address %>
               </div>
               <div class="inline-flex leading-normal">
-                <Heroicons.Outline.shopping_bag class="w-4 h-4 mr-1 mt-1 ext-gray-800 flex-shrink-0 " />
+                <Heroicons.Outline.shopping_bag class="flex-shrink-0 w-4 h-4 mt-1 mr-1 ext-gray-800 " />
                 <%= humanized_task_count(@selected_rider.assigned_tasks) %>
               </div>
             </div>
