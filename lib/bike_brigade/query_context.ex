@@ -13,9 +13,12 @@ defmodule BikeBrigade.QueryContext do
   built on top of Ecto
   """
 
-  defstruct [:sort, :pager]
+  defstruct [:sort, :pager, :filters]
 
-  @type t :: %QueryContext{sort: Sort.t(), pager: Pager.t() | nil}
+  @type t :: %QueryContext{sort: Sort.t(), pager: Pager.t() | nil, filters: list(filter())}
+  @type filter :: {filter_kind(), filter_query()}
+  @type filter_kind :: atom()
+  @type filter_query :: any()
 
   defmodule Sort do
     defstruct [:field, :order]
@@ -35,14 +38,15 @@ defmodule BikeBrigade.QueryContext do
 
   @spec new(Sort.field(), Sort.order()) :: QueryContext.t()
   def new(sort_field, sort_order) do
-    %QueryContext{sort: %Sort{field: sort_field, order: sort_order}, pager: nil}
+    %QueryContext{sort: %Sort{field: sort_field, order: sort_order}, pager: nil, filters: []}
   end
 
   @spec new(Sort.field(), Sort.order(), Pager.limit()) :: QueryContext.t()
   def new(sort_field, sort_order, limit) do
     %QueryContext{
       sort: %Sort{field: sort_field, order: sort_order},
-      pager: %Pager{offset: 0, limit: limit}
+      pager: %Pager{offset: 0, limit: limit},
+      filters: []
     }
   end
 
@@ -69,5 +73,20 @@ defmodule BikeBrigade.QueryContext do
 
   def prev_page(%QueryContext{pager: pager} = ctx) do
     %{ctx | pager: %{pager | offset: max(0, pager.offset - pager.limit)}}
+  end
+
+  @spec add_filter(QueryContext.t(), filter()) :: QueryContext.t()
+  def add_filter(ctx, filter) do
+    %{ctx | filters: ctx.filters ++ [filter]}
+  end
+
+  @spec set_filters(QueryContext.t(), list(filter())) :: QueryContext.t()
+  def set_filters(ctx, filters) do
+    %{ctx | filters: filters}
+  end
+
+  @spec clear_filters(QueryContext.t()) :: QueryContext.t()
+  def clear_filters(ctx) do
+    %{ctx | filters: []}
   end
 end

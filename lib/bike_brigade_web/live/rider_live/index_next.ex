@@ -73,15 +73,11 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
 
   @impl Phoenix.LiveView
   def mount(_params, _session, socket) do
-    query_ctx = @query_ctx
-
     {:ok,
      socket
      |> assign(:page, :riders)
      |> assign(:selected, MapSet.new())
-     |> assign(:query_ctx, query_ctx)
      |> assign(:search, "")
-     |> assign(:queries, [])
      |> assign(:suggestions, %Suggestions{})
      |> assign(:show_suggestions, false)}
   end
@@ -92,16 +88,22 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
   end
 
   defp apply_action(socket, :index, params) do
-    tag_queries =
-      Map.get(params, "tag", [])
-      |> Enum.map(fn tag -> {:tag, tag} end)
+    filters =
+      for query <-
+            Map.get(params, "tag", []) do
+        {:tag, query}
+      end ++
+        for query <-
+              Map.get(params, "capacity", []) do
+          {:capacity, query}
+        end
 
-    capacity_queries =
-      Map.get(params, "capacity", [])
-      |> Enum.map(fn tag -> {:capacity, tag} end)
+    query_ctx =
+      @query_ctx
+      |> QueryContext.set_filters(filters)
 
     socket
-    |> assign(:queries, tag_queries ++ capacity_queries)
+    |> assign(:query_ctx, query_ctx)
     |> fetch_riders(repaginate: true)
   end
 
@@ -118,13 +120,13 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
   @impl Phoenix.LiveView
 
   def handle_event("search", %{"value" => search}, socket) do
-    query = parse_search(search)
+    filter = parse_filter(search)
 
     {:noreply,
      socket
-     |> assign(:queries, socket.assigns.queries ++ query)
      |> clear_search()
      |> clear_selected()
+     |> assign(:query_ctx, QueryContext.add_filter(socket.assigns.query_ctx, filter))
      |> fetch_riders(repaginate: true)}
   end
 
@@ -137,9 +139,9 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
   def handle_event("clear-queries", _params, socket) do
     {:noreply,
      socket
-     |> assign(:queries, [])
      |> clear_search()
      |> clear_selected()
+     |> assign(:query_ctx, QueryContext.clear_filters(socket.assigns.query_ctx))
      |> fetch_riders(repaginate: true)}
   end
 
@@ -159,9 +161,13 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
   def handle_event("remove-query", %{"index" => i}, socket) do
     i = String.to_integer(i)
 
+    filters =
+      socket.assigns.query_ctx.filters
+      |> List.delete_at(i)
+
     {:noreply,
      socket
-     |> assign(:queries, List.delete_at(socket.assigns.queries, i))
+     |> update(:query_ctx, &QueryContext.set_filters(&1, filters))
      |> fetch_riders(repaginate: true)}
   end
 
@@ -261,18 +267,18 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
      |> fetch_riders()}
   end
 
-  defp parse_search(search) do
-    with [type, query] <- String.split(search, ":", parts: 2) do
+  defp parse_filter(search) do
+    with [kind, query] <- String.split(search, ":", parts: 2) do
       query = String.trim(query)
 
-      case type do
-        "name" -> [name: query]
-        "tag" -> [tag: query]
-        "active" -> [active: query]
-        "capacity" -> [capacity: query]
+      case kind do
+        "name" -> {:name, query}
+        "tag" -> {:tag, query}
+        "active" -> {:active, query}
+        "capacity" -> {:capacity, query}
       end
     else
-      [query] -> [name: String.trim(query)]
+      [query] -> {:name, String.trim(query)}
     end
   end
 
@@ -299,7 +305,8 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
   defp fetch_riders(socket, search_opts \\ []) do
     {socket, riders} =
       if Keyword.get(search_opts, :repaginate) do
-        {riders, total} = Riders.search_riders_next(socket.assigns.queries, socket.assigns.query_ctx, total: true)
+        {riders, total} =
+          Riders.search_riders_next(socket.assigns.query_ctx, total: true)
 
         socket =
           socket
@@ -307,7 +314,9 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
 
         {socket, riders}
       else
-        {riders, nil} = Riders.search_riders_next(socket.assigns.queries,  socket.assigns.query_ctx)
+        {riders, nil} =
+          Riders.search_riders_next(socket.assigns.query_ctx)
+
         {socket, riders}
       end
 
@@ -344,7 +353,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
           <form id="rider-search" phx-change="suggest" phx-submit="search"}
             phx-click-away="clear-search">
             <div class="relative flex items-baseline w-full px-1 py-0 bg-white border border-gray-300 rounded-md shadow-sm sm:text-sm focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500">
-              <.query_list queries={@queries} />
+              <.query_list queries={@query_ctx.filters} />
               <input type="text"
                 id="rider-search-input"
                 name="value"
@@ -353,7 +362,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
                 class="w-full placeholder-gray-400 border-transparent appearance-none focus:border-transparent outline-transparent ring-transparent focus:ring-0"
                 placeholder="Name, tag, capacity, last active"
                 tabindex="1"/>
-                <%= if @queries != [] do %>
+                <%= if @query_ctx.filters != [] do %>
                     <button type="button" phx-click="clear-queries" class="absolute right-1 text-gray-400 rounded-md top-2.5 hover:text-gray-500">
                       <span class="sr-only">Clear Search</span>
                       <Heroicons.Outline.x class="w-6 h-6" />

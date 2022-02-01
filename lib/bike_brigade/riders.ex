@@ -70,12 +70,11 @@ defmodule BikeBrigade.Riders do
   end
 
   def search_riders_next(
-        queries \\ [],
-        %QueryContext{sort: sort, pager: pager},
+        %QueryContext{filters: filters, sort: sort, pager: pager},
         options \\ [total: false]
       ) do
     where =
-      queries
+      filters
       |> Enum.reduce(dynamic(true), fn
         {:name, search}, query ->
           dynamic(

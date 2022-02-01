@@ -7,12 +7,14 @@ defmodule BikeBrigade.QueryContextTest do
   test "new" do
     assert QueryContext.new(:foo, :desc) == %QueryContext{
              sort: %Sort{field: :foo, order: :desc},
-             pager: nil
+             pager: nil,
+             filters: []
            }
 
     assert QueryContext.new(:bar, :asc, 20) == %QueryContext{
              sort: %Sort{field: :bar, order: :asc},
-             pager: %Pager{offset: 0, limit: 20}
+             pager: %Pager{offset: 0, limit: 20},
+             filters: []
            }
   end
 
@@ -54,5 +56,37 @@ defmodule BikeBrigade.QueryContextTest do
 
       assert %{pager: nil} = unpaged_ctx |> QueryContext.prev_page()
     end
+  end
+
+  describe "filters" do
+    setup do
+      %{ctx: QueryContext.new(:foo, :desc)}
+    end
+
+    test "add_filter/3", %{ctx: ctx} do
+      assert %{filters: [{:foo, "hello"}]} = ctx |> QueryContext.add_filter({:foo, "hello"})
+
+      assert %{filters: [{:foo, "hello"}, {:bar, "world"}]} =
+               ctx
+               |> QueryContext.add_filter({:foo, "hello"})
+               |> QueryContext.add_filter({:bar, "world"})
+    end
+
+    test "set_filters/2", %{ctx: ctx} do
+      assert %{filters: [{:bar, "world"}, {:baz, "!!"}]} =
+               ctx
+               |> QueryContext.add_filter({:foo, "hello"})
+               |> QueryContext.set_filters([{:bar, "world"}, {:baz, "!!"}])
+    end
+
+    test "clear_filters/1", %{ctx: ctx} do
+      assert %{filters: []} =
+               ctx
+               |> QueryContext.add_filter({:foo, "hello"})
+               |> QueryContext.add_filter({:bar, "world"})
+               |> QueryContext.clear_filters()
+    end
+
+
   end
 end
