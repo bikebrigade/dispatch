@@ -15,7 +15,7 @@ from
       ) as row_number
     from
       campaigns_riders
-      inner join campaigns on campaigns_riders.campaign_id = campaigns.id
+      inner join campaigns on campaigns_riders.campaign_id = campaigns.id and campaigns.delivery_start < NOW()
   ) as result
 where
   row_number = 1;
