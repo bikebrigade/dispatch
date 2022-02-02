@@ -2,7 +2,7 @@ defmodule BikeBrigade.Stats.RiderStats do
   use BikeBrigade.Schema
 
   alias BikeBrigade.Riders.Rider
-  alias BikeBrigade.Delivery.Campaign
+  alias BikeBrigade.Delivery.Program
 
   @primary_key false
   schema "rider_stats" do
@@ -12,5 +12,6 @@ defmodule BikeBrigade.Stats.RiderStats do
     field :program_count, :integer, default: 0
 
     belongs_to :rider, Rider
+    belongs_to :program, Program
   end
 end

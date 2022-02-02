@@ -8,18 +8,26 @@ defmodule BikeBrigade.Riders.Rider do
   alias BikeBrigade.Repo
   alias BikeBrigade.Riders.{Tag, RidersTag, RiderLatestCampaign}
   alias BikeBrigade.Delivery.{Task, Campaign, CampaignRider}
-  alias BikeBrigade.Stats.{RiderProgramStats, RiderStats}
+  alias BikeBrigade.Stats.RiderStats
 
-  defenum OnfleetAccountStatusEnum, invited: "invited", accepted: "accepted"
-  defenum MailchimpStatusEnum, subscribed: "subscribed", unsubscribed: "unsubscribed", cleaned: "cleaned", pending: "pending", transactional: "transactional"
-  defenum CapacityEnum, small: 1, medium: 4, large: 9
+  defenum(OnfleetAccountStatusEnum, invited: "invited", accepted: "accepted")
+
+  defenum(MailchimpStatusEnum,
+    subscribed: "subscribed",
+    unsubscribed: "unsubscribed",
+    cleaned: "cleaned",
+    pending: "pending",
+    transactional: "transactional"
+  )
+
+  defenum(CapacityEnum, small: 1, medium: 4, large: 9)
 
   defmodule Flags do
     use BikeBrigade.Schema
     import Ecto.Changeset
 
     @primary_key false
-    embedded_schema  do
+    embedded_schema do
       field :opt_in_to_new_number, :boolean, default: true
       field :initial_message_sent, :boolean, default: false
     end
@@ -32,13 +40,18 @@ defmodule BikeBrigade.Riders.Rider do
   end
 
   schema "riders" do
-    field :address, :string # remove
-    field :address2, :string # remove
+    # remove
+    field :address, :string
+    # remove
+    field :address2, :string
     field :availability, :map
     field :capacity, CapacityEnum
-    field :city, :string # remove
-    field :country, :string # remove
-    field :deliveries_completed, :integer # remove
+    # remove
+    field :city, :string
+    # remove
+    field :country, :string
+    # remove
+    field :deliveries_completed, :integer
     field :email, :string
     field :location, Geo.PostGIS.Geometry
     field :mailchimp_id, :string
@@ -48,13 +61,14 @@ defmodule BikeBrigade.Riders.Rider do
     field :onfleet_id, :string
     field :onfleet_account_status, OnfleetAccountStatusEnum
     field :phone, BikeBrigade.EctoPhoneNumber.Canadian
-    field :postal, :string # remove
+    # remove
+    field :postal, :string
     field :pronouns, :string
-    field :province, :string # remove
+    # remove
+    field :province, :string
     field :signed_up_on, :utc_datetime
     field :last_safety_check, :date
     embeds_one :location_struct, Location, on_replace: :delete
-
 
     field :distance, :integer, virtual: true
     field :remaining_distance, :integer, virtual: true
@@ -66,12 +80,19 @@ defmodule BikeBrigade.Riders.Rider do
     field :pickup_window, :string, virtual: true
     has_many :assigned_tasks, Task, foreign_key: :assigned_rider_id
     has_many :campaign_riders, CampaignRider
-    has_many :campaigns, through: [:campaign_riders, :campaign], preload_order: [:desc, :delivery_start]
-    has_one :stats, RiderStats
+
+    has_many :campaigns,
+      through: [:campaign_riders, :campaign],
+      preload_order: [:desc, :delivery_start]
+
     has_one :rider_latest_campaign, RiderLatestCampaign
     has_one :latest_campaign, through: [:rider_latest_campaign, :campaign]
 
-    has_many :program_stats, RiderProgramStats, preload_order: [desc: :campaign_count]
+    has_one :total_stats, RiderStats, where: [program_id: nil]
+
+    has_many :program_stats, RiderStats,
+      where: [program_id: {:not, nil}],
+      preload_order: [desc: :campaign_count]
 
     embeds_one :flags, Flags, on_replace: :update
 
@@ -84,12 +105,42 @@ defmodule BikeBrigade.Riders.Rider do
   @doc false
   def changeset(rider, attrs) do
     rider
-    |> cast(attrs, [:name, :email, :address, :address2, :city, :deliveries_completed, :location, :province, :postal, :country, :onfleet_id, :onfleet_account_status, :phone, :pronouns, :availability, :capacity, :max_distance, :signed_up_on, :mailchimp_id, :mailchimp_status, :last_safety_check])
+    |> cast(attrs, [
+      :name,
+      :email,
+      :address,
+      :address2,
+      :city,
+      :deliveries_completed,
+      :location,
+      :province,
+      :postal,
+      :country,
+      :onfleet_id,
+      :onfleet_account_status,
+      :phone,
+      :pronouns,
+      :availability,
+      :capacity,
+      :max_distance,
+      :signed_up_on,
+      :mailchimp_id,
+      :mailchimp_status,
+      :last_safety_check
+    ])
     |> cast_embed(:flags)
     |> cast_embed(:location_struct)
     |> update_change(:email, &String.downcase/1)
-    |> validate_required([:name, :email, :phone, :availability, :capacity, :max_distance, :location_struct])
-    |> validate_change(:email, fn :email, email  ->
+    |> validate_required([
+      :name,
+      :email,
+      :phone,
+      :availability,
+      :capacity,
+      :max_distance,
+      :location_struct
+    ])
+    |> validate_change(:email, fn :email, email ->
       if String.contains?(email, "@") do
         []
       else
@@ -108,7 +159,7 @@ defmodule BikeBrigade.Riders.Rider do
 
   def set_signed_up_on(%Ecto.Changeset{} = changeset) do
     case fetch_field(changeset, :signed_up_on) do
-      {_, signed_up_on} when not is_nil(signed_up_on)-> changeset
+      {_, signed_up_on} when not is_nil(signed_up_on) -> changeset
       _ -> put_change(changeset, :signed_up_on, DateTime.utc_now() |> DateTime.truncate(:second))
     end
   end
