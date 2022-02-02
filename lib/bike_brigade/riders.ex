@@ -5,7 +5,6 @@ defmodule BikeBrigade.Riders do
 
   import Ecto.Query, warn: false
   alias BikeBrigade.Repo
-  alias BikeBrigade.QueryContext
   alias BikeBrigade.LocalizedDateTime
 
   alias BikeBrigade.Riders.{Rider, Tag}
@@ -45,6 +44,7 @@ defmodule BikeBrigade.Riders do
     |> Repo.all()
   end
 
+  @deprecated
   def search_riders(search \\ "", limit \\ 100) do
     name_search = dynamic([r], ilike(r.name, ^"%#{search}%"))
     email_search = dynamic([r], ilike(r.email, ^"%#{search}%"))
@@ -67,82 +67,6 @@ defmodule BikeBrigade.Riders do
         order_by: [desc: count(cr.id)]
 
     Repo.all(query)
-  end
-
-  def search_riders_next(
-        %QueryContext{filters: filters, sort: sort, pager: pager},
-        options \\ [total: false]
-      ) do
-    where =
-      filters
-      |> Enum.reduce(dynamic(true), fn
-        {:name, search}, query ->
-          dynamic(
-            ^query and
-              (ilike(as(:rider).name, ^"#{search}%") or ilike(as(:rider).name, ^"% #{search}%"))
-          )
-
-        {:tag, tag}, query ->
-          dynamic(^query and fragment("? = ANY(?)", ^tag, as(:tags).tags))
-
-        {:capacity, capacity}, query ->
-          # TODO this may be easier with Ecto.Enum instead of EctoEnum
-          {:ok, capacity} = Rider.CapacityEnum.dump(capacity)
-          dynamic(^query and as(:rider).capacity == ^capacity)
-
-        {:active, :never}, query ->
-          dynamic(^query and is_nil(as(:latest_campaign).id))
-
-        {:active, period}, query ->
-          dynamic(^query and as(:latest_campaign).delivery_start > ago(1, ^period))
-      end)
-
-    order_by =
-      case sort.field do
-        :name ->
-          [{sort.order, sort.field}]
-
-        :capacity ->
-          [{sort.order, sort.field}]
-
-        :last_active ->
-          ["#{sort.order}_nulls_last": dynamic(as(:latest_campaign).delivery_start), asc: :name]
-      end
-
-    tags_query =
-      from t in Tag,
-        join: r in assoc(t, :riders),
-        where: r.id == parent_as(:rider).id,
-        select: %{tags: fragment("array_agg(?)", t.name)}
-
-    query =
-      from r in Rider,
-        as: :rider,
-        left_lateral_join: t in subquery(tags_query),
-        as: :tags,
-        left_join: l in assoc(r, :latest_campaign),
-        as: :latest_campaign,
-        where: ^where,
-        order_by: ^order_by,
-        limit: ^pager.limit,
-        offset: ^pager.offset
-
-    riders = Repo.all(query)
-
-    # some half-baked pagination
-    total =
-      if Keyword.get(options, :total) do
-        query
-        |> exclude(:preload)
-        |> exclude(:order_by)
-        |> exclude(:select)
-        |> exclude(:limit)
-        |> exclude(:offset)
-        |> select(count())
-        |> Repo.one()
-      end
-
-    {riders, total}
   end
 
   @doc """

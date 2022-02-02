@@ -6,6 +6,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
   alias BikeBrigade.Repo
   alias BikeBrigade.QueryContext
   alias BikeBrigade.Riders
+  alias BikeBrigade.Riders.Queries.SearchQuery
   alias BikeBrigade.LocalizedDateTime
 
   alias BikeBrigadeWeb.Components.Icons
@@ -306,7 +307,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
     {socket, riders} =
       if Keyword.get(search_opts, :repaginate) do
         {riders, total} =
-          Riders.search_riders_next(socket.assigns.query_ctx, total: true)
+          SearchQuery.run(socket.assigns.query_ctx, total: true)
 
         socket =
           socket
@@ -315,7 +316,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
         {socket, riders}
       else
         {riders, nil} =
-          Riders.search_riders_next(socket.assigns.query_ctx)
+          SearchQuery.run(socket.assigns.query_ctx)
 
         {socket, riders}
       end
