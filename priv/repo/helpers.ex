@@ -5,7 +5,7 @@ defmodule BikeBrigade.Repo.Helpers do
   # Be careful about changing this as migrations depend on it.
   require Logger
 
-  def load_sql(filename) do
+  def load_sql(filename, reverse \\ nil) do
     path =
       Path.join([
         :code.priv_dir(:bike_brigade),
@@ -16,7 +16,11 @@ defmodule BikeBrigade.Repo.Helpers do
 
     case File.read(path) do
       {:ok, sql} ->
-        Ecto.Migration.execute(sql)
+        if reverse do
+          Ecto.Migration.execute(sql, reverse)
+        else
+          Ecto.Migration.execute(sql)
+        end
 
       {:error, err} ->
         Logger.warn(
