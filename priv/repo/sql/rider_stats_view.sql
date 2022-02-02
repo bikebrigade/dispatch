@@ -14,7 +14,4 @@ where
   tasks.assigned_rider_id IS NOT NULL
   and campaigns.delivery_start <= NOW()
 group by
-  grouping sets (
-    (assigned_rider_id),
-    (assigned_rider_id, program_id)
-  )
+  ROLLUP(assigned_rider_id, program_id)
