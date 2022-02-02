@@ -78,7 +78,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
      socket
      |> assign(:page, :riders)
      |> assign(:selected, MapSet.new())
-     |> assign(:search, "")
+     |> assign(:input, "")
      |> assign(:suggestions, %Suggestions{})
      |> assign(:show_suggestions, false)}
   end
@@ -90,13 +90,13 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
 
   defp apply_action(socket, :index, params) do
     filters =
-      for query <-
+      for filter <-
             Map.get(params, "tag", []) do
-        {:tag, query}
+        {:tag, filter}
       end ++
-        for query <-
+        for filter <-
               Map.get(params, "capacity", []) do
-          {:capacity, query}
+          {:capacity, filter}
         end
 
     query_ctx =
@@ -120,29 +120,29 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
 
   @impl Phoenix.LiveView
 
-  def handle_event("search", %{"value" => search}, socket) do
-    filter = parse_filter(search)
+  def handle_event("filter", %{"value" => filter}, socket) do
+    filter = parse_filter(filter)
 
     {:noreply,
      socket
-     |> clear_search()
+     |> clear_input()
      |> clear_selected()
      |> assign(:query_ctx, QueryContext.add_filter(socket.assigns.query_ctx, filter))
      |> fetch_riders(repaginate: true)}
   end
 
-  def handle_event("clear-search", _params, socket) do
+  def handle_event("clear-input", _params, socket) do
     {:noreply,
      socket
-     |> clear_search()}
+     |> clear_input()}
   end
 
-  def handle_event("clear-queries", _params, socket) do
+  def handle_event("clear-filters", _params, socket) do
     {:noreply,
      socket
-     |> clear_search()
+     |> clear_input()
      |> clear_selected()
-     |> assign(:query_ctx, QueryContext.clear_filters(socket.assigns.query_ctx))
+     |> update(:query_ctx, &QueryContext.clear_filters/1)
      |> fetch_riders(repaginate: true)}
   end
 
@@ -159,7 +159,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
      )}
   end
 
-  def handle_event("remove-query", %{"index" => i}, socket) do
+  def handle_event("remove-filter", %{"index" => i}, socket) do
     i = String.to_integer(i)
 
     filters =
@@ -247,53 +247,45 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
   end
 
   def handle_event("next-page", _params, socket) do
-    query_ctx =
-      socket.assigns.query_ctx
-      |> QueryContext.next_page()
-
     {:noreply,
      socket
-     |> assign(:query_ctx, query_ctx)
+     |> update(:query_ctx, &QueryContext.next_page/1)
      |> fetch_riders()}
   end
 
   def handle_event("prev-page", _params, socket) do
-    query_ctx =
-      socket.assigns.query_ctx
-      |> QueryContext.prev_page()
-
     {:noreply,
      socket
-     |> assign(:query_ctx, query_ctx)
+     |> update(:query_ctx, &QueryContext.prev_page/1)
      |> fetch_riders()}
   end
 
   defp parse_filter(search) do
-    with [kind, query] <- String.split(search, ":", parts: 2) do
-      query = String.trim(query)
+    with [kind, filter] <- String.split(search, ":", parts: 2) do
+      filter = String.trim(filter)
 
       case kind do
-        "name" -> {:name, query}
-        "tag" -> {:tag, query}
-        "active" -> {:active, query}
-        "capacity" -> {:capacity, query}
+        "name" -> {:name, filter}
+        "tag" -> {:tag, filter}
+        "active" -> {:active, filter}
+        "capacity" -> {:capacity, filter}
       end
     else
-      [query] -> {:name, String.trim(query)}
+      [filter] -> {:name, String.trim(filter)}
     end
   end
 
-  defp display_search(search) do
-    case String.split(search, ":", parts: 2) do
-      [query] -> query
-      ["name", query] -> query
-      [_type, _query] -> search
+  defp display_filter(filter) do
+    case String.split(filter, ":", parts: 2) do
+      [filter] -> filter
+      ["name", filter] -> filter
+      [_type, _query] -> filter
     end
   end
 
-  defp clear_search(socket) do
+  defp clear_input(socket) do
     socket
-    |> assign(:search, "")
+    |> assign(:input, "")
     |> assign(:suggestions, %Suggestions{})
     |> assign(:show_suggestions, false)
   end
@@ -306,8 +298,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
   defp fetch_riders(socket, search_opts \\ []) do
     {socket, riders} =
       if Keyword.get(search_opts, :repaginate) do
-        {riders, total} =
-          SearchQuery.run(socket.assigns.query_ctx, total: true)
+        {riders, total} = SearchQuery.run(socket.assigns.query_ctx, total: true)
 
         socket =
           socket
@@ -315,8 +306,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
 
         {socket, riders}
       else
-        {riders, nil} =
-          SearchQuery.run(socket.assigns.query_ctx)
+        {riders, nil} = SearchQuery.run(socket.assigns.query_ctx)
 
         {socket, riders}
       end
@@ -351,21 +341,21 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
       <% end %>
       <div class="flex items-baseline justify-between ">
         <div class="relative flex flex-col w-2/3">
-          <form id="rider-search" phx-change="suggest" phx-submit="search"}
-            phx-click-away="clear-search">
+          <form id="rider-search" phx-change="suggest" phx-submit="filter"}
+            phx-click-away="clear-input">
             <div class="relative flex items-baseline w-full px-1 py-0 bg-white border border-gray-300 rounded-md shadow-sm sm:text-sm focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500">
-              <.query_list queries={@query_ctx.filters} />
+              <.query_list filters={@query_ctx.filters} />
               <input type="text"
                 id="rider-search-input"
                 name="value"
-                value={display_search(@search)}
+                value={display_filter(@input)}
                 autocomplete="off"
                 class="w-full placeholder-gray-400 border-transparent appearance-none focus:border-transparent outline-transparent ring-transparent focus:ring-0"
                 placeholder="Name, tag, capacity, last active"
                 tabindex="1"/>
                 <%= if @query_ctx.filters != [] do %>
-                    <button type="button" phx-click="clear-queries" class="absolute right-1 text-gray-400 rounded-md top-2.5 hover:text-gray-500">
-                      <span class="sr-only">Clear Search</span>
+                    <button type="button" phx-click="clear-filters" class="absolute right-1 text-gray-400 rounded-md top-2.5 hover:text-gray-500">
+                      <span class="sr-only">Clear Filters</span>
                       <Heroicons.Outline.x class="w-6 h-6" />
                     </button>
                 <% end %>
@@ -427,7 +417,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
           <ul class="flex">
             <%= for tag <- rider.tags do %>
             <li class="before:content-[','] first:before:content-['']">
-              <button type="button" phx-click="search" value={"tag:#{tag.name}"}}
+              <button type="button" phx-click="filter" value={"tag:#{tag.name}"}}
                 class="link">
                 <%= tag.name %>
               </button>
@@ -436,7 +426,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
           </ul>
         </:td>
         <:td let={rider}>
-          <button type="button" phx-click="search" value={"capacity:#{rider.capacity}"}}
+          <button type="button" phx-click="filter" value={"capacity:#{rider.capacity}"}}
           class="link">
             <%= rider.capacity %>
           </button>
@@ -490,7 +480,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
     <dialog id="suggestion-list2"
       open={@open}
       class="absolute w-full p-2 mt-0 overflow-y-auto bg-white border rounded shadow-xl top-100 max-h-fit"
-      phx-window-keydown="clear-search" phx-key="escape">
+      phx-window-keydown="clear-input" phx-key="escape">
       <p class="text-sm text-gray-500">Press Tab to cycle suggestions</p>
       <div class="grid grid-cols-2 gap-1">
       <div>
@@ -499,7 +489,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
           Name
         </h3>
         <div class="flex flex-col my-2">
-          <.suggestion type={:name} search={@suggestions.name} />
+          <.suggestion type={:name} filter={@suggestions.name} />
         </div>
       <% end %>
       <%= if @suggestions.tags != [] do %>
@@ -508,7 +498,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
         </h3>
         <div class="flex flex-col my-2">
           <%= for tag <- @suggestions.tags do %>
-            <.suggestion type={:tag} search={tag} />
+            <.suggestion type={:tag} filter={tag} />
           <% end %>
         </div>
       <% end %>
@@ -520,7 +510,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
         </h3>
         <div class="flex flex-col my-2">
           <%= for capacity <- @suggestions.capacity do %>
-            <.suggestion type={:capacity} search={capacity} />
+            <.suggestion type={:capacity} filter={capacity} />
           <% end %>
         </div>
       <% end %>
@@ -530,7 +520,7 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
         </h3>
         <div class="flex flex-col my-2">
           <%= for period <- @suggestions.active do %>
-            <.suggestion type={:active} search={period} />
+            <.suggestion type={:active} filter={period} />
           <% end %>
         </div>
       <% end %>
@@ -542,16 +532,16 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
 
   defp suggestion(assigns) do
     ~H"""
-    <div id={"#{@type}-#{@search}"} class="px-1 py-0.5 rounded-md focus-within:bg-gray-100">
-      <button type="button" phx-click="search" value={"#{@type}:#{@search}"}
+    <div id={"#{@type}-#{@filter}"} class="px-1 py-0.5 rounded-md focus-within:bg-gray-100">
+      <button type="button" phx-click="filter" value={"#{@type}:#{@filter}"}
         class="block ml-1 transition duration-150 ease-in-out w-fit hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
         tabindex="1"
-        phx-focus={JS.push("choose", value: %{"choose" => "#{@type}:#{@search}"})}>
+        phx-focus={JS.push("choose", value: %{"choose" => "#{@type}:#{@filter}"})}>
         <p class={"px-2.5 py-1.5 rounded-md text-md font-medium #{color(@type)}"}>
           <%= if @type == :name do %>
-            "<%= @search %>"<span class="ml-1 text-sm">in name</span>
+            "<%= @filter %>"<span class="ml-1 text-sm">in name</span>
           <% else %>
-            <span class="mr-0.5 text-sm"><%= @type %>:</span><%= @search %>
+            <span class="mr-0.5 text-sm"><%= @type %>:</span><%= @filter %>
           <% end %>
         </p>
       </button>
@@ -561,12 +551,12 @@ defmodule BikeBrigadeWeb.RiderLive.IndexNext do
 
   defp query_list(assigns) do
     ~H"""
-    <%= if @queries != [] do %>
+    <%= if @filters != [] do %>
       <div class="flex flex-wrap space-x-0.5 max-w-xs">
-        <%= for {{type, search}, i} <- Enum.with_index(@queries) do %>
+        <%= for {{type, search}, i} <- Enum.with_index(@filters) do %>
           <div class={"my-0.5 inline-flex items-center px-2.5 py-1.5 rounded-md text-md font-medium #{color(type)}"}>
             <span class="text-700 mr-0.5 font-base"><%= type %>:</span><%= search %>
-            <Heroicons.Outline.x_circle class="w-5 h-5 ml-1 cursor-pointer" phx-click="remove-query" phx-value-index={i} />
+            <Heroicons.Outline.x_circle class="w-5 h-5 ml-1 cursor-pointer" phx-click="remove-filter" phx-value-index={i} />
           </div>
         <% end  %>
       </div>
