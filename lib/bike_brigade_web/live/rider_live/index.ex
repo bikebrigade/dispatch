@@ -5,9 +5,8 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
 
   alias BikeBrigade.Repo
   alias BikeBrigade.Riders
+  alias BikeBrigade.Riders.RiderSearch
   alias BikeBrigade.LocalizedDateTime
-
-  alias BikeBrigadeWeb.Components.Icons
 
   defmodule SortOptions do
     # This is a streamlined version of the one from leaderboard.ex
@@ -18,43 +17,6 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     def to_tuple(%__MODULE__{field: field, order: order, offset: offset, limit: limit}) do
       {order, field, offset, limit}
     end
-
-    def link(%{field: field, sort_options: sort_options} = assigns) do
-      assigns =
-        case sort_options do
-          %{field: ^field, order: order} ->
-            # This field selected
-            assign(assigns,
-              icon_class: "w-5 h-5 text-gray-500 hover:text-gray-700",
-              order: order,
-              next: next(order)
-            )
-
-          _ ->
-            # Another field selected
-            assign(assigns,
-              icon_class: "w-5 h-5 text-gray-300 hover:text-gray-700",
-              order: :desc,
-              next: :desc
-            )
-        end
-
-      assigns =
-        assign(
-          assigns,
-          :attrs,
-          assigns_to_attributes(assigns, [:sort_options, :field, :order, :icon_class, :next])
-        )
-
-      ~H"""
-      <button type="button" phx-value-field={@field} phx-value-order={@next} {@attrs}>
-        <Icons.sort order={@order} class={@icon_class}/>
-      </button>
-      """
-    end
-
-    defp next(:desc), do: :asc
-    defp next(:asc), do: :desc
   end
 
   defmodule Suggestions do
@@ -118,15 +80,11 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
 
   @impl Phoenix.LiveView
   def mount(_params, _session, socket) do
-    sort_options = %SortOptions{field: :last_active, order: :desc}
-
     {:ok,
      socket
      |> assign(:page, :riders)
      |> assign(:selected, MapSet.new())
-     |> assign(:sort_options, sort_options)
      |> assign(:search, "")
-     |> assign(:queries, [])
      |> assign(:suggestions, %Suggestions{})
      |> assign(:show_suggestions, false)}
   end
@@ -137,17 +95,26 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   end
 
   defp apply_action(socket, :index, params) do
-    tag_queries =
+    tag_filters =
       Map.get(params, "tag", [])
       |> Enum.map(fn tag -> {:tag, tag} end)
 
-    capacity_queries =
+    capacity_filters =
       Map.get(params, "capacity", [])
       |> Enum.map(fn tag -> {:capacity, tag} end)
 
+    rider_search =
+      RiderSearch.new(
+        sort_field: :last_active,
+        sort_order: :desc,
+        limit: 20,
+        filters: tag_filters ++ capacity_filters,
+        preload: [:tags, :latest_campaign]
+      )
+
     socket
-    |> assign(:queries, tag_queries ++ capacity_queries)
-    |> fetch_riders(repaginate: true)
+    |> assign(:rider_search, rider_search)
+    |> remove_selected_riders()
   end
 
   defp apply_action(socket, :message, _params) do
@@ -162,15 +129,14 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
 
   @impl Phoenix.LiveView
 
-  def handle_event("search", %{"value" => search}, socket) do
-    query = parse_search(search)
+  def handle_event("filter", %{"value" => search}, socket) do
+    filter = parse_filter(search)
 
     {:noreply,
      socket
-     |> assign(:queries, socket.assigns.queries ++ query)
+     |> update(:rider_search, &RiderSearch.filter(&1, &1.filters ++ filter))
      |> clear_search()
-     |> clear_selected()
-     |> fetch_riders(repaginate: true)}
+     |> clear_selected()}
   end
 
   def handle_event("clear-search", _params, socket) do
@@ -179,13 +145,12 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
      |> clear_search()}
   end
 
-  def handle_event("clear-queries", _params, socket) do
+  def handle_event("clear-filters", _params, socket) do
     {:noreply,
      socket
-     |> assign(:queries, [])
+     |> update(:rider_search, &RiderSearch.filter(&1, []))
      |> clear_search()
-     |> clear_selected()
-     |> fetch_riders(repaginate: true)}
+     |> clear_selected()}
   end
 
   def handle_event("choose", %{"choose" => choose}, socket) do
@@ -194,20 +159,20 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
 
   def handle_event("suggest", %{"value" => search}, socket) do
     {:noreply,
-     assign(socket,
-       search: search,
-       suggestions: Suggestions.suggest(socket.assigns.suggestions, search),
-       show_suggestions: true
-     )}
+     socket
+     |> update(:suggestions, &Suggestions.suggest(&1, search))
+     |> assign(:search, search)
+     |> assign(:show_suggestions, true)}
   end
 
-  def handle_event("remove-query", %{"index" => i}, socket) do
+  def handle_event("remove-filter", %{"index" => i}, socket) do
     i = String.to_integer(i)
+    filters = List.delete_at(socket.assigns.rider_search.filters, i)
 
     {:noreply,
      socket
-     |> assign(:queries, List.delete_at(socket.assigns.queries, i))
-     |> fetch_riders(repaginate: true)}
+     |> update(:rider_search, &RiderSearch.filter(&1, filters))
+     |> remove_selected_riders()}
   end
 
   def handle_event(
@@ -273,54 +238,45 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   def handle_event("sort", %{"field" => field, "order" => order}, socket) do
     field = String.to_existing_atom(field)
     order = String.to_existing_atom(order)
-    sort_options = %SortOptions{field: field, order: order}
 
     {:noreply,
      socket
-     |> assign(:sort_options, sort_options)
-     |> fetch_riders()}
+     |> update(:rider_search, &RiderSearch.sort(&1, field, order))
+     |> remove_selected_riders()}
   end
 
   def handle_event("next-page", _params, socket) do
-    sort_options = socket.assigns.sort_options
-    sort_options = %{sort_options | offset: sort_options.offset + sort_options.limit}
-
     {:noreply,
      socket
-     |> assign(:sort_options, sort_options)
-     |> fetch_riders()}
+     |> update(:rider_search, &RiderSearch.prev_page/1)}
   end
 
   def handle_event("prev-page", _params, socket) do
-    sort_options = socket.assigns.sort_options
-    sort_options = %{sort_options | offset: sort_options.offset - sort_options.limit}
-
     {:noreply,
      socket
-     |> assign(:sort_options, sort_options)
-     |> fetch_riders()}
+     |> update(:rider_search, &RiderSearch.prev_page/1)}
   end
 
-  defp parse_search(search) do
-    with [type, query] <- String.split(search, ":", parts: 2) do
-      query = String.trim(query)
+  defp parse_filter(search) do
+    with [type, filter] <- String.split(search, ":", parts: 2) do
+      filter = String.trim(filter)
 
       case type do
-        "name" -> [name: query]
-        "tag" -> [tag: query]
-        "active" -> [active: query]
-        "capacity" -> [capacity: query]
+        "name" -> [name: filter]
+        "tag" -> [tag: filter]
+        "active" -> [active: filter]
+        "capacity" -> [capacity: filter]
       end
     else
-      [query] -> [name: String.trim(query)]
+      [filter] -> [name: String.trim(filter)]
     end
   end
 
   defp display_search(search) do
     case String.split(search, ":", parts: 2) do
-      [query] -> query
-      ["name", query] -> query
-      [_type, _query] -> search
+      [filter] -> filter
+      ["name", filter] -> filter
+      [_type, _filter] -> search
     end
   end
 
@@ -336,38 +292,17 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     |> assign(:selected, MapSet.new())
   end
 
-  defp fetch_riders(socket, search_opts \\ []) do
-    sort = SortOptions.to_tuple(socket.assigns.sort_options)
-
-    {socket, riders} =
-      if Keyword.get(search_opts, :repaginate) do
-        {riders, total} = Riders.search_riders_next(socket.assigns.queries, sort, total: true)
-
-        socket =
-          socket
-          |> assign(:total, total)
-          |> assign(:sort_options, %{socket.assigns.sort_options | offset: 0})
-
-        {socket, riders}
-      else
-        {riders, nil} = Riders.search_riders_next(socket.assigns.queries, sort)
-        {socket, riders}
-      end
-
-    riders =
-      riders
-      |> Repo.preload([:tags, :latest_campaign])
-
+  defp remove_selected_riders(socket) do
     selected =
-      riders
+      socket.assigns.rider_search.riders
       |> Enum.map(& &1.id)
       |> MapSet.new()
       |> MapSet.intersection(socket.assigns.selected)
 
     socket
-    |> assign(:riders, riders)
     |> assign(:selected, selected)
   end
+
 
   @impl Phoenix.LiveView
   def render(assigns) do
@@ -384,10 +319,10 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
       <% end %>
       <div class="flex items-baseline justify-between ">
         <div class="relative flex flex-col w-2/3">
-          <form id="rider-search" phx-change="suggest" phx-submit="search"}
+          <form id="rider-search" phx-change="suggest" phx-submit="filter"}
             phx-click-away="clear-search">
             <div class="relative flex items-baseline w-full px-1 py-0 bg-white border border-gray-300 rounded-md shadow-sm sm:text-sm focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500">
-              <.query_list queries={@queries} />
+              <.filter_list filters={@rider_search.filters} />
               <input type="text"
                 id="rider-search-input"
                 name="value"
@@ -396,8 +331,8 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
                 class="w-full placeholder-gray-400 border-transparent appearance-none focus:border-transparent outline-transparent ring-transparent focus:ring-0"
                 placeholder="Name, tag, capacity, last active"
                 tabindex="1"/>
-                <%= if @queries != [] do %>
-                    <button type="button" phx-click="clear-queries" class="absolute right-1 text-gray-400 rounded-md top-2.5 hover:text-gray-500">
+                <%= if @rider_search.filters != [] do %>
+                    <button type="button" phx-click="clear-filters" class="absolute right-1 text-gray-400 rounded-md top-2.5 hover:text-gray-500">
                       <span class="sr-only">Clear Search</span>
                       <Heroicons.Outline.x class="w-6 h-6" />
                     </button>
@@ -410,17 +345,17 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
         <C.button patch_to={Routes.rider_index_path(@socket, :message)}>Bulk Message</C.button>
       </div>
       <form id="selected" phx-change="select-rider"></form>
-      <UI.table rows={@riders} class="mt-2">
+      <UI.table rows={@rider_search.riders} class="mt-2">
         <:th class="text-center" padding="px-3">
         <%= checkbox :selected, :all,
           form: "selected",
-          value: all_selected?(@riders, @selected),
+          value: all_selected?(@rider_search.riders, @selected),
           class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" %>
         </:th>
         <:th padding="px-3">
           <div class="inline-flex">
             Name
-            <SortOptions.link phx-click="sort" field={:name} sort_options={@sort_options} class="pl-2" />
+            <C.sort_link phx-click="sort" current_field={:name} default_order={:asc} sort_field={@rider_search.sort_field} sort_order={@rider_search.sort_order} class="pl-2" />
           </div>
         </:th>
         <:th>
@@ -432,13 +367,13 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
         <:th>
           <div class="inline-flex">
             Capacity
-            <SortOptions.link phx-click="sort" field={:capacity} sort_options={@sort_options} class="pl-2"/>
+            <C.sort_link phx-click="sort" current_field={:capacity} default_order={:desc} sort_field={@rider_search.sort_field} sort_order={@rider_search.sort_order} class="pl-2" />
           </div>
         </:th>
         <:th>
           <div class="inline-flex">
             Last Active
-            <SortOptions.link phx-click="sort" field={:last_active} sort_options={@sort_options} class="pl-2"/>
+            <C.sort_link phx-click="sort" current_field={:last_active} default_order={:desc} sort_field={@rider_search.sort_field} sort_order={@rider_search.sort_order} class="pl-2" />
           </div>
         </:th>
 
@@ -460,7 +395,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
           <ul class="flex">
             <%= for tag <- rider.tags do %>
             <li class="before:content-[','] first:before:content-['']">
-              <button type="button" phx-click="search" value={"tag:#{tag.name}"}}
+              <button type="button" phx-click="filter" value={"tag:#{tag.name}"}}
                 class="link">
                 <%= tag.name %>
               </button>
@@ -469,7 +404,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
           </ul>
         </:td>
         <:td let={rider}>
-          <button type="button" phx-click="search" value={"capacity:#{rider.capacity}"}}
+          <button type="button" phx-click="filter" value={"capacity:#{rider.capacity}"}}
           class="link">
             <%= rider.capacity %>
           </button>
@@ -485,27 +420,27 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
               <p class="text-sm text-gray-700">
                 Showing
                 <span class="font-medium">
-                  <%= @sort_options.offset + 1 %>
+                  <%= RiderSearch.page_first(@rider_search) %>
                 </span>
                 to
                 <span class="font-medium">
-                  <%= @sort_options.offset + Enum.count(@riders) %>
+                  <%= RiderSearch.page_last(@rider_search)%>
                 </span>
                 of
                 <span class="font-medium">
-                <%= @total %>
+                <%= @rider_search.total %>
                 </span>
                 results
               </p>
             </div>
             <div class="flex justify-between flex-1 sm:justify-end">
-              <%= if @sort_options.offset > 0 do %>
+              <%= if RiderSearch.has_next_page?(@rider_search) do %>
                 <C.button phx-click="prev-page" color={:white}>
                   Previous
                 </C.button>
               <% end %>
 
-              <%= if @sort_options.offset + @sort_options.limit < @total do %>
+              <%= if RiderSearch.has_prev_page?(@rider_search) do %>
                 <C.button phx-click="next-page" color={:white} class="ml-3">
                   Next
                 </C.button>
@@ -576,7 +511,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   defp suggestion(assigns) do
     ~H"""
     <div id={"#{@type}-#{@search}"} class="px-1 py-0.5 rounded-md focus-within:bg-gray-100">
-      <button type="button" phx-click="search" value={"#{@type}:#{@search}"}
+      <button type="button" phx-click="filter" value={"#{@type}:#{@search}"}
         class="block ml-1 transition duration-150 ease-in-out w-fit hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
         tabindex="1"
         phx-focus={JS.push("choose", value: %{"choose" => "#{@type}:#{@search}"})}>
@@ -592,14 +527,14 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     """
   end
 
-  defp query_list(assigns) do
+  defp filter_list(assigns) do
     ~H"""
-    <%= if @queries != [] do %>
+    <%= if @filters != [] do %>
       <div class="flex flex-wrap space-x-0.5 max-w-xs">
-        <%= for {{type, search}, i} <- Enum.with_index(@queries) do %>
+        <%= for {{type, search}, i} <- Enum.with_index(@filters) do %>
           <div class={"my-0.5 inline-flex items-center px-2.5 py-1.5 rounded-md text-md font-medium #{color(type)}"}>
             <span class="text-700 mr-0.5 font-base"><%= type %>:</span><%= search %>
-            <Heroicons.Outline.x_circle class="w-5 h-5 ml-1 cursor-pointer" phx-click="remove-query" phx-value-index={i} />
+            <Heroicons.Outline.x_circle class="w-5 h-5 ml-1 cursor-pointer" phx-click="remove-filter" phx-value-index={i} />
           </div>
         <% end  %>
       </div>

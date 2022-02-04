@@ -11,6 +11,7 @@ defmodule BikeBrigadeWeb.Components do
       assigns
       |> assign(:today, LocalizedDateTime.today())
       |> assign_new(:link_to, fn -> nil end)
+
     ~H"""
     <%= if @link_to do %>
       <%= live_patch to: @link_to, class: "hover:bg-gray-50" do %>
@@ -50,6 +51,7 @@ defmodule BikeBrigadeWeb.Components do
     assigns =
       assigns
       |> assign_new(:patch_replace, fn -> false end)
+
     ~H"""
     <%= live_patch to: patch_to, replace: @patch_replace, class: button_class(assigns) do %>
       <%= render_slot(@inner_block) %>
@@ -61,6 +63,7 @@ defmodule BikeBrigadeWeb.Components do
     assigns =
       assigns
       |> assign_new(:patch_replace, fn -> false end)
+
     ~H"""
     <%= live_redirect to: redirect_to, replace: @patch_replace, class: button_class(assigns) do %>
       <%= render_slot(@inner_block) %>
@@ -102,11 +105,12 @@ defmodule BikeBrigadeWeb.Components do
     base_class =
       "inline-flex items-center border border-transparent font-medium rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
 
-    base_class = if assigns[:class] do
-      assigns[:class] <> " " <> base_class
-    else
-      base_class
-    end
+    base_class =
+      if assigns[:class] do
+        assigns[:class] <> " " <> base_class
+      else
+        base_class
+      end
 
     size_class =
       case size do
@@ -120,20 +124,33 @@ defmodule BikeBrigadeWeb.Components do
 
     color_class =
       case color do
-        :primary -> "text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500"
-        :secondary -> "text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:ring-indigo-500"
-        :white -> "border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-indigo-500"
-        :green -> "text-white bg-green-700 focus:ring-green-600 hover:bg-green-800"
-        :red -> "text-white bg-red-600 hover:bg-red-700 focus:ring-red-500"
-        :lightred -> "text-red-700 bg-red-100 hover:bg-red-200 focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-        :clear -> "text-gray-400 bg-white hover:text-gray-500  focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        :black -> "border-gray-300 text-white bg-black hover:bg-white hover:text-black"
+        :primary ->
+          "text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500"
+
+        :secondary ->
+          "text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:ring-indigo-500"
+
+        :white ->
+          "border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-indigo-500"
+
+        :green ->
+          "text-white bg-green-700 focus:ring-green-600 hover:bg-green-800"
+
+        :red ->
+          "text-white bg-red-600 hover:bg-red-700 focus:ring-red-500"
+
+        :lightred ->
+          "text-red-700 bg-red-100 hover:bg-red-200 focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+
+        :clear ->
+          "text-gray-400 bg-white hover:text-gray-500  focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+
+        :black ->
+          "border-gray-300 text-white bg-black hover:bg-white hover:text-black"
       end
 
     base_class <> " " <> size_class <> " " <> color_class
   end
-
-
 
   def filter_button(assigns) do
     base_class =
@@ -236,6 +253,7 @@ defmodule BikeBrigadeWeb.Components do
 
   def map(assigns) do
     assigns = assign_new(assigns, :class, fn -> "" end)
+
     ~H"""
       <%= if @coords != %Geo.Point{} do %>
         <div class={@class}>
@@ -247,6 +265,58 @@ defmodule BikeBrigadeWeb.Components do
           </leaflet-map>
         </div>
       <% end %>
+    """
+  end
+
+  def sort_link(
+        %{
+          current_field: current_field,
+          default_order: default_order,
+          sort_field: sort_field,
+          sort_order: sort_order
+        } = assigns
+      ) do
+    next = fn
+      :desc -> :asc
+      :asc -> :desc
+    end
+
+    assigns =
+      if sort_field == current_field do
+        # This field selected
+        assign(assigns,
+          icon_class: "w-5 h-5 text-gray-500 hover:text-gray-700",
+          order: sort_order,
+          next: next.(sort_order)
+        )
+      else
+        # Another field selected
+        assign(assigns,
+          icon_class: "w-5 h-5 text-gray-300 hover:text-gray-700",
+          order: default_order,
+          next: default_order
+        )
+      end
+
+    assigns =
+      assign(
+        assigns,
+        :attrs,
+        assigns_to_attributes(assigns, [
+          :sort_field,
+          :sort_order,
+          :default_order,
+          :current_field,
+          :order,
+          :icon_class,
+          :next
+        ])
+      )
+
+    ~H"""
+    <button type="button" phx-value-field={@current_field} phx-value-order={@next} {@attrs}>
+      <Icons.sort order={@order} class={@icon_class}/>
+    </button>
     """
   end
 end
