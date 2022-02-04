@@ -86,10 +86,12 @@ defmodule BikeBrigadeWeb.Router do
 
     live_session :dispatch, on_mount: LiveHooks.Authentication do
       live "/riders", RiderLive.Index, :index
-      live "/riders-next", RiderLive.IndexNext, :index
-      live "/riders-next/message", RiderLive.IndexNext, :message
       live "/riders/new", RiderLive.Index, :new
       live "/riders/:id/edit", RiderLive.Index, :edit
+      live "/riders/message", RiderLive.Index, :message
+
+      # Redirect for the old next url
+      get "/riders-next",  Plugs.Redirect, to: "/riders", status: :moved_permanently
 
       live "/stats", StatsLive.Dashboard, :show
       live "/stats/leaderboard", StatsLive.Leaderboard, :show
@@ -202,7 +204,7 @@ defmodule BikeBrigadeWeb.Router do
 end
 
 defmodule BikeBrigadeWeb.Plugs.Redirect do
-  import Plug.Conn, only: [halt: 1]
+  import Plug.Conn, only: [halt: 1, put_status: 2]
   import Phoenix.Controller, only: [redirect: 2]
 
   @behaviour Plug
@@ -213,9 +215,12 @@ defmodule BikeBrigadeWeb.Plugs.Redirect do
   end
 
   @impl Plug
-  def call(conn, to: path) do
+  def call(conn, options) do
+    {status, options} = Keyword.pop(options, :status, :found)
+
     conn
-    |> redirect(to: path)
+    |> put_status(status)
+    |> redirect(options)
     |> halt()
   end
 end
