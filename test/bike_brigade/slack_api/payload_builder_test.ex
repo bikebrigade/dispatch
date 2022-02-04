@@ -46,7 +46,7 @@ defmodule BikeBrigade.SlackApi.PayloadBuilderTest do
     block = body["blocks"] |> List.first()
 
     url = Routes.rider_show_url(Endpoint, :show, rider)
-    assert block["text"]["text"] == "[*Alice Example*](#{url}): three is &lt; five &amp; five is &gt; three"
+    assert block["text"]["text"] == "<#{url}|*Alice Example*>: three is &lt; five &amp; five is &gt; three"
   end
 
   test "Images are included" do
