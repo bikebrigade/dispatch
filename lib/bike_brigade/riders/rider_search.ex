@@ -94,7 +94,6 @@ defmodule BikeBrigade.Riders.RiderSearch do
 
   @spec page_first(t()) :: pos_integer()
   def page_first(%{offset: offset}) do
-    IO.inspect(offset)
     offset + 1
   end
 
@@ -104,7 +103,7 @@ defmodule BikeBrigade.Riders.RiderSearch do
   end
 
   @spec execute_query(t()) :: t()
-  defp execute_query(%RiderSearch{} = rs) do
+  defp execute_query(rs) do
     riders =
       base_query()
       |> sort_query(rs.sort_field, rs.sort_order)
@@ -117,7 +116,7 @@ defmodule BikeBrigade.Riders.RiderSearch do
   end
 
   @spec update_total(t()) :: t()
-  defp update_total(%RiderSearch{} = rs) do
+  defp update_total(rs) do
     total =
       base_query()
       |> exclude(:preload)
