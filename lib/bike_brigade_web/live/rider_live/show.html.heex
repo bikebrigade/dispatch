@@ -31,7 +31,7 @@
             </div>
             <div class="flex flex-col justify-start text-sm leading-6 sm:text-base md:flex-row md:items-center">
                 <div><Heroicons.Outline.briefcase aria-label="Briefcase" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 sm:mr-1" />
-                    <%= live_redirect @rider.capacity, to: Routes.rider_index_next_path(@socket, :index, %{capacity: [@rider.capacity]}), class: "link" %>
+                    <%= live_redirect @rider.capacity, to: Routes.rider_index_path(@socket, :index, %{capacity: [@rider.capacity]}), class: "link" %>
                 </div>
                 <div class="flex items-center"><Heroicons.Outline.tag aria-label="Tag" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 md:ml-4 sm:mr-1" />
                     <%= if Enum.empty?(@rider.tags) do %>
@@ -40,7 +40,7 @@
                     <ul class="flex">
                         <%= for tag <- @rider.tags do %>
                             <span class="before:content-[','] first:before:content-['']">
-                                <%= live_redirect tag.name, to: Routes.rider_index_next_path(@socket, :index, %{tag: [tag.name]}), class: "link" %>
+                                <%= live_redirect tag.name, to: Routes.rider_index_path(@socket, :index, %{tag: [tag.name]}), class: "link" %>
                             </span>
                             <% end %>
                         </ul>
