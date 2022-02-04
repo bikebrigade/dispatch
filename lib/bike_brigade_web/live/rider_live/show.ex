@@ -23,7 +23,7 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
       |> Repo.preload([
         :tags,
         :campaigns,
-        :stats,
+        :total_stats,
         program_stats: [:program],
         latest_campaign: [:program]
       ])
@@ -41,7 +41,7 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
     {:noreply,
      socket
      |> assign(:rider, rider)
-     |> assign(:stats, rider.stats || %RiderStats{})
+     |> assign(:stats, rider.total_stats || %RiderStats{})
      |> assign(:today, today)
      |> assign(:schedule, schedule)
      |> apply_action(socket.assigns.live_action, params)}
