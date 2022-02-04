@@ -78,6 +78,9 @@ defmodule BikeBrigade.Riders.Rider do
     field :task_enter_building, :boolean, virtual: true
     field :delivery_url_token, :string, virtual: true
     field :pickup_window, :string, virtual: true
+
+    field :internal_notes, :string
+
     has_many :assigned_tasks, Task, foreign_key: :assigned_rider_id
     has_many :campaign_riders, CampaignRider
 
@@ -126,7 +129,8 @@ defmodule BikeBrigade.Riders.Rider do
       :signed_up_on,
       :mailchimp_id,
       :mailchimp_status,
-      :last_safety_check
+      :last_safety_check,
+      :internal_notes
     ])
     |> cast_embed(:flags)
     |> cast_embed(:location_struct)

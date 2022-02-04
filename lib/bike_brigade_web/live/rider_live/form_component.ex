@@ -21,6 +21,7 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
       field :capacity, Rider.CapacityEnum
       field :max_distance, :integer
       field :last_safety_check, :date
+      field :internal_notes, :string
       field :tags, {:array, :string}
 
       embeds_one :flags, Rider.Flags, on_replace: :update
@@ -37,6 +38,7 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
         :capacity,
         :max_distance,
         :last_safety_check,
+        :internal_notes,
         :tags
       ])
       |> cast_embed(:flags)
