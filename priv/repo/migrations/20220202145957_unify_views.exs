@@ -1,7 +1,7 @@
 defmodule BikeBrigade.Repo.Migrations.UnifyViews do
   use Ecto.Migration
 
-  import BikeBrigade.Repo.Helpers
+  import BikeBrigade.MigrationUtils
 
   def up do
     execute "drop view if exists rider_program_stats"
