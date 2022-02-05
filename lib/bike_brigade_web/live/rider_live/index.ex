@@ -379,7 +379,8 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
           <.live_component
             module={BikeBrigadeWeb.SmsMessageLive.FormComponent}
             id={:new_message}
-            initial_riders={@initial_riders}/>
+            initial_riders={@initial_riders}
+            current_user={@current_user}/>
         </UI.modal>
       <% end %>
       <div class="flex items-baseline justify-between ">

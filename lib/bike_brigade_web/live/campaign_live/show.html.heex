@@ -65,7 +65,8 @@
   <.live_component
     module={BikeBrigadeWeb.SmsMessageLive.FormComponent}
     id={:bulk_message}
-    initial_riders={@campaign.riders}/>
+    initial_riders={@campaign.riders}
+    current_user={@current_user}/>
 </UI.modal>
 <% _ -> %>
 <%# do nothing here%>
