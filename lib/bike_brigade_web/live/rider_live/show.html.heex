@@ -20,20 +20,20 @@
         </div>
         <div class="">
             <h1 class="mb-4 text-3xl font-medium leading-none sm:text-4xl"><%= @rider.name %> <small class="text-sm"><%= @rider.pronouns %></small></h1>
-            <div class="flex flex-col justify-start text-sm leading-6 sm:text-base md:flex-row md:items-center">
-                <div><Heroicons.Outline.clipboard_list aria-label="Calendar" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 sm:mr-1" />Signed up on: <%= format_date(@rider.signed_up_on) %></div>
-                <div><Heroicons.Outline.fire aria-label="Fire" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 md:ml-4 sm:mr-1" />Latest activity: <.latest_campaign_info socket={@socket} rider={@rider} /></div>
-            </div>
-            <div class="flex flex-col justify-start text-sm leading-6 sm:text-base md:flex-row md:items-center">
-                <div><Heroicons.Outline.location_marker aria-label="Marker" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 sm:mr-1" /><%= @rider.address %></div>
-                <div><Heroicons.Outline.phone aria-label="Phone" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 md:ml-4 sm:mr-1" /><%= @rider.phone %></div>
-                <div><Heroicons.Outline.mail aria-label="Mail" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 md:ml-4 sm:mr-1" /><%= @rider.email %></div>
-            </div>
-            <div class="flex flex-col justify-start text-sm leading-6 sm:text-base md:flex-row md:items-center">
-                <div><Heroicons.Outline.briefcase aria-label="Briefcase" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 sm:mr-1" />
+            <p class="text-sm leading-6 lg:text-base">
+                <span class="block md:inline-block"><Heroicons.Outline.clipboard_list aria-label="Calendar" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 sm:mr-1" />Signed up on: <%= format_date(@rider.signed_up_on) %></span>
+                <span class="block xl:inline-block"><Heroicons.Outline.fire aria-label="Fire" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 xl:ml-2 sm:mr-1" />Latest activity: <.latest_campaign_info socket={@socket} rider={@rider} /></span>
+            </p>
+            <p class="text-sm leading-6 lg:text-base">
+                <span class="block md:inline-block"><Heroicons.Outline.location_marker aria-label="Marker" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 sm:mr-1" /><%= @rider.address %></span>
+                <span class="block md:inline-block"><Heroicons.Outline.phone aria-label="Phone" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 md:ml-2 sm:mr-1" /><%= @rider.phone %></span>
+                <span class="block xl:inline-block"><Heroicons.Outline.mail aria-label="Mail" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 xl:ml-2 sm:mr-1" /><%= @rider.email %></span>
+            </p>
+            <p class="text-sm leading-6 lg:text-base">
+                <span class="block md:inline-block"><Heroicons.Outline.briefcase aria-label="Briefcase" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 sm:mr-1" />
                     <%= live_redirect @rider.capacity, to: Routes.rider_index_path(@socket, :index, %{capacity: [@rider.capacity]}), class: "link" %>
-                </div>
-                <div class="flex items-center"><Heroicons.Outline.tag aria-label="Tag" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 md:ml-4 sm:mr-1" />
+                </span>
+                <span class="block md:inline-block"><Heroicons.Outline.tag aria-label="Tag" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 md:ml-2 sm:mr-1" />
                     <%= if Enum.empty?(@rider.tags) do %>
                      No tags
                     <% else %>
@@ -45,15 +45,15 @@
                             <% end %>
                         </ul>
                     <% end %>
-                </div>
+                </span>
 
-            </div>
+            </p>
         </div>
     </div>
 </div>
 
 <div class="grid grid-cols-1 mt-10 gap-x-4 gap-y-8 sm:grid-cols-12 md:gap-x-6 lg:gap-x-8 lg:gap-y-12">
-    <div class="col-span-12 sm:col-span-6">
+    <div class="col-span-12 md:col-span-8 xl:col-span-6">
         <h2 class="text-sm font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">
             Rider stats
         </h2>
@@ -84,7 +84,7 @@
             </div>
         </div>
     </div>
-    <div class="col-span-12 sm:col-span-6">
+    <div class="col-span-12 md:col-span-4 xl:col-span-6">
         <h2 class="text-sm font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">
             Location
         </h2>
@@ -111,7 +111,7 @@
                 </span>
             </div>
         </div>
-        <div class="px-4 py-5 my-5 bg-white rounded-lg shadow sm:p-6">
+        <div class="px-4 py-5 my-5 overflow-x-auto bg-white rounded-lg shadow sm:p-6 h-96">
             <div class="grid grid-cols-3 gap-4">
                 <%= for {date, campaigns} <- @schedule do %>
                 <div class="px-3 border-r last:border-0">
@@ -135,29 +135,17 @@
                 <% end %>
             </div>
         </div>
-        <div class="flex items-end justify-between">
-            <h2 class="text-sm font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">
-                Notes
-            </h2>
-        </div>
-        <div class="px-4 py-5 my-5 bg-white rounded-lg shadow sm:p-6">
-            <%= if @rider.internal_notes do %>
-                <%= @rider.internal_notes %>
-            <% else %>
-                N/A
-            <% end %>
-        </div>
     </div>
-    <div class="col-span-12 sm:col-span-4">
+    <div class="flex flex-col col-span-12 sm:col-span-4">
         <h2 class="pt-3 text-sm font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">
             Campaign history
         </h2>
-        <div class="px-4 py-5 my-5 bg-white rounded-lg shadow sm:p-6">
+        <div class="flex-1 px-4 py-5 my-5 overflow-x-auto bg-white rounded-lg shadow sm:p-6 h-96">
             <%= if @rider.program_stats != [] do %>
             <ul class="list-none">
                 <%= for s <- @rider.program_stats do %>
                 <li class="pb-4 mb-4 border-b last:border-b-0">
-                    <span class="block text-xl font-bold"><%= s.program.name %></span>
+                    <span class="block text-lg font-bold"><%= s.program.name %></span>
                     <span>
                         <%= s.campaign_count %> <%= Inflex.inflect("ride", s.campaign_count) %>,
                         <%= s.task_count %> <%= Inflex.inflect("delivery", s.task_count) %>,
@@ -168,6 +156,22 @@
             </ul>
             <% else %>
             None yet.
+            <% end %>
+        </div>
+    </div>
+</div>
+<div class="grid grid-cols-1 mt-10 gap-x-4 gap-y-8 sm:grid-cols-12 md:gap-x-6 lg:gap-x-8 lg:gap-y-12">
+    <div class="col-span-12">
+        <div class="flex items-end justify-between">
+            <h2 class="text-sm font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">
+                Notes
+            </h2>
+        </div>
+        <div class="px-4 py-5 my-5 bg-white rounded-lg shadow sm:p-6">
+            <%= if @rider.internal_notes do %>
+                <%= @rider.internal_notes %>
+            <% else %>
+                N/A
             <% end %>
         </div>
     </div>
