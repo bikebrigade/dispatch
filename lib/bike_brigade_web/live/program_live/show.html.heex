@@ -14,7 +14,7 @@
   </h1>
   <C.button patch_to={Routes.program_show_path(@socket, :edit, @program)}>Edit</C.button>
 </div>
-<UI.table class="table-fixed" rows={@program.campaigns}>
+<UI.table class="min-w-full table-fixed" rows={@program.campaigns}>
   <:th>Date</:th>
   <:th>Time</:th>
   <:th>Riders</:th>
