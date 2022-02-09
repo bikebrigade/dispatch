@@ -137,8 +137,7 @@ defmodule BikeBrigadeWeb.OpportunityLive.Index do
   @doc "silently ignore new kinds of messages"
   def handle_info(_, socket), do: {:noreply, socket}
 
-  defp list_opportunities do
-    Delivery.list_opportunities(order_by: :program_name)
-    |> BikeBrigade.Repo.preload(program: [:lead])
+  defp list_opportunities(order_by \\ :program_name) do
+    Delivery.list_opportunities(order_by: order_by, preload: [program: [:lead]])
   end
 end
