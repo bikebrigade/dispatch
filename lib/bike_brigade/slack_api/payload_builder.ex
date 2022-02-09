@@ -4,7 +4,7 @@ defmodule BikeBrigade.SlackApi.PayloadBuilder do
   alias BikeBrigadeWeb.Endpoint
 
   def build(channel_id, %SmsMessage{rider: rider} = message) do
-    text = "*#{rider.name}*: #{filter_mrkdwn(message.body)}"
+    text = "<#{Routes.rider_show_url(Endpoint, :show, rider.id)}|*#{rider.name}*>: #{filter_mrkdwn(message.body)}"
 
     %{
       channel: channel_id,

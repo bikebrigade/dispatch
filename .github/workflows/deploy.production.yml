@@ -11,11 +11,11 @@ jobs:
       # This step checks out a copy of your repository.
       - uses: actions/checkout@v2
       # This step runs `flyctl deploy`.
-      - uses: superfly/flyctl-actions@master
+      - uses: superfly/flyctl-actions@1.1
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         with:
-          args: "deploy"
+          args: "deploy --local-only"
       # Notify honeybadger about the deploy
       - uses: honeybadger-io/github-notify-deploy-action@v1
         with:

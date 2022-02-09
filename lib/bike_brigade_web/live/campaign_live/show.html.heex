@@ -58,6 +58,16 @@
   campaign={@campaign}
   return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)} />
 </UI.slideover>
+
+<% :bulk_message -> %>
+<UI.modal id={:bulk_message} show return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)} >
+  <:title>Bulk Message</:title>
+  <.live_component
+    module={BikeBrigadeWeb.SmsMessageLive.FormComponent}
+    id={:bulk_message}
+    initial_riders={@campaign.riders}
+    current_user={@current_user}/>
+</UI.modal>
 <% _ -> %>
 <%# do nothing here%>
 
@@ -98,9 +108,12 @@
       </ul>
     </div>
     <div class="flex justify-end w-full">
-      <C.button phx-click={UI.show_modal(:edit)} patch_to={ Routes.campaign_show_path(@socket, :edit, @campaign.id) }>
-        Edit
-      </C.button>
+      <div class="flex space-x-1">
+        <C.button phx-click={UI.show_modal(:edit)} color={:white} patch_to={ Routes.campaign_show_path(@socket, :edit, @campaign.id) }>
+          Edit
+        </C.button>
+        <C.button patch_to={Routes.campaign_show_path(@socket, :bulk_message, @campaign.id)}>Bulk Message</C.button>
+      </div>
     </div>
   </div>
   <div class="flex my-2 space-x-2">

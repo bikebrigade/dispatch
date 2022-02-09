@@ -1,6 +1,6 @@
 defmodule BikeBrigade.Repo.Migrations.ReloadViewsFromFiles do
   use Ecto.Migration
-  import BikeBrigade.Repo.Helpers
+  import BikeBrigade.MigrationUtils
 
   def change do
     execute "drop view if exists rider_stats", ""

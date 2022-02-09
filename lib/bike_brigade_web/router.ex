@@ -104,6 +104,7 @@ defmodule BikeBrigadeWeb.Router do
       live "/campaigns/:id", CampaignLive.Show, :show
       live "/campaigns/:id/show/edit", CampaignLive.Show, :edit
       live "/campaigns/:id/messaging", CampaignLive.Show, :messaging
+      live "/campaigns/:id/bulk_message", CampaignLive.Show, :bulk_message
       live "/campaigns/:id/add_rider", CampaignLive.Show, :add_rider
       live "/campaigns/:id/tasks/new", CampaignLive.Show, :new_task
       live "/campaigns/:id/tasks/:task_id/edit", CampaignLive.Show, :edit_task

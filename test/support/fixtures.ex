@@ -64,6 +64,7 @@ defmodule BikeBrigade.Fixtures do
         name: fake_name(),
         email: Faker.Internet.email(),
         phone: fake_phone(),
+        pronouns: Enum.random(~w(He/Him She/Her They/Them)),
         address: @location.address,
         address2: nil,
         city: @location.city,

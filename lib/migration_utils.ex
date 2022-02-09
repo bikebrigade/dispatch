@@ -1,4 +1,4 @@
-defmodule BikeBrigade.Repo.Helpers do
+defmodule BikeBrigade.MigrationUtils do
   @doc """
   Creates a view with a given `name`, with the sql for it in `repo/sql/<filename>`
   """

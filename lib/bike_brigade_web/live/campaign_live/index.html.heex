@@ -51,11 +51,11 @@
       <%= for c <- campaigns do %>
         <li id={c.id}>
           <div class="px-4 py-4">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-1">
+            <div class="items-center justify-between md:flex">
+              <div class="flex items-center mb-2 space-x-1">
                 <%= live_redirect name(c), to: Routes.campaign_show_path(@socket, :show, c),  class: "link text-sm font-medium" %>
               </div>
-              <div class="flex flex-shrink-0 space-x-2">
+              <div class="flex-shrink-0 space-y-1 md:space-x-2 md:flex">
                 <C.button size={:xsmall} color={:white} patch_to={Routes.campaign_index_path(@socket, :edit, c)}>
                   Edit
                 </C.button>
