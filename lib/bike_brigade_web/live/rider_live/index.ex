@@ -123,6 +123,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     {:ok,
      socket
      |> assign(:page, :riders)
+     |> assign(:page_title, "Riders")
      |> assign(:selected, MapSet.new())
      |> assign(:sort_options, sort_options)
      |> assign(:search, "")
@@ -374,11 +375,11 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     ~H"""
     <div>
       <%= if @live_action == :message do %>
-        <UI.modal id={:new_message} show return_to={Routes.rider_index_path(@socket, :index)} >
+        <UI.modal id={:bulk_message} show return_to={Routes.rider_index_path(@socket, :index)} >
           <:title>Bulk Message</:title>
           <.live_component
             module={BikeBrigadeWeb.SmsMessageLive.FormComponent}
-            id={:new_message}
+            id={:bulk_message}
             initial_riders={@initial_riders}
             current_user={@current_user}/>
         </UI.modal>
@@ -411,7 +412,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
         <C.button patch_to={Routes.rider_index_path(@socket, :message)}>Bulk Message</C.button>
       </div>
       <form id="selected" phx-change="select-rider"></form>
-      <UI.table rows={@riders} class="mt-2">
+      <UI.table id="riders" rows={@riders} class="min-w-full mt-2">
         <:th class="text-center" padding="px-3">
         <%= checkbox :selected, :all,
           form: "selected",
