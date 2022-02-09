@@ -19,7 +19,7 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
     {:noreply,
     socket
     |> assign(:search, search)
-    |> update(:rider_search, &RiderSearch.filter(&1, [name: search]))}
+    |> update(:rider_search, &RiderSearch.filter(&1, [{:name, search}, {:or, {:phone, search}}]))}
   end
 
   def handle_event("unselect", %{"id" => id}, socket) do
