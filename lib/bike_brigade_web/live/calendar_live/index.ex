@@ -51,7 +51,7 @@ defmodule BikeBrigadeWeb.CalendarLive.Index do
   # end
 
   def list_opportunities(start_date) do
-    Delivery.list_opportunities(start_date: start_date, published: true)
+    Delivery.list_opportunities(start_date: start_date, published: true, preload: [ program: [:latest_campaign, :items]])
     |> Utils.ordered_group_by(&LocalizedDateTime.to_date(&1.delivery_start))
   end
 end

@@ -16,8 +16,10 @@ defmodule BikeBrigadeWeb.OpportunityLive.Index do
      socket
      |> assign(:page, :opportunities)
      |> assign(:page_title, "Delivery Opportunities")
-     |> assign(:opportunities, list_opportunities())
-     |> assign(:selected, MapSet.new())}
+     |> assign(:selected, MapSet.new())
+     |> assign(:sort_field, :program_name)
+     |> assign(:sort_order, :asc)
+     |> fetch_opportunities()}
   end
 
   @impl true
@@ -28,6 +30,17 @@ defmodule BikeBrigadeWeb.OpportunityLive.Index do
     )
 
     {:noreply, socket}
+  end
+
+  def handle_event("sort", %{"field" => field, "order" => order}, socket) do
+    field = String.to_existing_atom(field)
+    order = String.to_existing_atom(order)
+
+    {:noreply,
+     socket
+     |> assign(:sort_field, field)
+     |> assign(:sort_order, order)
+     |> fetch_opportunities()}
   end
 
   @impl true
@@ -137,8 +150,14 @@ defmodule BikeBrigadeWeb.OpportunityLive.Index do
   @doc "silently ignore new kinds of messages"
   def handle_info(_, socket), do: {:noreply, socket}
 
-  defp list_opportunities do
-    Delivery.list_opportunities(order_by: :program_name)
-    |> BikeBrigade.Repo.preload(program: [:lead])
+  defp fetch_opportunities(socket) do
+    opportunities =
+      Delivery.list_opportunities(
+        sort_field: socket.assigns.sort_field,
+        sort_order: socket.assigns.sort_order,
+        preload: [program: [:lead]]
+      )
+
+    assign(socket, :opportunities, opportunities)
   end
 end

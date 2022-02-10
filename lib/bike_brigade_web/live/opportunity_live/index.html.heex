@@ -22,10 +22,16 @@
                   class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" %>
                   </th>
               <th class="w-1/6 px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-                Program
+                <div class="inline-flex">
+                  Program
+                  <C.sort_link phx-click="sort" current_field={:program_name} default_order={:asc} sort_field={@sort_field} sort_order={@sort_order} class="pl-2" />
+                </div>
               </th>
               <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-                Date
+                <div class="inline-flex">
+                  Date
+                  <C.sort_link phx-click="sort" current_field={:delivery_start} default_order={:asc} sort_field={@sort_field} sort_order={@sort_order} class="pl-2" />
+                </div>
               </th>
               <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                 Time
@@ -34,10 +40,16 @@
                 Link
               </th>
               <th class="w-1/6 px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-                Lead
+                 <div class="inline-flex">
+                  Lead
+                  <C.sort_link phx-click="sort" current_field={:program_lead} default_order={:asc} sort_field={@sort_field} sort_order={@sort_order} class="pl-2" />
+                </div>
               </th>
               <th class="w-32 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 1/6 bg-gray-50">
-                Published
+                <div class="inline-flex">
+                  Published
+                  <C.sort_link phx-click="sort" current_field={:published} default_order={:desc} sort_field={@sort_field} sort_order={@sort_order} class="pl-2" />
+                </div>
               </th>
               <th class="w-1/4 px-6 py-4 text-right border-b border-gray-200 bg-gray-50">
                 <C.button size={:xsmall} phx_click="new"}>

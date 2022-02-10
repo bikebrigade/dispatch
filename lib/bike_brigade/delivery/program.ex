@@ -4,7 +4,7 @@ defmodule BikeBrigade.Delivery.Program do
   import EctoEnum
   import Crontab.CronExpression
 
-  alias BikeBrigade.Delivery.{Item, Campaign}
+  alias BikeBrigade.Delivery.{Item, Campaign, ProgramLatestCampaign}
 
   defenum(SpreadsheetLayout,
     foodshare: "foodshare",
@@ -39,8 +39,9 @@ defmodule BikeBrigade.Delivery.Program do
     embeds_many :schedules, Schedule, on_replace: :delete
 
     field :campaign_count, :integer, virtual: true
-    field :latest_campaign_id, :integer, virtual: true
-    belongs_to :latest_campaign, Campaign, define_field: false
+    has_one :program_latest_campaign, ProgramLatestCampaign
+    has_one :latest_campaign, through: [:program_latest_campaign, :campaign]
+
 
     belongs_to :lead, BikeBrigade.Accounts.User, on_replace: :nilify
     has_many :campaigns, Campaign
