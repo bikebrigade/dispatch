@@ -20,7 +20,7 @@ defmodule BikeBrigade.Riders.RiderSearch do
         }
 
   @sort_orders [:desc, :asc]
-  @sortable_fields [:name, :capacity, :last_active]
+  @sortable_fields [:name, :capacity, :last_active, :phone, :name_or_phone]
   @default_opts [
     sort_field: :last_active,
     sort_order: :desc,
@@ -171,41 +171,45 @@ defmodule BikeBrigade.Riders.RiderSearch do
 
   @spec filter_query(Ecto.Query.t(), list()) :: Ecto.Query.t()
   defp filter_query(query, filters) do
-    filters
-    |> Enum.reduce(query, fn
-      {:or, filter}, query ->
-        or_where(query, ^apply_filter(filter))
-
-      filter, query ->
-        where(query, ^apply_filter(filter))
-    end)
+    Enum.reduce(filters, query, &apply_filter/2)
   end
 
-  @spec apply_filter({atom(), any()}) :: Ecto.Query.dynamic()
-  defp apply_filter({:name, search}) do
-    dynamic(ilike(as(:rider).name, ^"#{search}%"))
+  @spec apply_filter({atom(), any()}, Ecto.Query.t()) :: Ecto.Query.t()
+  defp apply_filter({:name, search}, query) do
+    query
+    |> where(ilike(as(:rider).name, ^"#{search}%"))
   end
 
-  defp apply_filter({:phone, search}) do
-    dynamic(ilike(as(:rider).phone, ^"%#{search}%"))
+  defp apply_filter({:phone, search}, query) do
+    query
+    |> where(like(as(:rider).phone, ^"%#{search}%"))
   end
 
-  defp apply_filter({:tag, tag}) do
-    dynamic(fragment("? = ANY(?)", ^tag, as(:tags).tags))
+  defp apply_filter({:name_or_phone, search}, query) do
+    query
+    |> where(ilike(as(:rider).name, ^"#{search}%") or like(as(:rider).phone, ^"%#{search}%"))
   end
 
-  defp apply_filter({:capacity, capacity}) do
+  defp apply_filter({:tag, tag}, query) do
+    query
+    |> where(fragment("? = ANY(?)", ^tag, as(:tags).tags))
+  end
+
+  defp apply_filter({:capacity, capacity}, query) do
     # TODO this may be easier with Ecto.Enum instead of EctoEnum
     {:ok, capacity} = Rider.CapacityEnum.dump(capacity)
 
-    dynamic(as(:rider).capacity == ^capacity)
+    query
+    |> where(as(:rider).capacity == ^capacity)
   end
 
-  defp apply_filter({:active, :never}) do
-    dynamic(is_nil(as(:latest_campaign).id))
+  defp apply_filter({:active, :never}, query) do
+    query
+    |> where(is_nil(as(:latest_campaign).id))
   end
 
-  defp apply_filter({:active, period}) do
-    dynamic(as(:latest_campaign).delivery_start > ago(1, ^period))
+  defp apply_filter({:active, period}, query) do
+    query
+    |> where(as(:latest_campaign).delivery_start > ago(1, ^period))
   end
 end
