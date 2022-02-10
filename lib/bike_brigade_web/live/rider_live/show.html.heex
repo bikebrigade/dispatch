@@ -95,7 +95,7 @@
 
 <!-- Grid container -->
 <div class="grid grid-cols-2 mt-10 gap-x-4 gap-y-8 sm:grid-cols-12 md:gap-x-6 lg:gap-x-8 lg:gap-y-12">
-    
+
     <!-- Grid left col -->
     <div class="col-span-12 sm:col-span-8">
         <div class="flex items-end justify-between">
@@ -159,12 +159,7 @@
         </h2>
         <div class="flex-1 px-4 py-5 my-5 overflow-x-hidden bg-white rounded-lg shadow sm:p-6" >
             <%= if @rider.program_stats != [] do %>
-            <style>
-                @media(min-width:640px) {
-                    .ride-list { height: calc(100% - 6rem ); }
-                }
-            </style>
-            <ul class="h-full pr-6 overflow-x-auto list-none sm:absolute ride-list">
+            <ul class="h-[calc(100%-6rem)] pr-6 overflow-x-auto list-none sm:absolute ">
                 <%= for s <- @rider.program_stats do %>
                 <li class="pb-4 mb-4 border-b last:border-b-0">
                     <span class="block text-lg font-bold"><%= s.program.name %></span>
