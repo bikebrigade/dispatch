@@ -48,12 +48,13 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
   end
 
   @impl Phoenix.LiveView
-  def handle_event("prev-week", _params, socket) do
+  def handle_event("prev-schedule", %{"period" => period}, socket) do
     [{date, _}, _, _] = socket.assigns.schedule
 
-    day1 = Date.add(date, -3)
-    day2 = Date.add(date, -2)
-    day3 = Date.add(date, -1)
+    period = String.to_integer(period)
+    day1 = Date.add(date, -period)
+    day2 = Date.add(date, -period + 1)
+    day3 = Date.add(date, -period + 2)
 
     schedule = [
       {day1, Riders.list_campaigns_with_task_counts(socket.assigns.rider, day1)},
@@ -66,12 +67,13 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
      |> assign(:schedule, schedule)}
   end
 
-  def handle_event("next-week", _params, socket) do
+  def handle_event("next-schedule", %{"period" => period}, socket) do
     [_, _, {date, _}] = socket.assigns.schedule
 
-    day1 = Date.add(date, 1)
-    day2 = Date.add(date, 2)
-    day3 = Date.add(date, 3)
+    period = String.to_integer(period)
+    day1 = Date.add(date, period - 2)
+    day2 = Date.add(date, period - 1)
+    day3 = Date.add(date, period)
 
     schedule = [
       {day1, Riders.list_campaigns_with_task_counts(socket.assigns.rider, day1)},

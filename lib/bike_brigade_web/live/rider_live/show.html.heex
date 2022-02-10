@@ -114,9 +114,9 @@
             </div>
         </div>
         <div class="px-4 py-5 my-5 bg-white rounded-lg shadow sm:p-6">
-            <div class="grid grid-cols-3 gap-4">
+            <div class="grid grid-cols-2 gap-4 md:grid-cols-3">
                 <%= for {date, campaigns} <- @schedule do %>
-                <div class="px-3 border-r last:border-0">
+                <div class="px-3 border-r last:border-0 first:hidden first:md:block">
                     <h4 class="mb-4 font-bold">
                         <%= if date == @today, do: "Today", else: format_date(date) %>
                     </h4>
