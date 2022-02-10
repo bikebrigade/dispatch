@@ -305,6 +305,7 @@ defmodule BikeBrigade.Delivery do
     Repo.all(query)
     |> Repo.preload(:program)
   end
+
   def campaigns_per_rider(rider) do
     query = from c in CampaignRider, where: c.rider_id == ^rider.id, select: count(c.id)
     Repo.one(query)
@@ -859,23 +860,29 @@ defmodule BikeBrigade.Delivery do
 
   """
   def list_opportunities(opts \\ []) do
-    order_by =
-      case Keyword.fetch(opts, :order_by) do
-        {:ok, :program_name} ->
-          [asc: dynamic(as(:program).name), asc: dynamic(as(:opportunity).delivery_start)]
-
-        _ ->
-          [asc: dynamic(as(:opportunity).delivery_start)]
-      end
-
     query =
       from o in Opportunity,
         as: :opportunity,
         left_join: p in assoc(o, :program),
         as: :program,
         on: o.program_id == p.id,
-        order_by: ^order_by,
         where: ^opportunities_filter(opts)
+
+    query =
+      case {Keyword.get(opts, :sort_order, :asc), Keyword.get(opts, :sort_field, :delivery_start)} do
+        {order, :program_name} ->
+          query
+          |> order_by([{^order, as(:program).name}, asc: as(:opportunity).delivery_start])
+
+        {order, :program_lead} ->
+          query
+          |> join(:left, [o, p], l in assoc(p, :lead), as: :lead)
+          |> order_by([{^order, as(:lead).name}, asc: as(:opportunity).delivery_start])
+
+        {order, field} when order in [:asc, :desc] and is_atom(field) ->
+          query
+          |> order_by([{^order, ^field}])
+      end
 
     preload = Keyword.get(opts, :preload, [])
 
