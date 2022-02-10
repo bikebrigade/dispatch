@@ -126,10 +126,10 @@
     <div class="px-2 py-3 bg-white shadow x-2 md:h-full sm:rounded-lg">
       <.live_component module={TasksListComponent} id={:tasks_list} campaign={@campaign} tasks_query={@tasks_query} selected_task={@selected_task} selected_rider={@selected_rider} />
     </div>
-    <div class="px-2 py-3 bg-white shadow md:h-full sm:rounded-lg">
+    <div class="px-2 py-3 bg-white shadow md:h-full md:order-last sm:rounded-lg">
         <.live_component module={RidersListComponent} id={:riders_list} campaign={@campaign} riders_query={@riders_query} selected_task={@selected_task} selected_rider={@selected_rider} />
     </div>
-    <div class="col-span-2 overflow-hidden bg-white shadow md:order-2 sm:rounded-lg">
+    <div class="col-span-2 overflow-hidden bg-white shadow sm:rounded-lg">
       <div class="px-4 py-5 h-96 md:h-full sm:p-6">
         <.live_component module={MapComponent} id={:tasks_map} campaign={@campaign} tasks_query={@tasks_query} riders_query={@riders_query} selected_task={@selected_task} selected_rider={@selected_rider} />
       </div>
