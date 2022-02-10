@@ -2,20 +2,24 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
   use BikeBrigadeWeb, :live_component
 
   alias BikeBrigade.Riders
+  alias BikeBrigade.Riders.RiderSearch
 
   @impl Phoenix.LiveComponent
   def mount(socket) do
     {:ok,
      socket
      |> assign(:selected_riders, [])
-     |> assign(:search, nil)
-     |> assign(:riders, [])
+     |> assign(:search, "")
+     |> assign(:rider_search, RiderSearch.new(limit: 10))
      |> assign(:multi, false)}
   end
 
   @impl Phoenix.LiveComponent
   def handle_event("suggest", %{"value" => search}, socket) do
-    {:noreply, assign(socket, :riders, Riders.search_riders(search, 10))}
+    {:noreply,
+    socket
+    |> assign(:search, search)
+    |> update(:rider_search, &RiderSearch.filter(&1, [name_or_phone: search]))}
   end
 
   def handle_event("unselect", %{"id" => id}, socket) do
@@ -58,15 +62,17 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
     <%= if @multi || Enum.empty?(@selected_riders) do %>
       <input type="text" phx-keyup="suggest" phx-target={ @myself } phx-debounce="50" name="search" placeholder="Type to search for riders by name"
       class="block w-full px-3 py-2 placeholder-gray-400 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
-      <ul id="rider-selection-list" class="overflow-y-auto max-h-64">
-        <%= for rider <- @riders do %>
-          <li id={"rider-selection:#{rider.id}"}>
-            <a href="#" phx-click="select" phx-value-id={ rider.id } phx-target={ @myself } class="block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50">
-              <.show rider={rider}/>
-            </a>
-          </li>
-        <% end %>
-      </ul>
+      <%= if @search != "" do %>
+        <ul id="rider-selection-list" class="overflow-y-auto max-h-64">
+          <%= for rider <- @rider_search.riders do %>
+            <li id={"rider-selection:#{rider.id}"}>
+              <a href="#" phx-click="select" phx-value-id={ rider.id } phx-target={ @myself } class="block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50">
+                <.show rider={rider}/>
+              </a>
+            </li>
+          <% end %>
+        </ul>
+      <% end %>
     <% end %>
     </div>
     """
