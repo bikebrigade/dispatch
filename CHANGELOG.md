@@ -1,3 +1,5 @@
+# 2022-02-10
+  - Sorting for opportunities page
 # 2022-01-29
   - Refresh of rider page
 # 2022-01-12
