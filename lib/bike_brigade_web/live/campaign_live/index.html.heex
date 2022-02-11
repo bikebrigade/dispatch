@@ -55,7 +55,7 @@
               <div class="flex items-center mb-2 space-x-1">
                 <%= live_redirect name(c), to: Routes.campaign_show_path(@socket, :show, c),  class: "link text-sm font-medium" %>
               </div>
-              <div class="flex-shrink-0 space-y-1 md:space-x-2 md:flex">
+              <div class="flex-shrink-0 space-y-1 md:space-y-0 md:space-x-2 md:flex">
                 <C.button size={:xsmall} color={:white} patch_to={Routes.campaign_index_path(@socket, :edit, c)}>
                   Edit
                 </C.button>
