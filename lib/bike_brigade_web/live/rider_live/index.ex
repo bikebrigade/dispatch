@@ -409,7 +409,11 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
             <li class="before:content-[','] first:before:content-['']">
               <button type="button" phx-click="filter" value={"tag:#{tag.name}"}}
                 class="link">
-                <%= tag.name %>
+                <%= if get_filter(@rider_search.filters, :tag, tag.name) do %>
+                  <span class="font-bold"><%= tag.name %></span>
+                <% else %>
+                  <%= tag.name %>
+                <% end %>
               </button>
             </li>
             <% end %>
@@ -418,7 +422,11 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
         <:td let={rider}>
           <button type="button" phx-click="filter" value={"capacity:#{rider.capacity}"}}
           class="link">
-            <%= rider.capacity %>
+            <%= if get_filter(@rider_search.filters, :capacity, rider.capacity) do %>
+              <span class="font-bold"><%= rider.capacity %></span>
+            <% else %>
+              <%= rider.capacity %>
+            <% end %>
           </button>
         </:td>
         <:td let={rider}>
@@ -619,11 +627,23 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     MapSet.size(selected) != 0 && Enum.count(riders) == MapSet.size(selected)
   end
 
-  defp get_filter(filters, kind) do
+  defp get_filter(filters, kind) when is_atom(kind) do
     filters
     |> Enum.find_value(fn
       {^kind, filter} -> filter
       _ -> false
     end)
+  end
+
+  defp get_filter(filters, kind, filter) when is_atom(kind) and is_binary(filter) do
+    filters
+    |> Enum.find_value(fn
+      {^kind, ^filter} -> filter
+      _ -> false
+    end)
+  end
+
+  defp get_filter(filters, kind, filter) when is_atom(kind) and is_atom(filter) do
+    get_filter(filters, kind, Atom.to_string(filter))
   end
 end
