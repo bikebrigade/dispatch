@@ -186,7 +186,7 @@ defmodule BikeBrigade.Riders.RiderSearch do
   @spec apply_filter({atom(), any()}, Ecto.Query.t()) :: Ecto.Query.t()
   defp apply_filter({:name, search}, query) do
     query
-    |> where(ilike(as(:rider).name, ^"%#{search}%"))
+    |> where(ilike(as(:rider).name, ^"#{search}%") or ilike(as(:rider).name, ^"% #{search}%"))
   end
 
   defp apply_filter({:phone, search}, query) do
@@ -196,7 +196,7 @@ defmodule BikeBrigade.Riders.RiderSearch do
 
   defp apply_filter({:name_or_phone, search}, query) do
     query
-    |> where(ilike(as(:rider).name, ^"#{search}%") or like(as(:rider).phone, ^"%#{search}%"))
+    |> where(ilike(as(:rider).name, ^"#{search}%") or ilike(as(:rider).name, ^"% #{search}%") or like(as(:rider).phone, ^"%#{search}%"))
   end
 
   defp apply_filter({:tag, tag}, query) do

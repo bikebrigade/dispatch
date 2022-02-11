@@ -395,7 +395,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
         </:td>
         <:td let={rider} padding="px-3">
           <%= live_redirect to: Routes.rider_show_path(@socket, :show, rider), class: "link" do %>
-            <.bold_search string={rider.name} search={get_filter(@rider_search.filters, :name)} />
+            <.bold_search string={rider.name} search={get_filter(@rider_search.filters, :name)} search_type={:word_boundary} />
           <% end %>
           <span class="text-xs lowercase ">(<%= rider.pronouns %>)</span>
           <.show_phone_if_filtered phone={rider.phone} filters={@rider_search.filters} />
@@ -576,6 +576,8 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   end
 
   defp bold_search(assigns) do
+    assigns = assign_new(assigns, :search_type, fn -> :any end)
+
     case assigns.search do
       nil ->
         ~H(<%= @string %>)
@@ -584,7 +586,11 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
         ~H(<span class="font-bold"><%= @string %></span>)
 
       search ->
-        pattern = ~r/#{search}/i
+        pattern =
+          case assigns.search_type do
+            :any -> ~r/#{search}/i
+            :word_boundary -> ~r/(^| )#{search}/i
+          end
 
         segments =
           Regex.split(pattern, assigns.string, include_captures: true)
