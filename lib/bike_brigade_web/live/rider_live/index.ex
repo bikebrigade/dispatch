@@ -576,7 +576,10 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   defp show_phone_if_filtered(assigns) do
     if phone_filter = get_filter(assigns.filters, :phone) do
       ~H"""
-      <.bold_search string={@phone} search={phone_filter} />
+      <div class="flex">
+        <Heroicons.Outline.phone class="w-4 h-4" />
+        <.bold_search string={@phone} search={phone_filter} />
+      </div>
       """
     else
       ~H""
