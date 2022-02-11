@@ -3,7 +3,6 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
 
   alias Phoenix.LiveView.JS
 
-  alias BikeBrigade.Repo
   alias BikeBrigade.Riders
   alias BikeBrigade.Riders.RiderSearch
   alias BikeBrigade.LocalizedDateTime
@@ -23,7 +22,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     @actives ~w(hour day week month year)
     @capacities ~w(large medium small)
 
-    defstruct name: nil, tags: [], active: [], capacity: []
+    defstruct name: nil, phone: nil, tags: [], active: [], capacity: []
 
     @type t :: %__MODULE__{
             name: String.t() | nil,
@@ -69,7 +68,19 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
             end
             |> Enum.map(& &1.name)
 
-          %{suggestions | name: [search], tags: tags, active: @actives, capacity: @capacities}
+          phone =
+            if search =~ ~r/^\d+$/ do
+              search
+            end
+
+          %{
+            suggestions
+            | name: search,
+              phone: phone,
+              tags: tags,
+              active: @actives,
+              capacity: @capacities
+          }
 
         [_, _] ->
           # unknown facet
@@ -135,7 +146,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
 
     {:noreply,
      socket
-     |> update(:rider_search, &RiderSearch.filter(&1, &1.filters ++ filter))
+     |> update(:rider_search, &RiderSearch.filter(&1, &1.filters ++ [filter]))
      |> clear_search()
      |> clear_selected()}
   end
@@ -259,17 +270,15 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   end
 
   defp parse_filter(search) do
-    with [type, filter] <- String.split(search, ":", parts: 2) do
-      filter = String.trim(filter)
+    case String.split(search, ":", parts: 2) do
+      [type, filter] ->
+        type = String.to_atom(type)
+        filter = String.trim(filter)
 
-      case type do
-        "name" -> [name: filter]
-        "tag" -> [tag: filter]
-        "active" -> [active: filter]
-        "capacity" -> [capacity: filter]
-      end
-    else
-      [filter] -> [name: String.trim(filter)]
+        {type, filter}
+
+      [filter] ->
+        {:name, String.trim(filter)}
     end
   end
 
@@ -303,7 +312,6 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     socket
     |> assign(:selected, selected)
   end
-
 
   @impl Phoenix.LiveView
   def render(assigns) do
@@ -387,8 +395,10 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
         </:td>
         <:td let={rider} padding="px-3">
           <%= live_redirect to: Routes.rider_show_path(@socket, :show, rider), class: "link" do %>
-            <%= rider.name %><span class="ml-1 text-xs lowercase ">(<%= rider.pronouns %>)</span>
+            <.bold_search string={rider.name} search={get_filter(@rider_search.filters, :name)} />
           <% end %>
+          <span class="text-xs lowercase ">(<%= rider.pronouns %>)</span>
+          <.show_phone_if_filtered phone={rider.phone} filters={@rider_search.filters} />
         </:td>
         <:td let={rider}>
           <%= rider.location_struct.neighborhood %>
@@ -472,6 +482,14 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
           <.suggestion type={:name} search={@suggestions.name} />
         </div>
       <% end %>
+      <%= if @suggestions.phone do %>
+        <h3 class="my-1 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+          Phone
+        </h3>
+        <div class="flex flex-col my-2">
+          <.suggestion type={:phone} search={@suggestions.phone} />
+        </div>
+      <% end %>
       <%= if @suggestions.tags != [] do %>
         <h3 class="my-1 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
           Tag
@@ -518,9 +536,12 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
         tabindex="1"
         phx-focus={JS.push("choose", value: %{"choose" => "#{@type}:#{@search}"})}>
         <p class={"px-2.5 py-1.5 rounded-md text-md font-medium #{color(@type)}"}>
-          <%= if @type == :name do %>
+          <%= case @type do %>
+          <% :name -> %>
             "<%= @search %>"<span class="ml-1 text-sm">in name</span>
-          <% else %>
+          <% :phone -> %>
+            "<%= @search %>"<span class="ml-1 text-sm">in phone number</span>
+          <% _ -> %>
             <span class="mr-0.5 text-sm"><%= @type %>:</span><%= @search %>
           <% end %>
         </p>
@@ -544,16 +565,59 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     """
   end
 
+  defp show_phone_if_filtered(assigns) do
+    if phone_filter = get_filter(assigns.filters, :phone) do
+      ~H"""
+      <.bold_search string={@phone} search={phone_filter} />
+      """
+    else
+      ~H""
+    end
+  end
+
+  defp bold_search(assigns) do
+    case assigns.search do
+      nil ->
+        ~H(<%= @string %>)
+
+      "" ->
+        ~H(<span class="font-bold"><%= @string %></span>)
+
+      search ->
+        pattern = ~r/#{search}/i
+
+        segments =
+          Regex.split(pattern, assigns.string, include_captures: true)
+          |> Enum.chunk_every(2, 2, [""])
+
+        assigns = assign(assigns, segments: segments)
+
+        # Note the output is all one line cuz inline elements add spacing from spaces - which may be in the string
+        ~H"""
+          <%= for [s, search] <- @segments do %><%= s %><span class="font-bold"><%= search %></span><% end %>
+        """
+    end
+  end
+
   defp color(type) do
     case type do
       :name -> "text-emerald-800 bg-emerald-100"
       :tag -> "text-indigo-800 bg-indigo-100"
       :active -> "text-amber-900 bg-amber-100"
       :capacity -> "text-rose-900 bg-rose-100"
+      :phone -> "text-cyan-900 bg-cyan-100"
     end
   end
 
   defp all_selected?(riders, selected) do
     MapSet.size(selected) != 0 && Enum.count(riders) == MapSet.size(selected)
+  end
+
+  defp get_filter(filters, kind) do
+    filters
+    |> Enum.find_value(fn
+      {^kind, filter} -> filter
+      _ -> false
+    end)
   end
 end
