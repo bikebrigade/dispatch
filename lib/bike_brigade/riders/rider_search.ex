@@ -93,8 +93,12 @@ defmodule BikeBrigade.Riders.RiderSearch do
   end
 
   @spec page_first(t()) :: pos_integer()
-  def page_first(%{offset: offset}) do
-    offset + 1
+  def page_first(%{offset: offset, total: total}) do
+    if total == 0 do
+      0
+    else
+      offset + 1
+    end
   end
 
   @spec page_last(t()) :: pos_integer()
@@ -102,13 +106,18 @@ defmodule BikeBrigade.Riders.RiderSearch do
     min(offset + limit + 1, total)
   end
 
+  @spec build_query(t()) :: Ecto.Query.t()
+  defp build_query(rs) do
+    base_query()
+    |> sort_query(rs.sort_field, rs.sort_order)
+    |> filter_query(rs.filters)
+    |> paginate_query(rs.offset, rs.limit)
+  end
+
   @spec execute_query(t()) :: t()
   defp execute_query(rs) do
     riders =
-      base_query()
-      |> sort_query(rs.sort_field, rs.sort_order)
-      |> filter_query(rs.filters)
-      |> paginate_query(rs.offset, rs.limit)
+      build_query(rs)
       |> Repo.all()
       |> Repo.preload(rs.preload)
 
@@ -118,7 +127,7 @@ defmodule BikeBrigade.Riders.RiderSearch do
   @spec update_total(t()) :: t()
   defp update_total(rs) do
     total =
-      base_query()
+      build_query(rs)
       |> exclude(:preload)
       |> exclude(:order_by)
       |> exclude(:select)
