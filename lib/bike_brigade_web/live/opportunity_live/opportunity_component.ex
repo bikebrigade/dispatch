@@ -98,7 +98,7 @@ defmodule BikeBrigadeWeb.OpportunityLive.OpportunityComponent do
   @impl Phoenix.LiveComponent
   def render(assigns) do
     ~H"""
-    <tr id={@id}>
+    <tr id={"opportunity-#{@id}"}>
       <%= if @editing do %>
         <.form id={"opportunity-form-#{@id}"} let={f} for={@changeset} phx-target={@myself} phx-submit="save">
           <td class="py-4 pl-3 pr-1 text-sm leading-5 text-gray-500 border-b border-gray-200"></td>
