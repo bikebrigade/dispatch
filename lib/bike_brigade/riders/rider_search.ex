@@ -6,7 +6,7 @@ defmodule BikeBrigade.Riders.RiderSearch do
   alias BikeBrigade.Riders.{Rider, RiderSearch}
   alias BikeBrigade.Riders.Tag
 
-  defstruct [:offset, :limit, :filters, :sort_field, :sort_order, :preload, total: 0, riders: []]
+  defstruct [ :sort_field, :sort_order, :preload, offset: 0, limit: 0, total: 0, riders: [], filters: []]
 
   @type t :: %RiderSearch{
           offset: non_neg_integer(),

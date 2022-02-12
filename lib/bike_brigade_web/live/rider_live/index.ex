@@ -97,6 +97,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
      |> assign(:page_title, "Riders")
      |> assign(:selected, MapSet.new())
      |> assign(:search, "")
+     |> assign(:rider_search, %RiderSearch{})
      |> assign(:suggestions, %Suggestions{})
      |> assign(:show_suggestions, false)}
   end
