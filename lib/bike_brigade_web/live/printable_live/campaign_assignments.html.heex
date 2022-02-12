@@ -33,7 +33,7 @@
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
           <%= for task <- @tasks do %>
-            <tr id={task.id} class="leading-tight">
+            <tr id={"task-#{task.id}"} class="leading-tight">
               <td class="py-.5 text-xs leading-5 text-center text-gray-500 border-r">
                 <input type="checkbox" class="w-4 h-4 ">
               </td>

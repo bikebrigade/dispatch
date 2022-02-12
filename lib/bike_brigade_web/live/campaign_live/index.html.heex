@@ -3,7 +3,7 @@
     <:title><%= Atom.to_string(@live_action) |> String.capitalize() %> Campaign</:title>
     <.live_component
       module={BikeBrigadeWeb.CampaignLive.FormComponent}
-      id={@campaign.id || :new}
+      id={"campaign-#{@campaign.id || :new}"}
       action={@live_action}
       campaign={@campaign}
       return_to={Routes.campaign_index_path(@socket, :index)}/>
@@ -49,7 +49,7 @@
     <div class="w-32 py-4 pl-4"><C.date date={date}/></div>
     <ul role="list" class="w-full divide-y divide-gray-200">
       <%= for c <- campaigns do %>
-        <li id={c.id}>
+        <li id={"campaign-#{c.id}"}>
           <div class="px-4 py-4">
             <div class="items-center justify-between md:flex">
               <div class="flex items-center mb-2 space-x-1">

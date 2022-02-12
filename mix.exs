@@ -43,7 +43,7 @@ defmodule BikeBrigade.MixProject do
       {:ecto_sql, "~> 3.7.1"},
       {:ecto_psql_extras, "~> 0.7.4"},
       {:postgrex, ">= 0.0.0"},
-      {:phoenix_live_view, "~> 0.17.5"},
+      {:phoenix_live_view, "~> 0.17.7"},
       {:floki, ">= 0.0.0", only: :test},
       {:phoenix_html, "~> 3.1"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
