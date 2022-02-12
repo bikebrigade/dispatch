@@ -17,7 +17,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
       {:ok, view, _html} = live(conn, Routes.campaign_index_path(conn, :index))
 
       view
-      |> element("##{campaign.id} a", "#{program.name}")
+      |> element("#campaign-#{campaign.id} a", "#{program.name}")
       |> render_click()
 
       assert_redirected(view, "/campaigns/#{campaign.id}")
