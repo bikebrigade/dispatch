@@ -195,7 +195,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     selected =
       case select_all do
         "true" ->
-          for r <- socket.assigns.riders, into: MapSet.new(), do: r.id
+          for r <- socket.assigns.rider_search.riders, into: MapSet.new(), do: r.id
 
         "false" ->
           MapSet.new()
