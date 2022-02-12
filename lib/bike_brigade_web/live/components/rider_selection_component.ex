@@ -6,57 +6,70 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
 
   @impl Phoenix.LiveComponent
   def mount(socket) do
+    # We're going to use a map instead of a MapSet for riders
+    # because we want the identity of each eider to be the id
+
+    selected_riders = %{}
+
     {:ok,
      socket
-     |> assign(:selected_riders, [])
+     |> assign(:selected_riders, selected_riders)
      |> assign(:search, "")
      |> assign(:rider_search, RiderSearch.new(limit: 10))
      |> assign(:multi, false)}
   end
 
   @impl Phoenix.LiveComponent
+  def update(assigns, socket) do
+    assigns =
+      case assigns do
+        %{selected_riders: selected_riders} when is_list(selected_riders) ->
+          Map.put(assigns, :selected_riders, Map.new(selected_riders, fn r -> {r.id, r} end))
+
+        assigns ->
+          assigns
+      end
+
+    {:ok, assign(socket, assigns)}
+  end
+
+  @impl Phoenix.LiveComponent
   def handle_event("suggest", %{"value" => search}, socket) do
     {:noreply,
-    socket
-    |> assign(:search, search)
-    |> update(:rider_search, &RiderSearch.filter(&1, [name_or_phone: search]))}
+     socket
+     |> assign(:search, search)
+     |> update(:rider_search, &RiderSearch.filter(&1, name_or_phone: search))}
   end
 
   def handle_event("unselect", %{"id" => id}, socket) do
-    %{selected_riders: selected_riders} = socket.assigns
     id = String.to_integer(id)
-    selected_riders = Enum.reject(selected_riders, &(&1.id == id))
 
     {:noreply,
      socket
-     |> assign(:selected_riders, selected_riders)}
+     |> update(:selected_riders, &Map.delete(&1, id))}
   end
 
   def handle_event("select", %{"id" => id}, socket) do
-    %{selected_riders: selected_riders} = socket.assigns
-
-    rider = Riders.get_rider!(id)
-
     {:noreply,
      socket
-     |> assign(:selected_riders, selected_riders ++ [rider])
-     |> assign(:riders, [])}
+     |> update(:selected_riders, &Map.put_new_lazy(&1, id, fn -> Riders.get_rider!(id) end))
+     |> assign(:search, "")}
   end
 
   @impl true
   def render(assigns) do
     ~H"""
     <div id="rider-select">
-      <div class="grid grid-cols-2">
-        <%= for rider <- @selected_riders do %>
+      <div class="grid grid-cols-2 overflow-y-auto max-h-64">
+        <%= for {id, rider} <- @selected_riders do %>
           <.show rider={rider}>
             <:x>
-              <a href="#" phx-click="unselect" phx-value-id={ rider.id } phx-target={ @myself }  class="block text-sm text-gray-400 bg-white rounded-md font-base hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              <a href="#" phx-click="unselect" phx-value-id={ id } phx-target={ @myself }  class="block text-sm text-gray-400 bg-white rounded-md font-base hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                 <Heroicons.Outline.x class="w-5 h-5" />
               </a>
             </:x>
           </.show>
-          <input type="hidden" name={ @input_name } value={ rider.id }>
+          <input type="hidden" name={ @input_name } value={ id }>
         <% end %>
       </div>
     <%= if @multi || Enum.empty?(@selected_riders) do %>
