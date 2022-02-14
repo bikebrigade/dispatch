@@ -13,7 +13,7 @@ defmodule BikeBrigadeWeb.OpportunityLiveTest do
       assert html =~ opportunity.signup_link
     end
 
-    test "redirects to show opportunity", %{conn: conn, opportunity: opportunity, program: program} do
+    test "redirects to show opportunity", %{conn: conn, program: program} do
       {:ok, view, _html} = live(conn, Routes.opportunity_index_path(conn, :index))
 
       # Select a program
@@ -25,7 +25,7 @@ defmodule BikeBrigadeWeb.OpportunityLiveTest do
       assert_redirected(view, "/programs/#{program.id}")
     end
 
-    test "can add new opportunity", %{conn: conn, opportunity: opportunity, program: program} do
+    test "can add new opportunity", %{conn: conn} do
       {:ok, view, html} = live(conn, Routes.opportunity_index_path(conn, :index))
       assert html =~ "New Signup Link"
 
