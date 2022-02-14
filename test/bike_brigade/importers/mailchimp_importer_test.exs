@@ -26,7 +26,7 @@ defmodule BikeBrigade.Importers.MailchimpImporterTest do
   describe "parse_mailchimp_attrs/1" do
     test "is successful if fields from Mailchimp are valid" do
       {:ok, expected_fields} = MailchimpImporter.parse_mailchimp_attrs(@valid_attrs)
-      address = expected_fields[:location_struct][:address]
+      address = expected_fields[:location][:address]
       assert address == "1508 Davenport Rd Toronto"
     end
 
@@ -69,7 +69,7 @@ defmodule BikeBrigade.Importers.MailchimpImporterTest do
       r = Riders.get_rider_by_email("dispatcher@example.com")
 
       assert r.name == "Morty"
-      assert r.location_struct.address == "1508 Davenport Rd Toronto"
+      assert r.location.address == "1508 Davenport Rd Toronto"
     end
 
     test "handles case where phone is invalid" do
@@ -94,7 +94,7 @@ defmodule BikeBrigade.Importers.MailchimpImporterTest do
       assert r.name == "Morty"
 
       # The rider has a default location
-      assert r.location_struct.address == "1 Front St"
+      assert r.location.address == "1 Front St"
 
       # We alert on slack
       call = FakeSlack.get_last_call()

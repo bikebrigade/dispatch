@@ -43,7 +43,7 @@ defmodule BikeBrigadeWeb.CampaignController do
 
     conn
     |> put_status(:ok)
-    |> send_download({:binary, file}, filename: "#{campaign.delivery_date}_#{CampaignHelpers.name(campaign)}_assignments.csv")
+    |> send_download({:binary, file}, filename: "#{campaign.delivery_start}_#{CampaignHelpers.name(campaign)}_assignments.csv")
   end
 
   def download_results(conn, %{"id" => id}) do
@@ -71,6 +71,6 @@ defmodule BikeBrigadeWeb.CampaignController do
 
     conn
     |> put_status(:ok)
-    |> send_download({:binary, file}, filename: "#{campaign.delivery_date}_#{CampaignHelpers.name(campaign)}_results.csv")
+    |> send_download({:binary, file}, filename: "#{campaign.delivery_start}_#{CampaignHelpers.name(campaign)}_results.csv")
   end
 end

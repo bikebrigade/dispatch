@@ -49,13 +49,13 @@ defmodule BikeBrigade.Fixtures do
       %{
         delivery_start: DateTime.utc_now(),
         delivery_end: DateTime.utc_now() |> DateTime.add(60, :second),
-        name: "campaign",
         location: Map.from_struct(@location)
       }
       |> Map.merge(attrs)
       |> Delivery.create_campaign()
 
     campaign
+    |> Repo.preload(:program)
   end
 
   def fixture(:rider, attrs) do
@@ -65,14 +65,8 @@ defmodule BikeBrigade.Fixtures do
         email: Faker.Internet.email(),
         phone: fake_phone(),
         pronouns: Enum.random(~w(He/Him She/Her They/Them)),
-        address: @location.address,
-        address2: nil,
-        city: @location.city,
         country: @location.country,
-        location: @location.coords,
-        location_struct: Map.from_struct(@location),
-        postal: @location.postal,
-        province: @location.province,
+        location: Map.from_struct(@location),
         availability: %{
           "fri" => "all_day",
           "mon" => "all_day",

@@ -18,15 +18,9 @@ defmodule BikeBrigadeWeb.DeliveryLive.Show do
 
     rider = %{rider | pickup_window: pickup_window}
 
-    # TODO delivery date will be gone
-    campaign_date = if campaign.delivery_start do
-      LocalizedDateTime.to_date(campaign.delivery_start)
-    else
-      campaign.delivery_date
+    campaign_date = CampaignHelpers.campaign_date(campaign)
 
-    end
-
-    if @check_expiry && Date.diff(Date.utc_today(), campaign_date) > 5 do
+    if @check_expiry && Date.diff(Date.utc_today(), campaign.delivery_start) > 5 do
       raise DeliveryExpiredError
     end
 

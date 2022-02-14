@@ -151,9 +151,7 @@ defmodule BikeBrigade.Delivery do
         left_lateral_join: r in subquery(riders_query),
         left_lateral_join: m in subquery(messages_query),
         order_by: [
-          # TODO refactor
-          desc_nulls_last: coalesce(c.delivery_start, c.delivery_date),
-          asc_nulls_last: c.pickup_window
+          desc_nulls_last: c.delivery_start,
         ],
         where: ^filter_by_week,
         select_merge: %{
@@ -201,7 +199,6 @@ defmodule BikeBrigade.Delivery do
   def create_task_for_campaign(campaign, attrs \\ %{}) do
     # TODO handle conflicts for multiple task items here
     %Task{
-      delivery_date: campaign.delivery_date,
       pickup_address: campaign.location.address,
       pickup_city: campaign.location.city,
       pickup_postal: campaign.location.postal,
@@ -248,7 +245,7 @@ defmodule BikeBrigade.Delivery do
       from [r, cr] in Rider,
         order_by: r.name,
         select_merge: %{
-          distance: st_distance(r.location, ^campaign.location.coords),
+          distance: st_distance(location_coords(r.location), ^campaign.location.coords),
           task_notes: cr.notes,
           task_capacity: cr.rider_capacity,
           task_enter_building: cr.enter_building,
@@ -299,7 +296,7 @@ defmodule BikeBrigade.Delivery do
         where: t.assigned_rider_id == ^rider.id,
         select: c,
         select_merge: %{delivery_url_token: cr.token},
-        order_by: [desc: coalesce(date(c.delivery_start), c.delivery_date), asc: t.id],
+        order_by: [desc: c.delivery_start, asc: t.id],
         preload: [tasks: t]
 
     Repo.all(query)
@@ -318,7 +315,7 @@ defmodule BikeBrigade.Delivery do
         on: cr.rider_id == r.id and cr.campaign_id == ^campaign.id,
         order_by: [
           desc: cr.rider_capacity,
-          asc: r.max_distance - st_distance(r.location, ^campaign.location.coords)
+          asc: r.max_distance - st_distance(location_coords(r.location), ^campaign.location.coords)
         ],
         left_join: t in Task,
         on: t.assigned_rider_id == r.id and t.campaign_id == ^campaign.id,
@@ -344,7 +341,7 @@ defmodule BikeBrigade.Delivery do
               from t in Task,
                 where: t.campaign_id == ^campaign.id and is_nil(t.assigned_rider_id),
                 preload: [task_items: :item],
-                order_by: st_distance(t.dropoff_location, ^rider.location)
+                order_by: st_distance(t.dropoff_location, ^rider.location.coords)
             )
           end
           |> Repo.preload([:assigned_rider])
@@ -454,7 +451,7 @@ defmodule BikeBrigade.Delivery do
       URI.encode_query(%{
         api: 1,
         travelmode: "bicycling",
-        origin: "#{rider.address} #{rider.city} #{rider.postal}",
+        origin: "#{rider.location.address} #{rider.location.city} #{rider.location.postal}",
         waypoints: Enum.join(waypoints, "|"),
         destination: destination
       })
@@ -568,9 +565,7 @@ defmodule BikeBrigade.Delivery do
         left_join: t in assoc(c, :tasks),
         left_join: r in assoc(c, :riders),
         order_by: [
-          # TODO refactor
-          desc_nulls_last: coalesce(c.delivery_start, c.delivery_date),
-          asc_nulls_last: c.pickup_window
+          desc_nulls_last: c.delivery_start,
         ],
         group_by: c.id,
         select_merge: %{

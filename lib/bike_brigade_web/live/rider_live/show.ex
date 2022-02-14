@@ -9,6 +9,8 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
   alias BikeBrigade.LocalizedDateTime
   alias BikeBrigade.Repo
 
+  import BikeBrigadeWeb.CampaignHelpers
+
   @impl Phoenix.LiveView
   def mount(_params, _session, socket) do
     {:ok,

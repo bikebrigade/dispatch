@@ -26,17 +26,13 @@ for _ <- 0..100 do
       # TODO
       availability: %{},
       capacity: Utils.random_enum(Rider.CapacityEnum),
-      city: location.city,
-      country: location.country,
       email: Faker.Internet.email(),
-      location: location.coords,
-      location_struct: Map.from_struct(location),
+      location: Map.from_struct(location),
       max_distance: 20,
       name: "#{Faker.Person.first_name()} #{Faker.Person.last_name()}",
       phone: "647-#{Enum.random(200..999)}-#{Enum.random(1000..9999)}",
       postal: location.postal,
       pronouns: Enum.random(~w(He/Him She/Her They/Them)),
-      province: location.province,
       signed_up_on: LocalizedDateTime.now()
     })
 end

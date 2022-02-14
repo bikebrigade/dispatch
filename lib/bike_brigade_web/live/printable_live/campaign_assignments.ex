@@ -22,7 +22,7 @@ defmodule BikeBrigadeWeb.PrintableLive.CampaignAssignments do
     {:noreply,
      socket
      |> assign(:campaign_title, name(campaign))
-     |> assign(:campaign_date, campaign.delivery_date)
+     |> assign(:campaign_date, campaign_date(campaign))
      |> assign(:tasks, tasks)}
   end
 end
