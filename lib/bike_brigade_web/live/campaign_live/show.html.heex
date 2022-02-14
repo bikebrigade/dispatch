@@ -72,8 +72,8 @@
 <%# do nothing here%>
 
 <% end %>
-<div class="flex flex-col border-">
-  <div class="flex flex-row items-center">
+<div class="flex flex-col h-full">
+  <div class="flex flex-row flex-wrap items-center md:flex-nowrap">
     <C.button patch_to={Routes.campaign_show_path(@socket, :messaging, @campaign.id)} class="mr-3">
       <Heroicons.Outline.chat_alt_2 class="w-5 h-5 mr-2 -ml-1" />
       Messaging
@@ -107,7 +107,7 @@
         </li>
       </ul>
     </div>
-    <div class="flex justify-end w-full">
+    <div class="flex w-full md:justify-end">
       <div class="flex space-x-1">
         <C.button phx-click={UI.show_modal(:edit)} color={:white} patch_to={ Routes.campaign_show_path(@socket, :edit, @campaign.id) }>
           Edit
@@ -122,17 +122,17 @@
       <%= name(@campaign) %>
     </h1>
     </div>
-  <div class="flex flex-row space-x-2">
-    <div class="w-3/12 h-screen px-2 py-3 bg-white shadow sm:rounded-lg">
+  <div class="grid grid-cols-2 gap-4 md:h-full md:grid-cols-4">
+    <div class="px-2 py-3 bg-white shadow x-2 md:h-full sm:rounded-lg">
       <.live_component module={TasksListComponent} id={:tasks_list} campaign={@campaign} tasks_query={@tasks_query} selected_task={@selected_task} selected_rider={@selected_rider} />
     </div>
-    <div class="w-6/12 overflow-hidden bg-white shadow sm:rounded-lg">
-      <div class="h-screen px-4 py-5 sm:p-6">
+    <div class="px-2 py-3 bg-white shadow md:h-full md:order-last sm:rounded-lg">
+        <.live_component module={RidersListComponent} id={:riders_list} campaign={@campaign} riders_query={@riders_query} selected_task={@selected_task} selected_rider={@selected_rider} />
+    </div>
+    <div class="col-span-2 overflow-hidden bg-white shadow sm:rounded-lg">
+      <div class="px-4 py-5 h-96 md:h-full sm:p-6">
         <.live_component module={MapComponent} id={:tasks_map} campaign={@campaign} tasks_query={@tasks_query} riders_query={@riders_query} selected_task={@selected_task} selected_rider={@selected_rider} />
       </div>
-    </div>
-    <div class="w-3/12 h-screen px-2 py-3 bg-white shadow sm:rounded-lg">
-      <.live_component module={RidersListComponent} id={:riders_list} campaign={@campaign} riders_query={@riders_query} selected_task={@selected_task} selected_rider={@selected_rider} />
     </div>
   </div>
 </div>
