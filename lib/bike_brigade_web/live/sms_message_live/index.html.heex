@@ -89,13 +89,7 @@
       <%= campaign_name(campaign) %>
     </a>
       <p class="mt-1 text-sm font-medium 1text-gray-500">
-      <%# TODO get rid of else when we drop delivery date
-      TODO make this look proper %>
-        <%= if campaign.delivery_start do %>
          <%= format_date(campaign.delivery_start) %>
-         <% else %>
-         <%= campaign.delivery_date %>
-         <% end %>
          <br/>
          <%= pickup_window(campaign, @selected_rider) %>
       </p>

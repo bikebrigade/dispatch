@@ -22,7 +22,6 @@ defmodule BikeBrigade.Delivery.Task do
     :contact_email,
     :contact_name,
     :contact_phone,
-    :delivery_date,
     :delivery_window,
     :dropoff_address,
     :dropoff_address2,
@@ -61,7 +60,6 @@ defmodule BikeBrigade.Delivery.Task do
     field :contact_email, :string
     field :contact_name, :string
     field :contact_phone, EctoPhoneNumber.Canadian
-    field :delivery_date, :date
     field :delivery_distance, :integer
     field :delivery_window, :string
     # TODO: rename to delivery_instructions
@@ -105,12 +103,9 @@ defmodule BikeBrigade.Delivery.Task do
 
   def changeset_for_campaign(campaign_changeset) do
     fn task, attrs ->
-      with {_, delivery_date} <- fetch_field(campaign_changeset, :delivery_date),
-           {_, pickup_location} <- fetch_field(campaign_changeset, :location)
-        do
+      with {_, pickup_location} <- fetch_field(campaign_changeset, :location) do
         attrs =
           %{
-            delivery_date: delivery_date, # TODO remove
             pickup_address: pickup_location.address,
             pickup_city: pickup_location.city,
             pickup_country: pickup_location.country,
@@ -193,8 +188,12 @@ defmodule BikeBrigade.Delivery.Task do
   end
 
   def fields_for(task) do
-    fields = @fields
-    |> Enum.filter(fn field -> field not in [:submitted_on, :assigned_rider_id, :campaign_id] end)
+    fields =
+      @fields
+      |> Enum.filter(fn field ->
+        field not in [:submitted_on, :assigned_rider_id, :campaign_id]
+      end)
+
     Map.take(task, fields)
   end
 end

@@ -75,7 +75,7 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
   end
 
   def put_default_location(rider_attrs) do
-    Map.put(rider_attrs, :location_struct, %{address: "1 Front St"})
+    Map.put(rider_attrs, :location, %{address: "1 Front St"})
   end
 
   def tag_invalid_location(rider) do
@@ -155,7 +155,7 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
 
       case geolocate_raw_location(raw_location) do
         {:ok, location} ->
-          {:ok, Map.put(rider_attrs, :location_struct, Map.from_struct(location))}
+          {:ok, Map.put(rider_attrs, :location, Map.from_struct(location))}
 
         {:error, _} ->
           {:error, {:update_location, rider_attrs}}

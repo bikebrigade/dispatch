@@ -16,19 +16,9 @@ defmodule BikeBrigade.Delivery.Campaign do
   defenum(RiderSpreadsheetLayout, non_foodshare: 0, foodshare: 1)
 
   @fields [
-    :name,
-    :delivery_date,
     :delivery_start,
     :delivery_end,
     :details,
-    :pickup_address,
-    :pickup_address2,
-    :pickup_city,
-    :pickup_country,
-    :pickup_location,
-    :pickup_postal,
-    :pickup_province,
-    :pickup_window,
     :rider_spreadsheet_id,
     :rider_spreadsheet_layout,
     :program_id
@@ -39,27 +29,10 @@ defmodule BikeBrigade.Delivery.Campaign do
   ]
 
   schema "campaigns" do
-    field :name, :string
-    field :delivery_date, :date
     field :delivery_start, :utc_datetime
     field :delivery_end, :utc_datetime
     field :details, :string
-    # TODO remove
-    field :pickup_address, :string
-    # TODO remove
-    field :pickup_address2, :string
-    # TODO remove
-    field :pickup_city, :string
-    # TODO remove
-    field :pickup_country, :string
-    # TODO remove
-    field :pickup_location, Geo.PostGIS.Geometry
-    # TODO remove
-    field :pickup_postal, :string
-    # TODO remove
-    field :pickup_province, :string
-    # TODO remove
-    field :pickup_window, :string
+
     # TODO remove
     field :rider_spreadsheet_id, :string
     # TODO remove

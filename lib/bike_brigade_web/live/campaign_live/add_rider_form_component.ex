@@ -3,6 +3,7 @@ defmodule BikeBrigadeWeb.CampaignLive.AddRiderFormComponent do
 
   alias BikeBrigade.Delivery
   alias BikeBrigade.Delivery.CampaignRider
+  import BikeBrigadeWeb.CampaignHelpers
 
   @impl Phoenix.LiveComponent
   def mount(socket) do

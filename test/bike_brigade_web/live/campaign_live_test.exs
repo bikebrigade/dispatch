@@ -30,7 +30,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
     test "displays campaign", %{conn: conn, campaign: campaign} do
       {:ok, _show_live, html} = live(conn, Routes.campaign_show_path(conn, :show, campaign))
 
-      assert html =~ campaign.name
+      assert html =~ campaign.program.name
     end
 
     test "can add a task", %{conn: conn, campaign: campaign} do
