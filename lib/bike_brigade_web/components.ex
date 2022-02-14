@@ -7,8 +7,15 @@ defmodule BikeBrigadeWeb.Components do
   alias BikeBrigadeWeb.Components.Icons
 
   def date(assigns) do
+    date =
+      case assigns.date do
+        %Date{} = date -> date
+        %DateTime{} = datetime -> LocalizedDateTime.to_date(datetime)
+      end
+
     assigns =
       assigns
+      |> assign(:date, date)
       |> assign(:today, LocalizedDateTime.today())
       |> assign_new(:link_to, fn -> nil end)
 
