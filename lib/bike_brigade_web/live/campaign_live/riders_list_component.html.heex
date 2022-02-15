@@ -10,7 +10,7 @@
       Add Rider
     </C.button>
   </div>
-  <div class="my-2 ml-4">
+  <div class="my-2 ml-2">
     <h3 class="text-lg font-medium leading-6 text-gray-900">
       Riders
     </h3>
@@ -19,7 +19,7 @@
     </div>
   </div>
   <div class="p-2 border-b">
-    <div class="flex flex-row flex-wrap mb-2 space-x-1">
+    <div class="flex flex-row flex-wrap gap-1">
         <C.filter_button phx-click="filter-riders" phx-value-capacity="all" selected={@riders_query[:capacity] == "all"}>
           All
         </C.filter_button>
@@ -28,7 +28,7 @@
         </C.filter_button>
     </div>
     <input type="text" phx-keydown="search-riders" phx-debounce="100" value={@riders_query[:search]}
-      class="block w-full px-3 py-2 placeholder-gray-400 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+      class="block w-full px-3 py-2 my-2 placeholder-gray-400 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
       placeholder="Search Riders" />
   </div>
   <ul class="flex-1 overflow-y-auto scrolling-touch" id="riders-list" phx-hook="RidersList">
