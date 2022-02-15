@@ -76,19 +76,12 @@ defmodule BikeBrigadeWeb.CampaignController do
       "delivery notes",
       "dropof_name",
       "dropoff address",
-      "partner organization"
+      "partner tracking id",
     ]
 
-    rows =
-      for task <- tasks do
-        [
-          task.delivery_status,
-          task.delivery_status_notes,
-          task.dropoff_name,
-          "#{task.dropoff_address} #{task.dropoff_address2} #{task.dropoff_city} #{task.dropoff_postal}",
-          task.organization_partner
-        ]
-      end
+    rows =  for task <- tasks do
+      [task.delivery_status, task.delivery_status_notes, task.dropoff_name, "#{task.dropoff_address} #{task.dropoff_address2} #{task.dropoff_city} #{task.dropoff_postal}", task.partner_tracking_id]
+    end
 
     # TODO: use streams?
 
