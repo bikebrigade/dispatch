@@ -19,27 +19,17 @@ defmodule BikeBrigade.Delivery.Task do
   )
 
   @fields [
-    :contact_email,
-    :contact_name,
-    :contact_phone,
-    :delivery_window,
     :dropoff_address,
     :dropoff_address2,
     :dropoff_city,
-    :dropoff_email,
     :dropoff_location,
     :dropoff_name,
-    :dropoff_organization,
     :dropoff_phone,
     :dropoff_postal,
     :dropoff_province,
     :delivery_status,
     :delivery_status_notes,
-    :onfleet_dropoff_id,
-    :onfleet_pickup_id,
-    :organization_name,
-    :organization_partner,
-    :other_items,
+    :partner_tracking_id,
     :pickup_address,
     :pickup_address2,
     :pickup_city,
@@ -47,40 +37,27 @@ defmodule BikeBrigade.Delivery.Task do
     :pickup_location,
     :pickup_postal,
     :pickup_province,
-    :request_type,
     :rider_notes,
-    :size,
-    :submitted_on,
     :assigned_rider_id,
     :campaign_id
   ]
 
   # TODO we're missing a dropoff_country field :joy:
   schema "tasks" do
-    field :contact_email, :string
-    field :contact_name, :string
-    field :contact_phone, EctoPhoneNumber.Canadian
-    field :delivery_distance, :integer
-    field :delivery_window, :string
-    # TODO: rename to delivery_instructions
+     field :delivery_distance, :integer
+  # TODO: rename to delivery_instructions
     field :rider_notes, :string
     field :dropoff_address, :string
     field :dropoff_address2, :string
     field :dropoff_city, :string
-    field :dropoff_email, :string
     field :dropoff_location, Geo.PostGIS.Geometry
     field :dropoff_name, :string
-    field :dropoff_organization, :string
     field :dropoff_phone, EctoPhoneNumber.Canadian
     field :dropoff_postal, :string
     field :dropoff_province, :string
     field :delivery_status, DeliveryStatusEnum, default: :pending
     field :delivery_status_notes, :string
-    field :organization_name, :string
-    field :organization_partner, :string
-    field :onfleet_pickup_id, :string
-    field :onfleet_dropoff_id, :string
-    field :other_items, :string
+    field :partner_tracking_id, :string
     field :pickup_address, :string
     field :pickup_address2, :string
     field :pickup_city, :string
@@ -88,10 +65,6 @@ defmodule BikeBrigade.Delivery.Task do
     field :pickup_location, Geo.PostGIS.Geometry
     field :pickup_postal, :string
     field :pickup_province, :string
-    field :request_type, :string
-    field :size, :integer
-    # TODO drop this or make it
-    field :submitted_on, :naive_datetime
 
     belongs_to :assigned_rider, Rider, on_replace: :nilify
     belongs_to :campaign, Campaign

@@ -5,7 +5,7 @@ defmodule BikeBrigadeWeb.CampaignHelpers do
   alias BikeBrigade.LocalizedDateTime
 
   def task_assigned?(task) do
-    task.assigned_rider != nil || task.onfleet_pickup_id != nil
+    task.assigned_rider != nil
   end
 
   def rider_available?(rider) do
