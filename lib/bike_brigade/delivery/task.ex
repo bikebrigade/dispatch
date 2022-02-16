@@ -22,7 +22,6 @@ defmodule BikeBrigade.Delivery.Task do
     :dropoff_address,
     :dropoff_address2,
     :dropoff_city,
-    :dropoff_location,
     :dropoff_name,
     :dropoff_phone,
     :dropoff_postal,
@@ -42,15 +41,19 @@ defmodule BikeBrigade.Delivery.Task do
     :campaign_id
   ]
 
+  @embedded_fields [
+    :dropoff_location
+  ]
+
   # TODO we're missing a dropoff_country field :joy:
   schema "tasks" do
-     field :delivery_distance, :integer
-  # TODO: rename to delivery_instructions
+    field :delivery_distance, :integer
+    # TODO: rename to delivery_instructions
     field :rider_notes, :string
     field :dropoff_address, :string
     field :dropoff_address2, :string
     field :dropoff_city, :string
-    field :dropoff_location, Geo.PostGIS.Geometry
+
     field :dropoff_name, :string
     field :dropoff_phone, EctoPhoneNumber.Canadian
     field :dropoff_postal, :string
@@ -65,6 +68,8 @@ defmodule BikeBrigade.Delivery.Task do
     field :pickup_location, Geo.PostGIS.Geometry
     field :pickup_postal, :string
     field :pickup_province, :string
+
+    embeds_one :dropoff_location, Location, on_replace: :update
 
     belongs_to :assigned_rider, Rider, on_replace: :nilify
     belongs_to :campaign, Campaign
@@ -93,19 +98,22 @@ defmodule BikeBrigade.Delivery.Task do
     end
   end
 
-  def changeset(task, attrs) do
+  def changeset(task, attrs, opts \\ []) do
+    location_opts =
+      if Keyword.get(opts, :geocode, false) do
+        [with: &Location.geocoding_changeset/2]
+      else
+        []
+      end
+
     task
     |> cast(attrs, @fields)
-    |> fetch_dropoff_location()
+    |> cast_embed(:dropoff_location, location_opts)
     |> validate_required([
       :delivery_status,
-      :dropoff_address,
-      :dropoff_city,
       :dropoff_location,
       :dropoff_name,
       # :dropoff_phone,
-      :dropoff_postal,
-      :dropoff_province,
       :pickup_address,
       :pickup_city,
       :pickup_country,
@@ -114,53 +122,16 @@ defmodule BikeBrigade.Delivery.Task do
     |> cast_assoc(:task_items)
   end
 
-  def fetch_dropoff_location(%Ecto.Changeset{} = changeset) do
-    # We only fetch the location if we changed the address but *not* the location[]
-    with {:data, _location} <- fetch_field(changeset, :dropoff_location),
-         {:changes, address} <- fetch_field(changeset, :dropoff_address),
-         {:ok,
-          %Location{
-            coords: coords,
-            city: location_city,
-            postal: location_postal,
-            province: location_province,
-            country: _location_country
-          }} <- Geocoder.lookup_toronto(address) do
-      dropoff_location = coords
-
-      dropoff_city =
-        case fetch_field(changeset, :dropoff_city) do
-          {:changes, city} -> city
-          {:data, _} -> location_city
-        end
-
-      dropoff_postal =
-        case fetch_field(changeset, :dropoff_postal) do
-          {:changes, postal} -> postal
-          {:data, _} -> location_postal
-        end
-
-      dropoff_province =
-        case fetch_field(changeset, :dropoff_province) do
-          {:changes, province} -> province
-          {:data, _} -> location_province
-        end
-
-      changeset
-      |> put_change(:dropoff_location, dropoff_location)
-      |> put_change(:dropoff_city, dropoff_city)
-      |> put_change(:dropoff_postal, dropoff_postal)
-      |> put_change(:dropoff_province, dropoff_province)
-    else
-      {:error, reason} ->
-        add_error(changeset, :dropoff_address, reason)
-
-      _ ->
-        changeset
-    end
-  end
-
   def fields_for(task) do
+    embedded =
+      for k <- @embedded_fields, into: %{} do
+        value =
+          Map.get(task, k)
+          |> Map.from_struct()
+
+        {k, value}
+      end
+
     fields =
       @fields
       |> Enum.filter(fn field ->
@@ -168,5 +139,6 @@ defmodule BikeBrigade.Delivery.Task do
       end)
 
     Map.take(task, fields)
+    |> Map.merge(embedded)
   end
 end
