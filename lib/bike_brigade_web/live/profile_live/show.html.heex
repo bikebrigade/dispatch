@@ -1,0 +1,129 @@
+<div class="flex-wrap justify-between mt-5 sm:flex sm:flex-nowrap">
+
+    <div class="text-sm sm:flex">
+        <div class="hidden mb-3 text-center sm:mr-3 sm:block">
+            <img class="inline-block rounded-full h-9 w-9" src="https://www.gravatar.com/avatar/1c8811758d51423ed014c1a7b7a9c35c?s=150&amp;d=identicon" alt="">
+        </div>
+        <div class="">
+            <h1 class="mb-4 text-3xl font-medium leading-none sm:text-4xl"><%= @rider.name %> <small class="text-sm"><%= @rider.pronouns %></small></h1>
+
+            <p class="text-sm !leading-relaxed xl:text-base">
+                <span class="block xl:inline">
+                    <Heroicons.Outline.clipboard_list aria-label="Calendar" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 sm:mr-.5" />
+                    <span>Signed up on: <%= format_date(@rider.signed_up_on) %></span>
+                </span>
+                <span class="block xl:inline">
+                    <Heroicons.Outline.fire aria-label="Fire" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 xl:ml-1 sm:mr-.5" />
+                    <span>Latest activity: <.latest_campaign_info socket={@socket} rider={@rider}/></span>
+                </span>
+            </p>
+            <p class="text-sm !leading-relaxed xl:text-base">
+                <span class="">
+                    <Heroicons.Outline.location_marker aria-label="Marker" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 sm:mr-.5" />
+                    <%= @rider.address %>
+                </span>
+                <span class="block xl:inline">
+                    <Heroicons.Outline.phone aria-label="Phone" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 xl:ml-1 sm:mr-.5" />
+                    <%= @rider.phone %>
+                </span>
+                <span class="block xl:inline">
+                    <Heroicons.Outline.mail aria-label="Mail" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 xl:ml-1 sm:mr-.5" />
+                    <%= @rider.email %>
+                </span>
+            </p>
+            <p class="text-sm !leading-relaxed xl:text-base">
+                <span class="">
+                    <Heroicons.Outline.briefcase aria-label="Briefcase" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 sm:mr-.5" />
+                    <%= live_redirect @rider.capacity, to: Routes.rider_index_path(@socket, :index, %{capacity: [@rider.capacity]}), class: "link" %>
+                </span>
+                <span class="block xl:inline">
+                    <Heroicons.Outline.tag aria-label="Tag" class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 xl:ml-2 sm:mr-.5" />
+                    <%= if Enum.empty?(@rider.tags) do %>
+                    No tags
+                    <% else %>
+                    <span class="inline-flex">
+                        <%= for tag <- @rider.tags do %>
+                            <span class="before:content-[','] first:before:content-['']">
+                                <%= live_redirect tag.name, to: Routes.rider_index_path(@socket, :index, %{tag: [tag.name]}), class: "link" %>
+                            </span>
+                            <% end %>
+                        </span>
+                    <% end %>
+                </span>
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 mt-10 gap-x-4 gap-y-8 sm:grid-cols-12 md:gap-x-6 lg:gap-x-8 lg:gap-y-12">
+    <div class="col-span-12 md:col-span-6 xl:col-span-6">
+        <h2 class="text-sm font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">
+            Rider stats
+        </h2>
+        <div class="flex flex-wrap my-5 ">
+            <div class="flex-initial px-4 py-3 mb-5 mr-5 bg-white rounded-lg shadow sm:p-6">
+                <dt class="text-xs font-medium text-gray-500 truncate sm:text-sm">
+                    Deliveries
+                </dt>
+                <dd class="mt-1 text-2xl font-semibold text-center text-green-700 sm:text-4xl">
+                    <%= @stats.task_count %>
+                </dd>
+            </div>
+            <div class="flex-initial px-4 py-3 mb-5 mr-5 bg-white rounded-lg shadow sm:p-6">
+                <dt class="text-xs font-medium text-gray-500 truncate sm:text-sm">
+                    Campaigns
+                </dt>
+                <dd class="mt-1 text-2xl font-semibold text-center text-green-700 sm:text-4xl">
+                    <%= @stats.campaign_count %>
+                </dd>
+            </div>
+            <div class="flex-initial px-4 py-3 mb-5 bg-white rounded-lg shadow sm:p-6">
+                <dt class="text-xs font-medium text-gray-500 truncate sm:text-sm">
+                    Distance
+                </dt>
+                <dd class="mt-1 text-2xl font-semibold text-center text-green-700 sm:text-4xl">
+                    <%= round_distance(@stats.total_distance) %> km
+                </dd>
+            </div>
+        </div>
+    </div>
+    <div class="col-span-12 md:col-span-6 xl:col-span-6">
+        <h2 class="text-sm font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">
+            Location
+        </h2>
+        <div class="p-1 my-5 bg-white rounded-lg shadow">
+            <C.map coords={@rider.location_struct.coords} class="w-full h-32 sm:h-40"/>
+        </div>
+    </div>
+</div>
+
+<!-- Grid container -->
+<div class="grid grid-cols-2 mt-10 gap-x-4 gap-y-8 sm:grid-cols-12 md:gap-x-6 lg:gap-x-8 lg:gap-y-12">
+
+
+    <!-- Grid right col -->
+    <div class="flex flex-col col-span-12 sm:relative">
+        <h2 class="pt-3 text-sm font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">
+            Campaign history
+        </h2>
+        <div class="flex-1 px-4 py-5 my-5 overflow-x-hidden bg-white rounded-lg shadow sm:p-6" >
+            <%= if @rider.program_stats != [] do %>
+
+            <ul class="h-[calc(100%-6rem)] pr-6 overflow-x-auto list-none sm:absolute ">
+                <%= for s <- @rider.program_stats do %>
+                <li class="pb-4 mb-4 border-b last:border-b-0">
+                    <span class="block text-lg font-bold"><%= s.program.name %></span>
+                    <span>
+                        <%= s.campaign_count %> <%= Inflex.inflect("ride", s.campaign_count) %>,
+                        <%= s.task_count %> <%= Inflex.inflect("delivery", s.task_count) %>,
+                        <%= round_distance(s.total_distance) %>km
+                    </span>
+                </li>
+                <% end %>
+            </ul>
+            <% else %>
+                <p>None yet.</p>
+            <% end %>
+        </div>
+    </div>
+</div>

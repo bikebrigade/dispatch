@@ -10,6 +10,7 @@ defmodule BikeBrigade.Accounts.User do
     field :email, :string
     field :name, :string
     field :phone, EctoPhoneNumber.Canadian
+    field :is_dispatcher, :boolean, default: false
     belongs_to :rider, Rider
 
     timestamps()

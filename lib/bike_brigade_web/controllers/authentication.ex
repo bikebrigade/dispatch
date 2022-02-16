@@ -49,9 +49,10 @@ defmodule BikeBrigadeWeb.Authentication do
 
   # TODO
   # The functions below are plusg and should be moved
+  # Or maybe this is just the live_session???
   def get_user_from_session(conn, _opts) do
     if user_id = get_session(conn, :user_id) do
-      case Accounts.get_user(user_id) do
+      case Accounts.get_user(user_id, preload: [:rider]) do
         user when not is_nil(user) ->
           assign(conn, :current_user, user)
 
@@ -73,6 +74,25 @@ defmodule BikeBrigadeWeb.Authentication do
       |> put_flash(:error, "You must login to access this page.")
       |> redirect(to: Routes.login_path(conn, :index))
       |> halt()
+    end
+  end
+
+  def require_dispatcher(conn, _opts) do
+    case conn.assigns[:current_user] do
+      %{is_dispatcher: true} ->
+        conn
+
+      %{is_dispatcher: false} ->
+        conn
+        |> put_flash(:error, "You must be a dispatcher to access this page.")
+        |> redirect(to: "/profile" )
+        |> halt()
+
+      nil ->
+        conn
+        |> put_flash(:error, "You must login to access this page.")
+        |> redirect(to: Routes.login_path(conn, :index))
+        |> halt()
     end
   end
 

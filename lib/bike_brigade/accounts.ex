@@ -35,8 +35,12 @@ defmodule BikeBrigade.Accounts do
       nil
 
   """
-  def get_user(id), do: Repo.get(User, id)
+  def get_user(id, opts \\ []) do
+    preload = Keyword.get(opts, :preload, [])
 
+    Repo.get(User, id)
+    |> Repo.preload(preload)
+  end
 
   @doc """
   Gets a single user by phone number
@@ -73,7 +77,6 @@ defmodule BikeBrigade.Accounts do
 
     Repo.all(query)
   end
-
 
   @doc """
   Creates a user.

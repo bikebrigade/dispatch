@@ -5,7 +5,7 @@ defmodule BikeBrigadeWeb.LiveHooks.Authentication do
 
   def on_mount(:default, _params, %{"user_id" => user_id}, socket) do
     # can this ever return nil?
-    user = Accounts.get_user(user_id)
+    user = Accounts.get_user(user_id, preload: [:rider])
 
     # Set the context for Honeybadger here
     Honeybadger.context(context: %{user_id: user.id, user_email: user.email})

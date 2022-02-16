@@ -7,7 +7,6 @@ defmodule BikeBrigadeWeb.Router do
 
   alias BikeBrigadeWeb.LiveHooks
 
-
   # Don't alert expired deliviers to honeybadger
   use Honeybadger.Plug
   def handle_errors(_conn, %{reason: %BikeBrigadeWeb.DeliveryExpiredError{}}), do: :ok
@@ -16,6 +15,7 @@ defmodule BikeBrigadeWeb.Router do
   import BikeBrigadeWeb.Authentication,
     only: [
       require_authenticated_user: 2,
+      require_dispatcher: 2,
       redirect_if_user_is_authenticated: 2,
       get_user_from_session: 2
     ]
@@ -51,7 +51,7 @@ defmodule BikeBrigadeWeb.Router do
   end
 
   scope "/analytics" do
-    pipe_through [:sessions, :fetch_live_flash, :require_authenticated_user]
+    pipe_through [:sessions, :fetch_live_flash, :require_authenticated_user, :require_dispatcher]
 
     forward "/", ReverseProxyPlug,
       upstream: get_config(:analytics_upstream),
@@ -79,19 +79,25 @@ defmodule BikeBrigadeWeb.Router do
     end
   end
 
+  # Dispatcher view
   scope "/", BikeBrigadeWeb do
-    pipe_through [:browser, :require_authenticated_user, :set_honeybadger_context]
+    pipe_through [
+      :browser,
+      :require_authenticated_user,
+      :require_dispatcher,
+      :set_honeybadger_context
+    ]
 
     get "/", Plugs.Redirect, to: "/campaigns"
 
-    live_session :dispatch, on_mount: LiveHooks.Authentication do
+    live_session :dispatcher, on_mount: LiveHooks.Authentication do
       live "/riders", RiderLive.Index, :index
       live "/riders/new", RiderLive.Index, :new
       live "/riders/:id/edit", RiderLive.Index, :edit
       live "/riders/message", RiderLive.Index, :message
 
       # Redirect for the old next url
-      get "/riders-next",  Plugs.Redirect, to: "/riders", status: :moved_permanently
+      get "/riders-next", Plugs.Redirect, to: "/riders", status: :moved_permanently
 
       live "/stats", StatsLive.Dashboard, :show
       live "/stats/leaderboard", StatsLive.Leaderboard, :show
@@ -150,6 +156,16 @@ defmodule BikeBrigadeWeb.Router do
     get "/campaigns/:id/download_assignments", CampaignController, :download_assignments
     get "/campaigns/:id/download_results", CampaignController, :download_results
 
+
+  end
+
+  scope "/", BikeBrigadeWeb do
+    pipe_through [:browser, :require_authenticated_user, :set_honeybadger_context]
+
+    live_session :rider, on_mount: LiveHooks.Authentication do
+      live "/profile", ProfileLive.Show, :show
+    end
+
     post "/logout", Authentication, :logout
   end
 
@@ -173,7 +189,7 @@ defmodule BikeBrigadeWeb.Router do
   import Phoenix.LiveDashboard.Router
 
   scope "/" do
-    pipe_through [:browser, :require_authenticated_user]
+    pipe_through [:browser, :require_authenticated_user, :require_dispatcher]
     live_dashboard "/dashboard", metrics: BikeBrigadeWeb.Telemetry, ecto_repos: [BikeBrigade.Repo]
   end
 
