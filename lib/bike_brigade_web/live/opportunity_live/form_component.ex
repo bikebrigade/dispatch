@@ -1,6 +1,7 @@
 defmodule BikeBrigadeWeb.OpportunityLive.FormComponent do
   use BikeBrigadeWeb, :live_component
 
+  alias BikeBrigade.Location
   alias BikeBrigade.Delivery
   alias BikeBrigade.Delivery.Program
   alias BikeBrigade.LocalizedDateTime
@@ -21,6 +22,8 @@ defmodule BikeBrigadeWeb.OpportunityLive.FormComponent do
       field(:signup_link, :string)
       field(:published, :boolean, default: false)
       field(:hide_address, :boolean, default: false)
+
+      embeds_one :location, Location, on_replace: :update
     end
 
     def changeset(form, attrs \\ %{}) do
@@ -34,28 +37,32 @@ defmodule BikeBrigadeWeb.OpportunityLive.FormComponent do
         :published,
         :hide_address
       ])
+      |> cast_embed(:location, with: &Location.geocoding_changeset/2)
       |> validate_required([
         :program_id,
         :delivery_date,
         :start_time,
         :end_time,
         :signup_link,
-        :published
+        :published,
+        :location
       ])
     end
 
     def from_opportunity(opportunity) do
-      %__MODULE__{
-        program_id: opportunity.program_id,
-        delivery_date:
-          opportunity.delivery_start && LocalizedDateTime.to_date(opportunity.delivery_start),
-        start_time:
-          opportunity.delivery_start && LocalizedDateTime.to_time!(opportunity.delivery_start),
-        end_time:
-          opportunity.delivery_end && LocalizedDateTime.to_time!(opportunity.delivery_end),
-        signup_link: opportunity.signup_link,
-        published: opportunity.published
-      }
+      map =
+        opportunity
+        |> Map.from_struct()
+        |> Map.merge(%{
+          delivery_date:
+            opportunity.delivery_start && LocalizedDateTime.to_date(opportunity.delivery_start),
+          start_time:
+            opportunity.delivery_start && LocalizedDateTime.to_time!(opportunity.delivery_start),
+          end_time:
+            opportunity.delivery_end && LocalizedDateTime.to_time!(opportunity.delivery_end)
+        })
+
+      struct(%__MODULE__{}, map)
     end
 
     def to_opportunity_params(form, attrs \\ %{}) do
@@ -67,6 +74,7 @@ defmodule BikeBrigadeWeb.OpportunityLive.FormComponent do
           params =
             struct
             |> Map.from_struct()
+            |> Map.update(:location, %{}, &Map.from_struct/1)
             |> Map.put(:delivery_start, LocalizedDateTime.new!(delivery_date, start_time))
             |> Map.put(:delivery_end, LocalizedDateTime.new!(delivery_date, end_time))
 
