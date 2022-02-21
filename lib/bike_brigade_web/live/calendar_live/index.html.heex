@@ -41,7 +41,7 @@
       </div>
       <div class="flex flex-col mb-5 space-y-1 border-gray-400 divide-y ml-14">
         <%= for opportunity <- opportunties do %>
-          <div class="flex flex-row w-4/5 pb-5 space-x-1 min-w-32 sm:min-w-96">
+          <div class="flex flex-row w-4/5 min-w-full pb-5 space-x-1">
             <!-- don't show images yet
             <div class="hidden md:block">
               <img class="w-full h-full" src={Routes.static_path(@socket, "/images/wordmark-black.png")}/>
