@@ -112,6 +112,9 @@ defmodule BikeBrigadeWeb.Router do
       live "/campaigns/:id/printable/safety_check", PrintableLive.SafetyCheck, :index
 
       live "/opportunities", OpportunityLive.Index, :index
+      live "/opportunities/new", OpportunityLive.Index, :new
+      live "/opportunities/:id/edit", OpportunityLive.Index, :edit
+
 
       live "/items", ItemLive.Index, :index
       live "/items/new", ItemLive.Index, :new

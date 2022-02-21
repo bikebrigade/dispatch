@@ -4,9 +4,9 @@ defmodule BikeBrigadeWeb.OpportunityLive.Index do
   alias BikeBrigade.Delivery
   alias BikeBrigade.Delivery.{Opportunity}
 
-  alias BikeBrigadeWeb.OpportunityLive.OpportunityComponent
+  alias BikeBrigade.LocalizedDateTime
 
-  @impl true
+  @impl Phoenix.LiveView
   def mount(_params, _session, socket) do
     if connected?(socket) do
       Delivery.subscribe()
@@ -22,12 +22,31 @@ defmodule BikeBrigadeWeb.OpportunityLive.Index do
      |> fetch_opportunities()}
   end
 
-  @impl true
-  def handle_event("new", _, socket) do
-    send_update(OpportunityComponent,
-      id: :new,
-      editing: true
-    )
+  @impl Phoenix.LiveView
+  def handle_params(params, _url, socket) do
+    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+  end
+
+  defp apply_action(socket, :index, _params) do
+    socket
+  end
+
+  defp apply_action(socket, :edit, %{"id" => id}) do
+    socket
+    |> assign(:page_title, "Edit Opportunity")
+    |> assign(:opportunity, Delivery.get_opportunity!(id))
+  end
+
+  defp apply_action(socket, :new, _params) do
+    socket
+    |> assign(:page_title, "New Opportunity")
+    |> assign(:opportunity, %Opportunity{})
+  end
+
+  @impl Phoenix.LiveView
+  def handle_event("delete", %{"id" => id}, socket) do
+    campaign = Delivery.get_opportunity!(id)
+    {:ok, _} = Delivery.delete_opportunity(campaign)
 
     {:noreply, socket}
   end
@@ -43,7 +62,7 @@ defmodule BikeBrigadeWeb.OpportunityLive.Index do
      |> fetch_opportunities()}
   end
 
-  @impl true
+  @impl Phoenix.LiveView
   def handle_event(
         "select",
         %{"_target" => ["selected", "all"], "selected" => selected_params},
@@ -60,7 +79,7 @@ defmodule BikeBrigadeWeb.OpportunityLive.Index do
     {:noreply, assign(socket, :selected, selected)}
   end
 
-  @impl true
+  @impl Phoenix.LiveView
   def handle_event(
         "select",
         %{"_target" => ["selected", id], "selected" => selected_params},
@@ -95,7 +114,7 @@ defmodule BikeBrigadeWeb.OpportunityLive.Index do
     {:noreply, assign(socket, :selected, MapSet.new([]))}
   end
 
-  @impl true
+  @impl Phoenix.LiveView
   def handle_info(
         {:opportunity_created, created_opportunity},
         socket
@@ -112,7 +131,6 @@ defmodule BikeBrigadeWeb.OpportunityLive.Index do
     {:noreply, socket |> assign(:opportunities, opportunities)}
   end
 
-  @impl true
   def handle_info(
         {:opportunity_updated, updated_opportunity},
         socket
@@ -133,7 +151,6 @@ defmodule BikeBrigadeWeb.OpportunityLive.Index do
     {:noreply, socket |> assign(:opportunities, opportunities)}
   end
 
-  @impl true
   def handle_info(
         {:opportunity_deleted, deleted_opportunity},
         socket
@@ -159,5 +176,43 @@ defmodule BikeBrigadeWeb.OpportunityLive.Index do
       )
 
     assign(socket, :opportunities, opportunities)
+  end
+
+  defp just_time(datetime) do
+    LocalizedDateTime.localize(datetime)
+    |> Calendar.strftime("%-I:%M%p")
+  end
+
+  defp check_mark(assigns) do
+    ~H"""
+    <%= if @value do %>
+      <Heroicons.Outline.check_circle class="flex-shrink-0 w-6 h-6 mx-1 text-green-500 justify-self-end" />
+    <% else %>
+      <Heroicons.Outline.x_circle class="flex-shrink-0 w-6 h-6 mx-1 text-red-500 justify-self-end" />
+    <% end %>
+    """
+  end
+
+  # TODO: DRY this
+  defp program_options do
+    programs =
+      for p <- Delivery.list_programs() do
+        {p.name, p.id}
+      end
+
+    [{"", nil} | programs]
+  end
+
+  defp program_lead_name(opportunity) do
+    # TODO: move this into an opportunity context
+    opportunity =
+      opportunity
+      |> BikeBrigade.Repo.preload(program: [:lead])
+
+    if opportunity.program.lead do
+      opportunity.program.lead.name
+    else
+      "Not set"
+    end
   end
 end

@@ -30,12 +30,14 @@ defmodule BikeBrigadeWeb.OpportunityLiveTest do
       assert html =~ "New Signup Link"
 
       view
-      |> element("button", "New Signup Link")
+      |> element("a", "New Signup Link")
       |> render_click()
+
+      assert_patched(view, "/opportunities/new")
 
       link = Faker.Internet.url()
       assert view
-        |> form("#opportunity-form-new",
+        |> form("#opportunity-form",
         opportunity_form: %{
               delivery_date: "2021-12-13",
               start_time: "15:00pm",

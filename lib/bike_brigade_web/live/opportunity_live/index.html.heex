@@ -1,3 +1,14 @@
+<%= if @live_action in [:new, :edit] do %>
+ <UI.slideover show id={:edit} return_to={Routes.opportunity_index_path(@socket, :index)} >
+    <:title><%= @page_title %></:title>
+    <.live_component
+      module={BikeBrigadeWeb.OpportunityLive.FormComponent}
+      id={@opportunity.id || :edit}
+      action={@live_action}
+      opportunity={@opportunity}
+      return_to={Routes.opportunity_index_path(@socket, :index)}/>
+  </UI.slideover>
+<% end %>
 <div class="flex flex-col py-4">
   <%= if Enum.count(@selected) != 0 do %>
   <div class="my-2">
@@ -33,10 +44,10 @@
                   <C.sort_link phx-click="sort" current_field={:delivery_start} default_order={:asc} sort_field={@sort_field} sort_order={@sort_order} class="pl-2" />
                 </div>
               </th>
-              <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+              <th class="w-1/6 px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                 Time
               </th>
-              <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 xl:w-1/2 bg-gray-50">
+              <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                 Link
               </th>
               <th class="w-1/6 px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
@@ -45,24 +56,57 @@
                   <C.sort_link phx-click="sort" current_field={:program_lead} default_order={:asc} sort_field={@sort_field} sort_order={@sort_order} class="pl-2" />
                 </div>
               </th>
-              <th class="w-32 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 1/6 bg-gray-50">
+              <th class="w-1/6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 1/6 bg-gray-50">
                 <div class="inline-flex">
                   Published
                   <C.sort_link phx-click="sort" current_field={:published} default_order={:desc} sort_field={@sort_field} sort_order={@sort_order} class="pl-2" />
                 </div>
               </th>
               <th class="w-1/4 px-6 py-4 text-right border-b border-gray-200 bg-gray-50">
-                <C.button size={:xsmall} phx_click="new"}>
+                <C.button patch_to={Routes.opportunity_index_path(@socket, :new)} size={:xsmall}}>
                   New Signup Link
                 </C.button>
               </th>
             </tr>
           </thead>
           <tbody class="bg-white">
-            <.live_component module={OpportunityComponent} id={:new} opportunity={%Opportunity{}} />
             <%= for opportunity <- @opportunities do %>
-              <.live_component module={OpportunityComponent} id={opportunity.id} opportunity={opportunity} selected={MapSet.member?(@selected, opportunity.id)} />
-            <% end %>
+            <tr id={"opportunity-#{opportunity.id}"}>
+              <td class="py-4 pl-3 pr-1 text-sm leading-5 text-gray-500 border-b border-gray-200">
+                <%= checkbox :selected, "#{opportunity.id}",
+                  form: "selected",
+                  value: MapSet.member?(@selected, opportunity.id),
+                  class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" %>
+              </td>
+              <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
+                <%= live_redirect to: Routes.program_show_path(@socket, :show, opportunity.program), class: "link whitespace-nowrap	" do %>
+                  <%= opportunity.program.name %>
+                <% end %>
+              </td>
+              <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
+                <C.date date={opportunity.delivery_start}/>
+              </td>
+              <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
+                <%= just_time(opportunity.delivery_start) %>-
+                <%= just_time(opportunity.delivery_end) %>
+              </td>
+              <td class="px-6 py-4 text-sm leading-5 text-center text-gray-500 break-all border-b border-gray-200">
+                <a href={opportunity.signup_link} class="inline-block link">
+                  <Heroicons.Outline.link aria-label="Link to signup" class="flex-shrink-0 w-5" />
+                </a>
+              </td>
+              <td class="px-6 py-4 text-sm leading-5 text-gray-500 break-all border-b border-gray-200 whitespace-nowrap">
+                <%= program_lead_name(opportunity) %>
+              </td>
+              <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
+                <.check_mark value={opportunity.published} />
+              </td>
+              <td class="px-6 py-4 space-x-1 space-y-1 text-right border-b border-gray-200">
+                <C.button patch_to={Routes.opportunity_index_path(@socket, :edit, opportunity)} size={:xsmall} color={:white}>Edit</C.button>
+                <C.button phx-click="delete" phx-value-id={opportunity.id} data-confirm="Are you sure?"  size={:xsmall} color={:lightred}>Delete</C.button>
+              </td>
+            </tr>
+          <% end %>
           </tbody>
         </table>
     </div>
