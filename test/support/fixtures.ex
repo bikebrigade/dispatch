@@ -96,7 +96,8 @@ defmodule BikeBrigade.Fixtures do
       %{
         delivery_start: DateTime.utc_now(),
         delivery_end: DateTime.utc_now() |> DateTime.add(60, :second),
-        signup_link: Faker.Internet.url()
+        signup_link: Faker.Internet.url(),
+        location: Map.from_struct(@location)
       }
       |> Map.merge(attrs)
       |> Delivery.create_opportunity()

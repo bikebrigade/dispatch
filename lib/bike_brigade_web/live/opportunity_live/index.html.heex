@@ -44,27 +44,30 @@
                   <C.sort_link phx-click="sort" current_field={:delivery_start} default_order={:asc} sort_field={@sort_field} sort_order={@sort_order} class="pl-2" />
                 </div>
               </th>
-              <th class="w-1/6 px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+              <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                 Time
+              </th>
+              <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+                Location
               </th>
               <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                 Link
               </th>
-              <th class="w-1/6 px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+              <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
                  <div class="inline-flex">
                   Lead
                   <C.sort_link phx-click="sort" current_field={:program_lead} default_order={:asc} sort_field={@sort_field} sort_order={@sort_order} class="pl-2" />
                 </div>
               </th>
-              <th class="w-1/6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 1/6 bg-gray-50">
+              <th class="py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 1/6 bg-gray-50">
                 <div class="inline-flex">
                   Published
                   <C.sort_link phx-click="sort" current_field={:published} default_order={:desc} sort_field={@sort_field} sort_order={@sort_order} class="pl-2" />
                 </div>
               </th>
-              <th class="w-1/4 px-6 py-4 text-right border-b border-gray-200 bg-gray-50">
-                <C.button patch_to={Routes.opportunity_index_path(@socket, :new)} size={:xsmall}}>
-                  New Signup Link
+              <th class="w-40 px-6 py-4 text-right border-b border-gray-200 bg-gray-50">
+                <C.button patch_to={Routes.opportunity_index_path(@socket, :new)} size={:small}}>
+                  New
                 </C.button>
               </th>
             </tr>
@@ -87,8 +90,13 @@
                 <C.date date={opportunity.delivery_start}/>
               </td>
               <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
-                <%= just_time(opportunity.delivery_start) %>-
-                <%= just_time(opportunity.delivery_end) %>
+                <%= time_interval(opportunity.delivery_start, opportunity.delivery_end) %>
+              </td>
+              <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
+                <%= opportunity.location.address %>
+                <%= if opportunity.hide_address do %>
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"> hidden </span>
+                <% end %>
               </td>
               <td class="px-6 py-4 text-sm leading-5 text-center text-gray-500 break-all border-b border-gray-200">
                 <a href={opportunity.signup_link} class="inline-block link">
