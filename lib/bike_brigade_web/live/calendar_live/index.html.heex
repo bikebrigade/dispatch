@@ -41,7 +41,7 @@
       </div>
       <div class="flex flex-col mb-5 space-y-1 border-gray-400 divide-y ml-14">
         <%= for opportunity <- opportunties do %>
-          <div class="flex flex-row w-4/5 pb-5 space-x-1 min-w-32 sm:min-w-96">
+          <div class="flex flex-row w-4/5 min-w-full pb-5 space-x-1">
             <!-- don't show images yet
             <div class="hidden md:block">
               <img class="w-full h-full" src={Routes.static_path(@socket, "/images/wordmark-black.png")}/>
@@ -55,17 +55,19 @@
                 <Heroicons.Outline.clock aria-label="Pickup Time" class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
                 <%= time_interval(opportunity.delivery_start, opportunity.delivery_end)%>
               </div>
-              <%= if !opportunity.hide_address && opportunity.program.latest_campaign do %>
               <div class="flex items-center text-sm text-gray-300">
                 <Heroicons.Outline.location_marker class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
+                 <%= if !opportunity.hide_address do %>
                 <div class="flex flex-col sm:flex-row">
-                  <%= link to: DeliveryHelpers.open_map_url(opportunity.program.latest_campaign), target: "_blank", class: "underline hover:text-gray-300 mr-1" do %>
-                    <%= opportunity.program.latest_campaign.location.address %>
+                  <%= link to: GoogleMaps.open_map_url(opportunity.location), target: "_blank", class: "underline hover:text-gray-300 mr-1" do %>
+                    <%= opportunity.location.address %>
                   <% end %>
-                  <div class="font-medium">(<%= opportunity.program.latest_campaign.location.neighborhood %>)</div>
+                  <div class="font-medium">(<%= opportunity.location.neighborhood %>)</div>
                 </div>
+                <% else %>
+                 <div class="font-medium"><%= opportunity.location.neighborhood %></div>
+                 <% end %>
               </div>
-              <% end %>
               <%= if opportunity.program.campaign_blurb  do %>
                 <div class="flex items-start text-sm text-gray-300">
                   <Heroicons.Outline.information_circle aria-label="Pickup Time" class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
