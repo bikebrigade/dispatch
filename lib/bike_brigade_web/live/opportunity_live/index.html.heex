@@ -103,7 +103,7 @@
               </td>
               <td class="px-6 py-4 space-x-1 space-y-1 text-right border-b border-gray-200">
                 <C.button patch_to={Routes.opportunity_index_path(@socket, :edit, opportunity)} size={:xsmall} color={:white}>Edit</C.button>
-                <C.button phx-click="delete" phx-value-id={opportunity.id} data-confirm="Are you dure?"  size={:xsmall} color={:lightred}>Delete</C.button>
+                <C.button phx-click="delete" phx-value-id={opportunity.id} data-confirm="Are you sure?"  size={:xsmall} color={:lightred}>Delete</C.button>
               </td>
             </tr>
           <% end %>
