@@ -55,6 +55,7 @@ defmodule BikeBrigade.Location do
     else
       {:data, _} -> cs
       {:error, error} -> add_error(cs, :address, "#{error}")
+      :error ->  add_error(cs, :address, "unknown error")
     end
   end
 
