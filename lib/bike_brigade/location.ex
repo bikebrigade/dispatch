@@ -85,4 +85,10 @@ defmodule BikeBrigade.Location do
       "#{location.address}, #{location.city}, #{location.postal}"
     end
   end
+
+  defimpl Phoenix.HTML.Safe do
+    def to_iodata(location) do
+      [location.address, ", ", location.city, ", ", location.postal]
+    end
+  end
 end
