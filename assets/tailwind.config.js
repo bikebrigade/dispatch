@@ -12,6 +12,9 @@ module.exports = {
   safelist: ['tribute-container'],
   theme: {
     extend: {
+      spacing: {
+        '128': '32rem',
+      },
       screens: {
         'print': {'raw': 'print'},
       },
