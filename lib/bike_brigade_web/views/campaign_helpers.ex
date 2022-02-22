@@ -115,7 +115,7 @@ defmodule BikeBrigadeWeb.CampaignHelpers do
       |> Enum.map(&print_item/1)
       |> Enum.join(", ")
     else
-      task.request_type
+      "None"
     end
   end
 

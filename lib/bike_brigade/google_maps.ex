@@ -36,6 +36,10 @@ defmodule BikeBrigade.GoogleMaps do
   end
 
   def map_query(origin, addresses) do
+    # Origin or addresses can be Locations or Strings
+    origin = String.Chars.to_string(origin)
+    addresses = Enum.map(addresses, &String.Chars.to_string/1)
+
     {destination, waypoints} = List.pop_at(addresses, -1)
 
     query =
