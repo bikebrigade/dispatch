@@ -70,11 +70,7 @@
             <Heroicons.Outline.clock aria-label="Pickup Time" class="w-4 h-4 mt-1 mr-1 text-gray-800" />
               <%= CampaignHelpers.pickup_window(@campaign, @rider) %>
           </div>
-          <div class="inline-flex flex-shrink-0 leading-normal">
-            <Heroicons.Outline.location_marker aria_label="Pickup Address"
-              class="w-4 h-4 mt-1 mr-1 text-gray-800" />
-              <%= @campaign.location %>
-          </div>
+          <C.location location={@campaign.location} />
           <div class="inline-flex leading-normal">
             <Heroicons.Outline.shopping_bag class="flex-shrink-0 w-4 h-4 mt-1 mr-1 ext-gray-800 " />
               <%= humanized_task_count(@rider.assigned_tasks) %>
@@ -153,11 +149,7 @@
               <Heroicons.Outline.user aria-label="Dropoff Name" class="w-4 h-4 mt-1 mr-1 text-gray-800" />
                 <%= task.dropoff_name %>
             </div>
-            <div class="inline-flex flex-shrink-0 leading-normal">
-              <Heroicons.Outline.location_marker aria_label="Dropoff Address"
-                class="w-4 h-4 mt-1 mr-1 text-gray-800" />
-                <%= task.dropoff_location %>
-            </div>
+            <C.location location={task.dropoff_location} />
             <div class="inline-flex flex-shrink-0 leading-normal">
               <Heroicons.Outline.phone aria-label="Dropoff Phone" class="w-4 h-4 mt-1 mr-1 text-gray-800" />
                 <%= if !is_nil(task.dropoff_phone) do %>

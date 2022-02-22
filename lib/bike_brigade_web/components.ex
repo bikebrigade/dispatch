@@ -326,4 +326,21 @@ defmodule BikeBrigadeWeb.Components do
     </button>
     """
   end
+
+  def location(assigns) do
+    ~H"""
+    <div class="inline-flex flex-shrink-0 leading-normal">
+    <Heroicons.Outline.location_marker aria_label="Location" class="w-4 h-4 mt-1 mr-1 text-gray-800" />
+      <div class="grid grid-cols-2 gap-y-0 gap-x-1">
+        <div class="col-span-2"><%= @location.address %></div>
+        <%= if @location.unit do %>
+          <div class="text-sm"><span class="font-bold">Unit:</span> <%= @location.unit %></div>
+        <% end %>
+        <%= if @location.buzzer do %>
+          <div class="text-sm"><span class="font-bold">Buzz:</span> <%= @location.buzzer %></div>
+        <% end %>
+      </div>
+    </div>
+    """
+  end
 end
