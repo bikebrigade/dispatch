@@ -35,36 +35,24 @@ defmodule BikeBrigadeWeb.DeliveryHelpers do
   def embed_directions_url(assigns) do
     %{campaign: campaign, rider: rider} = assigns
 
-    pickup_address = "#{campaign.location}"
+    dropoff_locations = Enum.map(rider.assigned_tasks, & &1.dropoff_location)
 
-    dropoff_addresses =
-      for task <- rider.assigned_tasks do
-        "#{task.dropoff_address}, #{task.dropoff_city}, #{task.dropoff_province}, #{task.dropoff_postal} "
-      end
-
-    GoogleMaps.embed_directions_url(pickup_address, dropoff_addresses)
+    GoogleMaps.embed_directions_url(campaign.location, dropoff_locations)
   end
 
   def directions_url(assigns) do
     %{campaign: campaign, rider: rider} = assigns
 
-    pickup_address = "#{campaign.location}"
+    dropoff_locations = Enum.map(rider.assigned_tasks, & &1.dropoff_location)
 
-    dropoff_addresses =
-      for task <- rider.assigned_tasks do
-        "#{task.dropoff_address}, #{task.dropoff_city}, #{task.dropoff_province}, #{task.dropoff_postal} "
-      end
-
-    GoogleMaps.directions_url(pickup_address, dropoff_addresses)
+    GoogleMaps.directions_url(campaign.location, dropoff_locations)
   end
 
-  def open_map_url(%Task{} = task) do
-    GoogleMaps.open_map_url(
-      "#{task.dropoff_address}, #{task.dropoff_city}, #{task.dropoff_province}, #{task.dropoff_postal}"
-    )
+  def open_map_url(%Task{dropoff_location: dropoff_location}) do
+    GoogleMaps.open_map_url(dropoff_location)
   end
 
-  def open_map_url(%Campaign{} = campaign) do
-    GoogleMaps.open_map_url("#{campaign.location}")
+  def open_map_url(%Campaign{location: location}) do
+    GoogleMaps.open_map_url(location)
   end
 end
