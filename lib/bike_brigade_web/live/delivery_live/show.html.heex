@@ -73,7 +73,7 @@
           <div class="inline-flex flex-shrink-0 leading-normal">
             <Heroicons.Outline.location_marker aria_label="Pickup Address"
               class="w-4 h-4 mt-1 mr-1 text-gray-800" />
-              <%= @campaign.location.address %>
+              <%= @campaign.location %>
           </div>
           <div class="inline-flex leading-normal">
             <Heroicons.Outline.shopping_bag class="flex-shrink-0 w-4 h-4 mt-1 mr-1 ext-gray-800 " />
@@ -156,7 +156,7 @@
             <div class="inline-flex flex-shrink-0 leading-normal">
               <Heroicons.Outline.location_marker aria_label="Dropoff Address"
                 class="w-4 h-4 mt-1 mr-1 text-gray-800" />
-                <%= task.dropoff_address %>
+                <%= task.dropoff_location %>
             </div>
             <div class="inline-flex flex-shrink-0 leading-normal">
               <Heroicons.Outline.phone aria-label="Dropoff Phone" class="w-4 h-4 mt-1 mr-1 text-gray-800" />

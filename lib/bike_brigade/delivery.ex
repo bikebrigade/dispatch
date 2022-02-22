@@ -77,10 +77,10 @@ defmodule BikeBrigade.Delivery do
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_task(%Task{} = task, attrs) do
+  def update_task(%Task{} = task, attrs, opts \\ []) do
     # TODO validate items unique index stuff
     task
-    |> Task.changeset(attrs)
+    |> Task.changeset(attrs, opts)
     |> Repo.update()
     |> broadcast(:task_updated)
   end
@@ -111,8 +111,8 @@ defmodule BikeBrigade.Delivery do
       %Ecto.Changeset{data: %Task{}}
 
   """
-  def change_task(%Task{} = task, attrs \\ %{}) do
-    Task.changeset(task, attrs)
+  def change_task(%Task{} = task, attrs \\ %{}, opts \\ []) do
+    Task.changeset(task, attrs, opts)
   end
 
   alias BikeBrigade.Delivery.Campaign
@@ -151,7 +151,7 @@ defmodule BikeBrigade.Delivery do
         left_lateral_join: r in subquery(riders_query),
         left_lateral_join: m in subquery(messages_query),
         order_by: [
-          desc_nulls_last: c.delivery_start,
+          desc_nulls_last: c.delivery_start
         ],
         where: ^filter_by_week,
         select_merge: %{
@@ -196,18 +196,14 @@ defmodule BikeBrigade.Delivery do
     |> broadcast(:campaign_rider_deleted)
   end
 
-  def create_task_for_campaign(campaign, attrs \\ %{}) do
+  def create_task_for_campaign(campaign, attrs \\ %{}, opts \\ []) do
     # TODO handle conflicts for multiple task items here
+    # TODO this looks a lot like Task.changeset_for_campaign()
     %Task{
-      pickup_address: campaign.location.address,
-      pickup_city: campaign.location.city,
-      pickup_postal: campaign.location.postal,
-      pickup_province: campaign.location.province,
-      pickup_country: campaign.location.country,
-      pickup_location: campaign.location.coords,
+      pickup_location: campaign.location,
       campaign_id: campaign.id
     }
-    |> Task.changeset(attrs)
+    |> Task.changeset(attrs, opts)
     |> Repo.insert()
     |> broadcast(:task_created)
   end
@@ -315,7 +311,8 @@ defmodule BikeBrigade.Delivery do
         on: cr.rider_id == r.id and cr.campaign_id == ^campaign.id,
         order_by: [
           desc: cr.rider_capacity,
-          asc: r.max_distance - st_distance(location_coords(r.location), ^campaign.location.coords)
+          asc:
+            r.max_distance - st_distance(location_coords(r.location), ^campaign.location.coords)
         ],
         left_join: t in Task,
         on: t.assigned_rider_id == r.id and t.campaign_id == ^campaign.id,
@@ -341,7 +338,7 @@ defmodule BikeBrigade.Delivery do
               from t in Task,
                 where: t.campaign_id == ^campaign.id and is_nil(t.assigned_rider_id),
                 preload: [task_items: :item],
-                order_by: st_distance(t.dropoff_location, ^rider.location.coords)
+                order_by: st_distance(location_coords(t.dropoff_location), ^rider.location.coords)
             )
           end
           |> Repo.preload([:assigned_rider])
@@ -428,30 +425,26 @@ defmodule BikeBrigade.Delivery do
       |> Enum.filter(&(&1.assigned_rider_id == rider.id))
       |> Enum.sort_by(& &1.delivery_distance)
 
-    pickup_address = campaign.location.address
-
+    # TODO: referncing CampaignHelpers here is bad!
+    # need to move this into Task or Delivery
     pickup_window = BikeBrigadeWeb.CampaignHelpers.pickup_window(campaign, rider)
 
-    dropoff_addresses = [
-      pickup_address
-      | for task <- tasks do
-          "#{task.dropoff_address} #{task.dropoff_address2} #{task.dropoff_city} #{task.dropoff_postal}"
-        end
-    ]
+    locations = [campaign.location | Enum.map(tasks, & &1.dropoff_location)]
 
     task_details =
       for task <- tasks do
-        "Name: #{task.dropoff_name}\nPhone: #{task.dropoff_phone}\nType: #{task.request_type}\nAddress: #{task.dropoff_address} #{task.dropoff_address2} #{task.dropoff_city} #{task.dropoff_postal}\nNotes: #{task.rider_notes}"
+        "Name: #{task.dropoff_name}\nPhone: #{task.dropoff_phone}\nType: #{BikeBrigadeWeb.CampaignHelpers.request_type(task)}\nAddress: #{task.dropoff_location}\nNotes: #{task.rider_notes}"
       end
       |> Enum.join("\n\n")
 
-    {destination, waypoints} = List.pop_at(dropoff_addresses, -1)
+    {destination, waypoints} = List.pop_at(locations, -1)
 
+    # TODO: this is the same as DeliveryHelpers.directions_url
     map_query =
       URI.encode_query(%{
         api: 1,
         travelmode: "bicycling",
-        origin: "#{rider.location.address} #{rider.location.city} #{rider.location.postal}",
+        origin: rider.location,
         waypoints: Enum.join(waypoints, "|"),
         destination: destination
       })
@@ -467,7 +460,7 @@ defmodule BikeBrigade.Delivery do
 
     assigns = %{
       rider_name: rider.name |> String.split(" ") |> List.first(),
-      pickup_address: pickup_address,
+      pickup_address: campaign.location,
       task_details: task_details,
       directions: directions,
       task_count: humanized_task_count(tasks),
@@ -565,7 +558,7 @@ defmodule BikeBrigade.Delivery do
         left_join: t in assoc(c, :tasks),
         left_join: r in assoc(c, :riders),
         order_by: [
-          desc_nulls_last: c.delivery_start,
+          desc_nulls_last: c.delivery_start
         ],
         group_by: c.id,
         select_merge: %{

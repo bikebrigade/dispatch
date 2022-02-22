@@ -24,14 +24,11 @@ defmodule BikeBrigadeWeb.DeliveryLive.Show do
       raise DeliveryExpiredError
     end
 
-    multiple_unique_tasks = Enum.count(rider.assigned_tasks, & &1.request_type) > 1
-
     {:ok,
      socket
      |> assign(:campaign, campaign)
      |> assign(:campaign_date, campaign_date)
      |> assign(:page_title, "#{campaign_name(campaign)} - #{campaign_date}")
-     |> assign(:rider, rider)
-     |> assign(:multiple_unique_tasks, multiple_unique_tasks)}
+     |> assign(:rider, rider)}
   end
 end
