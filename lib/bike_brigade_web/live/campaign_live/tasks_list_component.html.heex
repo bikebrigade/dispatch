@@ -86,30 +86,30 @@
           <C.Icons.maki_bicycle_15 class="flex-shrink-0 w-4 h-4 text-gray-500"/>
           <%= cond do %>
           <% task.assigned_rider != nil -> %>
-          <a href="#" phx-click="select-rider" phx-value-id={task.assigned_rider.id}
-            class="mx-1 text-sm leading-5 text-indigo-600">
-            <%= task.assigned_rider.name %>
-          </a>
+            <a href="#" phx-click="select-rider" phx-value-id={task.assigned_rider.id}
+              class="mx-1 text-sm leading-5 text-indigo-600">
+              <%= task.assigned_rider.name %>
+            </a>
+            <C.button phx-click="unassign-task" phx-value-task-id={@selected_task.id}
+              color={:secondary}
+              size={:xsmall}
+              class="">
+              Unassign
+            </C.button>
+          <% @selected_rider != nil -> %>
+            <div class="mx-1 text-sm leading-5">
+              <C.button phx-click="assign-task" phx-value-task-id={@selected_task.id}
+                phx-value-rider-id={@selected_rider.id}
+                size={:xsmall}
+                class="">
+                Assign to <%= @selected_rider.name %>
+              </C.button>
+            </div>
+          <% true -> %>
+            <div class="mx-1 text-sm leading-5 text-gray-500">None</div>
+          <% end %>
         </div>
-        <C.button phx-click="unassign-task" phx-value-task-id={@selected_task.id}
-          color={:secondary}
-          size={:xsmall}
-          class="my-1">
-          Unassign
-        </C.button>
-        <% @selected_rider != nil -> %>
-        <div class="mx-1 text-sm leading-5">
-          <C.button phx-click="assign-task" phx-value-task-id={@selected_task.id}
-            phx-value-rider-id={@selected_rider.id}
-            size={:xsmall}
-            class="my-1">
-            Assign to <%= @selected_rider.name %>
-          </C.button>
-        </div>
-        <% true -> %>
-        <div class="mx-1 text-sm leading-5 text-gray-500">None</div>
-        <% end %>
-        
+
         <form phx-change="update-delivery-status" phx-target={@myself}>
           <input type="hidden" name="task-id" value={task.id}>
           <select name="delivery-status"
