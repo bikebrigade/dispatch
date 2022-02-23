@@ -103,7 +103,7 @@ defmodule BikeBrigadeWeb.Components do
     color = assigns[:color] || :primary
 
     base_class =
-      "inline-flex items-center border border-transparent font-medium rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+      "inline-flex text-center items-center border border-transparent font-medium rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
 
     base_class =
       if assigns[:class] do

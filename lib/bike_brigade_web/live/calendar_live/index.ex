@@ -5,7 +5,7 @@ defmodule BikeBrigadeWeb.CalendarLive.Index do
   alias BikeBrigade.Delivery
   alias BikeBrigade.LocalizedDateTime
 
-  alias BikeBrigadeWeb.DeliveryHelpers
+  alias BikeBrigade.GoogleMaps
 
   @impl true
   def mount(_params, _session, socket) do
@@ -51,7 +51,11 @@ defmodule BikeBrigadeWeb.CalendarLive.Index do
   # end
 
   def list_opportunities(start_date) do
-    Delivery.list_opportunities(start_date: start_date, published: true, preload: [ program: [:latest_campaign, :items]])
+    Delivery.list_opportunities(
+      start_date: start_date,
+      published: true,
+      preload: [program: [:items]]
+    )
     |> Utils.ordered_group_by(&LocalizedDateTime.to_date(&1.delivery_start))
   end
 end
