@@ -5,7 +5,7 @@
       Add Task
     </C.button>
   </div>
-  <div class="my-2 ml-4">
+  <div class="my-2 ml-2">
     <h3 class="text-lg font-medium leading-6 text-gray-900">
       Tasks
     </h3>
@@ -14,7 +14,7 @@
     </div>
   </div>
   <div class="p-2 border-b">
-    <div class="flex flex-row flex-wrap mb-2">
+    <div class="flex flex-row flex-wrap gap-1">
       <C.filter_button  phx-click="filter-tasks" phx-value-assignment="all"
         selected={@tasks_query[:assignment] == "all"}>
         All
@@ -29,7 +29,7 @@
       </C.filter_button>
     </div>
     <input type="text" phx-keydown="search-tasks" phx-debounce="100" value={@tasks_query[:search]}
-      class="block w-full px-3 py-2 placeholder-gray-400 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+      class="block w-full px-3 py-2 my-2 placeholder-gray-400 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
       placeholder="Search Deliveries" />
   </div>
   <ul class="flex-1 overflow-y-auto scrolling-touch" id="tasks-list" phx-hook="TasksList">
@@ -37,12 +37,12 @@
     <li id={"tasks-list:#{task.id}"}>
       <a phx-click="select-task" phx-value-id={task.id} href="#"
         class={"block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50 #{if selected?(@selected_task, task), do: "bg-gray-100", else: ""}"}>
-        <div class="flex flex-col px-4 py-4">
+        <div class="px-4 py-4 border-b">
           <div class="text-sm font-medium">
             <span class="pii"><%= task.dropoff_name %></span><span class="text-xs">(<%= round_distance(task.delivery_distance) %>
               km)</span>
           </div>
-          <div class="flex">
+          <div class="md:flex">
             <div class="flex-shrink-0">
               <%= if task_assigned?(task) do %>
               <span
@@ -56,7 +56,7 @@
               </span>
               <% end %>
             </div>
-            <div class="mx-2 mt-0.5 text-xs font-medium">
+            <div class="md:mx-2 mt-2 md:mt-0.5 text-xs font-medium">
               <%= request_type(task) %>
             </div>
           </div>
@@ -90,25 +90,26 @@
             class="mx-1 text-sm leading-5 text-indigo-600">
             <%= task.assigned_rider.name %>
           </a>
-          <C.button phx-click="unassign-task" phx-value-task-id={@selected_task.id}
-            color={:secondary}
-            size={:xsmall}
-            class="-my-1.5 justify-self-end">
-            Unassign
-          </C.button>
-          <% @selected_rider != nil -> %>
-          <div class="mx-1 text-sm leading-5">
-            <C.button phx-click="assign-task" phx-value-task-id={@selected_task.id}
-              phx-value-rider-id={@selected_rider.id}
-              size={:xsmall}
-              class="-my-1.5">
-              Assign to <%= @selected_rider.name %>
-            </C.button>
-          </div>
-          <% true -> %>
-          <div class="mx-1 text-sm leading-5 text-gray-500">None</div>
-          <% end %>
         </div>
+        <C.button phx-click="unassign-task" phx-value-task-id={@selected_task.id}
+          color={:secondary}
+          size={:xsmall}
+          class="my-1">
+          Unassign
+        </C.button>
+        <% @selected_rider != nil -> %>
+        <div class="mx-1 text-sm leading-5">
+          <C.button phx-click="assign-task" phx-value-task-id={@selected_task.id}
+            phx-value-rider-id={@selected_rider.id}
+            size={:xsmall}
+            class="my-1">
+            Assign to <%= @selected_rider.name %>
+          </C.button>
+        </div>
+        <% true -> %>
+        <div class="mx-1 text-sm leading-5 text-gray-500">None</div>
+        <% end %>
+        
         <form phx-change="update-delivery-status" phx-target={@myself}>
           <input type="hidden" name="task-id" value={task.id}>
           <select name="delivery-status"
