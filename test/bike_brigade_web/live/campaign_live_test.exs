@@ -45,7 +45,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
       {:ok, _view, html} =
         view
         |> form("#task_form",
-          task: %{dropoff_name: "Recipient Mcgee", dropoff_address: "2758 Yonge St"}
+          task: %{dropoff_name: "Recipient Mcgee", dropoff_location: %{address: "2758 Yonge St"}}
         )
         |> render_submit()
         # TODO: we should be patching here
