@@ -125,7 +125,7 @@ defmodule BikeBrigadeWeb.Components do
     color_class =
       case color do
         :primary ->
-          "text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500"
+          "text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500 disabled:hover:cursor-not-allowed"
 
         :secondary ->
           "text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:ring-indigo-500"
