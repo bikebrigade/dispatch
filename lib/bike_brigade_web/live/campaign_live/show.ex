@@ -8,7 +8,6 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   alias BikeBrigade.Delivery.{Campaign, Task, CampaignRider}
   alias BikeBrigade.Riders.Rider
 
-
   @impl true
   def mount(_params, _session, socket) do
     if connected?(socket) do
@@ -32,6 +31,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
      |> assign(:selected_rider, nil)
      |> assign(:tasks_query, %{assignment: "all"})
      |> assign(:riders_query, %{capacity: "all"})
+     |> assign(:resent, false)
      |> apply_action(socket.assigns.live_action, params)}
   end
 
@@ -146,7 +146,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
         assign(socket, selected_rider: nil)
       end
 
-    {:noreply, socket}
+    {:noreply, assign(socket, :resent, false)}
   end
 
   @impl true
@@ -193,7 +193,9 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
 
     Delivery.send_campaign_message(socket.assigns.campaign, rider)
 
-    {:noreply, socket}
+    {:noreply,
+     socket
+     |> assign(:resent, true)}
   end
 
   @impl true

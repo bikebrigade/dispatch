@@ -82,11 +82,20 @@
               <div class="mx-1 text-sm leading-5 text-gray-800">No tasks</div>
             <% end %>
             <div class="flex flex-row mt-5 space-x-1">
+              <%= if @resent do %>
+              <C.button phx-click="resend-message"
+                phx-value-rider-id={rider.id}
+                size={:xsmall}
+                disabled>
+                Sent!
+              </C.button>
+              <% else %>
               <C.button phx-click="resend-message"
               phx-value-rider-id={rider.id}
               size={:xsmall}>
                 Resend
               </C.button>
+              <% end %>
               <C.button redirect_to={Routes.sms_message_index_path(@socket, :show, rider.id)} color={:secondary} size={:xsmall}>
                 Message
               </C.button>
