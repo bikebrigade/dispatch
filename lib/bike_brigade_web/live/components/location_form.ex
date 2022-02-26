@@ -4,7 +4,7 @@ defmodule BikeBrigadeWeb.Components.LocationForm do
   def component(assigns) do
     ~H"""
     <div class="my-2">
-      <%= hidden_input @for, :coords, value: Jason.encode!(input_value(@for, :coords))  %>
+      <%= hidden_input @for, :coords, value: Jason.encode!(coords(@for))  %>
       <%= hidden_input @for, :neighborhood %>
       <%= hidden_input @for, :postal %>
       <%= hidden_input @for, :city  %>
