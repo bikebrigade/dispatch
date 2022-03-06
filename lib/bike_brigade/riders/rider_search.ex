@@ -84,9 +84,10 @@ defmodule BikeBrigade.Riders.RiderSearch do
 
   @spec prev_page(t()) :: t()
   def prev_page(%{limit: limit, offset: offset} = rs) do
-    # Only move to next page if we have one
+    # Only move to prev page if we have one
     if offset > 0 do
       %{rs | offset: max(offset - limit, 0)}
+      |> execute_query()
     else
       rs
     end

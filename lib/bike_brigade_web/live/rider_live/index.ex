@@ -261,7 +261,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   def handle_event("next-page", _params, socket) do
     {:noreply,
      socket
-     |> update(:rider_search, &RiderSearch.prev_page/1)}
+     |> update(:rider_search, &RiderSearch.next_page/1)}
   end
 
   def handle_event("prev-page", _params, socket) do
@@ -455,13 +455,13 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
               </p>
             </div>
             <div class="flex justify-between flex-1 sm:justify-end">
-              <%= if RiderSearch.has_next_page?(@rider_search) do %>
+              <%= if RiderSearch.has_prev_page?(@rider_search) do %>
                 <C.button phx-click="prev-page" color={:white}>
                   Previous
                 </C.button>
               <% end %>
 
-              <%= if RiderSearch.has_prev_page?(@rider_search) do %>
+              <%= if RiderSearch.has_next_page?(@rider_search) do %>
                 <C.button phx-click="next-page" color={:white} class="ml-3">
                   Next
                 </C.button>
