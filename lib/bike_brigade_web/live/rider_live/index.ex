@@ -7,8 +7,6 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   alias BikeBrigade.Riders.RiderSearch
   alias BikeBrigade.LocalizedDateTime
 
-  alias BikeBrigadeWeb.RiderLive.MapComponent
-
   defmodule SortOptions do
     # This is a streamlined version of the one from leaderboard.ex
     # Deciding if we need all the ecto stuff here
@@ -277,9 +275,23 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     {:noreply, assign(socket, :mode, String.to_existing_atom(mode))}
   end
 
-  def handle_event("select-rider", _params, socket) do
-    # noop for now
-    {:noreply, socket}
+  def handle_event(
+        "map-click-rider",
+        %{"id" => rider_id},
+        socket
+      ) do
+    selected = socket.assigns.selected
+
+    rider_id = String.to_integer(rider_id)
+
+    selected =
+      if MapSet.member?(selected, rider_id) do
+        MapSet.delete(selected, rider_id)
+      else
+        MapSet.put(selected, rider_id)
+      end
+
+    {:noreply, assign(socket, :selected, selected)}
   end
 
   defp parse_filter(search) do
@@ -386,7 +398,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
       <%= if @mode == :map do %>
       <div class="min-w-full mt-2 bg-white rounded-lg shadow">
         <div class="p-1" style="height: 80vh">
-          <.live_component module={MapComponent} id={:map} riders={@rider_search.riders} selected_rider={nil} lat={43.653960} lng={-79.425820} />
+          <.rider_map riders={@rider_search.riders} selected={@selected} lat={43.653960} lng={-79.425820} />
         </div>
         </div>
       <% else %>
@@ -606,6 +618,30 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
         <% end  %>
       </div>
     <% end %>
+    """
+  end
+
+  defp rider_map(assigns) do
+    ~H"""
+    <leaflet-map phx-update="append" phx-hook= "LeafletMap" id="task-map" data-lat={@lat} data-lng={@lng}
+        data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
+        class="h-full">
+      <%= for rider <- @riders do %>
+        <.rider_marker rider={rider} selected={MapSet.member?(@selected, rider.id)} />
+      <% end %>
+    </leaflet-map>
+    """
+  end
+
+  defp rider_marker(assigns) do
+    ~H"""
+    <leaflet-marker phx-hook="LeafletMarker" id={"rider-marker:#{@rider.id}"} data-lat={lat(@rider.location_struct)} data-lng={lng(@rider.location_struct)}
+      data-icon="bicycle"
+      data-color={if @selected, do: "#5850ec", else: "#4a5568"}
+      data-click-event="map-click-rider"
+      data-click-value-id={@rider.id}
+      data-tooltip={@rider.name}>
+    </leaflet-marker>
     """
   end
 

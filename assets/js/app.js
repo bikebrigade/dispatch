@@ -178,6 +178,10 @@ Hooks.LeafletMarker = {
           }
         })
       }
+
+      if (tooltip = this.el.dataset.tooltip) {
+        marker = marker.bindTooltip(tooltip);
+      }
       return marker
     }
   }
