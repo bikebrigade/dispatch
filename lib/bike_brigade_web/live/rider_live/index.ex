@@ -375,7 +375,12 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
             <Heroicons.Outline.map class="w-5 h-5 ml-1" />
           </button>
         </div>
-        <C.button patch_to={Routes.rider_index_path(@socket, :message)}>Bulk Message</C.button>
+        <C.button patch_to={Routes.rider_index_path(@socket, :message)}>
+          Bulk Message
+          <%= if MapSet.size(@selected) > 0 do %>
+            (<%= MapSet.size(@selected) %>)
+          <% end %>
+        </C.button>
       </div>
       <form id="selected" phx-change="select-rider"></form>
       <%= if @mode == :map do %>
