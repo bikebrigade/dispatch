@@ -7,6 +7,8 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   alias BikeBrigade.Riders.RiderSearch
   alias BikeBrigade.LocalizedDateTime
 
+  alias BikeBrigadeWeb.RiderLive.MapComponent
+
   defmodule SortOptions do
     # This is a streamlined version of the one from leaderboard.ex
     # Deciding if we need all the ecto stuff here
@@ -99,7 +101,8 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
      |> assign(:search, "")
      |> assign(:rider_search, %RiderSearch{})
      |> assign(:suggestions, %Suggestions{})
-     |> assign(:show_suggestions, false)}
+     |> assign(:show_suggestions, false)
+     |> assign(:mode, :list)}
   end
 
   @impl Phoenix.LiveView
@@ -270,6 +273,15 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
      |> update(:rider_search, &RiderSearch.prev_page/1)}
   end
 
+  def handle_event("set-mode", %{"mode" => mode}, socket) do
+    {:noreply, assign(socket, :mode, String.to_existing_atom(mode))}
+  end
+
+  def handle_event("select-rider", _params, socket) do
+    # noop for now
+    {:noreply, socket}
+  end
+
   defp parse_filter(search) do
     case String.split(search, ":", parts: 2) do
       [type, filter] ->
@@ -328,7 +340,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
             current_user={@current_user}/>
         </UI.modal>
       <% end %>
-      <div class="flex items-baseline justify-between ">
+      <div class="flex items-center justify-between ">
         <div class="relative flex flex-col w-2/3">
           <form id="rider-search" phx-change="suggest" phx-submit="filter"}
             phx-click-away="clear-search">
@@ -353,123 +365,141 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
           <button id="submit" type="submit" class="sr-only"/>
           </form>
         </div>
+        <div class="inline-flex rounded-md shadow-sm">
+          <button phx-click="set-mode" phx-value-mode="list" type="button" class={"#{if @mode == :list, do: "bg-gray-300", else: "bg-white"} relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-l-md hover:bg-gray-200 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"}>
+            <Heroicons.Outline.table class="w-5 h-5 mr-1" />
+            List
+          </button>
+          <button phx-click="set-mode" phx-value-mode="map" type="button" class={"#{if @mode == :map, do: "bg-gray-300", else: "bg-white"} relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 border border-gray-300 rounded-r-md hover:bg-gray-200 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"}>
+            Map
+            <Heroicons.Outline.map class="w-5 h-5 ml-1" />
+          </button>
+        </div>
         <C.button patch_to={Routes.rider_index_path(@socket, :message)}>Bulk Message</C.button>
       </div>
       <form id="selected" phx-change="select-rider"></form>
-      <UI.table id="riders" rows={@rider_search.riders} class="min-w-full mt-2">
-        <:th class="text-center" padding="px-3">
-        <%= checkbox :selected, :all,
-          form: "selected",
-          value: all_selected?(@rider_search.riders, @selected),
-          class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" %>
-        </:th>
-        <:th padding="px-3">
-          <div class="inline-flex">
-            Name
-            <C.sort_link phx-click="sort" current_field={:name} default_order={:asc} sort_field={@rider_search.sort_field} sort_order={@rider_search.sort_order} class="pl-2" />
-          </div>
-        </:th>
-        <:th>
-          Location
-        </:th>
-        <:th>
-          Tags
-        </:th>
-        <:th>
-          <div class="inline-flex">
-            Capacity
-            <C.sort_link phx-click="sort" current_field={:capacity} default_order={:desc} sort_field={@rider_search.sort_field} sort_order={@rider_search.sort_order} class="pl-2" />
-          </div>
-        </:th>
-        <:th>
-          <div class="inline-flex">
-            Last Active
-            <C.sort_link phx-click="sort" current_field={:last_active} default_order={:desc} sort_field={@rider_search.sort_field} sort_order={@rider_search.sort_order} class="pl-2" />
-          </div>
-        </:th>
-
-        <:td let={rider} class="text-center" padding="px-3">
-          <%= checkbox :selected, "#{rider.id}",
+      <%= if @mode == :map do %>
+      <div class="min-w-full mt-2 bg-white rounded-lg shadow">
+        <div class="p-1" style="height: 80vh">
+          <.live_component module={MapComponent} id={:map} riders={@rider_search.riders} selected_rider={nil} lat={43.653960} lng={-79.425820} />
+        </div>
+        </div>
+      <% else %>
+        <UI.table id="riders" rows={@rider_search.riders} class="min-w-full mt-2">
+          <:th class="text-center" padding="px-3">
+          <%= checkbox :selected, :all,
             form: "selected",
-            value: MapSet.member?(@selected, rider.id),
+            value: all_selected?(@rider_search.riders, @selected),
             class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" %>
-        </:td>
-        <:td let={rider} padding="px-3">
-          <%= live_redirect to: Routes.rider_show_path(@socket, :show, rider), class: "link" do %>
-            <.bold_search string={rider.name} search={get_filter(@rider_search.filters, :name)} search_type={:word_boundary} />
-          <% end %>
-          <span class="text-xs lowercase ">(<%= rider.pronouns %>)</span>
-          <.show_phone_if_filtered phone={rider.phone} filters={@rider_search.filters} />
-        </:td>
-        <:td let={rider}>
-          <%= rider.location_struct.neighborhood %>
-        </:td>
-        <:td let={rider}>
-          <ul class="flex">
-            <%= for tag <- rider.tags do %>
-            <li class="before:content-[','] first:before:content-['']">
-              <button type="button" phx-click="filter" value={"tag:#{tag.name}"}}
-                class="link">
-                <%= if get_filter(@rider_search.filters, :tag, tag.name) do %>
-                  <span class="font-bold"><%= tag.name %></span>
-                <% else %>
-                  <%= tag.name %>
-                <% end %>
-              </button>
-            </li>
-            <% end %>
-          </ul>
-        </:td>
-        <:td let={rider}>
-          <button type="button" phx-click="filter" value={"capacity:#{rider.capacity}"}}
-          class="link">
-            <%= if get_filter(@rider_search.filters, :capacity, rider.capacity) do %>
-              <span class="font-bold"><%= rider.capacity %></span>
-            <% else %>
-              <%= rider.capacity %>
-            <% end %>
-          </button>
-        </:td>
-        <:td let={rider}>
-          <%= if rider.latest_campaign do %>
-            <%=  rider.latest_campaign.delivery_start |> LocalizedDateTime.to_date() |> Calendar.strftime("%b %-d, %Y") %>
-          <% end %>
-        </:td>
-        <:footer>
-          <nav class="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6" aria-label="Pagination">
-            <div class="hidden sm:block">
-              <p class="text-sm text-gray-700">
-                Showing
-                <span class="font-medium">
-                  <%= RiderSearch.page_first(@rider_search) %>
-                </span>
-                to
-                <span class="font-medium">
-                  <%= RiderSearch.page_last(@rider_search)%>
-                </span>
-                of
-                <span class="font-medium">
-                <%= @rider_search.total %>
-                </span>
-                results
-              </p>
+          </:th>
+          <:th padding="px-3">
+            <div class="inline-flex">
+              Name
+              <C.sort_link phx-click="sort" current_field={:name} default_order={:asc} sort_field={@rider_search.sort_field} sort_order={@rider_search.sort_order} class="pl-2" />
             </div>
-            <div class="flex justify-between flex-1 sm:justify-end">
-              <%= if RiderSearch.has_prev_page?(@rider_search) do %>
-                <C.button phx-click="prev-page" color={:white}>
-                  Previous
-                </C.button>
-              <% end %>
+          </:th>
+          <:th>
+            Location
+          </:th>
+          <:th>
+            Tags
+          </:th>
+          <:th>
+            <div class="inline-flex">
+              Capacity
+              <C.sort_link phx-click="sort" current_field={:capacity} default_order={:desc} sort_field={@rider_search.sort_field} sort_order={@rider_search.sort_order} class="pl-2" />
+            </div>
+          </:th>
+          <:th>
+            <div class="inline-flex">
+              Last Active
+              <C.sort_link phx-click="sort" current_field={:last_active} default_order={:desc} sort_field={@rider_search.sort_field} sort_order={@rider_search.sort_order} class="pl-2" />
+            </div>
+          </:th>
 
-              <%= if RiderSearch.has_next_page?(@rider_search) do %>
-                <C.button phx-click="next-page" color={:white} class="ml-3">
-                  Next
-                </C.button>
+          <:td let={rider} class="text-center" padding="px-3">
+            <%= checkbox :selected, "#{rider.id}",
+              form: "selected",
+              value: MapSet.member?(@selected, rider.id),
+              class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" %>
+          </:td>
+          <:td let={rider} padding="px-3">
+            <%= live_redirect to: Routes.rider_show_path(@socket, :show, rider), class: "link" do %>
+              <.bold_search string={rider.name} search={get_filter(@rider_search.filters, :name)} search_type={:word_boundary} />
+            <% end %>
+            <span class="text-xs lowercase ">(<%= rider.pronouns %>)</span>
+            <.show_phone_if_filtered phone={rider.phone} filters={@rider_search.filters} />
+          </:td>
+          <:td let={rider}>
+            <%= rider.location_struct.neighborhood %>
+          </:td>
+          <:td let={rider}>
+            <ul class="flex">
+              <%= for tag <- rider.tags do %>
+              <li class="before:content-[','] first:before:content-['']">
+                <button type="button" phx-click="filter" value={"tag:#{tag.name}"}}
+                  class="link">
+                  <%= if get_filter(@rider_search.filters, :tag, tag.name) do %>
+                    <span class="font-bold"><%= tag.name %></span>
+                  <% else %>
+                    <%= tag.name %>
+                  <% end %>
+                </button>
+              </li>
               <% end %>
-            </div>
-          </nav>
-        </:footer>
-      </UI.table>
+            </ul>
+          </:td>
+          <:td let={rider}>
+            <button type="button" phx-click="filter" value={"capacity:#{rider.capacity}"}}
+            class="link">
+              <%= if get_filter(@rider_search.filters, :capacity, rider.capacity) do %>
+                <span class="font-bold"><%= rider.capacity %></span>
+              <% else %>
+                <%= rider.capacity %>
+              <% end %>
+            </button>
+          </:td>
+          <:td let={rider}>
+            <%= if rider.latest_campaign do %>
+              <%=  rider.latest_campaign.delivery_start |> LocalizedDateTime.to_date() |> Calendar.strftime("%b %-d, %Y") %>
+            <% end %>
+          </:td>
+          <:footer>
+            <nav class="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6" aria-label="Pagination">
+              <div class="hidden sm:block">
+                <p class="text-sm text-gray-700">
+                  Showing
+                  <span class="font-medium">
+                    <%= RiderSearch.page_first(@rider_search) %>
+                  </span>
+                  to
+                  <span class="font-medium">
+                    <%= RiderSearch.page_last(@rider_search)%>
+                  </span>
+                  of
+                  <span class="font-medium">
+                  <%= @rider_search.total %>
+                  </span>
+                  results
+                </p>
+              </div>
+              <div class="flex justify-between flex-1 sm:justify-end">
+                <%= if RiderSearch.has_prev_page?(@rider_search) do %>
+                  <C.button phx-click="prev-page" color={:white}>
+                    Previous
+                  </C.button>
+                <% end %>
+
+                <%= if RiderSearch.has_next_page?(@rider_search) do %>
+                  <C.button phx-click="next-page" color={:white} class="ml-3">
+                    Next
+                  </C.button>
+                <% end %>
+              </div>
+            </nav>
+          </:footer>
+        </UI.table>
+      <% end %>
     </div>
     """
   end
