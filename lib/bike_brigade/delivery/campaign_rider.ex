@@ -21,10 +21,16 @@ defmodule BikeBrigade.Delivery.CampaignRider do
 
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:campaign_id, :rider_id, :rider_capacity, :notes, :pickup_window, :enter_building])
+    |> cast(params, [
+      :campaign_id,
+      :rider_id,
+      :rider_capacity,
+      :notes,
+      :pickup_window,
+      :enter_building
+    ])
     |> maybe_gen_token()
-        # TODO this required validation for :campaign_id may be not needed
-
+    # TODO this required validation for :campaign_id may be not needed
     |> validate_required([:campaign_id, :rider_id, :rider_capacity, :enter_building, :token])
     |> unique_constraint([:campaign_id, :rider_id])
     |> unique_constraint(:token)
@@ -33,8 +39,12 @@ defmodule BikeBrigade.Delivery.CampaignRider do
   def maybe_gen_token(changeset) do
     case fetch_field(changeset, :token) do
       {:data, token} when not is_nil(token) -> changeset
-      _ -> put_change(changeset, :token, gen_token())
+      _ -> gen_token_changeset(changeset)
     end
+  end
+
+  def gen_token_changeset(struct_or_changeset) do
+    change(struct_or_changeset, %{token: gen_token()})
   end
 
   defp gen_token() do

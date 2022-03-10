@@ -492,7 +492,7 @@ defmodule BikeBrigade.Delivery do
       %CampaignRider{token: nil} = cr ->
         cr =
           cr
-          |> CampaignRider.changeset()
+          |> CampaignRider.gen_token_changeset()
           |> Repo.update!()
 
         cr.token
