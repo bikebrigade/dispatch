@@ -42,7 +42,6 @@ defmodule BikeBrigade.Riders.RiderSearch do
 
     @type t :: %Results{
             page: list(),
-            all_locations: list(),
             total: non_neg_integer(),
             page_first: non_neg_integer(),
             page_last: non_neg_integer()
@@ -82,7 +81,6 @@ defmodule BikeBrigade.Riders.RiderSearch do
       {rs, results}
       |> fetch_total()
       |> fetch_page()
-      |> fetch_all_locations()
 
     {%{rs | query_changed: false, page_changed: false}, results}
   end
@@ -129,23 +127,16 @@ defmodule BikeBrigade.Riders.RiderSearch do
     {rs, %{results | page: riders, page_first: page_first, page_last: page_last}}
   end
 
-  @spec fetch_all_locations({RiderSearch.t(), Results.t()}) :: {RiderSearch.t(), Results.t()}
-  defp fetch_all_locations({%RiderSearch{query_changed: false} = rs, results}) do
-    {rs, results}
-  end
-
-  defp fetch_all_locations({%RiderSearch{query_changed: true} = rs, results}) do
-    all_locations =
-      build_query(rs)
-      |> exclude(:preload)
-      |> exclude(:order_by)
-      |> exclude(:select)
-      |> exclude(:limit)
-      |> exclude(:offset)
-      |> select([r], {r.id, r.name, r.location_struct})
-      |> Repo.all()
-
-    {rs, %{results | all_locations: all_locations}}
+  @spec fetch_locations(RiderSearch.t()) :: list()
+  def fetch_locations(rs) do
+    build_query(rs)
+    |> exclude(:preload)
+    |> exclude(:order_by)
+    |> exclude(:select)
+    |> exclude(:limit)
+    |> exclude(:offset)
+    |> select([r], {r.id, r.name, r.location_struct})
+    |> Repo.all()
   end
 
   @spec filter(t(), list()) :: t()
