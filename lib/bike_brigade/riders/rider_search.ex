@@ -38,11 +38,11 @@ defmodule BikeBrigade.Riders.RiderSearch do
   ]
 
   defmodule Results do
-    defstruct page: [], locations: [], total: 0, page_first: 0, page_last: 0
+    defstruct page: [], all_locations: [], total: 0, page_first: 0, page_last: 0
 
     @type t :: %Results{
             page: list(),
-            locations: list(),
+            all_locations: list(),
             total: non_neg_integer(),
             page_first: non_neg_integer(),
             page_last: non_neg_integer()
@@ -75,12 +75,14 @@ defmodule BikeBrigade.Riders.RiderSearch do
     }
   end
 
+  @spec fetch(RiderSearch.t()) :: {RiderSearch.t(), Results.t()}
   @spec fetch(RiderSearch.t(), Results.t()) :: {RiderSearch.t(), Results.t()}
-  def fetch(rs, results) do
+  def fetch(rs, results \\ %Results{}) do
     {rs, results} =
       {rs, results}
       |> fetch_total()
       |> fetch_page()
+      |> fetch_all_locations()
 
     {%{rs | query_changed: false, page_changed: false}, results}
   end
@@ -101,7 +103,7 @@ defmodule BikeBrigade.Riders.RiderSearch do
       |> select(count())
       |> Repo.one()
 
-    {%{rs | query_changed: true}, %{results | total: total}}
+    {rs, %{results | total: total}}
   end
 
   @spec fetch_page({RiderSearch.t(), Results.t()}) :: {RiderSearch.t(), Results.t()}
@@ -124,8 +126,26 @@ defmodule BikeBrigade.Riders.RiderSearch do
 
     page_last = min(rs.offset + rs.limit + 1, results.total)
 
-    {%{rs | page_changed: true},
-     %{results | page: riders, page_first: page_first, page_last: page_last}}
+    {rs, %{results | page: riders, page_first: page_first, page_last: page_last}}
+  end
+
+  @spec fetch_all_locations({RiderSearch.t(), Results.t()}) :: {RiderSearch.t(), Results.t()}
+  defp fetch_all_locations({%RiderSearch{query_changed: false} = rs, results}) do
+    {rs, results}
+  end
+
+  defp fetch_all_locations({%RiderSearch{query_changed: true} = rs, results}) do
+    all_locations =
+      build_query(rs)
+      |> exclude(:preload)
+      |> exclude(:order_by)
+      |> exclude(:select)
+      |> exclude(:limit)
+      |> exclude(:offset)
+      |> select([r], {r.id, r.name, r.location_struct})
+      |> Repo.all()
+
+    {rs, %{results | all_locations: all_locations}}
   end
 
   @spec filter(t(), list()) :: t()

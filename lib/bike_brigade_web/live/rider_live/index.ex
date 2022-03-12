@@ -415,7 +415,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
       <%= if @mode == :map do %>
       <div class="min-w-full mt-2 bg-white rounded-lg shadow">
         <div class="p-1" style="height: 80vh">
-          <.rider_map riders={@search_results.page} selected={@selected} lat={43.653960} lng={-79.425820} />
+          <.rider_map rider_locations={@search_results.all_locations} selected={@selected} lat={43.653960} lng={-79.425820} />
         </div>
         </div>
       <% else %>
@@ -643,8 +643,8 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     <leaflet-map phx-update="append" phx-hook= "LeafletMap" id="task-map" data-lat={@lat} data-lng={@lng}
         data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
         class="h-full">
-      <%= for rider <- @riders do %>
-        <.rider_marker rider={rider} selected={MapSet.member?(@selected, rider.id)} />
+      <%= for {id, name, location} <- @rider_locations do %>
+        <.rider_marker location={location} id={id} name={name} selected={MapSet.member?(@selected, id)} />
       <% end %>
     </leaflet-map>
     """
@@ -652,12 +652,12 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
 
   defp rider_marker(assigns) do
     ~H"""
-    <leaflet-marker phx-hook="LeafletMarker" id={"rider-marker:#{@rider.id}"} data-lat={lat(@rider.location_struct)} data-lng={lng(@rider.location_struct)}
+    <leaflet-marker phx-hook="LeafletMarker" id={"rider-marker:#{@id}"} data-lat={lat(@location)} data-lng={lng(@location)}
       data-icon="bicycle"
       data-color={if @selected, do: "#5850ec", else: "#4a5568"}
       data-click-event="map-click-rider"
-      data-click-value-id={@rider.id}
-      data-tooltip={@rider.name}>
+      data-click-value-id={@id}
+      data-tooltip={@name}>
     </leaflet-marker>
     """
   end
