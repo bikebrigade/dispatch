@@ -97,8 +97,8 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
      |> assign(:page_title, "Riders")
      |> assign(:selected, MapSet.new())
      |> assign(:search, "")
-     |> assign(:rider_search, %RiderSearch{})
      |> assign(:search_results, %RiderSearch.Results{})
+     |> assign(:all_locations, [])
      |> assign(:suggestions, %Suggestions{})
      |> assign(:show_suggestions, false)
      |> assign(:mode, :list)}
@@ -108,6 +108,8 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   def handle_params(params, _url, socket) do
     {:noreply, apply_action(socket, socket.assigns.live_action, params)}
   end
+
+  @default_rider_search RiderSearch.new(preload: [:tags, :latest_campaign])
 
   defp apply_action(socket, :index, params) do
     tag_filters =
@@ -120,15 +122,12 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
 
     rider_search =
       RiderSearch.new(
-        sort_field: :last_active,
-        sort_order: :desc,
-        limit: 20,
         filters: tag_filters ++ capacity_filters,
         preload: [:tags, :latest_campaign]
       )
 
     socket
-    |> assign(:rider_search, rider_search)
+    |> assign_new(:rider_search, fn -> rider_search end)
     |> fetch_results()
     |> remove_selected_riders()
   end
@@ -140,11 +139,12 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
       |> Riders.get_riders()
 
     socket
+    |> assign_new(:rider_search, fn -> @default_rider_search end)
+    |> fetch_results()
     |> assign(:initial_riders, riders)
   end
 
   @impl Phoenix.LiveView
-
   def handle_event("filter", %{"value" => search}, socket) do
     filter = parse_filter(search)
 
@@ -244,16 +244,6 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     {:noreply, assign(socket, :selected, selected)}
   end
 
-  def handle_event("bulk-message", _params, socket) do
-    rider_ids = socket.assigns.selected |> MapSet.to_list()
-
-    {:noreply,
-     push_redirect(socket,
-       to: Routes.sms_message_index_path(socket, :new, r: rider_ids),
-       replace: false
-     )}
-  end
-
   def handle_event("sort", %{"field" => field, "order" => order}, socket) do
     field = String.to_existing_atom(field)
     order = String.to_existing_atom(order)
@@ -280,7 +270,10 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   end
 
   def handle_event("set-mode", %{"mode" => mode}, socket) do
-    {:noreply, assign(socket, :mode, String.to_existing_atom(mode))}
+    {:noreply,
+     socket
+     |> assign(:mode, String.to_existing_atom(mode))
+     |> fetch_results()}
   end
 
   def handle_event(
@@ -353,6 +346,16 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     socket
     |> assign(:rider_search, rider_search)
     |> assign(:search_results, search_results)
+    |> maybe_fectch_location()
+  end
+
+  defp maybe_fectch_location(socket) do
+    # Only fetch locations when we're in map mode
+    if socket.assigns.mode == :map do
+      assign(socket, :all_locations, RiderSearch.fetch_locations(socket.assigns.rider_search))
+    else
+      socket
+    end
   end
 
   @impl Phoenix.LiveView
@@ -415,7 +418,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
       <%= if @mode == :map do %>
         <div class="min-w-full mt-2 bg-white rounded-lg shadow">
           <div class="p-1 h-[80vh]">
-            <.rider_map rider_locations={@search_results.all_locations} selected={@selected} lat={43.653960} lng={-79.425820} />
+            <.rider_map rider_locations={@all_locations} selected={@selected} lat={43.653960} lng={-79.425820} />
           </div>
           <div class="flex items-center justify-between px-4 py-3 border-t border-gray-200 sm:px-6" aria-label="Pagination">
             <div class="hidden sm:block">
