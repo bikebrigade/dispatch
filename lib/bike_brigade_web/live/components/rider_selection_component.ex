@@ -16,6 +16,7 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
      |> assign(:selected_riders, selected_riders)
      |> assign(:search, "")
      |> assign(:rider_search, RiderSearch.new(limit: 10))
+     |> assign(:search_results, %RiderSearch.Results{})
      |> assign(:multi, false)}
   end
 
@@ -38,7 +39,8 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
     {:noreply,
      socket
      |> assign(:search, search)
-     |> update(:rider_search, &RiderSearch.filter(&1, name_or_phone: search))}
+     |> update(:rider_search, &RiderSearch.filter(&1, name_or_phone: search))
+    |> fetch_results()}
   end
 
   def handle_event("unselect", %{"id" => id}, socket) do
@@ -54,6 +56,15 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
      socket
      |> update(:selected_riders, &Map.put_new_lazy(&1, id, fn -> Riders.get_rider!(id) end))
      |> assign(:search, "")}
+  end
+
+  defp fetch_results(socket) do
+    {rider_search, search_results} =
+      RiderSearch.fetch(socket.assigns.rider_search, socket.assigns.search_results)
+
+    socket
+    |> assign(:rider_search, rider_search)
+    |> assign(:search_results, search_results)
   end
 
   @impl true
@@ -77,7 +88,7 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
       class="block w-full px-3 py-2 placeholder-gray-400 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
       <%= if @search != "" do %>
         <ul id="rider-selection-list" class="overflow-y-auto max-h-64">
-          <%= for rider <- @rider_search.riders do %>
+          <%= for rider <- @search_results.page do %>
             <li id={"rider-selection:#{rider.id}"}>
               <a href="#" phx-click="select" phx-value-id={ rider.id } phx-target={ @myself } class="block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50">
                 <.show rider={rider}/>
