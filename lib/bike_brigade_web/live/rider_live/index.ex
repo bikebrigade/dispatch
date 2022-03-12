@@ -98,6 +98,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
      |> assign(:selected, MapSet.new())
      |> assign(:search, "")
      |> assign(:rider_search, %RiderSearch{})
+     |> assign(:search_results, %RiderSearch.Results{})
      |> assign(:suggestions, %Suggestions{})
      |> assign(:show_suggestions, false)
      |> assign(:mode, :list)}
@@ -128,6 +129,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
 
     socket
     |> assign(:rider_search, rider_search)
+    |> fetch_results()
     |> remove_selected_riders()
   end
 
@@ -149,6 +151,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     {:noreply,
      socket
      |> update(:rider_search, &RiderSearch.filter(&1, &1.filters ++ [filter]))
+     |> fetch_results()
      |> clear_search()
      |> clear_selected()}
   end
@@ -163,6 +166,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     {:noreply,
      socket
      |> update(:rider_search, &RiderSearch.filter(&1, []))
+     |> fetch_results()
      |> clear_search()
      |> clear_selected()}
   end
@@ -186,6 +190,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     {:noreply,
      socket
      |> update(:rider_search, &RiderSearch.filter(&1, filters))
+     |> fetch_results()
      |> remove_selected_riders()}
   end
 
@@ -197,7 +202,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     selected =
       case select_all do
         "true" ->
-          for r <- socket.assigns.rider_search.riders, into: MapSet.new(), do: r.id
+          for r <- socket.assigns.search_results.page, into: MapSet.new(), do: r.id
 
         "false" ->
           MapSet.new()
@@ -256,19 +261,22 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     {:noreply,
      socket
      |> update(:rider_search, &RiderSearch.sort(&1, field, order))
+     |> fetch_results()
      |> remove_selected_riders()}
   end
 
   def handle_event("next-page", _params, socket) do
     {:noreply,
      socket
-     |> update(:rider_search, &RiderSearch.next_page/1)}
+     |> update(:rider_search, &RiderSearch.next_page/1)
+     |> fetch_results()}
   end
 
   def handle_event("prev-page", _params, socket) do
     {:noreply,
      socket
-     |> update(:rider_search, &RiderSearch.prev_page/1)}
+     |> update(:rider_search, &RiderSearch.prev_page/1)
+     |> fetch_results()}
   end
 
   def handle_event("set-mode", %{"mode" => mode}, socket) do
@@ -329,13 +337,22 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
 
   defp remove_selected_riders(socket) do
     selected =
-      socket.assigns.rider_search.riders
+      socket.assigns.search_results.page
       |> Enum.map(& &1.id)
       |> MapSet.new()
       |> MapSet.intersection(socket.assigns.selected)
 
     socket
     |> assign(:selected, selected)
+  end
+
+  defp fetch_results(socket) do
+    {rider_search, search_results} =
+      RiderSearch.fetch(socket.assigns.rider_search, socket.assigns.search_results)
+
+    socket
+    |> assign(:rider_search, rider_search)
+    |> assign(:search_results, search_results)
   end
 
   @impl Phoenix.LiveView
@@ -398,15 +415,15 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
       <%= if @mode == :map do %>
       <div class="min-w-full mt-2 bg-white rounded-lg shadow">
         <div class="p-1" style="height: 80vh">
-          <.rider_map riders={@rider_search.riders} selected={@selected} lat={43.653960} lng={-79.425820} />
+          <.rider_map riders={@search_results.page} selected={@selected} lat={43.653960} lng={-79.425820} />
         </div>
         </div>
       <% else %>
-        <UI.table id="riders" rows={@rider_search.riders} class="min-w-full mt-2">
+        <UI.table id="riders" rows={@search_results.page} class="min-w-full mt-2">
           <:th class="text-center" padding="px-3">
           <%= checkbox :selected, :all,
             form: "selected",
-            value: all_selected?(@rider_search.riders, @selected),
+            value: all_selected?(@search_results.page, @selected),
             class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" %>
           </:th>
           <:th padding="px-3">
@@ -487,27 +504,27 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
                 <p class="text-sm text-gray-700">
                   Showing
                   <span class="font-medium">
-                    <%= RiderSearch.page_first(@rider_search) %>
+                    <%= @search_results.page_first %>
                   </span>
                   to
                   <span class="font-medium">
-                    <%= RiderSearch.page_last(@rider_search)%>
+                    <%= @search_results.page_last %>
                   </span>
                   of
                   <span class="font-medium">
-                  <%= @rider_search.total %>
+                  <%= @search_results.total %>
                   </span>
                   results
                 </p>
               </div>
               <div class="flex justify-between flex-1 sm:justify-end">
-                <%= if RiderSearch.has_prev_page?(@rider_search) do %>
+                <%= if RiderSearch.Results.has_prev_page?(@search_results) do %>
                   <C.button phx-click="prev-page" color={:white}>
                     Previous
                   </C.button>
                 <% end %>
 
-                <%= if RiderSearch.has_next_page?(@rider_search) do %>
+                <%= if RiderSearch.Results.has_next_page?(@search_results) do %>
                   <C.button phx-click="next-page" color={:white} class="ml-3">
                     Next
                   </C.button>
