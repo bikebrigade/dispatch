@@ -6,17 +6,24 @@ defmodule BikeBrigade.Riders.RiderSearch do
   alias BikeBrigade.Riders.{Rider, RiderSearch}
   alias BikeBrigade.Riders.Tag
 
-  defstruct [ :sort_field, :sort_order, :preload, offset: 0, limit: 0, total: 0, riders: [], filters: []]
+  defstruct [
+    :sort_field,
+    :sort_order,
+    :preload,
+    offset: 0,
+    limit: 0,
+    filters: [],
+    page_changed: true,
+    query_changed: true
+  ]
 
   @type t :: %RiderSearch{
           offset: non_neg_integer(),
           limit: non_neg_integer(),
-          total: non_neg_integer(),
           filters: list(),
           sort_field: atom(),
           sort_order: atom(),
-          preload: list(),
-          riders: list()
+          preload: list()
         }
 
   @sort_orders [:desc, :asc]
@@ -30,6 +37,28 @@ defmodule BikeBrigade.Riders.RiderSearch do
     preload: []
   ]
 
+  defmodule Results do
+    defstruct page: [], locations: [], total: 0, page_first: 0, page_last: 0
+
+    @type t :: %Results{
+            page: list(),
+            locations: list(),
+            total: non_neg_integer(),
+            page_first: non_neg_integer(),
+            page_last: non_neg_integer()
+          }
+
+    @spec has_next_page?(t()) :: boolean()
+    def has_next_page?(%{page_last: page_last, total: total}) do
+      page_last < total
+    end
+
+    @spec has_prev_page?(t()) :: boolean()
+    def has_prev_page?(%{page_first: page_first}) do
+      page_first > 1
+    end
+  end
+
   @spec new(keyword()) :: RiderSearch.t()
   def new(opts \\ []) do
     opts = Keyword.merge(@default_opts, opts)
@@ -40,93 +69,28 @@ defmodule BikeBrigade.Riders.RiderSearch do
       filters: opts[:filters],
       sort_order: opts[:sort_order],
       sort_field: opts[:sort_field],
-      preload: opts[:preload]
+      preload: opts[:preload],
+      page_changed: true,
+      query_changed: true
     }
-    |> execute_query()
-    |> update_total()
   end
 
-  @spec filter(t(), list()) :: t()
-  def filter(rs, filters) do
-    %{rs | filters: filters, offset: 0}
-    |> execute_query()
-    |> update_total()
+  @spec fetch(RiderSearch.t(), Results.t()) :: {RiderSearch.t(), Results.t()}
+  def fetch(rs, results) do
+    {rs, results} =
+      {rs, results}
+      |> fetch_total()
+      |> fetch_page()
+
+    {%{rs | query_changed: false, page_changed: false}, results}
   end
 
-  @spec sort(t(), atom(), atom()) :: t()
-  def sort(rs, field, order)
-      when field in @sortable_fields and order in @sort_orders do
-    %{rs | sort_field: field, sort_order: order}
-    |> execute_query()
-    |> update_total()
+  @spec fetch_total({RiderSearch.t(), Results.t()}) :: {RiderSearch.t(), Results.t()}
+  defp fetch_total({%RiderSearch{query_changed: false} = rs, results}) do
+    {rs, results}
   end
 
-  @spec has_next_page?(t()) :: boolean()
-  def has_next_page?(%{limit: limit, offset: offset, total: total}) do
-    offset + limit < total
-  end
-
-  @spec has_prev_page?(t()) :: boolean()
-  def has_prev_page?(%{offset: offset}) do
-    offset > 0
-  end
-
-  @spec next_page(t()) :: t()
-  def next_page(%{limit: limit, offset: offset, total: total} = rs) do
-    # Only move to next page if we have one
-    if limit + offset <= total do
-      %{rs | offset: offset + limit}
-      |> execute_query()
-    else
-      rs
-    end
-  end
-
-  @spec prev_page(t()) :: t()
-  def prev_page(%{limit: limit, offset: offset} = rs) do
-    # Only move to prev page if we have one
-    if offset > 0 do
-      %{rs | offset: max(offset - limit, 0)}
-      |> execute_query()
-    else
-      rs
-    end
-  end
-
-  @spec page_first(t()) :: pos_integer()
-  def page_first(%{offset: offset, total: total}) do
-    if total == 0 do
-      0
-    else
-      offset + 1
-    end
-  end
-
-  @spec page_last(t()) :: pos_integer()
-  def page_last(%{offset: offset, limit: limit, total: total}) do
-    min(offset + limit + 1, total)
-  end
-
-  @spec build_query(t()) :: Ecto.Query.t()
-  defp build_query(rs) do
-    base_query()
-    |> sort_query(rs.sort_field, rs.sort_order)
-    |> filter_query(rs.filters)
-    |> paginate_query(rs.offset, rs.limit)
-  end
-
-  @spec execute_query(t()) :: t()
-  defp execute_query(rs) do
-    riders =
-      build_query(rs)
-      |> Repo.all()
-      |> Repo.preload(rs.preload)
-
-    %{rs | riders: riders}
-  end
-
-  @spec update_total(t()) :: t()
-  defp update_total(rs) do
+  defp fetch_total({%RiderSearch{query_changed: true} = rs, results}) do
     total =
       build_query(rs)
       |> exclude(:preload)
@@ -137,7 +101,65 @@ defmodule BikeBrigade.Riders.RiderSearch do
       |> select(count())
       |> Repo.one()
 
-    %{rs | total: total}
+    {%{rs | query_changed: true}, %{results | total: total}}
+  end
+
+  @spec fetch_page({RiderSearch.t(), Results.t()}) :: {RiderSearch.t(), Results.t()}
+  defp fetch_page({%RiderSearch{page_changed: false} = rs, results}) do
+    {rs, results}
+  end
+
+  defp fetch_page({%RiderSearch{page_changed: true} = rs, results}) do
+    riders =
+      build_query(rs)
+      |> Repo.all()
+      |> Repo.preload(rs.preload)
+
+    page_first =
+      if results.total == 0 do
+        0
+      else
+        rs.offset + 1
+      end
+
+    page_last = min(rs.offset + rs.limit + 1, results.total)
+
+    {%{rs | page_changed: true},
+     %{results | page: riders, page_first: page_first, page_last: page_last}}
+  end
+
+  @spec filter(t(), list()) :: t()
+  def filter(rs, filters) do
+    %{rs | filters: filters, offset: 0, page_changed: true, query_changed: true}
+  end
+
+  @spec sort(t(), atom(), atom()) :: t()
+  def sort(rs, field, order)
+      when field in @sortable_fields and order in @sort_orders do
+    %{rs | sort_field: field, sort_order: order, page_changed: true, query_changed: true}
+  end
+
+  @spec next_page(t()) :: t()
+  def next_page(%{limit: limit, offset: offset} = rs) do
+    %{rs | offset: offset + limit, page_changed: true}
+  end
+
+  @spec prev_page(t()) :: t()
+  def prev_page(%{limit: limit, offset: offset} = rs) do
+    # Only move to prev page if we have one
+    if offset > 0 do
+      %{rs | offset: max(offset - limit, 0), page_changed: true}
+    else
+      rs
+    end
+  end
+
+  @spec build_query(t()) :: Ecto.Query.t()
+  defp build_query(rs) do
+    base_query()
+    |> sort_query(rs.sort_field, rs.sort_order)
+    |> filter_query(rs.filters)
+    |> paginate_query(rs.offset, rs.limit)
   end
 
   @spec base_query() :: Ecto.Query.t()
@@ -197,7 +219,10 @@ defmodule BikeBrigade.Riders.RiderSearch do
 
   defp apply_filter({:name_or_phone, search}, query) do
     query
-    |> where(ilike(as(:rider).name, ^"#{search}%") or ilike(as(:rider).name, ^"% #{search}%") or like(as(:rider).phone, ^"%#{search}%"))
+    |> where(
+      ilike(as(:rider).name, ^"#{search}%") or ilike(as(:rider).name, ^"% #{search}%") or
+        like(as(:rider).phone, ^"%#{search}%")
+    )
   end
 
   defp apply_filter({:tag, tag}, query) do
