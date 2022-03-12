@@ -479,7 +479,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
             <.show_phone_if_filtered phone={rider.phone} filters={@rider_search.filters} />
           </:td>
           <:td let={rider}>
-            <%= rider.location_struct.neighborhood %>
+            <%= rider.location.neighborhood %>
           </:td>
           <:td let={rider}>
             <ul class="flex">

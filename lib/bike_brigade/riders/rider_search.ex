@@ -135,7 +135,7 @@ defmodule BikeBrigade.Riders.RiderSearch do
     |> exclude(:select)
     |> exclude(:limit)
     |> exclude(:offset)
-    |> select([r], {r.id, r.name, r.location_struct})
+    |> select([r], {r.id, r.name, r.location})
     |> Repo.all()
   end
 
