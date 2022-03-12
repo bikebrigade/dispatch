@@ -3,7 +3,6 @@ defmodule BikeBrigade.Geocoder.FakeGeocoder do
 
   require Logger
 
-  alias BikeBrigade.Location
   alias NimbleCSV.RFC4180, as: CSV
 
   @behaviour BikeBrigade.Geocoder
@@ -42,7 +41,7 @@ defmodule BikeBrigade.Geocoder.FakeGeocoder do
 
     result =
       case Map.get(locations, address, :not_found) do
-        %Location{} = location -> {:ok, location}
+        %{} = location -> {:ok, location}
         :not_found -> {:error, :not_found}
       end
 
@@ -59,19 +58,17 @@ defmodule BikeBrigade.Geocoder.FakeGeocoder do
     |> File.stream!()
     |> CSV.parse_stream()
     |> Enum.into(%{}, fn [address, postal, city, lat, lon] ->
-      address = address <> " Toronto"
+      address = address
+      {lat, lon} = {String.to_float(lat), String.to_float(lon)}
 
-      location =
-        %Location{
-          address: address,
-          city: city,
-          postal: postal,
-          province: "Ontario",
-          country: "Canada"
-        }
-        |> Location.set_coords(lat, lon)
-
-        #TODO include neighborhood here
+      location = %{
+        address: address,
+        city: city,
+        postal: postal,
+        province: "Ontario",
+        country: "Canada",
+        coords: %Geo.Point{coordinates: {lon, lat}}
+      }
 
       {address, location}
     end)

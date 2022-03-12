@@ -27,7 +27,7 @@ for _ <- 0..100 do
       availability: %{},
       capacity: Utils.random_enum(Rider.CapacityEnum),
       email: Faker.Internet.email(),
-      location: Map.from_struct(location),
+      location: location,
       max_distance: 20,
       name: "#{Faker.Person.first_name()} #{Faker.Person.last_name()}",
       phone: "647-#{Enum.random(200..999)}-#{Enum.random(1000..9999)}",

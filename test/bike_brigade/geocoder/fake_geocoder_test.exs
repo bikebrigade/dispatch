@@ -33,7 +33,7 @@ defmodule BikeBrigade.Geocoder.FakeGeocoderTest do
   test "Can load locations from seeds" do
     {:ok, pid} = FakeGeocoder.start_link(name: nil, locations: :from_seeds)
 
-    {:ok, location} = FakeGeocoder.lookup(pid, "542 Dovercourt Rd Toronto")
+    {:ok, location} = FakeGeocoder.lookup(pid, "542 Dovercourt Rd")
     assert location.postal == "M6H 2W6"
   end
 end
