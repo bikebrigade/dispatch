@@ -413,10 +413,21 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
       </div>
       <form id="selected" phx-change="select-rider"></form>
       <%= if @mode == :map do %>
-      <div class="min-w-full mt-2 bg-white rounded-lg shadow">
-        <div class="p-1" style="height: 80vh">
-          <.rider_map rider_locations={@search_results.all_locations} selected={@selected} lat={43.653960} lng={-79.425820} />
-        </div>
+        <div class="min-w-full mt-2 bg-white rounded-lg shadow">
+          <div class="p-1 h-[80vh]">
+            <.rider_map rider_locations={@search_results.all_locations} selected={@selected} lat={43.653960} lng={-79.425820} />
+          </div>
+          <div class="flex items-center justify-between px-4 py-3 border-t border-gray-200 sm:px-6" aria-label="Pagination">
+            <div class="hidden sm:block">
+              <p class="text-sm text-gray-700">
+                Showing
+                <span class="font-medium">
+                <%= @search_results.total %>
+                </span>
+                results
+              </p>
+            </div>
+          </div>
         </div>
       <% else %>
         <UI.table id="riders" rows={@search_results.page} class="min-w-full mt-2">
