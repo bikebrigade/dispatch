@@ -540,9 +540,9 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
 
   defp suggestion_list(assigns) do
     ~H"""
-    <dialog id="suggestion-list2"
+    <dialog id="suggestion-list"
       open={@open}
-      class="absolute w-full p-2 mt-0 overflow-y-auto bg-white border rounded shadow-xl top-100 max-h-fit"
+      class="absolute z-10 w-full p-2 mt-0 overflow-y-auto bg-white border rounded shadow-xl top-100 max-h-fit"
       phx-window-keydown="clear-search" phx-key="escape">
       <p class="text-sm text-gray-500">Press Tab to cycle suggestions</p>
       <div class="grid grid-cols-2 gap-1">
@@ -640,7 +640,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
 
   defp rider_map(assigns) do
     ~H"""
-    <leaflet-map phx-update="append" phx-hook= "LeafletMap" id="task-map" data-lat={@lat} data-lng={@lng}
+    <leaflet-map phx-hook= "LeafletMap" id="task-map" data-lat={@lat} data-lng={@lng}
         data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
         class="h-full">
       <%= for {id, name, location} <- @rider_locations do %>
