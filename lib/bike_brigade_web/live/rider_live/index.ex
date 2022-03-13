@@ -109,7 +109,8 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     {:noreply, apply_action(socket, socket.assigns.live_action, params)}
   end
 
-  @default_rider_search RiderSearch.new(preload: [:tags, :latest_campaign])
+  @preloads [:tags, :latest_campaign, location: [:neighborhood]]
+  @default_rider_search RiderSearch.new(preload: @preloads)
 
   defp apply_action(socket, :index, params) do
     tag_filters =
@@ -123,7 +124,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     rider_search =
       RiderSearch.new(
         filters: tag_filters ++ capacity_filters,
-        preload: [:location, :tags, :latest_campaign]
+        preload: @preloads
       )
 
     socket
@@ -479,8 +480,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
             <.show_phone_if_filtered phone={rider.phone} filters={@rider_search.filters} />
           </:td>
           <:td let={rider}>
-            TODO <%#= rider.location.neighborhood %>
-            <%= inspect rider.location.coords %>
+            <%= rider.location.neighborhood.name %>
           </:td>
           <:td let={rider}>
             <ul class="flex">
