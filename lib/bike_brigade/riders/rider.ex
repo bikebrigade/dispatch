@@ -55,7 +55,7 @@ defmodule BikeBrigade.Riders.Rider do
     field :last_safety_check, :date
     field :internal_notes, :string
 
-    embeds_one :location, Location, on_replace: :delete
+    belongs_to :location, Location, on_replace: :update
 
     # TODO look into removing these virtuals
     field :distance, :integer, virtual: true
@@ -109,7 +109,7 @@ defmodule BikeBrigade.Riders.Rider do
       :internal_notes
     ])
     |> cast_embed(:flags)
-    |> cast_embed(:location)
+    |> cast_assoc(:location)
     |> update_change(:email, &String.downcase/1)
     |> validate_required([
       :name,

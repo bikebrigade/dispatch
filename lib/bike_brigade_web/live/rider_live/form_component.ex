@@ -25,7 +25,7 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
       field :tags, {:array, :string}
 
       embeds_one :flags, Rider.Flags, on_replace: :update
-      embeds_one :location, Location, on_replace: :update
+      belongs_to :location, Location, on_replace: :update
     end
 
     def changeset(form, attrs \\ %{}) do
@@ -42,7 +42,7 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
         :tags
       ])
       |> cast_embed(:flags)
-      |> cast_embed(:location, with: &Location.geocoding_changeset/2)
+      |> cast_assoc(:location, with: &Location.geocoding_changeset/2)
       |> validate_required([
         :name,
         :email,

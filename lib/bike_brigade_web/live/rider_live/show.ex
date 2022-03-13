@@ -23,6 +23,7 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
     rider =
       Riders.get_rider!(id)
       |> Repo.preload([
+        :location,
         :tags,
         :campaigns,
         :total_stats,
