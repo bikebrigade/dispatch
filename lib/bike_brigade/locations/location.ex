@@ -3,6 +3,7 @@ defmodule BikeBrigade.Locations.Location do
   import Ecto.Changeset
 
   alias BikeBrigade.Geocoder
+  alias BikeBrigade.Locations.LocationNeighborhood
 
   @fields [:coords, :address, :city, :postal, :province, :country, :unit, :buzzer]
   @user_provided_fields [:address, :unit, :buzzer]
@@ -16,6 +17,9 @@ defmodule BikeBrigade.Locations.Location do
     field :country, :string, default: "Canada"
     field :unit, :string
     field :buzzer, :string
+
+    has_one :location_neighborhood, LocationNeighborhood
+    has_one :neighborhood, through: [:location_neighborhood, :neighborhood]
 
     timestamps()
   end
