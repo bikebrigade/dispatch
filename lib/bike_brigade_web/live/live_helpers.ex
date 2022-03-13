@@ -1,5 +1,5 @@
 defmodule BikeBrigadeWeb.LiveHelpers do
-  alias BikeBrigade.Location
+  alias BikeBrigade.Locations.Location
   alias BikeBrigade.LocalizedDateTime
 
   def gravatar(email) do

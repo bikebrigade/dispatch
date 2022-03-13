@@ -1,7 +1,7 @@
 defmodule BikeBrigadeWeb.OpportunityLive.FormComponent do
   use BikeBrigadeWeb, :live_component
 
-  alias BikeBrigade.Location
+  alias BikeBrigade.Locations.Location
   alias BikeBrigade.Delivery
   alias BikeBrigade.Delivery.Program
   alias BikeBrigade.LocalizedDateTime

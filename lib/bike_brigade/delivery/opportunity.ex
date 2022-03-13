@@ -2,7 +2,7 @@ defmodule BikeBrigade.Delivery.Opportunity do
   use BikeBrigade.Schema
   import Ecto.Changeset
 
-  alias BikeBrigade.Location
+  alias BikeBrigade.Locations.Location
   alias BikeBrigade.Delivery.Program
 
   schema "delivery_opportunities" do

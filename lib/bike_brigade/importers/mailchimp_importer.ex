@@ -2,7 +2,7 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
   import Ecto.Query, warn: false
   import BikeBrigade.Utils, only: [get_config: 1, with_default: 2]
   alias BikeBrigade.Repo
-  alias BikeBrigade.Location
+  alias BikeBrigade.Locations.Location
   alias BikeBrigade.Importers.Importer
   alias BikeBrigade.Riders
   alias BikeBrigade.Messaging.Slack

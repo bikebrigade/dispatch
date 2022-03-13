@@ -7,7 +7,7 @@ defmodule BikeBrigade.Delivery.Task do
   alias BikeBrigade.EctoPhoneNumber
   alias BikeBrigade.Riders.Rider
   alias BikeBrigade.Delivery.{Campaign, Item, TaskItem}
-  alias BikeBrigade.Location
+  alias BikeBrigade.Locations.Location
   alias BikeBrigade.Geocoder
 
   defenum(DeliveryStatusEnum,

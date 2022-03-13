@@ -1,4 +1,4 @@
-defmodule BikeBrigade.Location do
+defmodule BikeBrigade.Locations.Location do
   use BikeBrigade.Schema
   import Ecto.Changeset
 
@@ -19,8 +19,6 @@ defmodule BikeBrigade.Location do
 
     timestamps()
   end
-
-
 
   @type t :: %__MODULE__{
           coords: Geo.Point.t(),
@@ -56,7 +54,7 @@ defmodule BikeBrigade.Location do
     else
       {:data, _} -> cs
       {:error, error} -> add_error(cs, :address, "#{error}")
-      :error ->  add_error(cs, :address, "unknown error")
+      :error -> add_error(cs, :address, "unknown error")
     end
   end
 

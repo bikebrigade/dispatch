@@ -1,8 +1,8 @@
-defmodule BikeBrigade.LocationTest do
+defmodule BikeBrigade.Locations.LocationTest do
   use BikeBrigade.DataCase
 
   alias BikeBrigade.Geocoder.FakeGeocoder
-  alias BikeBrigade.Location
+  alias BikeBrigade.Locations.Location
 
   describe "Geolocation" do
     setup do
@@ -18,7 +18,7 @@ defmodule BikeBrigade.LocationTest do
         |> Location.geocoding_changeset(%{address: location.address, city: location.city})
         |> Ecto.Changeset.apply_changes()
 
-      assert geocoded == location
+      assert geocoded.coords == location.coords
     end
 
     test "only re-geocode when changing address", %{location: location} do
@@ -28,7 +28,9 @@ defmodule BikeBrigade.LocationTest do
       })
 
       location =
-        location
+        %Location{}
+        |> Location.changeset(location)
+        |> Ecto.Changeset.apply_changes()
         |> Location.geocoding_changeset(%{unit: "37"})
         |> Ecto.Changeset.apply_changes()
 
@@ -51,7 +53,6 @@ defmodule BikeBrigade.LocationTest do
       assert geocoded.unit == "10"
       assert geocoded.buzzer == "Q"
     end
-
 
     test "parse unit", %{location: location} do
       geocoded =

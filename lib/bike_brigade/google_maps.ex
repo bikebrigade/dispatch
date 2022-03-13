@@ -1,7 +1,7 @@
 defmodule BikeBrigade.GoogleMaps do
   import BikeBrigade.Utils, only: [get_config: 1]
 
-  alias BikeBrigade.Location
+  alias BikeBrigade.Locations.Location
 
   def embed_map_url(%Location{} = location) do
     location

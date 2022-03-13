@@ -4,7 +4,7 @@ defmodule BikeBrigade.Riders.Rider do
   import Ecto.Query, warn: false
   import EctoEnum
 
-  alias BikeBrigade.Location
+  alias BikeBrigade.Locations.Location
   alias BikeBrigade.Repo
   alias BikeBrigade.Riders.{Tag, RidersTag, RiderLatestCampaign}
   alias BikeBrigade.Delivery.{Task, Campaign, CampaignRider}

@@ -1,7 +1,7 @@
 defmodule BikeBrigade.Geocoder do
   use BikeBrigade.Adapter, :geocoder
 
-  alias BikeBrigade.Location
+  alias BikeBrigade.Locations.Location
 
   @callback lookup(pid, String.t()) :: {:ok, Location.t()} | {:error, any()}
 

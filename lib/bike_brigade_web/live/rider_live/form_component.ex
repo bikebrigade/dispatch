@@ -2,7 +2,7 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
   use BikeBrigadeWeb, :live_component
 
   alias BikeBrigade.Repo
-  alias BikeBrigade.Location
+  alias BikeBrigade.Locations.Location
   alias BikeBrigade.Riders
   alias BikeBrigade.Riders.Rider
   alias BikeBrigadeWeb.Components.LocationForm

@@ -9,7 +9,7 @@ defmodule BikeBrigade.Delivery.Campaign do
 
   alias BikeBrigade.Messaging
 
-  alias BikeBrigade.Location
+  alias BikeBrigade.Locations.Location
 
   alias BikeBrigade.Stats.CampaignStats
 

@@ -2,7 +2,7 @@ defmodule BikeBrigadeWeb.CampaignLive.FormComponent do
   use BikeBrigadeWeb, :live_component
 
   alias BikeBrigade.LocalizedDateTime
-  alias BikeBrigade.Location
+  alias BikeBrigade.Locations.Location
   alias BikeBrigade.Delivery
   alias BikeBrigade.Delivery.{Campaign, Program}
   alias BikeBrigade.Importers.GSheetsImporter
