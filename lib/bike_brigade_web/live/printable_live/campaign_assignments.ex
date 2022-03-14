@@ -14,15 +14,16 @@ defmodule BikeBrigadeWeb.PrintableLive.CampaignAssignments do
   @impl true
   def handle_params(%{"id" => id}, _url, socket) do
     campaign = Delivery.get_campaign(id)
+    {_riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
 
     tasks =
-      campaign.tasks
+      tasks
       |> Enum.sort_by(&(&1.assigned_rider && String.downcase(&1.assigned_rider.name)))
 
     {:noreply,
      socket
      |> assign(:campaign_title, name(campaign))
-     |> assign(:campaign_date, campaign.delivery_date)
+     |> assign(:campaign_date, campaign_date(campaign))
      |> assign(:tasks, tasks)}
   end
 end

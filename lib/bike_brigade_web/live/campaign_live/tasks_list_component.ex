@@ -8,12 +8,12 @@ defmodule BikeBrigadeWeb.CampaignLive.TasksListComponent do
 
   @impl true
   def update(assigns, socket) do
-    %{campaign: campaign, tasks_query: tasks_query} = assigns
+    %{tasks: tasks, tasks_query: tasks_query} = assigns
 
     {:ok,
      socket
      |> assign(assigns)
-     |> assign(:tasks_list, filter_tasks(campaign.tasks, tasks_query))}
+     |> assign(:tasks_list, filter_tasks(tasks, tasks_query))}
   end
 
   @impl true
@@ -26,7 +26,7 @@ defmodule BikeBrigadeWeb.CampaignLive.TasksListComponent do
     task = Delivery.get_task(task_id)
 
     Delivery.update_task(task, %{
-      delivery_status: delivery_status,
+      delivery_status: delivery_status
     })
 
     {:noreply, socket}

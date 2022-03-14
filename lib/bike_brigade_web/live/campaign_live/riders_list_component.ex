@@ -6,11 +6,11 @@ defmodule BikeBrigadeWeb.CampaignLive.RidersListComponent do
   import BikeBrigade.Utils, only: [task_count: 1]
 
   def update(assigns, socket) do
-    %{campaign: campaign, riders_query: riders_query} = assigns
+    %{riders: riders, riders_query: riders_query} = assigns
 
     {:ok,
      socket
      |> assign(assigns)
-     |> assign(:riders_list, filter_riders(campaign.riders, riders_query))}
+     |> assign(:riders_list, filter_riders(riders, riders_query))}
   end
 end

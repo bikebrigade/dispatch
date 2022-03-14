@@ -224,62 +224,49 @@ defmodule BikeBrigade.Delivery do
     |> Repo.insert()
   end
 
-  def get_campaign(id) do
-    # TODO refactor this
-    messages_query =
-      from m in SmsMessage,
-        where: m.campaign_id == parent_as(:campaign).id,
-        order_by: [desc: m.sent_at],
-        limit: 1
+  def get_campaign(id, opts \\ []) do
+    preload = Keyword.get(opts, :preload, [:program])
 
-    campaign =
-      from(c in Campaign,
-        as: :campaign,
-        where: c.id == ^id,
-        left_join: t in assoc(c, :tasks),
-        left_lateral_join: m in subquery(messages_query),
-        order_by: t.dropoff_name,
-        preload: [:instructions_template, tasks: {t, [task_items: [:item]]}],
-        select_merge: %{latest_message: m}
-      )
-      |> Repo.one()
-
-    rider_query =
-      from [r, cr] in Rider,
-        order_by: r.name,
-        select_merge: %{
-          distance: st_distance(r.location, ^campaign.location.coords),
-          task_notes: cr.notes,
-          task_capacity: cr.rider_capacity,
-          task_enter_building: cr.enter_building,
-          pickup_window: cr.pickup_window,
-          delivery_url_token: cr.token
-        }
-
-    campaign
-    |> Repo.preload(program: [:items])
-    |> Repo.preload(riders: rider_query)
-    |> Repo.preload(:scheduled_message)
-    |> preload_campaign()
+    Repo.get(Campaign, id)
+    |> Repo.preload(preload)
   end
 
-  # Does a nested preload to get tasks' assigned riders without doing an extra db query
-  def preload_campaign(nil), do: nil
+  @doc """
+  Returns a tuple of `{riders, tasks}` for a `campaign`. Riders are pre-loaded with their assigned tasks,
+  and tasks are pre-loaded with the assigned rider, and task_items/items.
+  """
+  def campaign_riders_and_tasks(%Campaign{} = campaign) do
+    all_tasks =
+      Repo.all(
+        from t in Task,
+          where: t.campaign_id == ^campaign.id,
+          select: t
+      )
+      |> Repo.preload(task_items: [:item])
 
-  def preload_campaign(%Campaign{tasks: tasks, riders: riders} = campaign) do
-    updated_tasks =
-      for t <- tasks do
-        Repo.preload(t, [assigned_rider: fn _ -> riders end], force: true)
-      end
+    all_riders =
+      Repo.all(
+        from cr in CampaignRider,
+          join: r in assoc(cr, :rider),
+          where: cr.campaign_id == ^campaign.id,
+          order_by: r.name,
+          select: r,
+          select_merge: %{
+            distance: st_distance(r.location, ^campaign.location.coords),
+            task_notes: cr.notes,
+            task_capacity: cr.rider_capacity,
+            task_enter_building: cr.enter_building,
+            pickup_window: cr.pickup_window,
+            delivery_url_token: cr.token
+          }
+      )
 
-    updated_riders =
-      for r <- riders do
-        Repo.preload(r, [assigned_tasks: fn _ -> tasks end], force: true)
-      end
+    # Does a nested preload to get tasks' assigned riders without doing an extra db query
+    tasks = Repo.preload(all_tasks, assigned_rider: fn _ -> all_riders end)
 
-    campaign
-    |> Map.put(:tasks, updated_tasks)
-    |> Map.put(:riders, updated_riders)
+    riders = Repo.preload(all_riders, assigned_tasks: fn _ -> all_tasks end)
+
+    {riders, tasks}
   end
 
   # TODO RENAME TO TODAYS TASKS
@@ -376,7 +363,8 @@ defmodule BikeBrigade.Delivery do
   end
 
   def send_campaign_messages(%Campaign{} = campaign) do
-    riders = campaign.riders
+    campaign = Repo.preload(campaign, [:instructions_template, :program])
+    {riders, _} = campaign_riders_and_tasks(campaign)
 
     msgs =
       for rider <- riders, rider != nil, rider.assigned_tasks != [] do
@@ -427,8 +415,7 @@ defmodule BikeBrigade.Delivery do
   def render_campaign_message_for_rider(%Campaign{} = campaign, message, %Rider{} = rider)
       when is_binary(message) do
     tasks =
-      campaign.tasks
-      |> Enum.filter(&(&1.assigned_rider_id == rider.id))
+      rider.assigned_tasks
       |> Enum.sort_by(& &1.delivery_distance)
 
     pickup_address = campaign.location.address

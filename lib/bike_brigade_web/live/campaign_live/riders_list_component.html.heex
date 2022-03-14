@@ -15,7 +15,7 @@
       Riders
     </h3>
     <div class="text-base font-medium leading-6 text-gray-800">
-      <%= Enum.count(@campaign.riders, &rider_available?/1) %> / <%= Enum.count(@campaign.riders) %> available
+      <%= Map.values(@riders) |> Enum.count(&rider_available?/1) %> / <%= Enum.count(@riders) %> available
     </div>
   </div>
   <div class="p-2 border-b">
@@ -32,7 +32,7 @@
       placeholder="Search Riders" />
   </div>
   <ul class="flex-1 overflow-y-auto scrolling-touch" id="riders-list" phx-hook="RidersList">
-    <%= for rider <- @riders_list do %>
+    <%= for {_id, rider} <- @riders_list do %>
       <li id={"riders-list:#{rider.id}"}>
         <a phx-click="select-rider" phx-value-id={rider.id} href="#"
         class={"block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50#{if selected?(@selected_rider, rider), do: " bg-gray-100"}"}>

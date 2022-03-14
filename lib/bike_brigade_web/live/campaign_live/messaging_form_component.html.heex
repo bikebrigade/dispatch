@@ -5,8 +5,8 @@
         Preview for rider
       </label>
       <form id="select-rider-form" phx-target={@myself} phx-change="select-rider">
-      <select id="selected_rider_index" name="selected_rider_index" class="block w-full py-2 pl-3 pr-10 mt-1 text-base border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-        <%= rider_selection_options(@campaign, @selected_rider_index) %>
+      <select id="selected_rider_id" name="selected_rider_id" class="block w-full py-2 pl-3 pr-10 mt-1 text-base border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+        <%= rider_selection_options(@riders, @selected_rider) %>
       </select>
       </form>
     </div>

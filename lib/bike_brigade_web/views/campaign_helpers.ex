@@ -38,44 +38,45 @@ defmodule BikeBrigadeWeb.CampaignHelpers do
   def task_rider?(%Task{assigned_rider_id: rider_id}, %Rider{id: rider_id}), do: true
   def task_rider?(_, _), do: false
 
-  def filter_tasks(tasks, query) do
+  def filter_tasks(%{} = tasks, query) do
     tasks =
       case query[:assignment] do
         "all" -> tasks
-        "assigned" -> Enum.filter(tasks, &task_assigned?(&1))
-        "unassigned" -> Enum.filter(tasks, &(!task_assigned?(&1)))
+        "assigned" -> filter_map(tasks, &task_assigned?/1)
+        "unassigned" -> filter_map(tasks, &(!task_assigned?(&1)))
         _ -> tasks
       end
 
     if query[:search] && query[:search] != "" do
-      Enum.filter(
-        tasks,
-        fn t ->
-          t.dropoff_name =~ ~r/#{Regex.escape(query[:search])}/i or
-            t.dropoff_address =~ ~r/#{Regex.escape(query[:search])}/i
-        end
-      )
+      filter_map(tasks, fn task ->
+        task.dropoff_name =~ ~r/#{Regex.escape(query[:search])}/i or
+          task.dropoff_address =~ ~r/#{Regex.escape(query[:search])}/i
+      end)
     else
       tasks
     end
   end
 
-  def filter_riders(riders, query) do
+  def filter_riders(%{} = riders, query) do
     riders =
       case query[:capacity] do
         "all" -> riders
-        "available" -> Enum.filter(riders, &rider_available?(&1))
+        "available" -> filter_map(riders, &rider_available?/1)
         _ -> riders
       end
 
     if query[:search] && query[:search] != "" do
-      Enum.filter(
+      filter_map(
         riders,
         &String.contains?(String.downcase(&1.name), String.downcase(query[:search]))
       )
     else
       riders
     end
+  end
+
+  defp filter_map(map, filter?) do
+    for {k, v} <- map, filter?.(v), into: %{}, do: {k, v}
   end
 
   def has_notes?(%Rider{task_notes: nil}), do: false

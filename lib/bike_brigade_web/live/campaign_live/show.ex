@@ -31,6 +31,13 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
      |> apply_action(socket.assigns.live_action, params)}
   end
 
+  @campaign_preload [
+    :scheduled_message,
+    :instructions_template,
+    :latest_message,
+    program: [:items]
+  ]
+
   defp maybe_assign_campaign(socket, id) do
     case socket.assigns.campaign do
       %Campaign{id: ^id} ->
@@ -38,10 +45,9 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
         socket
 
       _ ->
-        campaign = Delivery.get_campaign(id)
+        campaign = Delivery.get_campaign(id, preload: @campaign_preload)
 
         socket
-        |> assign(:campaign_id, id)
         |> assign(:page_title, name(campaign))
         |> assign_campaign(campaign)
         |> assign(:selected_task, nil)
@@ -52,13 +58,15 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   end
 
   defp assign_campaign(socket, campaign) do
+    {riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+
     riders =
-      for r <- campaign.riders, into: %{} do
+      for r <- riders, into: %{} do
         {r.id, r}
       end
 
     tasks =
-      for t <- campaign.tasks, into: %{} do
+      for t <- tasks, into: %{} do
         {t.id, t}
       end
 
@@ -214,7 +222,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
      |> assign(:resent, true)}
   end
 
-  @impl true
+  @impl Phoenix.LiveView
   def handle_event("remove-rider", %{"rider-id" => rider_id}, socket) do
     rider = get_rider(socket, rider_id)
 
@@ -223,23 +231,12 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
     {:noreply, socket}
   end
 
-  @impl true
+  @impl Phoenix.LiveView
   def handle_event("delete-task", %{"task-id" => task_id}, socket) do
     task = get_task(socket, task_id)
     Delivery.delete_task(task)
 
-    # Deleting here while it should be done when we get the handle info
-    # The problem is that the campaign task isn't loaded
-    # When i make the campaign_id on the task this will resolve itself.
-
-    campaign =
-      socket.assigns.campaign
-      |> Map.update!(:tasks, fn tasks -> Enum.reject(tasks, &(&1.id == task.id)) end)
-      |> Delivery.preload_campaign()
-
-    {:noreply,
-     socket
-     |> assign(:campaign, campaign)}
+    {:noreply, socket}
   end
 
   defmacrop belongs_to_campaign?(campaign, task) do
@@ -251,7 +248,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   @impl Phoenix.LiveView
   def handle_info({:campaign_updated, %Campaign{id: campaign_id}}, socket)
       when campaign_id == socket.assigns.campaign.id do
-    campaign = Delivery.get_campaign(campaign_id)
+    campaign = Delivery.get_campaign(campaign_id, preload: @campaign_preload)
 
     {:noreply,
      socket
@@ -262,17 +259,15 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   def handle_info({:task_updated, updated_task}, socket)
       when belongs_to_campaign?(socket.assigns.campaign, updated_task) do
     %{campaign: campaign, selected_task: selected_task} = socket.assigns
+
     # TODO this should be as helper in the delivery.ex context?
     updated_task =
       updated_task
       |> BikeBrigade.Repo.preload(task_items: [:item])
 
-    campaign =
-      campaign
-      |> Map.update!(:tasks, &replace_if_updated(&1, updated_task))
-      |> Delivery.preload_campaign()
-
     selected_task = replace_if_updated(selected_task, updated_task)
+
+    # TODO this will call `Delivery.campaign_riders_and_tasks` on every change
 
     {:noreply,
      socket
@@ -285,17 +280,14 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
       when belongs_to_campaign?(socket.assigns.campaign, deleted_task) do
     %{campaign: campaign, selected_task: selected_task} = socket.assigns
 
-    campaign =
-      campaign
-      |> Map.update!(:tasks, fn tasks -> Enum.reject(tasks, &(&1.id == deleted_task.id)) end)
-      |> Delivery.preload_campaign()
-
     selected_task =
       case selected_task do
         nil -> nil
         %Task{id: ^deleted_id} -> nil
         _ -> selected_task
       end
+
+    # TODO this will call `Delivery.campaign_riders_and_tasks` on every change
 
     {:noreply,
      socket
@@ -312,17 +304,14 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
     %{campaign: campaign, selected_rider: selected_rider} = socket.assigns
 
     if campaign_id == campaign.id do
-      campaign =
-        campaign
-        |> Map.update!(:riders, fn riders -> Enum.reject(riders, &(&1.id == deleted_rider_id)) end)
-        |> Delivery.preload_campaign()
-
       selected_rider =
         case selected_rider do
           nil -> nil
           %Rider{id: ^deleted_rider_id} -> nil
           _ -> selected_rider
         end
+
+      # TODO this will call `Delivery.campaign_riders_and_tasks` on every change
 
       {:noreply,
        socket
