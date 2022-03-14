@@ -17,7 +17,8 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
     {:ok,
      socket
      |> assign(:page, :campaigns)
-     |> assign(:campaign, nil)}
+     |> assign(:campaign, nil)
+     |> assign(:resent, false)}
   end
 
   @impl true
@@ -161,7 +162,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
         assign(socket, selected_rider: nil)
       end
 
-    {:noreply, socket}
+    {:noreply, assign(socket, :resent, false)}
   end
 
   @impl true
@@ -208,7 +209,9 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
 
     Delivery.send_campaign_message(socket.assigns.campaign, rider)
 
-    {:noreply, socket}
+    {:noreply,
+     socket
+     |> assign(:resent, true)}
   end
 
   @impl true

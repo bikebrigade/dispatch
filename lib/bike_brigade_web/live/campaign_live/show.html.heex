@@ -68,6 +68,7 @@
     initial_riders={@campaign.riders}
     current_user={@current_user}/>
 </UI.modal>
+
 <% _ -> %>
 <%# do nothing here%>
 
@@ -127,7 +128,7 @@
       <.live_component module={TasksListComponent} id={:tasks_list} campaign={@campaign} tasks_query={@tasks_query} selected_task={@selected_task} selected_rider={@selected_rider} />
     </div>
     <div class="px-2 py-3 bg-white shadow min-h-96 max-h-128 md:min-h-0 md:max-h-full md:h-full md:order-last sm:rounded-lg">
-        <.live_component module={RidersListComponent} id={:riders_list} campaign={@campaign} riders_query={@riders_query} selected_task={@selected_task} selected_rider={@selected_rider} />
+        <.live_component module={RidersListComponent} id={:riders_list} campaign={@campaign} riders_query={@riders_query} selected_task={@selected_task} selected_rider={@selected_rider} resent={@resent}/>
     </div>
     <div class="col-span-2 bg-white shadow min-h-96 max-h-128 md:min-h-0 md:max-h-full sm:rounded-lg">
       <div class="px-4 py-5 h-96 md:h-full sm:p-6">
