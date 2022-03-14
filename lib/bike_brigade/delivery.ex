@@ -117,54 +117,27 @@ defmodule BikeBrigade.Delivery do
 
   alias BikeBrigade.Delivery.Campaign
 
-  def list_campaigns(week \\ nil) do
-    tasks_query =
-      from t in Task,
-        where: t.campaign_id == parent_as(:campaign).id,
-        select: %{count: count(t.id)}
-
-    riders_query =
-      from r in Rider,
-        join: cr in assoc(r, :campaign_riders),
-        where: cr.campaign_id == parent_as(:campaign).id,
-        select: %{count: count(r.id)}
-
-    messages_query =
-      from m in SmsMessage,
-        where: m.campaign_id == parent_as(:campaign).id,
-        order_by: [desc: m.sent_at],
-        limit: 1
-
-    filter_by_week =
-      if week do
-        start_date = LocalizedDateTime.new!(week, ~T[00:00:00])
-        end_date = Date.add(week, 6) |> LocalizedDateTime.new!(~T[23:59:59])
-        dynamic([c], c.delivery_start >= ^start_date and c.delivery_start <= ^end_date)
-      else
-        true
-      end
+  def list_campaigns(week \\ nil, opts \\ []) do
+    preload = Keyword.get(opts, :preload, [:program])
 
     query =
       from c in Campaign,
         as: :campaign,
-        left_lateral_join: t in subquery(tasks_query),
-        left_lateral_join: r in subquery(riders_query),
-        left_lateral_join: m in subquery(messages_query),
-        order_by: [
-          # TODO refactor
-          desc_nulls_last: coalesce(c.delivery_start, c.delivery_date),
-          asc_nulls_last: c.pickup_window
-        ],
-        where: ^filter_by_week,
-        select_merge: %{
-          total_tasks: coalesce(t.count, 0),
-          total_riders: coalesce(r.count, 0),
-          latest_message: m
-        }
+        order_by: [desc: c.delivery_start]
+
+    query =
+      if week do
+        start_date = LocalizedDateTime.new!(week, ~T[00:00:00])
+        end_date = Date.add(week, 6) |> LocalizedDateTime.new!(~T[23:59:59])
+
+        query
+        |> where([campaign: c], c.delivery_start >= ^start_date and c.delivery_start <= ^end_date)
+      else
+        query
+      end
 
     Repo.all(query)
-    |> Repo.preload(:program)
-    |> Repo.preload(:scheduled_message)
+    |> Repo.preload(preload)
   end
 
   alias BikeBrigade.Delivery.CampaignRider
@@ -519,18 +492,16 @@ defmodule BikeBrigade.Delivery do
       [%Program{}, ...]
 
   """
-  def list_programs do
+  def list_programs(opts \\ []) do
+    preload = Keyword.get(opts, :preload, [])
+
     query =
       from p in Program,
         as: :program,
-        order_by: [desc: p.active, asc: p.name],
-        left_join: c in assoc(p, :campaigns),
-        group_by: p.id,
-        select_merge: %{campaign_count: count(c.id)}
+        order_by: [desc: p.active, asc: p.name]
 
-    # TODO save this preload by loading the query directly
     Repo.all(query)
-    |> Repo.preload([:lead, :latest_campaign])
+    |> Repo.preload(preload)
   end
 
   @doc """
@@ -547,28 +518,11 @@ defmodule BikeBrigade.Delivery do
       ** (Ecto.NoResultsError)
 
   """
-  def get_program!(id) do
-    # TODO make the campaign preload a composable query
-    # We can make this a view like rider stats
-    campaigns_query =
-      from c in Campaign,
-        left_join: t in assoc(c, :tasks),
-        left_join: r in assoc(c, :riders),
-        order_by: [
-          # TODO refactor
-          desc_nulls_last: coalesce(c.delivery_start, c.delivery_date),
-          asc_nulls_last: c.pickup_window
-        ],
-        group_by: c.id,
-        select_merge: %{
-          total_tasks: count(t, :distinct),
-          total_riders: count(r, :distinct)
-        }
+  def get_program!(id, opts \\ []) do
+    preload = Keyword.get(opts, :preload, [])
 
     Repo.get!(Program, id)
-    |> Repo.preload(:lead)
-    |> Repo.preload(:items)
-    |> Repo.preload(campaigns: campaigns_query)
+    |> Repo.preload(preload)
   end
 
   @doc """
@@ -634,96 +588,6 @@ defmodule BikeBrigade.Delivery do
   """
   def change_program(%Program{} = program, attrs \\ %{}) do
     Program.changeset(program, attrs)
-  end
-
-  ## Helpers to get totals from programs and campaigns, not sure where to put them
-
-  # TODO: is this too hacky with the pattern matching since I cant match on every member of the list
-  def total_distance([]), do: 0
-  def total_distance(%Campaign{} = campaign), do: total_distance([campaign])
-  def total_distance(%Program{} = program), do: total_distance([program])
-
-  def total_distance([%Campaign{} | _] = campaigns) do
-    campaign_ids = Enum.map(campaigns, & &1.id)
-
-    query =
-      from c in Campaign,
-        join: t in assoc(c, :tasks),
-        where: c.id in ^campaign_ids,
-        select: coalesce(sum(t.delivery_distance), 0)
-
-    Repo.one(query)
-  end
-
-  def total_distance([%Program{} | _] = programs) do
-    program_ids = Enum.map(programs, & &1.id)
-
-    query =
-      from o in Program,
-        join: c in assoc(o, :campaigns),
-        join: t in assoc(c, :tasks),
-        where: o.id in ^program_ids,
-        select: coalesce(sum(t.delivery_distance), 0)
-
-    Repo.one(query)
-  end
-
-  def total_riders([]), do: 0
-  def total_riders(%Campaign{} = campaign), do: total_riders([campaign])
-  def total_riders(%Program{} = program), do: total_riders([program])
-
-  def total_riders([%Campaign{} | _] = campaigns) do
-    campaign_ids = Enum.map(campaigns, & &1.id)
-
-    query =
-      from c in Campaign,
-        join: r in assoc(c, :riders),
-        where: c.id in ^campaign_ids,
-        select: count(r.id)
-
-    Repo.one(query)
-  end
-
-  def total_riders([%Program{} | _] = programs) do
-    program_ids = Enum.map(programs, & &1.id)
-
-    query =
-      from o in Program,
-        join: c in assoc(o, :campaigns),
-        join: r in assoc(c, :riders),
-        where: o.id in ^program_ids,
-        select: count(r.id)
-
-    Repo.one(query)
-  end
-
-  def total_deliveries([]), do: 0
-  def total_deliveries(%Campaign{} = campaign), do: total_riders([campaign])
-  def total_deliveries(%Program{} = program), do: total_riders([program])
-
-  def total_deliveries([%Campaign{} | _] = campaigns) do
-    campaign_ids = Enum.map(campaigns, & &1.id)
-
-    query =
-      from c in Campaign,
-        join: t in assoc(c, :tasks),
-        where: c.id in ^campaign_ids,
-        select: count(t.id)
-
-    Repo.one(query)
-  end
-
-  def total_deliveries([%Program{} | _] = programs) do
-    program_ids = Enum.map(programs, & &1.id)
-
-    query =
-      from o in Program,
-        join: c in assoc(o, :campaigns),
-        join: t in assoc(c, :tasks),
-        where: o.id in ^program_ids,
-        select: count(t.id)
-
-    Repo.one(query)
   end
 
   def subscribe do

@@ -6,6 +6,8 @@ defmodule BikeBrigade.Delivery.Program do
 
   alias BikeBrigade.Delivery.{Item, Campaign, ProgramLatestCampaign}
 
+  alias BikeBrigade.Stats.CampaignStats
+
   defenum(SpreadsheetLayout,
     foodshare: "foodshare",
     map: "map"
@@ -38,13 +40,14 @@ defmodule BikeBrigade.Delivery.Program do
     field :start_date, :date
     embeds_many :schedules, Schedule, on_replace: :delete
 
-    field :campaign_count, :integer, virtual: true
     has_one :program_latest_campaign, ProgramLatestCampaign
     has_one :latest_campaign, through: [:program_latest_campaign, :campaign]
 
+    has_one :stats, CampaignStats, where: [campaign_id: nil]
 
     belongs_to :lead, BikeBrigade.Accounts.User, on_replace: :nilify
-    has_many :campaigns, Campaign
+    has_many :campaigns, Campaign, preload_order: [desc: :delivery_start]
+
     has_many :items, Item
     belongs_to :default_item, Campaign
 

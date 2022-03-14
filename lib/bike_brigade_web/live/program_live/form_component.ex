@@ -7,12 +7,14 @@ defmodule BikeBrigadeWeb.ProgramLive.FormComponent do
 
   @impl Phoenix.LiveComponent
   def update(%{program: program} = assigns, socket) do
+    program = BikeBrigade.Repo.preload(program, [:items])
     program_form = ProgramForm.from_program(program)
     changeset = ProgramForm.changeset(program_form)
 
     {:ok,
      socket
      |> assign(assigns)
+     |> assign(:program, program)
      |> assign(:program_form, program_form)
      |> assign(:changeset, changeset)}
   end

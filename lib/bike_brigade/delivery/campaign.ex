@@ -11,6 +11,8 @@ defmodule BikeBrigade.Delivery.Campaign do
 
   alias BikeBrigade.Location
 
+  alias BikeBrigade.Stats.CampaignStats
+
   defenum(RiderSpreadsheetLayout, non_foodshare: 0, foodshare: 1)
 
   @fields [
@@ -74,15 +76,12 @@ defmodule BikeBrigade.Delivery.Campaign do
     has_many :campaign_riders, CampaignRider
     many_to_many :riders, Rider, join_through: CampaignRider
 
-    field :total_riders, :integer, virtual: true
-    field :total_tasks, :integer, virtual: true
+    has_one :stats, CampaignStats
 
     field :delivery_url_token, :string, virtual: true
 
     has_one :campaign_latest_message, CampaignLatestMessage
     has_one :latest_message, through: [:campaign_latest_message, :sms_message]
-
-
 
     timestamps()
   end

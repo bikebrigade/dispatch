@@ -16,7 +16,7 @@ defmodule BikeBrigadeWeb.ProgramLive.Show do
   @spec handle_params(map, any, Phoenix.LiveView.Socket.t()) ::
           {:noreply, Phoenix.LiveView.Socket.t()}
   def handle_params(%{"id" => id}, _, socket) do
-    program = Delivery.get_program!(id)
+    program = Delivery.get_program!(id, preload: [:lead, :items, campaigns: [:stats]])
 
     {:noreply,
      socket
