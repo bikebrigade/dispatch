@@ -5,10 +5,9 @@ defmodule BikeBrigade.Delivery.Campaign do
   import EctoEnum
 
   alias BikeBrigade.Riders.Rider
-  alias BikeBrigade.Delivery.{Task, CampaignRider, Program}
+  alias BikeBrigade.Delivery.{Task, CampaignRider, Program, CampaignLatestMessage}
 
   alias BikeBrigade.Messaging
-  alias BikeBrigade.Messaging.SmsMessage
 
   alias BikeBrigade.Location
 
@@ -80,8 +79,10 @@ defmodule BikeBrigade.Delivery.Campaign do
 
     field :delivery_url_token, :string, virtual: true
 
-    #  field :campaign_message_id, :integer, virtual: true
-    belongs_to :latest_message, SmsMessage, define_field: false
+    has_one :campaign_latest_message, CampaignLatestMessage
+    has_one :latest_message, through: [:campaign_latest_message, :sms_message]
+
+
 
     timestamps()
   end
