@@ -1,3 +1,6 @@
+# 2022-03-14
+  - Maps of all the riders integrated into rider search
+  - Indicator when resending campaign messages
 # 2022-02-10
   - Sorting for opportunities page
 # 2022-01-29
