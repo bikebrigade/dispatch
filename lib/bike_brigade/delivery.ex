@@ -492,7 +492,7 @@ defmodule BikeBrigade.Delivery do
       %CampaignRider{token: nil} = cr ->
         cr =
           cr
-          |> CampaignRider.changeset()
+          |> CampaignRider.gen_token_changeset()
           |> Repo.update!()
 
         cr.token
@@ -562,6 +562,7 @@ defmodule BikeBrigade.Delivery do
   """
   def get_program!(id) do
     # TODO make the campaign preload a composable query
+    # We can make this a view like rider stats
     campaigns_query =
       from c in Campaign,
         left_join: t in assoc(c, :tasks),
@@ -573,8 +574,8 @@ defmodule BikeBrigade.Delivery do
         ],
         group_by: c.id,
         select_merge: %{
-          total_tasks: count(t),
-          total_riders: count(r)
+          total_tasks: count(t, :distinct),
+          total_riders: count(r, :distinct)
         }
 
     Repo.get!(Program, id)

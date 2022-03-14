@@ -16,23 +16,39 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
 
     {:ok,
      socket
-     |> assign(:page, :campaigns)}
+     |> assign(:page, :campaigns)
+     |> assign(:campaign, nil)
+     |> assign(:resent, false)}
   end
 
   @impl true
   def handle_params(%{"id" => id} = params, _url, socket) do
-    campaign = Delivery.get_campaign(id)
+    id = String.to_integer(id)
 
     {:noreply,
      socket
-     |> assign(:page_title, name(campaign))
-     |> assign_campaign(campaign)
-     |> assign(:selected_task, nil)
-     |> assign(:selected_rider, nil)
-     |> assign(:tasks_query, %{assignment: "all"})
-     |> assign(:riders_query, %{capacity: "all"})
-     |> assign(:resent, false)
+     |> maybe_assign_campaign(id)
      |> apply_action(socket.assigns.live_action, params)}
+  end
+
+  defp maybe_assign_campaign(socket, id) do
+    case socket.assigns.campaign do
+      %Campaign{id: ^id} ->
+        # no need to assign campaign, we already have it
+        socket
+
+      _ ->
+        campaign = Delivery.get_campaign(id)
+
+        socket
+        |> assign(:campaign_id, id)
+        |> assign(:page_title, name(campaign))
+        |> assign_campaign(campaign)
+        |> assign(:selected_task, nil)
+        |> assign(:selected_rider, nil)
+        |> assign(:tasks_query, %{assignment: "all"})
+        |> assign(:riders_query, %{capacity: "all"})
+    end
   end
 
   defp assign_campaign(socket, campaign) do
