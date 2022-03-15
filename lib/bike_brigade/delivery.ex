@@ -10,7 +10,6 @@ defmodule BikeBrigade.Delivery do
   alias BikeBrigade.Riders.Rider
 
   alias BikeBrigade.Messaging
-  alias BikeBrigade.Messaging.SmsMessage
   alias BikeBrigade.Delivery.{Task, CampaignRider}
 
   import BikeBrigade.Utils, only: [task_count: 1, humanized_task_count: 1]
@@ -216,11 +215,12 @@ defmodule BikeBrigade.Delivery do
       Repo.all(
         from cr in CampaignRider,
           join: r in assoc(cr, :rider),
+          join: l in assoc(r, :location),
           where: cr.campaign_id == ^campaign.id,
           order_by: r.name,
           select: r,
           select_merge: %{
-            distance: st_distance(r.location, ^campaign.location.coords),
+            distance: st_distance(l.coords, ^campaign.location.coords),
             task_notes: cr.notes,
             task_capacity: cr.rider_capacity,
             task_enter_building: cr.enter_building,
@@ -228,6 +228,7 @@ defmodule BikeBrigade.Delivery do
             delivery_url_token: cr.token
           }
       )
+      |> Repo.preload(:location)
 
     # Does a nested preload to get tasks' assigned riders without doing an extra db query
     tasks = Repo.preload(all_tasks, assigned_rider: fn _ -> all_riders end)

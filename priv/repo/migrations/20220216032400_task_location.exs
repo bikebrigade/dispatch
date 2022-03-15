@@ -9,6 +9,7 @@ defmodule BikeBrigade.Repo.Migrations.TaskLocation do
     # need to drop this view becaus it depends on delivery distance column
     # no way to change a generated column, we have to drop and re create it
     execute "drop view if exists rider_stats"
+    execute "drop view if exists campaign_stats"
 
     rename table(:tasks), :dropoff_location, to: :dropoff_coords
     rename table(:tasks), :pickup_location, to: :pickup_coords
@@ -63,6 +64,7 @@ defmodule BikeBrigade.Repo.Migrations.TaskLocation do
     end
 
     load_sql("rider_stats_view.sql")
+    load_sql("campaign_stats_view.sql")
   end
 
   def down do
@@ -85,5 +87,7 @@ defmodule BikeBrigade.Repo.Migrations.TaskLocation do
     end
 
     load_sql("rider_stats_view.sql")
+    load_sql("campaign_stats_view.sql")
+
   end
 end
