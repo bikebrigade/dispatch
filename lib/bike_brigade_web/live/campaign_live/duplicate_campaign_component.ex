@@ -93,10 +93,6 @@ defmodule BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent do
 
     {:ok, new_campaign} = create_new_campaign(old_campaign, date_time_form_params)
 
-    if old_campaign.location_id do
-      copy_location(old_campaign, new_campaign)
-    end
-
     if old_campaign.instructions_template_id do
       copy_instructions_template(old_campaign, new_campaign)
     end
@@ -132,18 +128,6 @@ defmodule BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent do
       |> Map.put(:delivery_end, LocalizedDateTime.new!(delivery_date, end_time))
 
     Delivery.create_campaign(campaign_attrs)
-  end
-
-  defp copy_location(old_campaign, new_campaign) do
-    old_campaign =
-      old_campaign
-      |> Repo.preload(:location)
-
-    new_campaign
-    |> Repo.preload(:location)
-    |> Delivery.update_campaign(%{
-      location: Map.from_struct(new_campaign.location)
-    })
   end
 
   defp copy_instructions_template(old_campaign, new_campaign) do

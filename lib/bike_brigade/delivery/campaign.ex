@@ -24,6 +24,10 @@ defmodule BikeBrigade.Delivery.Campaign do
     :program_id
   ]
 
+  @embedded_fields [
+    :location,
+  ]
+
   schema "campaigns" do
     field :delivery_start, :utc_datetime
     field :delivery_end, :utc_datetime
@@ -77,6 +81,7 @@ defmodule BikeBrigade.Delivery.Campaign do
         value =
           Map.get(campaign, k)
           |> Map.from_struct()
+          |> Map.delete(:id)
 
         {k, value}
       end

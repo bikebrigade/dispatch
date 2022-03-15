@@ -94,6 +94,7 @@ defmodule BikeBrigade.Delivery.Task do
         value =
           Map.get(task, k)
           |> Map.from_struct()
+          |> Map.delete(:id)
 
         {k, value}
       end
