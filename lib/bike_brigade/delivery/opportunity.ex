@@ -15,7 +15,7 @@ defmodule BikeBrigade.Delivery.Opportunity do
 
     belongs_to :program, Program
 
-    embeds_one :location, Location, on_replace: :update
+    belongs_to :location, Location, on_replace: :update
 
     timestamps()
   end
@@ -31,7 +31,7 @@ defmodule BikeBrigade.Delivery.Opportunity do
       :published,
       :hide_address
     ])
-    |> cast_embed(:location)
+    |> cast_assoc(:location)
     |> validate_required([
       :program_id,
       :delivery_start,

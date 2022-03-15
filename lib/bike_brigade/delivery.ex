@@ -192,7 +192,7 @@ defmodule BikeBrigade.Delivery do
   end
 
   def get_campaign(id, opts \\ []) do
-    preload = Keyword.get(opts, :preload, [:program])
+    preload = Keyword.get(opts, :preload, [:location, :program])
 
     Repo.get(Campaign, id)
     |> Repo.preload(preload)
@@ -767,7 +767,12 @@ defmodule BikeBrigade.Delivery do
     filter
   end
 
-  def get_opportunity!(id), do: Repo.get!(Opportunity, id)
+  def get_opportunity(id, opts \\ []) do
+    preload = Keyword.get(opts, :preload, [:location, :program])
+
+    Repo.get!(Opportunity, id)
+    |> Repo.preload(preload)
+  end
 
   def create_opportunity(attrs \\ %{}) do
     %Opportunity{}
