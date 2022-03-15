@@ -24,10 +24,6 @@ defmodule BikeBrigade.Delivery.Campaign do
     :program_id
   ]
 
-  @embedded_fields [
-    :location
-  ]
-
   schema "campaigns" do
     field :delivery_start, :utc_datetime
     field :delivery_end, :utc_datetime
@@ -38,7 +34,7 @@ defmodule BikeBrigade.Delivery.Campaign do
     # TODO remove
     field :rider_spreadsheet_layout, RiderSpreadsheetLayout
 
-    embeds_one :location, Location, on_replace: :update
+    belongs_to :location, Location, on_replace: :update
 
     belongs_to :instructions_template, Messaging.Template, on_replace: :update
     belongs_to :program, Program
@@ -63,7 +59,7 @@ defmodule BikeBrigade.Delivery.Campaign do
     changeset =
       struct
       |> cast(params, @fields)
-      |> cast_embed(:location)
+      |> cast_assoc(:location)
 
     changeset
     |> cast_assoc(:tasks, with: Task.changeset_for_campaign(changeset), required: false)

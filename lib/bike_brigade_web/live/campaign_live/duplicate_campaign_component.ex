@@ -93,6 +93,10 @@ defmodule BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent do
 
     {:ok, new_campaign} = create_new_campaign(old_campaign, date_time_form_params)
 
+    if old_campaign.location_id do
+      copy_location(old_campaign, new_campaign)
+    end
+
     if old_campaign.instructions_template_id do
       copy_instructions_template(old_campaign, new_campaign)
     end
@@ -105,9 +109,10 @@ defmodule BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent do
       copy_campaign_riders(old_campaign, new_campaign)
     end
 
-    {:noreply, socket
-      |> put_flash(:info, "Campaign duplicated successfully")
-      |> push_redirect(to: socket.assigns.return_to)}
+    {:noreply,
+     socket
+     |> put_flash(:info, "Campaign duplicated successfully")
+     |> push_redirect(to: socket.assigns.return_to)}
   end
 
   defp create_new_campaign(old_campaign, date_time_form_params) do
@@ -121,11 +126,24 @@ defmodule BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent do
     start_time = Time.from_iso8601!("#{start_time}:00")
     end_time = Time.from_iso8601!("#{end_time}:00")
 
-    campaign_attrs = Delivery.Campaign.fields_for(old_campaign)
+    campaign_attrs =
+      Delivery.Campaign.fields_for(old_campaign)
       |> Map.put(:delivery_start, LocalizedDateTime.new!(delivery_date, start_time))
       |> Map.put(:delivery_end, LocalizedDateTime.new!(delivery_date, end_time))
 
     Delivery.create_campaign(campaign_attrs)
+  end
+
+  defp copy_location(old_campaign, new_campaign) do
+    old_campaign =
+      old_campaign
+      |> Repo.preload(:location)
+
+    new_campaign
+    |> Repo.preload(:location)
+    |> Delivery.update_campaign(%{
+      location: Map.from_struct(new_campaign.location)
+    })
   end
 
   defp copy_instructions_template(old_campaign, new_campaign) do
@@ -142,15 +160,21 @@ defmodule BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent do
 
   defp copy_delivery_tasks(old_campaign, new_campaign) do
     for old_task <- old_campaign.tasks do
-      task_params = Delivery.Task.fields_for(old_task)
+      task_params =
+        Delivery.Task.fields_for(old_task)
         |> Map.drop([:delivery_status, :delivery_status_notes])
+
       {:ok, new_task} = Delivery.create_task_for_campaign(new_campaign, task_params)
 
       old_task = old_task |> Repo.preload(:task_items)
 
       for task_item <- old_task.task_items do
         %Delivery.TaskItem{}
-        |> Delivery.TaskItem.changeset(%{task_id: new_task.id, item_id: task_item.item_id, count: task_item.count})
+        |> Delivery.TaskItem.changeset(%{
+          task_id: new_task.id,
+          item_id: task_item.item_id,
+          count: task_item.count
+        })
         |> Repo.insert()
       end
     end
@@ -160,17 +184,16 @@ defmodule BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent do
     old_campaign =
       old_campaign
       |> Repo.preload(:campaign_riders)
+
     for campaign_rider <- old_campaign.campaign_riders do
-      Delivery.create_campaign_rider(
-        %{
-          campaign_id: new_campaign.id,
-          rider_id: campaign_rider.rider_id,
-          rider_capacity: campaign_rider.rider_capacity,
-          pickup_window: campaign_rider.pickup_window,
-          enter_building: campaign_rider.enter_building,
-          notes: campaign_rider.notes
-        }
-      )
+      Delivery.create_campaign_rider(%{
+        campaign_id: new_campaign.id,
+        rider_id: campaign_rider.rider_id,
+        rider_capacity: campaign_rider.rider_capacity,
+        pickup_window: campaign_rider.pickup_window,
+        enter_building: campaign_rider.enter_building,
+        notes: campaign_rider.notes
+      })
     end
   end
 end
