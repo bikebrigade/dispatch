@@ -80,7 +80,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
 
     socket
     |> assign(:page_title, "New Campaign")
-    |> assign(:campaign, %Campaign{delivery_start: delivery_start, delivery_end: delivery_end, location: %Location{}})
+    |> assign(:campaign, %Campaign{delivery_start: delivery_start, delivery_end: delivery_end})
   end
 
   defp apply_action(socket, :duplicate, %{"id" => id}) do

@@ -5,7 +5,6 @@ defmodule BikeBrigadeWeb.Components.LocationForm do
     ~H"""
     <div class="my-2">
       <%= hidden_input @for, :coords, value: dump_coords(@for)  %>
-      <%= hidden_input @for, :neighborhood %>
       <%= hidden_input @for, :postal %>
       <%= hidden_input @for, :city  %>
       <%= hidden_input @for, :province %>
