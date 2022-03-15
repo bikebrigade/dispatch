@@ -4,7 +4,7 @@ defmodule BikeBrigade.Repo.Migrations.MoveRidersToLocationsTable do
 
   def up do
     alter table(:riders) do
-      add :location_id, references(:locations, on_delete: :delete_all)
+      add :location_id, references(:locations)
     end
 
     flush()

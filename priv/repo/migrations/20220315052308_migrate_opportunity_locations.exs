@@ -1,14 +1,13 @@
 defmodule BikeBrigade.Repo.Migrations.MigrateOpportunityLocations do
   use Ecto.Migration
 
-
   import Ecto.Query
 
   @table_name "delivery_opportunities"
 
   def up do
     alter table(@table_name) do
-      add :location_id, references(:locations, on_delete: :delete_all)
+      add :location_id, references(:locations)
     end
 
     flush()

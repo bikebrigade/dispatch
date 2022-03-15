@@ -5,7 +5,7 @@ defmodule BikeBrigade.Repo.Migrations.MigrateCampaignLocations do
 
   def up do
     alter table(:campaigns) do
-      add :location_id, references(:locations, on_delete: :delete_all)
+      add :location_id, references(:locations)
     end
 
     flush()
