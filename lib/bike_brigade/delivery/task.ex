@@ -33,7 +33,6 @@ defmodule BikeBrigade.Delivery.Task do
     :dropoff_location
   ]
   schema "tasks" do
-    field :delivery_distance, :integer
     # TODO: rename to delivery_instructions
     field :rider_notes, :string
 
@@ -44,8 +43,10 @@ defmodule BikeBrigade.Delivery.Task do
     field :delivery_status_notes, :string
     field :partner_tracking_id, :string
 
-    embeds_one :dropoff_location, Location, on_replace: :update
-    embeds_one :pickup_location, Location, on_replace: :update
+    field :delivery_distance, :integer, virtual: true
+
+    belongs_to :dropoff_location, Location, on_replace: :update
+    belongs_to :pickup_location, Location, on_replace: :update
 
     belongs_to :assigned_rider, Rider, on_replace: :nilify
     belongs_to :campaign, Campaign
@@ -75,8 +76,8 @@ defmodule BikeBrigade.Delivery.Task do
 
     task
     |> cast(attrs, @fields)
-    |> cast_embed(:pickup_location, location_opts)
-    |> cast_embed(:dropoff_location, location_opts)
+    |> cast_assoc(:pickup_location, location_opts)
+    |> cast_assoc(:dropoff_location, location_opts)
     |> validate_required([
       :delivery_status,
       :dropoff_location,

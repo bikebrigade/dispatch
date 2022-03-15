@@ -9,6 +9,7 @@ defmodule BikeBrigadeWeb.CampaignLive.TaskFormComponent do
   @impl Phoenix.LiveComponent
   def update(assigns, socket) do
     %{task: task, campaign: campaign} = assigns
+    task = task |> BikeBrigade.Repo.preload([:pickup_location, :dropoff_location])
 
     changeset = Delivery.change_task(task)
     task_items = Ecto.Changeset.get_field(changeset, :task_items)
@@ -26,6 +27,7 @@ defmodule BikeBrigadeWeb.CampaignLive.TaskFormComponent do
     {:ok,
      socket
      |> assign(assigns)
+     |> assign(:task, task)
      |> assign(changeset: changeset)}
   end
 

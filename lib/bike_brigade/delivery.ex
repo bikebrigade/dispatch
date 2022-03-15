@@ -41,9 +41,32 @@ defmodule BikeBrigade.Delivery do
       nil
 
   """
-  def get_task(id) do
-    Repo.get(Task, id)
-    |> Repo.preload([:assigned_rider, :task_items])
+  def get_task(id, opts \\ []) do
+    preload =
+      Keyword.get(opts, :prelaod, [
+        :assigned_rider,
+        :task_items,
+        :pickup_location,
+        :dropoff_location
+      ])
+
+    from(t in Task,
+      as: :task,
+      where: t.id == ^id,
+    )
+    |> task_load_location()
+    |> Repo.one()
+    |> Repo.preload(preload)
+  end
+
+  defp task_load_location(query) do
+    query
+    |> join(:inner, [task: t], pl in assoc(t, :pickup_location), as: :pickup_location)
+    |> join(:inner, [task: t], dl in assoc(t, :dropoff_location), as: :dropoff_location)
+    |> preload([pickup_location: pl, dropoff_location: dl], [pickup_location: pl, dropoff_location: dl])
+    |> select_merge([pickup_location: pl, dropoff_location: dl], %{
+      delivery_distance: st_distance(pl.coords, dl.coords)
+    })
   end
 
   @doc """
@@ -147,8 +170,10 @@ defmodule BikeBrigade.Delivery do
         join: c in assoc(cr, :campaign),
         join: r in assoc(cr, :rider),
         left_join: t in assoc(c, :tasks),
+        left_join: pl in assoc(t, :pickup_location),
+        left_join: dl in assoc(t, :dropoff_location),
         on: t.assigned_rider_id == r.id,
-        order_by: t.delivery_distance,
+        order_by: st_distance(pl.coords, dl.coords),
         where: cr.token == ^token,
         preload: [campaign: [:program], rider: {r, assigned_tasks: {t, [task_items: :item]}}]
 
@@ -204,12 +229,14 @@ defmodule BikeBrigade.Delivery do
   """
   def campaign_riders_and_tasks(%Campaign{} = campaign) do
     all_tasks =
-      Repo.all(
-        from t in Task,
-          where: t.campaign_id == ^campaign.id,
-          select: t
+      from(t in Task,
+        as: :task,
+        where: t.campaign_id == ^campaign.id,
+        select: t
       )
-      |> Repo.preload(task_items: [:item])
+      |> task_load_location()
+      |> Repo.all()
+      |> Repo.preload([:pickup_location, :dropoff_location, task_items: [:item]])
 
     all_riders =
       Repo.all(
@@ -293,15 +320,18 @@ defmodule BikeBrigade.Delivery do
             Repo.all(
               from t in Task,
                 where: t.campaign_id == ^campaign.id and is_nil(t.assigned_rider_id),
+                join: pl in assoc(t, :pickup_location),
+                join: dl in assoc(t, :dropoff_location),
                 preload: [task_items: :item],
-                order_by: t.delivery_distance
+                order_by: st_distance(pl.coords, dl.coords)
             )
           else
             Repo.all(
               from t in Task,
                 where: t.campaign_id == ^campaign.id and is_nil(t.assigned_rider_id),
+                join: dl in assoc(t, :dropoff_location),
                 preload: [task_items: :item],
-                order_by: st_distance(location_coords(t.dropoff_location), ^rider.location.coords)
+                order_by: st_distance(dl.coords, ^rider.location.coords)
             )
           end
           |> Repo.preload([:assigned_rider])
