@@ -17,7 +17,9 @@ import "@ryangjchandler/alpine-clipboard"
 import "alpinejs"
 import Tribute from "tributejs";
 import Chart from 'chart.js/auto';
-import { EmojiButton } from '@joeattardi/emoji-button';
+import {
+  EmojiButton
+} from '@joeattardi/emoji-button';
 
 
 let Hooks = {}
@@ -58,6 +60,71 @@ Hooks.RidersList = {
     })
   }
 };
+
+Hooks.LeafletMap2 = {
+  mounted() {
+    const template = document.createElement('template');
+    template.innerHTML = `
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+    integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+    crossorigin=""/>
+    <div style="height: 100%; z-index:0;">
+        <slot />
+    </div>
+`
+    L.MakiMarkers.accessToken = this.el.dataset.mapbox_access_token
+    this.el.attachShadow({
+      mode: 'open'
+    });
+    this.el.shadowRoot.appendChild(template.content.cloneNode(true));
+    this.mapElement = this.el.shadowRoot.querySelector('div')
+    let lat = this.el.dataset.lat || "43.6532"
+    let lng = this.el.dataset.lng || "-79.3832"
+
+    this.map = L.map(this.mapElement).setView([lat, lng], this.el.dataset.zoom || 13);
+    L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+      maxZoom: 18,
+      id: 'mapbox/light-v10',
+      tileSize: 512,
+      zoomOffset: -1,
+      accessToken: this.el.dataset.mapbox_access_token,
+    }).addTo(this.map)
+
+
+    let zIndex = 0;
+    if (this.el.dataset.zindex != null) {
+      zIndex = parseInt(this.el.dataset.zindex);
+    }
+
+    const markers = JSON.parse(this.el.dataset.markers)
+    markers.forEach(({lat, lng, icon, color, clickEvent, clickValue, clickTarget}) => {
+      let marker = L.marker([lat, lng], {
+        icon: L.MakiMarkers.icon({
+          color: color,
+          icon: icon
+        }),
+        zIndexOffset: zIndex
+      });
+
+      if (clickEvent) {
+        marker.on('click', e => {
+          let payload = clickValue;
+          if (clickTarget) {
+            this.pushEventTo(clickTarget, clickEvent, payload);
+          } else {
+            console.log(dataset)
+            this.pushEvent(clickEvent, payload);
+          }
+        });
+      }
+
+      marker.addTo(this.map)
+    });
+  },
+};
+
+
 Hooks.LeafletMap = {
   mounted() {
     const template = document.createElement('template');
@@ -215,7 +282,9 @@ Hooks.LeafletCircle = {
 
 Hooks.ConversationList = {
   mounted() {
-    this.handleEvent("select_rider", ({id}) => {
+    this.handleEvent("select_rider", ({
+      id
+    }) => {
       if (this.selectedRiderId != undefined) {
         let el = document.getElementById(`conversation-list-item:${this.selectedRiderId}`);
         if (el != undefined) {
@@ -229,7 +298,9 @@ Hooks.ConversationList = {
       this.selectedRiderId = id;
     });
 
-    this.handleEvent("new_message", ({riderId}) => {
+    this.handleEvent("new_message", ({
+      riderId
+    }) => {
       let msg = document.getElementById(`conversation-list-item:${riderId}`);
       if (msg != undefined) {
         this.el.prepend(msg)
@@ -315,11 +386,15 @@ Hooks.Chart = {
 Hooks.FrameHook = {
   mounted() {
     const resizeObserver = new ResizeObserver(_entries => {
-      window.parent.postMessage({height: this.el.scrollHeight}, "*");
+      window.parent.postMessage({
+        height: this.el.scrollHeight
+      }, "*");
     });
 
     resizeObserver.observe(this.el);
-    window.parent.postMessage({height: this.el.scrollHeight}, "*");
+    window.parent.postMessage({
+      height: this.el.scrollHeight
+    }, "*");
   }
 }
 
@@ -329,7 +404,9 @@ Hooks.TagsComponentHook = {
     this.el.addEventListener('keydown', e => {
       if (e.key == 'Enter') {
         e.preventDefault();
-        this.pushEventTo(this.el, 'select', {name: this.el.value})
+        this.pushEventTo(this.el, 'select', {
+          name: this.el.value
+        })
         this.el.value = ""
       }
     });
@@ -361,13 +438,13 @@ Hooks.EmojiButtonHook = {
     }
 
     picker.on("emoji", selection => {
-       inputEl.value += selection.emoji;
+      inputEl.value += selection.emoji;
     });
 
     picker.on("hidden", () => {
-       const end = inputEl.value.length;
-       inputEl.setSelectionRange(end, end);
-       inputEl.focus();
+      const end = inputEl.value.length;
+      inputEl.setSelectionRange(end, end);
+      inputEl.focus();
     });
     this.el.addEventListener("click", () => picker.togglePicker(this.el));
   }

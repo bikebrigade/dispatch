@@ -659,14 +659,35 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     """
   end
 
-  defp rider_map(assigns) do
+  def rider_map(assigns) do
+    markers =
+      for {id, name, location} <- assigns.rider_locations do
+        color =
+          if MapSet.member?(assigns.selected, id) do
+            "#5850ec"
+          else
+            "#4a5568"
+          end
+
+        %{
+          id: id,
+          lat: lat(location),
+          lng: lng(location),
+          icon: "bicycle",
+          color: color,
+          click_event: "map-click-rider",
+          click_value: %{id: id},
+          tooltip: name
+        }
+      end
+
     ~H"""
-    <leaflet-map phx-hook= "LeafletMap" id="task-map" data-lat={@lat} data-lng={@lng}
+    <leaflet-map phx-hook= "LeafletMap2" id="task-map"
         data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
+        data-markers={Jason.encode!(markers)}
+        data-lat={@lat} data-lng={@lng}}
         class="h-full">
-      <%= for {id, name, location} <- @rider_locations do %>
-        <.rider_marker location={location} id={id} name={name} selected={MapSet.member?(@selected, id)} />
-      <% end %>
+
     </leaflet-map>
     """
   end
