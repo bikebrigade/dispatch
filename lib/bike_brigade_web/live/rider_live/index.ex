@@ -89,6 +89,11 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     end
   end
 
+  @default_rider_search RiderSearch.new(preload: [:tags, :latest_campaign])
+
+  @selected_color "#5850ec"
+  @unselected_color "#4a5568"
+
   @impl Phoenix.LiveView
   def mount(_params, _session, socket) do
     {:ok,
@@ -108,8 +113,6 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   def handle_params(params, _url, socket) do
     {:noreply, apply_action(socket, socket.assigns.live_action, params)}
   end
-
-  @default_rider_search RiderSearch.new(preload: [:tags, :latest_campaign])
 
   defp apply_action(socket, :index, params) do
     tag_filters =
@@ -279,6 +282,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   def handle_event("set-mode", %{"mode" => mode}, socket) do
     {:noreply,
      socket
+     |> assign(:all_locations, [])
      |> assign(:mode, String.to_existing_atom(mode))
      |> fetch_results()}
   end
@@ -290,16 +294,18 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
       ) do
     selected = socket.assigns.selected
 
-    rider_id = String.to_integer(rider_id)
-
-    selected =
+    socket =
       if MapSet.member?(selected, rider_id) do
-        MapSet.delete(selected, rider_id)
+        socket
+        |> assign(:selected, MapSet.delete(selected, rider_id))
+        |> push_event("update-marker", %{id: rider_id, icon: "bicycle", color: @unselected_color})
       else
-        MapSet.put(selected, rider_id)
+        socket
+        |> assign(:selected, MapSet.put(selected, rider_id))
+        |> push_event("update-marker", %{id: rider_id, icon: "bicycle", color: @selected_color})
       end
 
-    {:noreply, assign(socket, :selected, selected)}
+    {:noreply, socket}
   end
 
   defp parse_filter(search) do
@@ -359,9 +365,41 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   defp maybe_fectch_location(socket) do
     # Only fetch locations when we're in map mode
     if socket.assigns.mode == :map do
-      assign(socket, :all_locations, RiderSearch.fetch_locations(socket.assigns.rider_search))
+      all_locations = RiderSearch.fetch_locations(socket.assigns.rider_search)
+
+      added = all_locations -- socket.assigns.all_locations
+      removed = socket.assigns.all_locations -- all_locations
+
+      socket
+      |> assign(:all_locations, all_locations)
+      |> push_event("update-markers", %{
+        added: rider_markers(added, socket.assigns.selected),
+        removed: for({id, _, _} <- removed, do: %{id: id})
+      })
     else
       socket
+    end
+  end
+
+  defp rider_markers(locations, selected) do
+    for {id, name, location} <- locations do
+      color =
+        if MapSet.member?(selected, id) do
+          @selected_color
+        else
+          @unselected_color
+        end
+
+      %{
+        id: id,
+        lat: lat(location),
+        lng: lng(location),
+        icon: "bicycle",
+        color: color,
+        clickEvent: "map-click-rider",
+        clickValue: %{id: id},
+        tooltip: name
+      }
     end
   end
 
@@ -660,47 +698,12 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   end
 
   def rider_map(assigns) do
-    markers =
-      for {id, name, location} <- assigns.rider_locations do
-        color =
-          if MapSet.member?(assigns.selected, id) do
-            "#5850ec"
-          else
-            "#4a5568"
-          end
-
-        %{
-          id: id,
-          lat: lat(location),
-          lng: lng(location),
-          icon: "bicycle",
-          color: color,
-          click_event: "map-click-rider",
-          click_value: %{id: id},
-          tooltip: name
-        }
-      end
-
     ~H"""
-    <leaflet-map phx-hook= "LeafletMap2" id="task-map"
+    <leaflet-map phx-hook= "LeafletMapNext" id="task-map"
         data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
-        data-markers={Jason.encode!(markers)}
         data-lat={@lat} data-lng={@lng}}
         class="h-full">
-
     </leaflet-map>
-    """
-  end
-
-  defp rider_marker(assigns) do
-    ~H"""
-    <leaflet-marker phx-hook="LeafletMarker" id={"rider-marker:#{@id}"} data-lat={lat(@location)} data-lng={lng(@location)}
-      data-icon="bicycle"
-      data-color={if @selected, do: "#5850ec", else: "#4a5568"}
-      data-click-event="map-click-rider"
-      data-click-value-id={@id}
-      data-tooltip={@name}>
-    </leaflet-marker>
     """
   end
 

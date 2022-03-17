@@ -61,7 +61,7 @@ Hooks.RidersList = {
   }
 };
 
-Hooks.LeafletMap2 = {
+Hooks.LeafletMapNext = {
   mounted() {
     const template = document.createElement('template');
     template.innerHTML = `
@@ -97,29 +97,66 @@ Hooks.LeafletMap2 = {
       zIndex = parseInt(this.el.dataset.zindex);
     }
 
-    const markers = JSON.parse(this.el.dataset.markers)
-    markers.forEach(({lat, lng, icon, color, clickEvent, clickValue, clickTarget}) => {
-      let marker = L.marker([lat, lng], {
-        icon: L.MakiMarkers.icon({
-          color: color,
-          icon: icon
-        }),
-        zIndexOffset: zIndex
-      });
+    this.markers = {};
 
-      if (clickEvent) {
-        marker.on('click', e => {
-          let payload = clickValue;
-          if (clickTarget) {
-            this.pushEventTo(clickTarget, clickEvent, payload);
-          } else {
-            console.log(dataset)
-            this.pushEvent(clickEvent, payload);
-          }
+    this.handleEvent("update-markers", ({
+      added,
+      removed
+    }) => {
+      added.forEach(({
+        id,
+        lat,
+        lng,
+        icon,
+        color,
+        clickEvent,
+        clickValue,
+        clickTarget,
+        tooltip
+      }) => {
+        const marker = L.marker([lat, lng], {
+          icon: L.MakiMarkers.icon({
+            color: color,
+            icon: icon
+          }),
+          zIndexOffset: zIndex
         });
-      }
 
-      marker.addTo(this.map)
+        if (clickEvent) {
+          marker.on('click', e => {
+            let payload = clickValue;
+            if (clickTarget) {
+              this.pushEventTo(clickTarget, clickEvent, payload);
+            } else {
+              this.pushEvent(clickEvent, payload);
+            }
+          });
+        }
+
+        if (tooltip) {
+          marker.bindTooltip(tooltip);
+        }
+
+        marker.addTo(this.map);
+        this.markers[id] = marker;
+      });
+      removed.forEach(({
+        id
+      }) => {
+        this.map.removeLayer(this.markers[id]);
+        delete this.map[id];
+      });
+    });
+
+    this.handleEvent("update-marker", ({
+      id,
+      icon,
+      color
+    }) => {
+      this.markers[id].setIcon(L.MakiMarkers.icon({
+        color: color,
+        icon: icon
+      }))
     });
   },
 };
