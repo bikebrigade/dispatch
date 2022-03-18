@@ -144,6 +144,13 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     |> assign(:initial_riders, riders)
   end
 
+  defp apply_action(socket, :map, params) do
+    socket
+    |> assign(:all_locations, [])
+    |> assign(:mode, :map)
+    |> apply_action(:index, params)
+  end
+
   @impl Phoenix.LiveView
   def handle_event("filter", %{"value" => search}, socket) do
     filter = parse_filter(search)
