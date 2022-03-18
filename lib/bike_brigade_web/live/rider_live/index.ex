@@ -702,6 +702,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     <leaflet-map phx-hook= "LeafletMapNext" id="task-map"
         data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
         data-lat={@lat} data-lng={@lng}}
+        phx-update="ignore"
         class="h-full">
     </leaflet-map>
     """
