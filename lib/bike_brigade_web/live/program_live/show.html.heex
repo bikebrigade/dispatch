@@ -34,10 +34,10 @@
     <div class="w-24 truncate"><%= if campaign.delivery_start, do: time_interval(campaign.delivery_start, campaign.delivery_end), else: campaign.pickup_window %></div>
   </:td>
   <:td let={campaign}>
-    <%= campaign.total_riders %>
+    <%= campaign.stats.rider_count %>
   </:td>
   <:td let={campaign}>
-    <%= campaign.total_tasks %>
+    <%= campaign.stats.task_count %>
   </:td>
   <:td let={campaign} class="text-right">
     <%= live_redirect "Edit", to: Routes.campaign_index_path(@socket, :edit, campaign), class: "text-indigo-600 hover:text-indigo-900" %>

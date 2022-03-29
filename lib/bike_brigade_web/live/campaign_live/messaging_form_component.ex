@@ -11,7 +11,7 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
   import BikeBrigadeWeb.DeliveryHelpers
 
   @impl true
-  def update(%{campaign: campaign} = assigns, socket) do
+  def update(%{campaign: campaign, riders: riders} = assigns, socket) do
     ## reload the task collection cuz we're not updating the message on the main view
     # campaign = Delivery.get_campaign(campaign.id)
 
@@ -23,14 +23,15 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
         {Delivery.change_campaign(campaign, %{instructions_template: %{body: ""}}), 0}
       end
 
-    selected_rider = campaign.riders |> List.first()
+    selected_rider =
+      riders
+      |> Map.values()
+      |> List.first()
 
     {:ok,
      socket
      |> assign(assigns)
      |> assign(:selected_rider, selected_rider)
-     |> assign(:selected_rider_index, 0)
-     # |> assign(:campaign, campaign)
      |> assign(:changeset, changeset)
      |> assign(:message_length, message_length)}
   end
@@ -47,30 +48,12 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
   end
 
   @impl true
-  def handle_event("select-rider", %{"selected_rider_index" => selected_rider_index}, socket) do
-    %{
-      campaign: campaign,
-      selected_rider_index: old_selected_rider_index
-    } = socket.assigns
+  def handle_event("select-rider", %{"selected_rider_id" => rider_id}, socket) do
+    rider_id = String.to_integer(rider_id)
 
-    socket =
-      case Integer.parse(selected_rider_index) do
-        # didn't select a new rider, do nothing
-        {^old_selected_rider_index, ""} ->
-          socket
-
-        # selected a new rider
-        {new_selected_rider_index, ""} ->
-          socket
-          |> assign(:selected_rider_index, new_selected_rider_index)
-          |> assign(:selected_rider, Enum.at(campaign.riders, new_selected_rider_index))
-
-        # parameter isn't valid integer
-        _ ->
-          socket
-      end
-
-    {:noreply, socket}
+    {:noreply,
+     socket
+     |> assign(:selected_rider, Map.get(socket.assigns.riders, rider_id))}
   end
 
   def handle_event("select-rider", _, socket) do
@@ -79,7 +62,6 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
 
   @impl true
   def handle_event("preview", %{"campaign" => campaign_params}, socket) do
-    IO.inspect(campaign_params, label: "preview")
     %{campaign: campaign} = socket.assigns
     send_at = campaign_params["scheduled_message"]["send_at"]
 
@@ -178,24 +160,25 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
     end
   end
 
-  defp rider_selection_options(campaign, selected_rider_index) do
+  defp rider_selection_options(riders, selected_rider) do
     options =
-      for {r, i} <- Enum.with_index(campaign.riders) do
+      for {id, r} <- riders do
         count = Enum.count(r.assigned_tasks)
         name = "#{r.name} (#{count})"
 
-        {name, i}
+        {name, id}
       end
 
-    options_for_select(options, selected_rider_index)
+    options_for_select(options, selected_rider.id)
   end
 
   defp message_length_indicator(assigns) do
-    indicator_color = cond do
-      assigns.length < 1200 -> "text-emerald-600"
-      assigns.length <= 1400 -> "text-amber-400"
-      true -> "text-red-600"
-  end
+    indicator_color =
+      cond do
+        assigns.length < 1200 -> "text-emerald-600"
+        assigns.length <= 1400 -> "text-amber-400"
+        true -> "text-red-600"
+      end
 
     assigns = assign(assigns, :color, indicator_color)
 
@@ -207,5 +190,5 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
       </C.tooltip>
     </div>
     """
-   end
+  end
 end

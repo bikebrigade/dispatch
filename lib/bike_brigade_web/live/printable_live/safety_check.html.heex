@@ -34,7 +34,7 @@
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
           <%= for rider <- @riders do %>
-            <tr id={rider.id} class="leading-tight">
+            <tr id={"rider-#{rider.id}"} class="leading-tight">
               <td class="w-24 px-6 text-xs leading-5 text-gray-500 border">
                 <div class="flex items-center justify-between">
                   <div><%= rider.name %> (<%= rider.pronouns %>)</div>

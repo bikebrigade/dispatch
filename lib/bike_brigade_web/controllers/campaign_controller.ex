@@ -8,7 +8,9 @@ defmodule BikeBrigadeWeb.CampaignController do
 
   def download_assignments(conn, %{"id" => id}) do
     campaign = Delivery.get_campaign(id)
-    tasks = campaign.tasks |> Enum.sort_by(&(&1.assigned_rider && &1.assigned_rider.name))
+    {_riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+
+    tasks = tasks |> Enum.sort_by(&(&1.assigned_rider && &1.assigned_rider.name))
 
     headers = [
       "#",
@@ -21,18 +23,32 @@ defmodule BikeBrigadeWeb.CampaignController do
       "dropoff address",
       "dropoff phone",
       "box size",
-      "rider notes",
+      "rider notes"
     ]
 
-    rows =  for {task, i} <- Enum.with_index(tasks, 1) do
-      {rider_name, rider_email, rider_phone} = if task.assigned_rider do
-        {task.assigned_rider.name, task.assigned_rider.email, task.assigned_rider.phone}
-      else
-        {"","",""}
-      end
+    rows =
+      for {task, i} <- Enum.with_index(tasks, 1) do
+        {rider_name, rider_email, rider_phone} =
+          if task.assigned_rider do
+            {task.assigned_rider.name, task.assigned_rider.email, task.assigned_rider.phone}
+          else
+            {"", "", ""}
+          end
 
-      [i, task.delivery_status, task.delivery_status_notes, rider_name, rider_email, rider_phone, task.dropoff_name, "#{task.dropoff_address} #{task.dropoff_address2} #{task.dropoff_city} #{task.dropoff_postal}", task.dropoff_phone, CampaignHelpers.request_type(task), task.rider_notes]
-    end
+        [
+          i,
+          task.delivery_status,
+          task.delivery_status_notes,
+          rider_name,
+          rider_email,
+          rider_phone,
+          task.dropoff_name,
+          "#{task.dropoff_address} #{task.dropoff_address2} #{task.dropoff_city} #{task.dropoff_postal}",
+          task.dropoff_phone,
+          CampaignHelpers.request_type(task),
+          task.rider_notes
+        ]
+      end
 
     # TODO: use streams?
 
@@ -43,24 +59,36 @@ defmodule BikeBrigadeWeb.CampaignController do
 
     conn
     |> put_status(:ok)
-    |> send_download({:binary, file}, filename: "#{campaign.delivery_date}_#{CampaignHelpers.name(campaign)}_assignments.csv")
+    |> send_download({:binary, file},
+      filename:
+        "#{CampaignHelpers.campaign_date(campaign)}_#{CampaignHelpers.name(campaign)}_assignments.csv"
+    )
   end
 
   def download_results(conn, %{"id" => id}) do
     campaign = Delivery.get_campaign(id)
-    tasks = campaign.tasks |> Enum.sort_by(&(&1.delivery_status))
+
+    {_riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+    tasks = tasks |> Enum.sort_by(& &1.delivery_status)
 
     headers = [
       "status",
       "delivery notes",
       "dropof_name",
       "dropoff address",
-      "partner organization",
+      "partner organization"
     ]
 
-    rows =  for task <- tasks do
-      [task.delivery_status, task.delivery_status_notes, task.dropoff_name, "#{task.dropoff_address} #{task.dropoff_address2} #{task.dropoff_city} #{task.dropoff_postal}", task.organization_partner]
-    end
+    rows =
+      for task <- tasks do
+        [
+          task.delivery_status,
+          task.delivery_status_notes,
+          task.dropoff_name,
+          "#{task.dropoff_address} #{task.dropoff_address2} #{task.dropoff_city} #{task.dropoff_postal}",
+          task.organization_partner
+        ]
+      end
 
     # TODO: use streams?
 
@@ -71,6 +99,8 @@ defmodule BikeBrigadeWeb.CampaignController do
 
     conn
     |> put_status(:ok)
-    |> send_download({:binary, file}, filename: "#{campaign.delivery_date}_#{CampaignHelpers.name(campaign)}_results.csv")
+    |> send_download({:binary, file},
+      filename: "#{CampaignHelpers.campaign_date(campaign)}_#{CampaignHelpers.name(campaign)}_results.csv"
+    )
   end
 end

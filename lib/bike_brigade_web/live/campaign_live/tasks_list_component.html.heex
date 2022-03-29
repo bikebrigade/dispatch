@@ -10,7 +10,7 @@
       Tasks
     </h3>
     <div class="text-base font-medium leading-6 text-gray-800">
-      <%= Enum.count(@campaign.tasks, &task_assigned?/1) %> / <%= Enum.count(@campaign.tasks) %> assigned
+      <%= Map.values(@tasks) |> Enum.count(&task_assigned?/1) %> / <%= Enum.count(@tasks) %> assigned
     </div>
   </div>
   <div class="p-2 border-b">
@@ -33,7 +33,7 @@
       placeholder="Search Deliveries" />
   </div>
   <ul class="flex-1 overflow-y-auto scrolling-touch" id="tasks-list" phx-hook="TasksList">
-    <%= for task <- @tasks_list do %>
+    <%= for {_id, task} <- @tasks_list do %>
     <li id={"tasks-list:#{task.id}"}>
       <a phx-click="select-task" phx-value-id={task.id} href="#"
         class={"block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50 #{if selected?(@selected_task, task), do: "bg-gray-100", else: ""}"}>
