@@ -89,6 +89,9 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     end
   end
 
+  @selected_color "#5850ec"
+  @unselected_color "#4a5568"
+
   @impl Phoenix.LiveView
   def mount(_params, _session, socket) do
     {:ok,
@@ -143,6 +146,13 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     |> assign_new(:rider_search, fn -> @default_rider_search end)
     |> fetch_results()
     |> assign(:initial_riders, riders)
+  end
+
+  defp apply_action(socket, :map, params) do
+    socket
+    |> assign(:all_locations, [])
+    |> assign(:mode, :map)
+    |> apply_action(:index, params)
   end
 
   @impl Phoenix.LiveView
@@ -273,6 +283,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   def handle_event("set-mode", %{"mode" => mode}, socket) do
     {:noreply,
      socket
+     |> assign(:all_locations, [])
      |> assign(:mode, String.to_existing_atom(mode))
      |> fetch_results()}
   end
@@ -284,16 +295,18 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
       ) do
     selected = socket.assigns.selected
 
-    rider_id = String.to_integer(rider_id)
-
-    selected =
+    socket =
       if MapSet.member?(selected, rider_id) do
-        MapSet.delete(selected, rider_id)
+        socket
+        |> assign(:selected, MapSet.delete(selected, rider_id))
+        |> push_event("update-marker", %{id: rider_id, icon: "bicycle", color: @unselected_color})
       else
-        MapSet.put(selected, rider_id)
+        socket
+        |> assign(:selected, MapSet.put(selected, rider_id))
+        |> push_event("update-marker", %{id: rider_id, icon: "bicycle", color: @selected_color})
       end
 
-    {:noreply, assign(socket, :selected, selected)}
+    {:noreply, socket}
   end
 
   defp parse_filter(search) do
@@ -353,9 +366,41 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   defp maybe_fectch_location(socket) do
     # Only fetch locations when we're in map mode
     if socket.assigns.mode == :map do
-      assign(socket, :all_locations, RiderSearch.fetch_locations(socket.assigns.rider_search))
+      all_locations = RiderSearch.fetch_locations(socket.assigns.rider_search)
+
+      added = all_locations -- socket.assigns.all_locations
+      removed = socket.assigns.all_locations -- all_locations
+
+      socket
+      |> assign(:all_locations, all_locations)
+      |> push_event("update-markers", %{
+        added: rider_markers(added, socket.assigns.selected),
+        removed: for({id, _, _} <- removed, do: %{id: id})
+      })
     else
       socket
+    end
+  end
+
+  defp rider_markers(locations, selected) do
+    for {id, name, location} <- locations do
+      color =
+        if MapSet.member?(selected, id) do
+          @selected_color
+        else
+          @unselected_color
+        end
+
+      %{
+        id: id,
+        lat: lat(location),
+        lng: lng(location),
+        icon: "bicycle",
+        color: color,
+        clickEvent: "map-click-rider",
+        clickValue: %{id: id},
+        tooltip: name
+      }
     end
   end
 
@@ -653,27 +698,14 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     """
   end
 
-  defp rider_map(assigns) do
+  def rider_map(assigns) do
     ~H"""
-    <leaflet-map phx-hook= "LeafletMap" id="task-map" data-lat={@lat} data-lng={@lng}
+    <div phx-hook="LeafletMapNext" id="task-map"
         data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
+        data-lat={@lat} data-lng={@lng}
+        phx-update="ignore"
         class="h-full">
-      <%= for {id, name, location} <- @rider_locations do %>
-        <.rider_marker location={location} id={id} name={name} selected={MapSet.member?(@selected, id)} />
-      <% end %>
-    </leaflet-map>
-    """
-  end
-
-  defp rider_marker(assigns) do
-    ~H"""
-    <leaflet-marker phx-hook="LeafletMarker" id={"rider-marker:#{@id}"} data-lat={lat(@location)} data-lng={lng(@location)}
-      data-icon="bicycle"
-      data-color={if @selected, do: "#5850ec", else: "#4a5568"}
-      data-click-event="map-click-rider"
-      data-click-value-id={@id}
-      data-tooltip={@name}>
-    </leaflet-marker>
+    </div>
     """
   end
 

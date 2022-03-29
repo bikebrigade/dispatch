@@ -89,6 +89,7 @@ defmodule BikeBrigadeWeb.Router do
       live "/riders/new", RiderLive.Index, :new
       live "/riders/:id/edit", RiderLive.Index, :edit
       live "/riders/message", RiderLive.Index, :message
+      live "/riders/map", RiderLive.Index, :map # this is mostly used for testing!
 
       # Redirect for the old next url
       get "/riders-next",  Plugs.Redirect, to: "/riders", status: :moved_permanently
