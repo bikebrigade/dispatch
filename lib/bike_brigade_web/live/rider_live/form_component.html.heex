@@ -99,6 +99,14 @@
       </div>
       <%= error_tag f, :last_safety_check %>
     </div>
+    <div class="flex items-center mt-4 space-x-2">
+      <div class="rounded-md shadow-sm">
+        <%= checkbox f, :text_based_itinerary, phx_debounce: "blur", class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" %>
+      </div>
+      <%= label f, :text_based_itinerary, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+      Send text-only delivery instructions
+      <% end %>
+    </div>
     <div class="pt-8">
       <div>
         <h3 class="text-lg font-medium leading-6 text-gray-900">
