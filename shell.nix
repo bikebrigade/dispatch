@@ -31,10 +31,11 @@ let
   # define shell startup command with special handling for OSX
   baseHooks = ''
     export PS1='\n\[\033[1;32m\][nix-shell:\w]($(git rev-parse --abbrev-ref HEAD))\$\[\033[0m\] '
-    export LANG=en_US.UTF-8
+    export LANG=en_US.UTF-8dd
 
     # install chromedriver for Wallaby
-    ./scripts/download_chromedriver "${chromeCommand}"
+    # TODO: this is disabled for the devcontainer
+    # ./scripts/download_chromedriver "${chromeCommand}"
 
     if test -f ".env.local"
     then
