@@ -95,7 +95,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
   end
 
   defp fetch_campaigns(current_week) do
-    Delivery.list_campaigns(current_week, preload: [:program, :stats, :latest_message])
+    Delivery.list_campaigns(current_week, preload: [:program, :stats, :latest_message, :scheduled_message])
     |> Enum.reverse()
     |> Utils.ordered_group_by(&(LocalizedDateTime.to_date(&1.delivery_start)))
     |> Enum.reverse()
