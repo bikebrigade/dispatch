@@ -63,8 +63,9 @@ defmodule BikeBrigade.Repo.Migrations.TaskLocation do
           :"integer GENERATED ALWAYS AS (st_distance(ST_GeomFromGeoJSON(pickup_location ->> 'coords') , ST_GeomFromGeoJSON(dropoff_location ->> 'coords'))) STORED"
     end
 
-    load_sql("rider_stats_view.sql")
-    load_sql("campaign_stats_view.sql")
+    # removing since we load these views later
+    # load_sql("rider_stats_view.sql")
+    # load_sql("campaign_stats_view.sql")
   end
 
   def down do
@@ -86,8 +87,8 @@ defmodule BikeBrigade.Repo.Migrations.TaskLocation do
           :"integer GENERATED ALWAYS AS (st_distance(pickup_location, dropoff_location)) STORED"
     end
 
-    load_sql("rider_stats_view.sql")
-    load_sql("campaign_stats_view.sql")
-
+    # removing since we load these views later
+    # load_sql("rider_stats_view.sql")
+    # load_sql("campaign_stats_view.sql")
   end
 end

@@ -8,8 +8,9 @@ defmodule BikeBrigade.Repo.Migrations.MigrateTaskLocations do
   @table_name "tasks"
 
   def up do
-    execute "drop view if exists rider_stats"
-    execute "drop view if exists campaign_stats"
+    # removing since we load these views later
+    # execute "drop view if exists rider_stats"
+    # execute "drop view if exists campaign_stats"
 
     alter table(@table_name) do
       add :pickup_location_id, references(:locations)
@@ -17,8 +18,9 @@ defmodule BikeBrigade.Repo.Migrations.MigrateTaskLocations do
       remove_if_exists(:delivery_distance, :integer)
     end
 
-    load_sql("campaign_stats_view.sql", "drop view if exists campaign_stats")
-    load_sql("rider_stats_view.sql", "drop view if exists rider_stats")
+    # removing since we load these views later
+    # load_sql("campaign_stats_view.sql", "drop view if exists campaign_stats")
+    # load_sql("rider_stats_view.sql", "drop view if exists rider_stats")
 
     flush()
 
@@ -106,8 +108,9 @@ defmodule BikeBrigade.Repo.Migrations.MigrateTaskLocations do
   end
 
   def down do
-    execute "drop view if exists rider_stats"
-    execute "drop view if exists campaign_stats"
+    # removing since we load these views later
+    # execute "drop view if exists rider_stats"
+    # execute "drop view if exists campaign_stats"
     flush()
 
     alter table(@table_name) do
