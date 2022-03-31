@@ -31,91 +31,101 @@
       class="block w-full px-3 py-2 my-2 placeholder-gray-400 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
       placeholder="Search Riders" />
   </div>
-  <ul class="flex-1 overflow-y-auto scrolling-touch" id="riders-list" phx-hook="RidersList">
-    <%= for rider <- @riders_list do %>
-      <li id={"riders-list:#{rider.id}"}>
-        <a phx-click="select-rider" phx-value-id={rider.id} href="#"
-        class={"block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50#{if selected?(@selected_rider, rider), do: " bg-gray-100"}"}>
-          <div class="flex flex-row items-center px-4 py-4">
-            <div class="text-sm font-medium">
-              <%= rider.name %> <span class="text-xs">(<%= task_count(rider.assigned_tasks) %> / <%= rider.task_capacity %>)</span>
-            </div>
-            <%= if rider.task_enter_building do %>
-              <Heroicons.Outline.office_building class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end" />
-            <% end %>
-            <%= if has_notes?(rider) do %>
-              <Heroicons.Outline.pencil_alt class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500" />
-            <% end %>
-            <%= if rider.text_based_itinerary do %>
-              <C.tooltip tooltip={"This rider will receive an extra message with text-only delivery instructions"} class="w-40">
-                <Heroicons.Outline.status_offline class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500" />
-              </C.tooltip>
-            <% end %>
-          </div>
-        </a>
-        <%= if selected?(@selected_rider, rider) do %>
-          <div class="p-2 mx-1 rounded-b shadow-inner bg-gray-50">
-            <div class="flex flex-row my-2">
-               <Heroicons.Outline.clock class="flex-shrink-0 w-4 h-4 text-gray-500" />
-              <div class="mx-1 text-sm leading-5 text-gray-800">
-                <%= pickup_window(@campaign, rider) %>
+  <div class="relative">
+    <ul class="flex-1 overflow-y-auto scrolling-touch" id="riders-list" phx-hook="RidersList">
+      <%= for rider <- @riders_list do %>
+        <li id={"riders-list:#{rider.id}"}>
+          <a phx-click="select-rider" phx-value-id={rider.id} href="#"
+          class={"block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50#{if selected?(@selected_rider, rider), do: " bg-gray-100"}"}>
+            <div class="flex flex-row items-center px-4 py-4">
+              <div class="text-sm font-medium">
+                <%= rider.name %> <span class="text-xs">(<%= task_count(rider.assigned_tasks) %> / <%= rider.task_capacity %>)</span>
               </div>
+              <%= if rider.task_enter_building do %>
+                <Heroicons.Outline.office_building class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end" />
+              <% end %>
+              <%= if has_notes?(rider) do %>
+                <Heroicons.Outline.pencil_alt class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500" />
+              <% end %>
+              <%= if rider.text_based_itinerary do %>
+                <div class="flex flex-col items-center has-tooltip">
+                  <Heroicons.Outline.status_offline class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500" />
+                  <div class={"absolute bottom-0 flex-col items-center mb-6 tooltip"}>
+                    <span class="relative z-10 p-2 text-xs leading-none text-white whitespace-no-wrap bg-black rounded-sm shadow-lg">
+                      "This rider will receive an extra message with text-only delivery instructions"
+                    </span>
+                    <div class="w-3 h-3 -mt-2 transform rotate-45 bg-black"></div>
+                  </div>
+                </div>
+              <% end %>
             </div>
-            <%= if has_notes?(rider) do %>
+          </a>
+          <%= if selected?(@selected_rider, rider) do %>
+            <div class="p-2 mx-1 rounded-b shadow-inner bg-gray-50">
               <div class="flex flex-row my-2">
-                <Heroicons.Outline.pencil_alt class="flex-shrink-0 w-4 h-4 text-gray-500" />
-                <div class="mx-1 text-sm leading-5 text-gray-600">
-                  <%= rider.task_notes %>
+                <Heroicons.Outline.clock class="flex-shrink-0 w-4 h-4 text-gray-500" />
+                <div class="mx-1 text-sm leading-5 text-gray-800">
+                  <%= pickup_window(@campaign, rider) %>
                 </div>
               </div>
-            <% end %>
-            <%= if Enum.count(rider.assigned_tasks) > 0 do %>
-              <%= for task <- rider.assigned_tasks do %>
+              <%= if has_notes?(rider) do %>
                 <div class="flex flex-row my-2">
-                  <Heroicons.Outline.location_marker class="flex-shrink-0 w-4 h-4 text-gray-500" />
-                  <a href="#" phx-click="select-task" phx-value-id={task.id} class="flex flex-col">
-                    <div class="mx-1 text-sm leading-5 text-indigo-600">
-                      <span class="pii"><%= task.dropoff_address %></span>
-                    </div>
-                    <div class="mx-1 text-xs font-medium leading-5">
-                      <span class="pii"><%= task.dropoff_name %></span>
-                    </div>
-                  </a>
+                  <Heroicons.Outline.pencil_alt class="flex-shrink-0 w-4 h-4 text-gray-500" />
+                  <div class="mx-1 text-sm leading-5 text-gray-600">
+                    <%= rider.task_notes %>
+                  </div>
                 </div>
               <% end %>
-            <% else %>
-              <div class="mx-1 text-sm leading-5 text-gray-800">No tasks</div>
-            <% end %>
-            <div class="flex flex-row mt-5 space-x-1">
-              <%= if @resent do %>
-              <C.button phx-click="resend-message"
-                phx-value-rider-id={rider.id}
-                size={:xsmall}
-                disabled>
-                Sent!
-              </C.button>
+              <%= if Enum.count(rider.assigned_tasks) > 0 do %>
+                <%= for task <- rider.assigned_tasks do %>
+                  <div class="flex flex-row my-2">
+                    <Heroicons.Outline.location_marker class="flex-shrink-0 w-4 h-4 text-gray-500" />
+                    <a href="#" phx-click="select-task" phx-value-id={task.id} class="flex flex-col">
+                      <div class="mx-1 text-sm leading-5 text-indigo-600">
+                        <span class="pii"><%= task.dropoff_address %></span>
+                      </div>
+                      <div class="mx-1 text-xs font-medium leading-5">
+                        <span class="pii"><%= task.dropoff_name %></span>
+                      </div>
+                    </a>
+                  </div>
+                <% end %>
               <% else %>
-              <C.button phx-click="resend-message"
-              phx-value-rider-id={rider.id}
-              size={:xsmall}>
-                Resend
-              </C.button>
+                <div class="mx-1 text-sm leading-5 text-gray-800">No tasks</div>
               <% end %>
-              <C.button redirect_to={Routes.sms_message_index_path(@socket, :show, rider.id)} color={:secondary} size={:xsmall}>
-                Message
-              </C.button>
+              <div class="flex flex-row mt-5 space-x-1">
+                <%= if @resent do %>
+                <C.button phx-click="resend-message"
+                  phx-value-rider-id={rider.id}
+                  size={:xsmall}
+                  disabled>
+                  Sent!
+                </C.button>
+                <% else %>
+                <C.button phx-click="resend-message"
+                phx-value-rider-id={rider.id}
+                size={:xsmall}>
+                  Resend
+                </C.button>
+                <% end %>
+                <C.button redirect_to={Routes.sms_message_index_path(@socket, :show, rider.id)} color={:secondary} size={:xsmall}>
+                  Message
+                </C.button>
+              </div>
+              <div class="mt-1">
+                <C.button phx-click="remove-rider"
+                phx-value-rider-id={rider.id}
+                color={:red}
+                size={:xsmall}>
+                  Remove
+                </C.button>
+              </div>
             </div>
-            <div class="mt-1">
-               <C.button phx-click="remove-rider"
-              phx-value-rider-id={rider.id}
-              color={:red}
-              size={:xsmall}>
-                Remove
-              </C.button>
-            </div>
-          </div>
-        <% end %>
-      </li>
-    <% end %>
-  </ul>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+
+  
 </div>
