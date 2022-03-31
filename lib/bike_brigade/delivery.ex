@@ -350,7 +350,6 @@ defmodule BikeBrigade.Delivery do
   end
 
   def send_campaign_message(%Campaign{} = campaign, rider) do
-    # TODO, split SMS semantically somehow
     body =
       render_campaign_message_for_rider(
         campaign,
@@ -358,29 +357,37 @@ defmodule BikeBrigade.Delivery do
         rider
       )
 
-    if String.length(body) > 1500 do
-      parts =
-        body
-        |> String.codepoints()
-        |> Enum.chunk_every(1000)
-        |> Enum.map(&Enum.join/1)
+    {:ok, msg} = Messaging.send_message_in_chunks(campaign, body, rider)
 
-      [first | rest] = parts
-      msg = Messaging.new_sms_message(rider)
-
-      Messaging.send_sms_message(msg, %{campaign_id: campaign.id, body: first <> "..."})
-
-      for part <- rest do
-        msg = Messaging.new_sms_message(rider)
-        Messaging.send_sms_message(msg, %{campaign_id: campaign.id, body: "..." <> part})
-      end
-    else
-      msg = Messaging.new_sms_message(rider)
-      Messaging.send_sms_message(msg, %{campaign_id: campaign.id, body: body})
+    if rider.text_based_itinerary do
+      send_text_based_itinerary(rider, campaign)
     end
+
+    {:ok, msg}
   end
 
-  # TODO I hate that i pass message here so much
+  defp send_text_based_itinerary(rider, campaign) do
+    template = """
+    1. Pickup
+    • {{{task_count}}}
+    • {{{pickup_address}}}
+    • {{{pickup_window}}}
+
+    2. Drop-off
+    {{{task_details}}}
+
+    {{{directions}}}
+    """
+
+    body =
+      render_campaign_message_for_rider(
+        campaign,
+        template,
+        rider
+      )
+
+    Messaging.send_message_in_chunks(campaign, body, rider)
+  end
 
   def render_campaign_message_for_rider(campaign, nil, rider),
     do: render_campaign_message_for_rider(campaign, "", rider)

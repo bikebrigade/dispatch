@@ -3,8 +3,8 @@
     <C.button phx-click="auto-assign" size={:small} class="space-x-1">
       <p>Auto Assign</p>
       <C.tooltip tooltip={"This will assign the remaining tasks"} class="w-40">
-      <Heroicons.Outline.exclamation_circle class="w-4 h-4" />
-    </C.tooltip>
+        <Heroicons.Outline.exclamation_circle class="w-4 h-4" />
+      </C.tooltip>
     </C.button>
     <C.button patch_to={Routes.campaign_show_path(@socket, :add_rider, @campaign)} size={:small}>
       Add Rider
@@ -36,15 +36,20 @@
       <li id={"riders-list:#{rider.id}"}>
         <a phx-click="select-rider" phx-value-id={rider.id} href="#"
         class={"block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50#{if selected?(@selected_rider, rider), do: " bg-gray-100"}"}>
-          <div class="flex flex-row px-4 py-4">
+          <div class="flex flex-row items-center px-4 py-4">
             <div class="text-sm font-medium">
-              <%= rider.name %> <span class="text-xs"> (<%= task_count(rider.assigned_tasks) %> / <%= rider.task_capacity %>)</span>
+              <%= rider.name %> <span class="text-xs">(<%= task_count(rider.assigned_tasks) %> / <%= rider.task_capacity %>)</span>
             </div>
             <%= if rider.task_enter_building do %>
               <Heroicons.Outline.office_building class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end" />
             <% end %>
             <%= if has_notes?(rider) do %>
-              <Heroicons.Outline.pencil_alt class="flex-shrink-0 w-4 h-4 text-gray-500" />
+              <Heroicons.Outline.pencil_alt class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500" />
+            <% end %>
+            <%= if rider.text_based_itinerary do %>
+              <C.tooltip tooltip={"This rider will receive an extra message with text-only delivery instructions"} class="w-40">
+                <Heroicons.Outline.status_offline class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500" />
+              </C.tooltip>
             <% end %>
           </div>
         </a>

@@ -230,6 +230,31 @@ defmodule BikeBrigade.Messaging do
     end
   end
 
+  def send_message_in_chunks(campaign, body, rider) do
+    # TODO, split SMS semantically somehow
+
+    if String.length(body) > 1500 do
+      parts =
+        body
+        |> String.codepoints()
+        |> Enum.chunk_every(1000)
+        |> Enum.map(&Enum.join/1)
+
+      [first | rest] = parts
+      msg = new_sms_message(rider)
+
+      send_sms_message(msg, %{campaign_id: campaign.id, body: first <> "..."})
+
+      for part <- rest do
+        msg = new_sms_message(rider)
+        send_sms_message(msg, %{campaign_id: campaign.id, body: "..." <> part})
+      end
+    else
+      msg = new_sms_message(rider)
+      send_sms_message(msg, %{campaign_id: campaign.id, body: body})
+    end
+  end
+
   defp maybe_send_initial_message(%Ecto.Multi{} = multi, nil), do: multi
 
   defp maybe_send_initial_message(%Ecto.Multi{} = multi, %Rider{} = rider) do

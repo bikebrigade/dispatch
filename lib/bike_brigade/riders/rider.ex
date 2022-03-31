@@ -61,6 +61,7 @@ defmodule BikeBrigade.Riders.Rider do
     field :onfleet_id, :string
     field :onfleet_account_status, OnfleetAccountStatusEnum
     field :phone, BikeBrigade.EctoPhoneNumber.Canadian
+    field :text_based_itinerary, :boolean, default: false
     # remove
     field :postal, :string
     field :pronouns, :string
@@ -78,6 +79,7 @@ defmodule BikeBrigade.Riders.Rider do
     field :task_enter_building, :boolean, virtual: true
     field :delivery_url_token, :string, virtual: true
     field :pickup_window, :string, virtual: true
+
 
     field :internal_notes, :string
 
@@ -130,7 +132,8 @@ defmodule BikeBrigade.Riders.Rider do
       :mailchimp_id,
       :mailchimp_status,
       :last_safety_check,
-      :internal_notes
+      :internal_notes,
+      :text_based_itinerary
     ])
     |> cast_embed(:flags)
     |> cast_embed(:location_struct)
