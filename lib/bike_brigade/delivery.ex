@@ -396,13 +396,13 @@ defmodule BikeBrigade.Delivery do
         rider
       )
 
-    msg = Messaging.send_message_in_chunks(campaign, body, rider)
+    {:ok, msg} = Messaging.send_message_in_chunks(campaign, body, rider)
 
     if rider.text_based_itinerary do
       send_text_based_itinerary(rider, campaign)
     end
 
-    msg
+    {:ok, msg}
   end
 
   defp send_text_based_itinerary(rider, campaign) do
