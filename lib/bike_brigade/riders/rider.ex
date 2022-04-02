@@ -50,6 +50,7 @@ defmodule BikeBrigade.Riders.Rider do
     field :max_distance, :integer
     field :name, :string
     field :phone, BikeBrigade.EctoPhoneNumber.Canadian
+    field :text_based_itinerary, :boolean, default: false
     field :pronouns, :string
     field :signed_up_on, :utc_datetime
     field :last_safety_check, :date
@@ -66,7 +67,7 @@ defmodule BikeBrigade.Riders.Rider do
     field :task_enter_building, :boolean, virtual: true
     field :delivery_url_token, :string, virtual: true
     field :pickup_window, :string, virtual: true
-
+    
     has_many :assigned_tasks, Task, foreign_key: :assigned_rider_id
     has_many :campaign_riders, CampaignRider
 
@@ -106,7 +107,8 @@ defmodule BikeBrigade.Riders.Rider do
       :mailchimp_id,
       :mailchimp_status,
       :last_safety_check,
-      :internal_notes
+      :internal_notes,
+      :text_based_itinerary
     ])
     |> cast_embed(:flags)
     |> cast_assoc(:location)

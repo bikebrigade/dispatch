@@ -22,6 +22,7 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
       field :max_distance, :integer
       field :last_safety_check, :date
       field :internal_notes, :string
+      field :text_based_itinerary, :boolean
       field :tags, {:array, :string}
 
       embeds_one :flags, Rider.Flags, on_replace: :update
@@ -39,6 +40,7 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
         :max_distance,
         :last_safety_check,
         :internal_notes,
+        :text_based_itinerary,
         :tags
       ])
       |> cast_embed(:flags)

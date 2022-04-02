@@ -169,7 +169,7 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
         {name, id}
       end
 
-    options_for_select(options, selected_rider.id)
+    options_for_select(options, selected_rider && selected_rider.id)
   end
 
   defp message_length_indicator(assigns) do
