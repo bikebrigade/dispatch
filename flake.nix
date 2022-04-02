@@ -2,9 +2,13 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     utils.url = "github:numtide/flake-utils";
+    flake-compat = {
+      url = "github:edolstra/flake-compat";
+      flake = false;
+    };
   };
 
-  outputs = { self, nixpkgs, utils }:
+  outputs = { self, nixpkgs, utils, flake-compat }:
     utils.lib.eachDefaultSystem (system:
       let pkgs = import nixpkgs { inherit system; };
       in with pkgs;
@@ -35,7 +39,7 @@
 
         # Decorative prompt override so we know when we're in a dev shell
         baseHook = ''
-          export PS1='\n\[\033[1;32m\][dev:\w]($(git rev-parse --abbrev-ref HEAD))\$\[\033[0m\] '
+          export PS1="\[\e[1;33m\][dev]\[\e[1;34m\] \w $ \[\e[0m\]"
 
           [[ -f .env ]] && source .env
         '';
