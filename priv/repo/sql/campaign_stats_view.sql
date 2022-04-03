@@ -1,12 +1,13 @@
 create
 or replace view campaign_stats as with campaign_rider_counts as (
   select
-    campaigns_riders.campaign_id as campaign_id,
-    count(campaigns_riders.id) as campaign_rider_count
+    campaigns.*,
+    coalesce(count(campaigns_riders.id), 0) as signed_up_rider_count
   from
-    campaigns_riders
+    campaigns
+    left join campaigns_riders on campaigns_riders.campaign_id = campaigns.id
   group by
-    campaigns_riders.campaign_id
+    campaigns.id
 ),
 task_distances as (
   select
@@ -27,14 +28,13 @@ select
   count(tasks.id) as task_count,
   count(distinct tasks.assigned_rider_id) as assigned_rider_count,
   coalesce(
-    sum(campaign_rider_counts.campaign_rider_count) :: integer,
+    sum(campaigns.signed_up_rider_count) :: integer,
     0
   ) as signed_up_rider_count,
   coalesce(sum(tasks.distance) :: integer, 0) as total_distance
 from
   programs
-  left join campaigns on campaigns.program_id = programs.id
+  left join campaign_rider_counts campaigns on campaigns.program_id = programs.id
   left join task_distances tasks on tasks.campaign_id = campaigns.id
-  left join campaign_rider_counts on campaign_rider_counts.campaign_id = campaigns.id
 group by
   ROLLUP(programs.id, campaigns.id);
