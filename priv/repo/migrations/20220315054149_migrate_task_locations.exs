@@ -73,13 +73,13 @@ defmodule BikeBrigade.Repo.Migrations.MigrateTaskLocations do
       end
 
     {_, pickup_location_ids} =
-      BikeBrigade.Repo.insert_all("locations", pickup_locations,
+      chunked_insert_all("locations", pickup_locations,
         placeholders: %{now: DateTime.utc_now()},
         returning: [:id]
       )
 
     {_, dropoff_location_ids} =
-      BikeBrigade.Repo.insert_all("locations", dropoff_locations,
+      chunked_insert_all("locations", dropoff_locations,
         placeholders: %{now: DateTime.utc_now()},
         returning: [:id]
       )
@@ -98,7 +98,7 @@ defmodule BikeBrigade.Repo.Migrations.MigrateTaskLocations do
         end
       )
 
-    BikeBrigade.Repo.insert_all(
+    chunked_insert_all(
       @table_name,
       updates,
       placeholders: %{now: DateTime.utc_now()},
@@ -130,5 +130,14 @@ defmodule BikeBrigade.Repo.Migrations.MigrateTaskLocations do
       end)
 
     {Enum.reverse(l1), Enum.reverse(l2), Enum.reverse(l3)}
+  end
+
+  @chunk_every 1000
+  defp chunked_insert_all(table, entries, opts) do
+    Enum.chunk_every(entries, @chunk_every)
+    |> Enum.map(&BikeBrigade.Repo.insert_all(table, &1, opts))
+    |> Enum.reduce({0,[]}, fn {count, results}, {total, all_results} ->
+      {total + count, all_results ++ results}
+    end)
   end
 end
