@@ -26,8 +26,11 @@ select
   count(distinct campaigns.id) as campaign_count,
   count(tasks.id) as task_count,
   count(distinct tasks.assigned_rider_id) as assigned_rider_count,
-  sum(campaign_rider_counts.campaign_rider_count) as signed_up_rider_count,
-  sum(tasks.distance) :: integer as total_distance
+  coalesce(
+    sum(campaign_rider_counts.campaign_rider_count) :: integer,
+    0
+  ) as signed_up_rider_count,
+  coalesce(sum(tasks.distance) :: integer, 0) as total_distance
 from
   programs
   left join campaigns on campaigns.program_id = programs.id
