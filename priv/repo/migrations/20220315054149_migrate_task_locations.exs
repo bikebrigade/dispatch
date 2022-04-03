@@ -133,7 +133,7 @@ defmodule BikeBrigade.Repo.Migrations.MigrateTaskLocations do
     {Enum.reverse(l1), Enum.reverse(l2), Enum.reverse(l3)}
   end
 
-  @chunk_every 1000
+  @chunk_every 65535
   defp chunked_insert_all(table, entries, opts) do
     opts = Keyword.merge([timeout: :infinity], opts)
 
