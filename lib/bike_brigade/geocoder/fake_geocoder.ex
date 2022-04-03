@@ -57,7 +57,7 @@ defmodule BikeBrigade.Geocoder.FakeGeocoder do
     "priv/repo/seeds/toronto.csv"
     |> File.stream!()
     |> CSV.parse_stream()
-    |> Enum.into(%{}, fn [address, postal, city, lat, lon] ->
+    |> Enum.flat_map(fn [address, postal, city, lat, lon] ->
       address = address
       {lat, lon} = {String.to_float(lat), String.to_float(lon)}
 
@@ -70,7 +70,8 @@ defmodule BikeBrigade.Geocoder.FakeGeocoder do
         coords: %Geo.Point{coordinates: {lon, lat}}
       }
 
-      {address, location}
+      [{address, location}, {"#{address} #{city}", location}]
     end)
+    |> Enum.into(%{})
   end
 end
