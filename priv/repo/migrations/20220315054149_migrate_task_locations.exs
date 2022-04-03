@@ -50,7 +50,8 @@ defmodule BikeBrigade.Repo.Migrations.MigrateTaskLocations do
               coords: r.dropoff_location["coords"]
             }
           }
-        )
+        ),
+        timeout: :infinity
       )
       |> unzip()
 
@@ -134,9 +135,11 @@ defmodule BikeBrigade.Repo.Migrations.MigrateTaskLocations do
 
   @chunk_every 1000
   defp chunked_insert_all(table, entries, opts) do
+    opts = Keyword.merge([timeout: :infinity], opts)
+
     Enum.chunk_every(entries, @chunk_every)
     |> Enum.map(&BikeBrigade.Repo.insert_all(table, &1, opts))
-    |> Enum.reduce({0,[]}, fn {count, results}, {total, all_results} ->
+    |> Enum.reduce({0, []}, fn {count, results}, {total, all_results} ->
       {total + count, all_results ++ results}
     end)
   end
