@@ -27,7 +27,7 @@ defmodule BikeBrigade.Importers.MailchimpImporterTest do
     test "is successful if fields from Mailchimp are valid" do
       {:ok, expected_fields} = MailchimpImporter.parse_mailchimp_attrs(@valid_attrs)
       address = expected_fields[:location][:address]
-      assert address == "1508 Davenport Rd Toronto"
+      assert address == "1508 Davenport Rd"
     end
 
     test "returns an error if the phone number is not a valid Canadian number" do
@@ -69,7 +69,7 @@ defmodule BikeBrigade.Importers.MailchimpImporterTest do
       r = Riders.get_rider_by_email("dispatcher@example.com")
 
       assert r.name == "Morty"
-      assert r.location.address == "1508 Davenport Rd Toronto"
+      assert r.location.address == "1508 Davenport Rd"
     end
 
     test "handles case where phone is invalid" do
