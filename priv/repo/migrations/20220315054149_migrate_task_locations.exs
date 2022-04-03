@@ -133,14 +133,16 @@ defmodule BikeBrigade.Repo.Migrations.MigrateTaskLocations do
     {Enum.reverse(l1), Enum.reverse(l2), Enum.reverse(l3)}
   end
 
-  @chunk_every 20000
+  @chunk_every 65535
   defp chunked_insert_all(table, entries, opts) do
     opts = Keyword.merge([timeout: :infinity], opts)
 
-    Enum.chunk_every(entries, @chunk_every)
+    chunk_size = floor(@chunk_every / Enum.count(hd(entries)))
+
+    Enum.chunk_every(entries, chunk_size)
     |> Enum.map(&BikeBrigade.Repo.insert_all(table, &1, opts))
     |> Enum.reduce({0, []}, fn {count, results}, {total, all_results} ->
-      {total + count, all_results ++ results}
+      {total + count, all_results ++ results || []}
     end)
   end
 end
