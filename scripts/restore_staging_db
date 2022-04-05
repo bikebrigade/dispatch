@@ -15,7 +15,7 @@ fi
 
 echo "Taking staging down"
 wrap_nix_shell "flyctl suspend bike-brigade-staging"
-echo "Droping staging database"
+echo "Dropping staging database"
 wrap_nix_shell "psql -d $STAGING_DATABASE_URL -c 'DROP DATABASE bike_brigade'"
 echo "Restoring production database"
 wrap_nix_shell "pg_dump $PROD_DATABASE_URL --exclude-table-data scheduled_messages -Fc | pg_restore --create --no-acl --no-owner -d $STAGING_DATABASE_URL"
