@@ -78,7 +78,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.ConversationComponent do
       ) do
     media =
       consume_uploaded_entries(socket, :media, fn %{path: path}, %{client_type: content_type} ->
-        # TOOD do some gaurds on content type here
+        # TOOD do some guards on content type here
         MediaStorage.upload_file!(path, content_type)
       end)
 
