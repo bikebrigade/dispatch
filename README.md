@@ -79,7 +79,7 @@ Pushes to the `main` branch (including merged PRs) automatically trigger a produ
 
 
 # Contributors
-This project's history has been squashed as part of open-sourcing, so not all contributirons are reflected in the Git history.
+This project's history has been squashed as part of open-sourcing, so not all contributions are reflected in the Git history.
 
 Please see [CONTRIBUTORS.md](https://github.com/bikebrigade/dispatch/blob/main/CONTRIBUTORS.md) for the list of contributors.
 
