@@ -24,7 +24,7 @@ To start the server & console run:
 scripts/server
 ```
 
-Note: if you want the Elixir language server to be accessible to your editor, you will have to lauch your editor from within the `nix-shell`, or do some [direnv](https://github.com/direnv/direnv/) or [lorri](https://github.com/target/lorri) magic.
+Note: if you want the Elixir language server to be accessible to your editor, you will have to launch your editor from within the `nix-shell`, or do some [direnv](https://github.com/direnv/direnv/) or [lorri](https://github.com/target/lorri) magic.
 
 ### Testing
 
