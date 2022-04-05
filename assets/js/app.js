@@ -266,7 +266,7 @@ Hooks.LeafletMarker = {
 
       if (this.el.dataset.clickEvent) {
         marker = marker.on('click', e => {
-          // TODO: generalize to non-id paramtets
+          // TODO: generalize to non-id parameters
           let payload = null
           if (this.el.dataset.clickValueId) {
             payload = {
