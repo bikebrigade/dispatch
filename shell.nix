@@ -7,7 +7,7 @@ let
     [ git libxml2 openssl zlib curl libiconv docker-compose postgresql_13 ]
     ++ optional stdenv.isLinux inotify-tools ++ optionals stdenv.isDarwin
     (with darwin.apple_sdk.frameworks; [
-      # For file_system on macOS.
+      # For file_system on darwin.
       CoreFoundation
       CoreServices
     ]);
@@ -28,7 +28,7 @@ let
     inputs;
 
   chromeCommand = if stdenv.isDarwin then "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" else "google-chrome";
-  # define shell startup command with special handling for OSX
+  # define shell startup command with special handling for darwin
   baseHooks = ''
     export PS1='\n\[\033[1;32m\][nix-shell:\w]($(git rev-parse --abbrev-ref HEAD))\$\[\033[0m\] '
     export LANG=en_US.UTF-8dd
