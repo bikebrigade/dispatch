@@ -273,7 +273,7 @@ Hooks.LeafletMarker = {
               id: this.el.dataset.clickValueId
             }
           }
-          // We can have targetted events or ones that go to the view itself
+          // We can have targeted events or ones that go to the view itself
           if (this.el.dataset.clickTarget) {
             this.pushEventTo(this.el.dataset.clickTarget, this.el.dataset.clickEvent, payload)
           } else {
