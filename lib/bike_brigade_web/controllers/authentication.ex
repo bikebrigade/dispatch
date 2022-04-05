@@ -58,7 +58,7 @@ defmodule BikeBrigadeWeb.Authentication do
         nil ->
           conn
           |> renew_session()
-          |> put_flash(:erorr, "Logged in as user that does not exist")
+          |> put_flash(:error, "Logged in as user that does not exist")
       end
     else
       conn
