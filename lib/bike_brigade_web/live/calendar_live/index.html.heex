@@ -8,7 +8,7 @@
   </div>
   <%= if @show_buttons do %>
   <div class="z-10 sticky top-0 h-16 sm:h-28 bg-black flex sm:justify-center pl-0.5 w-full gap-5 py-2 text-center  overflow-x-auto">
-    <%= for {date, _opportunties} <- @opportunities  do %>
+    <%= for {date, _opportunities} <- @opportunities  do %>
       <C.button href={"##{date}"} size={:xlarge} color={:black} class="flex-col font-medium">
       <div class="flex flex-row sm:flex-col">
         <div class="pr-2 text-sm sm:text-lg sm:pr-0"><%= Calendar.strftime(date, "%a") %></div>
@@ -24,7 +24,7 @@
   </div>
   <% end %>
   <div class="flex flex-col my-4">
-    <%= for {date, opportunties} <- @opportunities  do %>
+    <%= for {date, opportunities} <- @opportunities  do %>
     <div id={date} class="relative -top-16 sm:-top-28"></div>
     <div class="flex flex-col items-start border-gray-400 sm:pt-3 sm:border-t-2 sm:flex-row">
       <div class="flex-col items-center flex-shrink-0 hidden w-2/12 sm:flex">
@@ -40,7 +40,7 @@
         </div>
       </div>
       <div class="flex flex-col mb-5 space-y-1 border-gray-400 divide-y ml-14">
-        <%= for opportunity <- opportunties do %>
+        <%= for opportunity <- opportunities do %>
           <div class="flex flex-row w-4/5 min-w-full pb-5 space-x-1">
             <!-- don't show images yet
             <div class="hidden md:block">
