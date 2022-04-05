@@ -19,7 +19,7 @@ defmodule BikeBrigadeWeb.CampaignController do
       "rider",
       "rider email",
       "rider phone",
-      "dropof_name",
+      "dropoff_name",
       "dropoff address",
       "dropoff phone",
       "box size",
@@ -74,7 +74,7 @@ defmodule BikeBrigadeWeb.CampaignController do
     headers = [
       "status",
       "delivery notes",
-      "dropof_name",
+      "dropoff_name",
       "dropoff address",
       "partner organization"
     ]
