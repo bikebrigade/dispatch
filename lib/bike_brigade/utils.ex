@@ -17,7 +17,7 @@ defmodule BikeBrigade.Utils do
 
       case config[unquote(keyword)] do
         {:system, var, :optional} -> System.get_env(var)
-        {:system, var} -> System.get_env(var) || raise "Missing enviornment variable #{var}"
+        {:system, var} -> System.get_env(var) || raise "Missing environment variable #{var}"
         val when not is_nil(val) -> val
         nil -> raise "Missing configuration: :bike_brigade, #{__MODULE__}, :#{unquote(keyword)}"
       end
