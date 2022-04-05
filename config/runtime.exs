@@ -1,6 +1,6 @@
 import Config
 
-# Set Endpoint and repo configs if we're in praoduction
+# Set Endpoint and repo configs if we're in production
 case config_env() do
   :dev ->
     if System.get_env("CODESPACES") == "true" do
