@@ -1,7 +1,7 @@
 [![CI](https://github.com/mveytsman/bike-brigade/workflows/CI/badge.svg)](https://github.com/mveytsman/bike-brigade/actions?query=workflow%3ACI)
 # BikeBrigade
 
-## Prerequisities
+## Prerequisites
 1.  [nix](https://nixos.org/download.html)
 1.  [docker](https://www.docker.com/get-started)
 
