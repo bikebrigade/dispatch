@@ -52,7 +52,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
 
           %__MODULE__{active: actives}
 
-        ["capacty", capacity] ->
+        ["capacity", capacity] ->
           capacity =
             @capacities
             |> Enum.filter(&String.starts_with?(&1, capacity))
