@@ -1,6 +1,6 @@
 # This is copypasta from https://github.com/jshmrtn/crontab/blob/master/lib/crontab/cron_expression/ecto_type.ex
 
-# TODO: Replace with simple Code.ensure_compiled as soon as Elixir mininum
+# TODO: Replace with simple Code.ensure_compiled as soon as Elixir minimum
 # version is raised to 1.10.
 
 Code
