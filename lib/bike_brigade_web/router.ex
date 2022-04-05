@@ -8,7 +8,7 @@ defmodule BikeBrigadeWeb.Router do
   alias BikeBrigadeWeb.LiveHooks
 
 
-  # Don't alert expired deliviers to honeybadger
+  # Don't alert expired deliveries to honeybadger
   use Honeybadger.Plug
   def handle_errors(_conn, %{reason: %BikeBrigadeWeb.DeliveryExpiredError{}}), do: :ok
   def handle_errors(conn, err), do: super(conn, err)
