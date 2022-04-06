@@ -1,7 +1,7 @@
 [![CI](https://github.com/mveytsman/bike-brigade/workflows/CI/badge.svg)](https://github.com/mveytsman/bike-brigade/actions?query=workflow%3ACI)
 # BikeBrigade
 
-## Prerequisities
+## Prerequisites
 1.  [nix](https://nixos.org/download.html)
 1.  [docker](https://www.docker.com/get-started)
 
@@ -24,7 +24,7 @@ To start the server & console run:
 scripts/server
 ```
 
-Note: if you want the Elixir language server to be accessible to your editor, you will have to lauch your editor from within the `nix-shell`, or do some [direnv](https://github.com/direnv/direnv/) or [lorri](https://github.com/target/lorri) magic.
+Note: if you want the Elixir language server to be accessible to your editor, you will have to launch your editor from within the `nix-shell`, or do some [direnv](https://github.com/direnv/direnv/) or [lorri](https://github.com/target/lorri) magic.
 
 ### Testing
 
@@ -79,7 +79,7 @@ Pushes to the `main` branch (including merged PRs) automatically trigger a produ
 
 
 # Contributors
-This project's history has been squashed as part of open-sourcing, so not all contributirons are reflected in the Git history.
+This project's history has been squashed as part of open-sourcing, so not all contributions are reflected in the Git history.
 
 Please see [CONTRIBUTORS.md](https://github.com/bikebrigade/dispatch/blob/main/CONTRIBUTORS.md) for the list of contributors.
 

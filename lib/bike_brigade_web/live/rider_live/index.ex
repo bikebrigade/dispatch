@@ -52,7 +52,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
 
           %__MODULE__{active: actives}
 
-        ["capacty", capacity] ->
+        ["capacity", capacity] ->
           capacity =
             @capacities
             |> Enum.filter(&String.starts_with?(&1, capacity))
@@ -359,10 +359,10 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     socket
     |> assign(:rider_search, rider_search)
     |> assign(:search_results, search_results)
-    |> maybe_fectch_location()
+    |> maybe_fetch_location()
   end
 
-  defp maybe_fectch_location(socket) do
+  defp maybe_fetch_location(socket) do
     # Only fetch locations when we're in map mode
     if socket.assigns.mode == :map do
       all_locations = RiderSearch.fetch_locations(socket.assigns.rider_search)

@@ -1,6 +1,6 @@
 import Config
 
-# Set Endpoint and repo configs if we're in praoduction
+# Set Endpoint and repo configs if we're in production
 case config_env() do
   :dev ->
     if System.get_env("CODESPACES") == "true" do
@@ -68,11 +68,11 @@ case config_env() do
           url: [host: "dispatch.bikebrigade.ca", port: 80]
 
         config :bike_brigade, BikeBrigade.Messaging.Slack.Operations,
-          chanel_id: "C016VGHETS4",
+          channel_id: "C016VGHETS4",
           channel_name: "software"
 
         config :bike_brigade, BikeBrigade.Messaging.Slack.RiderSms,
-          chanel_id: "C01QU0YVACW",
+          channel_id: "C01QU0YVACW",
           channel_name: "dispatch"
 
         # Honeybadger
@@ -115,11 +115,11 @@ case config_env() do
         config :bike_brigade, :sms_service, block_non_dispatch_messages: true
 
         config :bike_brigade, BikeBrigade.Messaging.Slack.Operations,
-          chanel_id: "C022R3HU9B9",
+          channel_id: "C022R3HU9B9",
           channel_name: "api-playground"
 
         config :bike_brigade, BikeBrigade.Messaging.Slack.RiderSms,
-          chanel_id: "C022R3HU9B9",
+          channel_id: "C022R3HU9B9",
           channel_name: "api-playground"
     end
 

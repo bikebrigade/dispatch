@@ -450,7 +450,7 @@ defmodule BikeBrigade.Delivery do
 
   def campaign_rider_token(%Campaign{} = campaign, %Rider{} = rider) do
     # TODO
-    # this is very innefficient to look up each time, which we could cache these
+    # this is very inefficient to look up each time, which we could cache these
     query =
       from cr in CampaignRider,
         where: cr.rider_id == ^rider.id and cr.campaign_id == ^campaign.id

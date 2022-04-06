@@ -28,7 +28,7 @@ defmodule BikeBrigade.Application do
         # Maintain state of text-based authentication codes
         BikeBrigade.AuthenticationMessenger,
 
-        # Send scheduled campaign messgaes
+        # Send scheduled campaign messages
         BikeBrigade.ScheduledMessenger
       ]
       |> BikeBrigade.Importers.Runner.append_child_spec()
