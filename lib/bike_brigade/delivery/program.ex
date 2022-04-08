@@ -43,8 +43,6 @@ defmodule BikeBrigade.Delivery.Program do
     has_one :program_latest_campaign, ProgramLatestCampaign
     has_one :latest_campaign, through: [:program_latest_campaign, :campaign]
 
-    has_one :stats, CampaignStats, where: [campaign_id: nil] # where clause gives us the rollup
-
     belongs_to :lead, BikeBrigade.Accounts.User, on_replace: :nilify
     has_many :campaigns, Campaign, preload_order: [desc: :delivery_start]
 
