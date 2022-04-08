@@ -235,6 +235,10 @@ defmodule BikeBrigade.Delivery do
   and tasks are pre-loaded with the assigned rider, and task_items/items.
   """
   def campaign_riders_and_tasks(%Campaign{} = campaign) do
+    campaign =
+      campaign
+      |> Repo.preload(:location)
+
     all_tasks =
       from(t in Task,
         as: :task,
