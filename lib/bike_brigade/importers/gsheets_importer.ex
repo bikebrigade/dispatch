@@ -48,7 +48,13 @@ defmodule BikeBrigade.Importers.GSheetsImporter do
 
     if covid_app == "Yes, I agree" do
       notes = List.first(rst) || ""
-      boxes = String.to_integer(boxes)
+
+      boxes =
+        case Integer.parse(boxes) do
+          {boxes, _} -> boxes
+          _ -> 0
+        end
+
       enter_building = entering == "Yes"
 
       IO.puts("#{email}, #{entering}, #{enter_building}")
