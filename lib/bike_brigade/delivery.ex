@@ -533,6 +533,16 @@ defmodule BikeBrigade.Delivery do
         as: :program,
         order_by: [desc: p.active, asc: p.name]
 
+    query =
+      if opts[:with_campaign_count] do
+        from p in query,
+          left_join: c in assoc(p, :campaigns),
+          group_by: p.id,
+          select_merge: %{campaign_count: count(c)}
+      else
+        query
+      end
+
     Repo.all(query)
     |> Repo.preload(preload)
   end

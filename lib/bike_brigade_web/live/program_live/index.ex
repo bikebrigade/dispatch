@@ -63,6 +63,6 @@ defmodule BikeBrigadeWeb.ProgramLive.Index do
   end
 
   defp list_programs do
-    Delivery.list_programs(preload: [:lead, :latest_campaign, :stats])
+    Delivery.list_programs(with_campaign_count: true, preload: [:lead, :latest_campaign])
   end
 end
