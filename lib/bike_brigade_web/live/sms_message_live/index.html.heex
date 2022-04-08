@@ -107,9 +107,9 @@
     <%= for task <- campaign.tasks do %>
       <div class="p-2 mb-2 bg-white border-b border-gray-200 shadow sm:rounded-lg">
         <div><%= task.dropoff_name %></div>
-        <div><%= task.dropoff_address %></div>
+        <div><%= task.dropoff_location.address %></div>
         <div><%= task.dropoff_phone %></div>
-        <div><%= task.request_type %></div>
+        <div><%= request_type(task) %></div>
 
         <div class="flex flex-wrap p-3 -mx-2">
           <%= for delivery_status <- ~W(pending picked_up completed failed) do %>

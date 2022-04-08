@@ -50,7 +50,7 @@ defmodule BikeBrigadeWeb.CampaignHelpers do
     if query[:search] && query[:search] != "" do
       filter_map(tasks, fn task ->
         task.dropoff_name =~ ~r/#{Regex.escape(query[:search])}/i or
-          task.dropoff_address =~ ~r/#{Regex.escape(query[:search])}/i
+          task.dropoff_location.address =~ ~r/#{Regex.escape(query[:search])}/i
       end)
     else
       tasks
@@ -111,6 +111,7 @@ defmodule BikeBrigadeWeb.CampaignHelpers do
   end
 
   def request_type(task) do
+
     if task.task_items != [] do
       task.task_items
       |> Enum.map(&print_item/1)

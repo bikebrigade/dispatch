@@ -289,7 +289,7 @@ defmodule BikeBrigade.Delivery do
         preload: [tasks: t]
 
     Repo.all(query)
-    |> Repo.preload(:program)
+    |> Repo.preload([:program, tasks: [:dropoff_location, task_items: :item]])
   end
 
   def campaigns_per_rider(rider) do
