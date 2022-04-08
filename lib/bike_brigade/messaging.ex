@@ -190,7 +190,8 @@ defmodule BikeBrigade.Messaging do
 
   @doc "Send a message and save it in the database"
   def send_sms_message(%SmsMessage{} = sms_message, attrs \\ %{}) do
-    sms_message = sms_message |> Repo.preload(:rider)
+    # TODO this preload is because we update rider later, would be nice to just have a special changeset for this bit so we dont need to preload
+    sms_message = sms_message |> Repo.preload(rider: [:location])
 
     Ecto.Multi.new()
     |> maybe_send_initial_message(sms_message.rider)
