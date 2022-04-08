@@ -374,7 +374,7 @@ defmodule BikeBrigade.Delivery do
   end
 
   def send_campaign_messages(%Campaign{} = campaign) do
-    campaign = Repo.preload(campaign, [:instructions_template, :program])
+    campaign = Repo.preload(campaign, [:location, :instructions_template, :program])
     {riders, _} = campaign_riders_and_tasks(campaign)
 
     msgs =
