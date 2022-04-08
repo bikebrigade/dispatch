@@ -65,7 +65,7 @@
                   <div class="font-medium">(<%= opportunity.location.neighborhood.name %>)</div>
                 </div>
                 <% else %>
-                 <div class="font-medium"><%= opportunity.location.neighborhood %></div>
+                 <div class="font-medium"><%= opportunity.location.neighborhood.name %></div>
                  <% end %>
               </div>
               <%= if opportunity.program.campaign_blurb  do %>
