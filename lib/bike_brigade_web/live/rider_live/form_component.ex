@@ -2,7 +2,7 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
   use BikeBrigadeWeb, :live_component
 
   alias BikeBrigade.Repo
-  alias BikeBrigade.Location
+  alias BikeBrigade.Locations.Location
   alias BikeBrigade.Riders
   alias BikeBrigade.Riders.Rider
   alias BikeBrigadeWeb.Components.LocationForm
@@ -26,7 +26,7 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
       field :tags, {:array, :string}
 
       embeds_one :flags, Rider.Flags, on_replace: :update
-      embeds_one :location_struct, Location, on_replace: :update
+      belongs_to :location, Location, on_replace: :update
     end
 
     def changeset(form, attrs \\ %{}) do
@@ -44,7 +44,7 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
         :tags
       ])
       |> cast_embed(:flags)
-      |> cast_embed(:location_struct, with: &Location.geocoding_changeset/2)
+      |> cast_assoc(:location, with: &Location.geocoding_changeset/2)
       |> validate_required([
         :name,
         :email,
@@ -52,7 +52,7 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
         :availability,
         :capacity,
         :max_distance,
-        :location_struct
+        :location
       ])
     end
 
@@ -68,7 +68,7 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
 
     def to_params(%__MODULE__{} = form) do
       Map.from_struct(form)
-      |> Map.update!(:location_struct, &Map.from_struct/1)
+      |> Map.update!(:location, &Map.from_struct/1)
       |> Map.update!(:flags, &Map.from_struct/1)
     end
 

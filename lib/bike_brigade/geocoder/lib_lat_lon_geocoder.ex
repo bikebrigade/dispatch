@@ -2,7 +2,6 @@ defmodule BikeBrigade.Geocoder.LibLatLonGeocoder do
   @behaviour BikeBrigade.Geocoder
 
   alias LibLatLon.Providers.GoogleMaps
-  alias BikeBrigade.Location
 
   def lookup(_, search) do
     case GoogleMaps.lookup(search) do
@@ -19,14 +18,14 @@ defmodule BikeBrigade.Geocoder.LibLatLonGeocoder do
          }
        }} ->
         {:ok,
-         %Location{
+         %{
            address: "#{street_number} #{route}",
            city: city,
            postal: postal,
            province: province,
-           country: country
-         }
-         |> Location.set_coords(lat, lon)}
+           country: country,
+           coords: %Geo.Point{coordinates: {lon, lat}}
+         }}
 
       {:ok, _} ->
         {:error, "unable to geolocate address"}

@@ -4,7 +4,7 @@ defmodule BikeBrigade.Riders.Rider do
   import Ecto.Query, warn: false
   import EctoEnum
 
-  alias BikeBrigade.Location
+  alias BikeBrigade.Locations.Location
   alias BikeBrigade.Repo
   alias BikeBrigade.Riders.{Tag, RidersTag, RiderLatestCampaign}
   alias BikeBrigade.Delivery.{Task, Campaign, CampaignRider}
@@ -40,37 +40,25 @@ defmodule BikeBrigade.Riders.Rider do
   end
 
   schema "riders" do
-    # remove
-    field :address, :string
-    # remove
-    field :address2, :string
     field :availability, :map
     field :capacity, CapacityEnum
-    # remove
-    field :city, :string
-    # remove
-    field :country, :string
-    # remove
+
     field :deliveries_completed, :integer
     field :email, :string
-    field :location, Geo.PostGIS.Geometry
     field :mailchimp_id, :string
     field :mailchimp_status, MailchimpStatusEnum
     field :max_distance, :integer
     field :name, :string
-    field :onfleet_id, :string
-    field :onfleet_account_status, OnfleetAccountStatusEnum
     field :phone, BikeBrigade.EctoPhoneNumber.Canadian
     field :text_based_itinerary, :boolean, default: false
-    # remove
-    field :postal, :string
     field :pronouns, :string
-    # remove
-    field :province, :string
     field :signed_up_on, :utc_datetime
     field :last_safety_check, :date
-    embeds_one :location_struct, Location, on_replace: :delete
+    field :internal_notes, :string
 
+    belongs_to :location, Location, on_replace: :update
+
+    # TODO look into removing these virtuals
     field :distance, :integer, virtual: true
     field :remaining_distance, :integer, virtual: true
     field :task_count, :integer, virtual: true
@@ -79,10 +67,7 @@ defmodule BikeBrigade.Riders.Rider do
     field :task_enter_building, :boolean, virtual: true
     field :delivery_url_token, :string, virtual: true
     field :pickup_window, :string, virtual: true
-
-
-    field :internal_notes, :string
-
+    
     has_many :assigned_tasks, Task, foreign_key: :assigned_rider_id
     has_many :campaign_riders, CampaignRider
 
@@ -113,16 +98,6 @@ defmodule BikeBrigade.Riders.Rider do
     |> cast(attrs, [
       :name,
       :email,
-      :address,
-      :address2,
-      :city,
-      :deliveries_completed,
-      :location,
-      :province,
-      :postal,
-      :country,
-      :onfleet_id,
-      :onfleet_account_status,
       :phone,
       :pronouns,
       :availability,
@@ -136,7 +111,7 @@ defmodule BikeBrigade.Riders.Rider do
       :text_based_itinerary
     ])
     |> cast_embed(:flags)
-    |> cast_embed(:location_struct)
+    |> cast_assoc(:location)
     |> update_change(:email, &String.downcase/1)
     |> validate_required([
       :name,
@@ -145,7 +120,7 @@ defmodule BikeBrigade.Riders.Rider do
       :availability,
       :capacity,
       :max_distance,
-      :location_struct
+      :location
     ])
     |> validate_change(:email, fn :email, email ->
       if String.contains?(email, "@") do

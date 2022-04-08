@@ -1,6 +1,4 @@
 defmodule BikeBrigade.Repo.Seeds.Toronto do
-  alias BikeBrigade.Location
-
   defmodule LoadAddresses do
     alias NimbleCSV.RFC4180, as: CSV
 
@@ -24,18 +22,15 @@ defmodule BikeBrigade.Repo.Seeds.Toronto do
   @before_compile LoadAddresses
 
   def random_location do
-    [address, postal, city, lat, lng] = Enum.random(addresses())
+    [address, postal, city, lat, lon] = Enum.random(addresses())
 
-    location = %Location{
+    %{
       address: address,
       postal: postal,
       city: city,
       country: "Canada",
-      province: "Ontario"
+      province: "Ontario",
+      coords: %Geo.Point{coordinates: {lon, lat}}
     }
-    |> Location.set_coords(lat, lng)
-
-    %{location | neighborhood: BikeBrigade.Geocoder.get_neighborhood(location.coords)}
-
   end
 end

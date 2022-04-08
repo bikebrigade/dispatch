@@ -20,6 +20,7 @@ defmodule BikeBrigade.Repo.Migrations.CreateRiderStatsView do
   """
 
   def change do
-    execute @view, "drop view rider_stats;"
+    # removing since we load these views later
+    # execute @view, "drop view rider_stats;"
   end
 end

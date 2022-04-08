@@ -6,9 +6,9 @@ defmodule BikeBrigade.UtilsTest do
   alias BikeBrigade.Riders.Rider
 
   test "replace_if_updated/2" do
-    task = %Task{id: 123, contact_name: "foo"}
-    task_updated = %Task{id: 123, contact_name: "bar"}
-    task2 = %Task{id: 345, contact_name: "baz"}
+    task = %Task{id: 123, dropoff_name: "foo"}
+    task_updated = %Task{id: 123, dropoff_name: "bar"}
+    task2 = %Task{id: 345, dropoff_name: "baz"}
     rider = %Rider{id: 123, name: "foo"}
 
     # Update if the id is the same

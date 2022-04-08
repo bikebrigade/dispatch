@@ -32,6 +32,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   end
 
   @campaign_preload [
+    :location,
     :scheduled_message,
     :instructions_template,
     :latest_message,

@@ -135,7 +135,8 @@ defmodule BikeBrigade.Riders.RiderSearch do
     |> exclude(:select)
     |> exclude(:limit)
     |> exclude(:offset)
-    |> select([r], {r.id, r.name, r.location_struct})
+    |> join(:inner, [rider: r], l in assoc(r, :location), as: :location)
+    |> select([rider: r, location: l], {r.id, r.name, l})
     |> Repo.all()
   end
 

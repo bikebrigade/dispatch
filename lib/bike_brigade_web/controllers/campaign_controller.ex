@@ -35,20 +35,8 @@ defmodule BikeBrigadeWeb.CampaignController do
             {"", "", ""}
           end
 
-        [
-          i,
-          task.delivery_status,
-          task.delivery_status_notes,
-          rider_name,
-          rider_email,
-          rider_phone,
-          task.dropoff_name,
-          "#{task.dropoff_address} #{task.dropoff_address2} #{task.dropoff_city} #{task.dropoff_postal}",
-          task.dropoff_phone,
-          CampaignHelpers.request_type(task),
-          task.rider_notes
-        ]
-      end
+      [i, task.delivery_status, task.delivery_status_notes, rider_name, rider_email, rider_phone, task.dropoff_name, task.dropoff_location, task.dropoff_phone, CampaignHelpers.request_type(task), task.rider_notes]
+    end
 
     # TODO: use streams?
 
@@ -76,19 +64,12 @@ defmodule BikeBrigadeWeb.CampaignController do
       "delivery notes",
       "dropoff_name",
       "dropoff address",
-      "partner organization"
+      "partner tracking id",
     ]
 
-    rows =
-      for task <- tasks do
-        [
-          task.delivery_status,
-          task.delivery_status_notes,
-          task.dropoff_name,
-          "#{task.dropoff_address} #{task.dropoff_address2} #{task.dropoff_city} #{task.dropoff_postal}",
-          task.organization_partner
-        ]
-      end
+    rows =  for task <- tasks do
+      [task.delivery_status, task.delivery_status_notes, task.dropoff_name, task.dropoff_location, task.partner_tracking_id]
+    end
 
     # TODO: use streams?
 

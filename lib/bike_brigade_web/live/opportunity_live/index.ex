@@ -34,7 +34,7 @@ defmodule BikeBrigadeWeb.OpportunityLive.Index do
   defp apply_action(socket, :edit, %{"id" => id}) do
     socket
     |> assign(:page_title, "Edit Opportunity")
-    |> assign(:opportunity, Delivery.get_opportunity!(id))
+    |> assign(:opportunity, Delivery.get_opportunity(id))
   end
 
   defp apply_action(socket, :new, _params) do
@@ -45,8 +45,8 @@ defmodule BikeBrigadeWeb.OpportunityLive.Index do
 
   @impl Phoenix.LiveView
   def handle_event("delete", %{"id" => id}, socket) do
-    campaign = Delivery.get_opportunity!(id)
-    {:ok, _} = Delivery.delete_opportunity(campaign)
+    opportunity = Delivery.get_opportunity(id)
+    {:ok, _} = Delivery.delete_opportunity(opportunity)
 
     {:noreply, socket}
   end
@@ -107,7 +107,7 @@ defmodule BikeBrigadeWeb.OpportunityLive.Index do
 
     # TODO: inefficient but we want to get broadcasts here
     for id <- selected do
-      Delivery.get_opportunity!(id)
+      Delivery.get_opportunity(id)
       |> Delivery.update_opportunity(update)
     end
 
@@ -172,15 +172,10 @@ defmodule BikeBrigadeWeb.OpportunityLive.Index do
       Delivery.list_opportunities(
         sort_field: socket.assigns.sort_field,
         sort_order: socket.assigns.sort_order,
-        preload: [program: [:lead]]
+        preload: [:location, program: [:lead]]
       )
 
     assign(socket, :opportunities, opportunities)
-  end
-
-  defp just_time(datetime) do
-    LocalizedDateTime.localize(datetime)
-    |> Calendar.strftime("%-I:%M%p")
   end
 
   defp check_mark(assigns) do
@@ -191,16 +186,6 @@ defmodule BikeBrigadeWeb.OpportunityLive.Index do
       <Heroicons.Outline.x_circle class="flex-shrink-0 w-6 h-6 mx-1 text-red-500 justify-self-end" />
     <% end %>
     """
-  end
-
-  # TODO: DRY this
-  defp program_options do
-    programs =
-      for p <- Delivery.list_programs() do
-        {p.name, p.id}
-      end
-
-    [{"", nil} | programs]
   end
 
   defp program_lead_name(opportunity) do

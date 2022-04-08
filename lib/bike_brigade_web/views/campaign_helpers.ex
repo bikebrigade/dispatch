@@ -5,7 +5,7 @@ defmodule BikeBrigadeWeb.CampaignHelpers do
   alias BikeBrigade.LocalizedDateTime
 
   def task_assigned?(task) do
-    task.assigned_rider != nil || task.onfleet_pickup_id != nil
+    task.assigned_rider != nil
   end
 
   def rider_available?(rider) do
@@ -82,19 +82,19 @@ defmodule BikeBrigadeWeb.CampaignHelpers do
   def has_notes?(%Rider{task_notes: nil}), do: false
   def has_notes?(%Rider{task_notes: notes}), do: String.trim(notes) != ""
 
+  def pickup_window(campaign) do
+    # TODO bad place for the helper
+    BikeBrigadeWeb.LiveHelpers.time_interval(campaign.delivery_start, campaign.delivery_end)
+
+  end
   def pickup_window(campaign, rider) do
-    cond do
-      rider.pickup_window ->
-        rider.pickup_window
-
-      # TODO bad place for the helper!
-      campaign.delivery_start ->
-        BikeBrigadeWeb.LiveHelpers.time_interval(campaign.delivery_start, campaign.delivery_end)
-
-      true ->
-        campaign.pickup_window
+    if rider.pickup_window do
+      rider.pickup_window
+    else
+      pickup_window(campaign)
     end
   end
+
 
   def name(campaign) do
     campaign = campaign
@@ -106,13 +106,8 @@ defmodule BikeBrigadeWeb.CampaignHelpers do
     end
   end
 
-  # TODO: this is no-longer needed as all campaigns have delivery_start now
   def campaign_date(campaign) do
-    if campaign.delivery_start do
-      LocalizedDateTime.to_date(campaign.delivery_start)
-    else
-      campaign.delivery_date
-    end
+    LocalizedDateTime.to_date(campaign.delivery_start)
   end
 
   def request_type(task) do
@@ -121,7 +116,7 @@ defmodule BikeBrigadeWeb.CampaignHelpers do
       |> Enum.map(&print_item/1)
       |> Enum.join(", ")
     else
-      task.request_type
+      "None"
     end
   end
 

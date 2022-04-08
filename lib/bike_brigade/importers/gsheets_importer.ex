@@ -48,7 +48,13 @@ defmodule BikeBrigade.Importers.GSheetsImporter do
 
     if covid_app == "Yes, I agree" do
       notes = List.first(rst) || ""
-      boxes = String.to_integer(boxes)
+
+      boxes =
+        case Integer.parse(boxes) do
+          {boxes, _} -> boxes
+          _ -> 0
+        end
+
       enter_building = entering == "Yes"
 
       IO.puts("#{email}, #{entering}, #{enter_building}")
@@ -115,7 +121,7 @@ defmodule BikeBrigade.Importers.GSheetsImporter do
       end
       |> Enum.filter(&(&1 != nil))
 
-    Delivery.update_campaign(campaign, %{tasks: tasks})
+    Delivery.update_campaign(campaign, %{tasks: tasks}, geocode_tasks: true)
   end
 
   def process_delivery_row(campaign, row) do
@@ -127,15 +133,11 @@ defmodule BikeBrigade.Importers.GSheetsImporter do
         phone,
         notes,
         buzzer,
-        partner,
+        partner_tracking_id,
         request_type | _
       ] = row
 
       campaign = campaign |> Repo.preload(program: [:items])
-
-      pickup_name = "Max Veytsman"
-      pickup_email = "info@bikebrigade.ca"
-      pickup_phone = "6478690658"
 
       notes =
         if buzzer != "" do
@@ -146,29 +148,19 @@ defmodule BikeBrigade.Importers.GSheetsImporter do
 
       phone = trim_phone(phone)
 
+      {count, item_id} = process_request_type(request_type, campaign.program.items)
+
       %{
-        organization_name: "Foodshare",
-        contact_email: pickup_email,
-        contact_name: pickup_name,
-        contact_phone: pickup_phone,
-        delivery_date: ~D[2020-07-28],
         delivery_window: "5-7",
-        size: 4,
         submitted_on: NaiveDateTime.local_now(),
         dropoff_name: name,
         dropoff_phone: phone,
-        dropoff_address: street,
-        dropoff_postal: postal,
+        dropoff_location: %{address: street, postal: postal},
         rider_notes: notes,
         delivery_status: :pending,
-        organization_partner: partner
+        partner_tracking_id: partner_tracking_id,
+        task_items: [%{count: count, item_id: item_id}]
       }
-      |> Map.merge(
-        case process_request_type(request_type, campaign.program.items) do
-          {count, item_id} -> %{task_items: [%{count: count, item_id: item_id}]}
-          request_type when is_binary(request_type) -> %{request_type: request_type}
-        end
-      )
     end
   end
 
@@ -181,16 +173,12 @@ defmodule BikeBrigade.Importers.GSheetsImporter do
         phone,
         notes,
         buzzer,
-        partner,
+        partner_tracking_id,
         regular,
         vegetarian | _
       ] = row
 
       campaign = campaign |> Repo.preload(program: [:items])
-
-      pickup_name = "Max Veytsman"
-      pickup_email = "info@bikebrigade.ca"
-      pickup_phone = "6478690658"
 
       notes =
         if buzzer != "" do
@@ -201,29 +189,24 @@ defmodule BikeBrigade.Importers.GSheetsImporter do
 
       phone = trim_phone(phone)
 
-      task_items = for {count, id} <- [
-            process_request_type("#{regular} regular", campaign.program.items),
-            process_request_type("#{vegetarian} vegetarian", campaign.program.items)
-          ],
-          count > 0 do
-            %{count: count, item_id: id}
-      end
+      task_items =
+        for {count, id} <- [
+              process_request_type("#{regular} regular", campaign.program.items),
+              process_request_type("#{vegetarian} vegetarian", campaign.program.items)
+            ],
+            count > 0 do
+          %{count: count, item_id: id}
+        end
+
       %{
-        organization_name: "Foodshare",
-        contact_email: pickup_email,
-        contact_name: pickup_name,
-        contact_phone: pickup_phone,
-        delivery_date: ~D[2020-07-28],
         delivery_window: "5-7",
-        size: 4,
         submitted_on: NaiveDateTime.local_now(),
         dropoff_name: name,
         dropoff_phone: phone,
-        dropoff_address: street,
-        dropoff_postal: postal,
+        dropoff_location: %{address: street, postal: postal},
         rider_notes: notes,
         delivery_status: :pending,
-        organization_partner: partner,
+        partner_tracking_id: partner_tracking_id,
         task_items: task_items
       }
     end

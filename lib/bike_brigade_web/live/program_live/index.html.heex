@@ -54,12 +54,12 @@
     <% end %>
   </:td>
   <:td let={program}>
-    <%= program.stats.campaign_count %>
+    <%= program.campaign_count %>
   </:td>
   <:td let={program}>
     <%= if latest_campaign = program.latest_campaign do %>
       <%= live_redirect to: Routes.campaign_show_path(@socket, :show, latest_campaign), class: "inline-flex hover:bg-indigo-100" do %>
-        <C.date date={latest_campaign.delivery_start || latest_campaign.delivery_date} />
+        <C.date date={latest_campaign.delivery_start} />
       <% end %>
     <% end %>
   </:td>
