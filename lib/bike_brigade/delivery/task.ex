@@ -56,12 +56,13 @@ defmodule BikeBrigade.Delivery.Task do
     timestamps()
   end
 
-  def changeset_for_campaign(campaign_changeset) do
+  def changeset_for_campaign(campaign_changeset, opts \\ []) do
     fn task, attrs ->
-      with {_, pickup_location} <- fetch_field(campaign_changeset, :location) do
-        attrs = Map.merge(%{pickup_location: pickup_location}, attrs)
-
-        changeset(task, attrs)
+      with {_, campaign_location} <- fetch_field(campaign_changeset, :location) do
+        task
+        |> change()
+        |> put_assoc(:pickup_location, campaign_location)
+        |> changeset(attrs, opts)
       end
     end
   end

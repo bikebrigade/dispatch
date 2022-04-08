@@ -115,7 +115,7 @@ defmodule BikeBrigade.Importers.GSheetsImporter do
       end
       |> Enum.filter(&(&1 != nil))
 
-    Delivery.update_campaign(campaign, %{tasks: tasks})
+    Delivery.update_campaign(campaign, %{tasks: tasks}, geocode_tasks: true)
   end
 
   def process_delivery_row(campaign, row) do
@@ -149,8 +149,7 @@ defmodule BikeBrigade.Importers.GSheetsImporter do
         submitted_on: NaiveDateTime.local_now(),
         dropoff_name: name,
         dropoff_phone: phone,
-        dropoff_address: street,
-        dropoff_postal: postal,
+        dropoff_location: %{address: street, postal: postal},
         rider_notes: notes,
         delivery_status: :pending,
         partner_tracking_id: partner_tracking_id,
@@ -198,8 +197,7 @@ defmodule BikeBrigade.Importers.GSheetsImporter do
         submitted_on: NaiveDateTime.local_now(),
         dropoff_name: name,
         dropoff_phone: phone,
-        dropoff_address: street,
-        dropoff_postal: postal,
+        dropoff_location: %{address: street, postal: postal},
         rider_notes: notes,
         delivery_status: :pending,
         partner_tracking_id: partner_tracking_id,

@@ -52,7 +52,7 @@ defmodule BikeBrigade.Delivery do
 
     from(t in Task,
       as: :task,
-      where: t.id == ^id,
+      where: t.id == ^id
     )
     |> task_load_location()
     |> Repo.one()
@@ -63,7 +63,10 @@ defmodule BikeBrigade.Delivery do
     query
     |> join(:inner, [task: t], pl in assoc(t, :pickup_location), as: :pickup_location)
     |> join(:inner, [task: t], dl in assoc(t, :dropoff_location), as: :dropoff_location)
-    |> preload([pickup_location: pl, dropoff_location: dl], [pickup_location: pl, dropoff_location: dl])
+    |> preload([pickup_location: pl, dropoff_location: dl],
+      pickup_location: pl,
+      dropoff_location: dl
+    )
     |> select_merge([pickup_location: pl, dropoff_location: dl], %{
       delivery_distance: st_distance(pl.coords, dl.coords)
     })
@@ -351,9 +354,9 @@ defmodule BikeBrigade.Delivery do
     Campaign.changeset(campaign, attrs)
   end
 
-  def update_campaign(campaign, attrs) do
+  def update_campaign(campaign, attrs, opts \\ []) do
     campaign
-    |> Campaign.changeset(attrs)
+    |> Campaign.changeset(attrs, opts)
     |> Repo.update()
     |> broadcast(:campaign_updated)
   end

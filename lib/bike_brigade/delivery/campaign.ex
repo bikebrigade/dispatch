@@ -25,7 +25,7 @@ defmodule BikeBrigade.Delivery.Campaign do
   ]
 
   @embedded_fields [
-    :location,
+    :location
   ]
 
   schema "campaigns" do
@@ -59,14 +59,19 @@ defmodule BikeBrigade.Delivery.Campaign do
     timestamps()
   end
 
-  def changeset(struct, params \\ %{}) do
+  def changeset(struct, params \\ %{}, opts \\ []) do
     changeset =
       struct
       |> cast(params, @fields)
       |> cast_assoc(:location)
 
+    task_opts = [geocode: Keyword.get(opts, :geocode_tasks, false)]
+
     changeset
-    |> cast_assoc(:tasks, with: Task.changeset_for_campaign(changeset), required: false)
+    |> cast_assoc(:tasks,
+      with: Task.changeset_for_campaign(changeset, task_opts),
+      required: false
+    )
     |> cast_assoc(:riders, required: false)
     |> cast_assoc(:instructions_template, required: false)
     |> cast_assoc(:scheduled_message, required: false)
