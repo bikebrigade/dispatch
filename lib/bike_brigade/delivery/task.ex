@@ -20,6 +20,7 @@ defmodule BikeBrigade.Delivery.Task do
 
   @fields [
     :dropoff_name,
+    :dropoff_phone,
     :delivery_status,
     :delivery_status_notes,
     :partner_tracking_id,
