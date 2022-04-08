@@ -173,12 +173,16 @@ defmodule BikeBrigade.Delivery do
         join: c in assoc(cr, :campaign),
         join: r in assoc(cr, :rider),
         left_join: t in assoc(c, :tasks),
+        on: t.assigned_rider_id == r.id,
+        # TODO make this join dor distance some kind of function
         left_join: pl in assoc(t, :pickup_location),
         left_join: dl in assoc(t, :dropoff_location),
-        on: t.assigned_rider_id == r.id,
         order_by: st_distance(pl.coords, dl.coords),
         where: cr.token == ^token,
-        preload: [campaign: [:program], rider: {r, assigned_tasks: {t, [task_items: :item]}}]
+        preload: [
+          campaign: [:program, :location],
+          rider: {r, [:location, assigned_tasks: {t, [:dropoff_location, task_items: :item]}]}
+        ]
 
     Repo.one!(query)
   end
