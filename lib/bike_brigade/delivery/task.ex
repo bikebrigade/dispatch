@@ -91,6 +91,7 @@ defmodule BikeBrigade.Delivery.Task do
   end
 
   def fields_for(task) do
+    # TODO the caller has to preload these :(
     embedded =
       for k <- @embedded_fields, into: %{} do
         value =

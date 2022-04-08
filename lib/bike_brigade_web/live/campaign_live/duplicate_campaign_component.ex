@@ -143,7 +143,7 @@ defmodule BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent do
   end
 
   defp copy_delivery_tasks(old_campaign, new_campaign) do
-    old_campaign = old_campaign |> Repo.preload(:tasks)
+    old_campaign = old_campaign |> Repo.preload(tasks: [:pickup_location, :dropoff_location])
 
     for old_task <- old_campaign.tasks do
       task_params =
