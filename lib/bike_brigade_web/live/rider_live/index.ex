@@ -6,6 +6,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   alias BikeBrigade.Riders
   alias BikeBrigade.Riders.RiderSearch
   alias BikeBrigade.LocalizedDateTime
+  alias BikeBrigade.Locations
 
   defmodule SortOptions do
     # This is a streamlined version of the one from leaderboard.ex
@@ -525,7 +526,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
             <.show_phone_if_filtered phone={rider.phone} filters={@rider_search.filters} />
           </:td>
           <:td let={rider}>
-            <%= rider.location.neighborhood.name %>
+            <%= Locations.neighborhood(rider.location) %>
           </:td>
           <:td let={rider}>
             <ul class="flex">

@@ -4,6 +4,7 @@ defmodule BikeBrigadeWeb.CalendarLive.Index do
   alias BikeBrigade.Utils
   alias BikeBrigade.Delivery
   alias BikeBrigade.LocalizedDateTime
+  alias BikeBrigade.Locations
 
   alias BikeBrigade.GoogleMaps
 

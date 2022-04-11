@@ -62,10 +62,10 @@
                   <%= link to: GoogleMaps.open_map_url(opportunity.location), target: "_blank", class: "underline hover:text-gray-300 mr-1" do %>
                     <%= opportunity.location.address %>
                   <% end %>
-                  <div class="font-medium">(<%= opportunity.location.neighborhood.name %>)</div>
+                  <div class="font-medium">(<%= Locations.neighborhood(opportunity.location) %>)</div>
                 </div>
                 <% else %>
-                 <div class="font-medium"><%= opportunity.location.neighborhood.name %></div>
+                 <div class="font-medium"><%= Locations.neighborhood(opportunity.location) %></div>
                  <% end %>
               </div>
               <%= if opportunity.program.campaign_blurb  do %>
