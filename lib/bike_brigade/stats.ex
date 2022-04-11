@@ -1,5 +1,6 @@
 defmodule BikeBrigade.Stats do
   import Ecto.Query, warn: false
+  import Geo.PostGIS, only: [st_distance: 2]
 
   alias BikeBrigade.Repo
   alias BikeBrigade.Riders.Rider
@@ -172,7 +173,14 @@ defmodule BikeBrigade.Stats do
       join: t in assoc(r, :assigned_tasks),
       join: c in assoc(t, :campaign),
       as: :campaign,
-      select: %{rider_id: r.id, campaign_id: c.id, task_id: t.id, distance: t.delivery_distance}
+      join: pl in assoc(t, :pickup_location),
+      join: dl in assoc(t, :dropoff_location),
+      select: %{
+        rider_id: r.id,
+        campaign_id: c.id,
+        task_id: t.id,
+        distance: st_distance(pl.coords, dl.coords)
+      }
   end
 
   defp leaderboard_aggregates(%Date{} = start_date, %Date{} = end_date) do
