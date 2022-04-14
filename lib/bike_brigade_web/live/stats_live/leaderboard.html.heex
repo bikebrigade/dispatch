@@ -21,14 +21,14 @@
             class="relative z-0 inline-flex rounded-md shadow-sm"
           >
             <label
-              :class="{ "bg-gray-200": period === "all_time", "bg-white": period != "all_time"}"
+              :class="{'bg-gray-200': period === 'all_time', 'bg-white': period != 'all_time'}"
               class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 cursor-pointer rounded-l-md hover:bg-gray-200 focus-within:z-10 focus-within:outline-none focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500"
             >
               <%= radio_button(f, :period, :all_time, class: "sr-only", x_model: "period") %>
               <div>All Time</div>
             </label>
             <label
-              :class="{ "bg-gray-200": period === "select", "bg-white": period != "select"}"
+              :class="{ 'bg-gray-200': period === 'select', 'bg-white': period != 'select'}"
               class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 border border-gray-300 cursor-pointer rounded-r-md hover:bg-gray-200 focus-within:z-10 focus-within:outline-none focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500"
             >
               <%= radio_button(f, :period, :select, class: "sr-only", x_model: "period") %>
