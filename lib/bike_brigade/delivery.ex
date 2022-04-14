@@ -310,14 +310,15 @@ defmodule BikeBrigade.Delivery do
       from r in Rider,
         join: cr in CampaignRider,
         on: cr.rider_id == r.id and cr.campaign_id == ^campaign.id,
+        join: l in assoc(r, :location),
         order_by: [
           desc: cr.rider_capacity,
           asc:
-            r.max_distance - st_distance(location_coords(r.location), ^campaign.location.coords)
+            r.max_distance - st_distance(l.coords, ^campaign.location.coords)
         ],
         left_join: t in Task,
         on: t.assigned_rider_id == r.id and t.campaign_id == ^campaign.id,
-        preload: [assigned_tasks: {t, :task_items}],
+        preload: [:location, assigned_tasks: {t, :task_items}],
         select: {r, cr.rider_capacity}
 
     riders = Repo.all(riders_query)
