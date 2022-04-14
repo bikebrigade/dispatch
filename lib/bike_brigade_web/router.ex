@@ -8,7 +8,7 @@ defmodule BikeBrigadeWeb.Router do
   alias BikeBrigadeWeb.LiveHooks
 
 
-  # Don't alert expired deliviers to honeybadger
+  # Don't alert expired deliveries to honeybadger
   use Honeybadger.Plug
   def handle_errors(_conn, %{reason: %BikeBrigadeWeb.DeliveryExpiredError{}}), do: :ok
   def handle_errors(conn, err), do: super(conn, err)
@@ -20,7 +20,7 @@ defmodule BikeBrigadeWeb.Router do
       get_user_from_session: 2
     ]
 
-  @maintence_mode false
+  @maintenance_mode false
 
   pipeline :sessions do
     plug :fetch_session
@@ -42,7 +42,7 @@ defmodule BikeBrigadeWeb.Router do
     plug :put_root_layout, {BikeBrigadeWeb.LayoutView, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
-    plug :check_maintence_mode
+    plug :check_maintenance_mode
   end
 
   pipeline :api do
@@ -191,11 +191,11 @@ defmodule BikeBrigadeWeb.Router do
     conn
   end
 
-  defp check_maintence_mode(conn, _opts) do
-    if @maintence_mode do
+  defp check_maintenance_mode(conn, _opts) do
+    if @maintenance_mode do
       conn
       |> put_status(:service_unavailable)
-      |> text("Down for maintence, please check again in a few minutes")
+      |> text("Down for maintenance, please check again in a few minutes")
       |> halt()
     else
       conn

@@ -4,6 +4,7 @@ defmodule BikeBrigadeWeb.CalendarLive.Index do
   alias BikeBrigade.Utils
   alias BikeBrigade.Delivery
   alias BikeBrigade.LocalizedDateTime
+  alias BikeBrigade.Locations
 
   alias BikeBrigade.GoogleMaps
 
@@ -54,7 +55,7 @@ defmodule BikeBrigadeWeb.CalendarLive.Index do
     Delivery.list_opportunities(
       start_date: start_date,
       published: true,
-      preload: [program: [:items]]
+      preload: [location: [:neighborhood], program: [:items]]
     )
     |> Utils.ordered_group_by(&LocalizedDateTime.to_date(&1.delivery_start))
   end

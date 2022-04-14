@@ -59,7 +59,7 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
       {:ok, _view, html} = live(conn, Routes.rider_show_path(conn, :show, rider))
 
       assert html =~ rider.name
-      assert html =~ rider.location_struct.address
+      assert html =~ rider.location.address
     end
 
     test "edit rider", %{conn: conn, rider: rider} do

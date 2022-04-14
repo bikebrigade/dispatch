@@ -9,26 +9,16 @@ defmodule BikeBrigade.Delivery.Campaign do
 
   alias BikeBrigade.Messaging
 
-  alias BikeBrigade.Location
+  alias BikeBrigade.Locations.Location
 
   alias BikeBrigade.Stats.CampaignStats
 
   defenum(RiderSpreadsheetLayout, non_foodshare: 0, foodshare: 1)
 
   @fields [
-    :name,
-    :delivery_date,
     :delivery_start,
     :delivery_end,
     :details,
-    :pickup_address,
-    :pickup_address2,
-    :pickup_city,
-    :pickup_country,
-    :pickup_location,
-    :pickup_postal,
-    :pickup_province,
-    :pickup_window,
     :rider_spreadsheet_id,
     :rider_spreadsheet_layout,
     :program_id
@@ -39,33 +29,16 @@ defmodule BikeBrigade.Delivery.Campaign do
   ]
 
   schema "campaigns" do
-    field :name, :string
-    field :delivery_date, :date
     field :delivery_start, :utc_datetime
     field :delivery_end, :utc_datetime
     field :details, :string
-    # TODO remove
-    field :pickup_address, :string
-    # TODO remove
-    field :pickup_address2, :string
-    # TODO remove
-    field :pickup_city, :string
-    # TODO remove
-    field :pickup_country, :string
-    # TODO remove
-    field :pickup_location, Geo.PostGIS.Geometry
-    # TODO remove
-    field :pickup_postal, :string
-    # TODO remove
-    field :pickup_province, :string
-    # TODO remove
-    field :pickup_window, :string
+
     # TODO remove
     field :rider_spreadsheet_id, :string
     # TODO remove
     field :rider_spreadsheet_layout, RiderSpreadsheetLayout
 
-    embeds_one :location, Location, on_replace: :update
+    belongs_to :location, Location, on_replace: :update
 
     belongs_to :instructions_template, Messaging.Template, on_replace: :update
     belongs_to :program, Program
@@ -86,14 +59,19 @@ defmodule BikeBrigade.Delivery.Campaign do
     timestamps()
   end
 
-  def changeset(struct, params \\ %{}) do
+  def changeset(struct, params \\ %{}, opts \\ []) do
     changeset =
       struct
       |> cast(params, @fields)
-      |> cast_embed(:location)
+      |> cast_assoc(:location)
+
+    task_opts = [geocode: Keyword.get(opts, :geocode_tasks, false)]
 
     changeset
-    |> cast_assoc(:tasks, with: Task.changeset_for_campaign(changeset), required: false)
+    |> cast_assoc(:tasks,
+      with: Task.changeset_for_campaign(changeset, task_opts),
+      required: false
+    )
     |> cast_assoc(:riders, required: false)
     |> cast_assoc(:instructions_template, required: false)
     |> cast_assoc(:scheduled_message, required: false)
@@ -108,6 +86,7 @@ defmodule BikeBrigade.Delivery.Campaign do
         value =
           Map.get(campaign, k)
           |> Map.from_struct()
+          |> Map.delete(:id)
 
         {k, value}
       end

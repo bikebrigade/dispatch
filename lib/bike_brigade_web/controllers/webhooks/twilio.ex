@@ -33,7 +33,7 @@ defmodule BikeBrigadeWeb.Webhooks.Twilio do
         incoming: true,
         rider_id: rider && rider.id,
         body: body,
-        twillio_sid: sid,
+        twilio_sid: sid,
         media: media,
         sent_at: DateTime.utc_now()
       })

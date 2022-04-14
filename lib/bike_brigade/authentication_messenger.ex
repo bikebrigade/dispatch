@@ -20,7 +20,7 @@ defmodule BikeBrigade.AuthenticationMessenger do
     try do
       validate_token(pid, phone, String.to_integer(token_attempt))
     rescue
-      # String.to_integer throws when the streing is invalid
+      # String.to_integer throws when the string is invalid
       ArgumentError -> {:error, :token_invalid}
     end
   end

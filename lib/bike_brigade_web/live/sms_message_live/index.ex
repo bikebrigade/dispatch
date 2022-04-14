@@ -8,6 +8,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
   alias BikeBrigade.Delivery
 
   import BikeBrigadeWeb.MessagingHelpers
+  import BikeBrigadeWeb.CampaignHelpers, only: [request_type: 1]
 
   @impl true
   def mount(_params, _session, socket) do
@@ -186,7 +187,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
 
   defp details_buffer(campaign) do
     for task <- campaign.tasks do
-      "Name: #{task.dropoff_name}\nPhone: #{task.dropoff_phone}\nType: #{task.request_type}\nAddress: #{task.dropoff_address} #{task.dropoff_address2} #{task.dropoff_city} #{task.dropoff_postal}\nNotes: #{task.rider_notes}"
+      "Name: #{task.dropoff_name}\nPhone: #{task.dropoff_phone}\nType: #{request_type(task)}\nAddress: #{task.dropoff_location}\nNotes: #{task.rider_notes}"
     end
     |> Enum.join("\n\n")
     |> inspect()

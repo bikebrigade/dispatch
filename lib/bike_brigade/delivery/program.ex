@@ -38,12 +38,14 @@ defmodule BikeBrigade.Delivery.Program do
     field :spreadsheet_layout, SpreadsheetLayout, default: :foodshare
     field :active, :boolean, default: true
     field :start_date, :date
+
+    # TODO: this is me trying out virtual fields again
+    field :campaign_count, :integer, virtual: true
+
     embeds_many :schedules, Schedule, on_replace: :delete
 
     has_one :program_latest_campaign, ProgramLatestCampaign
     has_one :latest_campaign, through: [:program_latest_campaign, :campaign]
-
-    has_one :stats, CampaignStats, where: [campaign_id: nil]
 
     belongs_to :lead, BikeBrigade.Accounts.User, on_replace: :nilify
     has_many :campaigns, Campaign, preload_order: [desc: :delivery_start]

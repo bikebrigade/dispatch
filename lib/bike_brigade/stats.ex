@@ -1,5 +1,6 @@
 defmodule BikeBrigade.Stats do
   import Ecto.Query, warn: false
+  import Geo.PostGIS, only: [st_distance: 2]
 
   alias BikeBrigade.Repo
   alias BikeBrigade.Riders.Rider
@@ -23,15 +24,13 @@ defmodule BikeBrigade.Stats do
     order_by =
       case period do
         :day ->
-          dynamic(
-            date_trunc("day", coalesce(as(:campaign).delivery_start, as(:campaign).delivery_date))
-          )
+          dynamic(date_trunc("day", as(:campaign).delivery_start))
 
         :week ->
           dynamic(
             date_trunc(
               "week",
-              coalesce(as(:campaign).delivery_start, as(:campaign).delivery_date)
+              as(:campaign).delivery_start
             )
           )
 
@@ -39,7 +38,7 @@ defmodule BikeBrigade.Stats do
           dynamic(
             date_trunc(
               "month",
-              coalesce(as(:campaign).delivery_start, as(:campaign).delivery_date)
+              as(:campaign).delivery_start
             )
           )
       end
@@ -70,7 +69,7 @@ defmodule BikeBrigade.Stats do
             period:
               date_trunc(
                 "day",
-                coalesce(as(:campaign).delivery_start, as(:campaign).delivery_date)
+                as(:campaign).delivery_start
               )
           })
 
@@ -80,7 +79,7 @@ defmodule BikeBrigade.Stats do
             period:
               date_trunc(
                 "week",
-                coalesce(as(:campaign).delivery_start, as(:campaign).delivery_date)
+                as(:campaign).delivery_start
               )
           })
 
@@ -90,7 +89,7 @@ defmodule BikeBrigade.Stats do
             period:
               date_trunc(
                 "month",
-                coalesce(as(:campaign).delivery_start, as(:campaign).delivery_date)
+                as(:campaign).delivery_start
               )
           })
       end
@@ -174,16 +173,23 @@ defmodule BikeBrigade.Stats do
       join: t in assoc(r, :assigned_tasks),
       join: c in assoc(t, :campaign),
       as: :campaign,
-      select: %{rider_id: r.id, campaign_id: c.id, task_id: t.id, distance: t.delivery_distance}
+      join: pl in assoc(t, :pickup_location),
+      join: dl in assoc(t, :dropoff_location),
+      select: %{
+        rider_id: r.id,
+        campaign_id: c.id,
+        task_id: t.id,
+        distance: st_distance(pl.coords, dl.coords)
+      }
   end
 
   defp leaderboard_aggregates(%Date{} = start_date, %Date{} = end_date) do
     from r in leaderboard_aggregates(),
       where:
-        coalesce(as(:campaign).delivery_start, as(:campaign).delivery_date) >=
+        as(:campaign).delivery_start >=
           ^LocalizedDateTime.new!(start_date, ~T[00:00:00]),
       where:
-        coalesce(as(:campaign).delivery_end, as(:campaign).delivery_date) <=
+        as(:campaign).delivery_end <=
           ^LocalizedDateTime.new!(end_date, ~T[23:59:59])
   end
 

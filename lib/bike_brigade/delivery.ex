@@ -10,7 +10,6 @@ defmodule BikeBrigade.Delivery do
   alias BikeBrigade.Riders.Rider
 
   alias BikeBrigade.Messaging
-  alias BikeBrigade.Messaging.SmsMessage
   alias BikeBrigade.Delivery.{Task, CampaignRider}
 
   import BikeBrigade.Utils, only: [task_count: 1, humanized_task_count: 1]
@@ -42,9 +41,35 @@ defmodule BikeBrigade.Delivery do
       nil
 
   """
-  def get_task(id) do
-    Repo.get(Task, id)
-    |> Repo.preload([:assigned_rider, :task_items])
+  def get_task(id, opts \\ []) do
+    preload =
+      Keyword.get(opts, :prelaod, [
+        :assigned_rider,
+        :task_items,
+        :pickup_location,
+        :dropoff_location
+      ])
+
+    from(t in Task,
+      as: :task,
+      where: t.id == ^id
+    )
+    |> task_load_location()
+    |> Repo.one()
+    |> Repo.preload(preload)
+  end
+
+  defp task_load_location(query) do
+    query
+    |> join(:inner, [task: t], pl in assoc(t, :pickup_location), as: :pickup_location)
+    |> join(:inner, [task: t], dl in assoc(t, :dropoff_location), as: :dropoff_location)
+    |> preload([pickup_location: pl, dropoff_location: dl],
+      pickup_location: pl,
+      dropoff_location: dl
+    )
+    |> select_merge([pickup_location: pl, dropoff_location: dl], %{
+      delivery_distance: st_distance(pl.coords, dl.coords)
+    })
   end
 
   @doc """
@@ -77,10 +102,10 @@ defmodule BikeBrigade.Delivery do
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_task(%Task{} = task, attrs) do
+  def update_task(%Task{} = task, attrs, opts \\ []) do
     # TODO validate items unique index stuff
     task
-    |> Task.changeset(attrs)
+    |> Task.changeset(attrs, opts)
     |> Repo.update()
     |> broadcast(:task_updated)
   end
@@ -111,8 +136,8 @@ defmodule BikeBrigade.Delivery do
       %Ecto.Changeset{data: %Task{}}
 
   """
-  def change_task(%Task{} = task, attrs \\ %{}) do
-    Task.changeset(task, attrs)
+  def change_task(%Task{} = task, attrs \\ %{}, opts \\ []) do
+    Task.changeset(task, attrs, opts)
   end
 
   alias BikeBrigade.Delivery.Campaign
@@ -149,9 +174,15 @@ defmodule BikeBrigade.Delivery do
         join: r in assoc(cr, :rider),
         left_join: t in assoc(c, :tasks),
         on: t.assigned_rider_id == r.id,
-        order_by: t.delivery_distance,
+        # TODO make this join dor distance some kind of function
+        left_join: pl in assoc(t, :pickup_location),
+        left_join: dl in assoc(t, :dropoff_location),
+        order_by: st_distance(pl.coords, dl.coords),
         where: cr.token == ^token,
-        preload: [campaign: [:program], rider: {r, assigned_tasks: {t, [task_items: :item]}}]
+        preload: [
+          campaign: [:program, :location],
+          rider: {r, [:location, assigned_tasks: {t, [:dropoff_location, task_items: :item]}]}
+        ]
 
     Repo.one!(query)
   end
@@ -171,19 +202,14 @@ defmodule BikeBrigade.Delivery do
     |> broadcast(:campaign_rider_deleted)
   end
 
-  def create_task_for_campaign(campaign, attrs \\ %{}) do
+  def create_task_for_campaign(campaign, attrs \\ %{}, opts \\ []) do
     # TODO handle conflicts for multiple task items here
+    # TODO this looks a lot like Task.changeset_for_campaign()
     %Task{
-      delivery_date: campaign.delivery_date,
-      pickup_address: campaign.location.address,
-      pickup_city: campaign.location.city,
-      pickup_postal: campaign.location.postal,
-      pickup_province: campaign.location.province,
-      pickup_country: campaign.location.country,
-      pickup_location: campaign.location.coords,
+      pickup_location: campaign.location,
       campaign_id: campaign.id
     }
-    |> Task.changeset(attrs)
+    |> Task.changeset(attrs, opts)
     |> Repo.insert()
     |> broadcast(:task_created)
   end
@@ -198,7 +224,7 @@ defmodule BikeBrigade.Delivery do
   end
 
   def get_campaign(id, opts \\ []) do
-    preload = Keyword.get(opts, :preload, [:program])
+    preload = Keyword.get(opts, :preload, [:location, :program])
 
     Repo.get(Campaign, id)
     |> Repo.preload(preload)
@@ -209,23 +235,30 @@ defmodule BikeBrigade.Delivery do
   and tasks are pre-loaded with the assigned rider, and task_items/items.
   """
   def campaign_riders_and_tasks(%Campaign{} = campaign) do
+    campaign =
+      campaign
+      |> Repo.preload(:location)
+
     all_tasks =
-      Repo.all(
-        from t in Task,
-          where: t.campaign_id == ^campaign.id,
-          select: t
+      from(t in Task,
+        as: :task,
+        where: t.campaign_id == ^campaign.id,
+        select: t
       )
-      |> Repo.preload(task_items: [:item])
+      |> task_load_location()
+      |> Repo.all()
+      |> Repo.preload([:pickup_location, :dropoff_location, task_items: [:item]])
 
     all_riders =
       Repo.all(
         from cr in CampaignRider,
           join: r in assoc(cr, :rider),
+          join: l in assoc(r, :location),
           where: cr.campaign_id == ^campaign.id,
           order_by: r.name,
           select: r,
           select_merge: %{
-            distance: st_distance(r.location, ^campaign.location.coords),
+            distance: st_distance(l.coords, ^campaign.location.coords),
             task_notes: cr.notes,
             task_capacity: cr.rider_capacity,
             task_enter_building: cr.enter_building,
@@ -233,6 +266,7 @@ defmodule BikeBrigade.Delivery do
             delivery_url_token: cr.token
           }
       )
+      |> Repo.preload(:location)
 
     # Does a nested preload to get tasks' assigned riders without doing an extra db query
     tasks = Repo.preload(all_tasks, assigned_rider: fn _ -> all_riders end)
@@ -259,11 +293,11 @@ defmodule BikeBrigade.Delivery do
         where: t.assigned_rider_id == ^rider.id,
         select: c,
         select_merge: %{delivery_url_token: cr.token},
-        order_by: [desc: coalesce(date(c.delivery_start), c.delivery_date), asc: t.id],
+        order_by: [desc: c.delivery_start, asc: t.id],
         preload: [tasks: t]
 
     Repo.all(query)
-    |> Repo.preload(:program)
+    |> Repo.preload([:program, tasks: [:dropoff_location, task_items: :item]])
   end
 
   def campaigns_per_rider(rider) do
@@ -276,13 +310,15 @@ defmodule BikeBrigade.Delivery do
       from r in Rider,
         join: cr in CampaignRider,
         on: cr.rider_id == r.id and cr.campaign_id == ^campaign.id,
+        join: l in assoc(r, :location),
         order_by: [
           desc: cr.rider_capacity,
-          asc: r.max_distance - st_distance(r.location, ^campaign.location.coords)
+          asc:
+            r.max_distance - st_distance(l.coords, ^campaign.location.coords)
         ],
         left_join: t in Task,
         on: t.assigned_rider_id == r.id and t.campaign_id == ^campaign.id,
-        preload: [assigned_tasks: {t, :task_items}],
+        preload: [:location, assigned_tasks: {t, :task_items}],
         select: {r, cr.rider_capacity}
 
     riders = Repo.all(riders_query)
@@ -296,15 +332,18 @@ defmodule BikeBrigade.Delivery do
             Repo.all(
               from t in Task,
                 where: t.campaign_id == ^campaign.id and is_nil(t.assigned_rider_id),
+                join: pl in assoc(t, :pickup_location),
+                join: dl in assoc(t, :dropoff_location),
                 preload: [task_items: :item],
-                order_by: t.delivery_distance
+                order_by: st_distance(pl.coords, dl.coords)
             )
           else
             Repo.all(
               from t in Task,
                 where: t.campaign_id == ^campaign.id and is_nil(t.assigned_rider_id),
+                join: dl in assoc(t, :dropoff_location),
                 preload: [task_items: :item],
-                order_by: st_distance(t.dropoff_location, ^rider.location)
+                order_by: st_distance(dl.coords, ^rider.location.coords)
             )
           end
           |> Repo.preload([:assigned_rider])
@@ -324,9 +363,9 @@ defmodule BikeBrigade.Delivery do
     Campaign.changeset(campaign, attrs)
   end
 
-  def update_campaign(campaign, attrs) do
+  def update_campaign(campaign, attrs, opts \\ []) do
     campaign
-    |> Campaign.changeset(attrs)
+    |> Campaign.changeset(attrs, opts)
     |> Repo.update()
     |> broadcast(:campaign_updated)
   end
@@ -336,7 +375,7 @@ defmodule BikeBrigade.Delivery do
   end
 
   def send_campaign_messages(%Campaign{} = campaign) do
-    campaign = Repo.preload(campaign, [:instructions_template, :program])
+    campaign = Repo.preload(campaign, [:location, :instructions_template, :program])
     {riders, _} = campaign_riders_and_tasks(campaign)
 
     msgs =
@@ -350,7 +389,6 @@ defmodule BikeBrigade.Delivery do
   end
 
   def send_campaign_message(%Campaign{} = campaign, rider) do
-    # TODO, split SMS semantically somehow
     body =
       render_campaign_message_for_rider(
         campaign,
@@ -358,29 +396,37 @@ defmodule BikeBrigade.Delivery do
         rider
       )
 
-    if String.length(body) > 1500 do
-      parts =
-        body
-        |> String.codepoints()
-        |> Enum.chunk_every(1000)
-        |> Enum.map(&Enum.join/1)
+    {:ok, msg} = Messaging.send_message_in_chunks(campaign, body, rider)
 
-      [first | rest] = parts
-      msg = Messaging.new_sms_message(rider)
-
-      Messaging.send_sms_message(msg, %{campaign_id: campaign.id, body: first <> "..."})
-
-      for part <- rest do
-        msg = Messaging.new_sms_message(rider)
-        Messaging.send_sms_message(msg, %{campaign_id: campaign.id, body: "..." <> part})
-      end
-    else
-      msg = Messaging.new_sms_message(rider)
-      Messaging.send_sms_message(msg, %{campaign_id: campaign.id, body: body})
+    if rider.text_based_itinerary do
+      send_text_based_itinerary(rider, campaign)
     end
+
+    {:ok, msg}
   end
 
-  # TODO I hate that i pass message here so much
+  defp send_text_based_itinerary(rider, campaign) do
+    template = """
+    1. Pickup
+    • {{{task_count}}}
+    • {{{pickup_address}}}
+    • {{{pickup_window}}}
+
+    2. Drop-off
+    {{{task_details}}}
+
+    {{{directions}}}
+    """
+
+    body =
+      render_campaign_message_for_rider(
+        campaign,
+        template,
+        rider
+      )
+
+    Messaging.send_message_in_chunks(campaign, body, rider)
+  end
 
   def render_campaign_message_for_rider(campaign, nil, rider),
     do: render_campaign_message_for_rider(campaign, "", rider)
@@ -391,30 +437,26 @@ defmodule BikeBrigade.Delivery do
       rider.assigned_tasks
       |> Enum.sort_by(& &1.delivery_distance)
 
-    pickup_address = campaign.location.address
-
+    # TODO: referncing CampaignHelpers here is bad!
+    # need to move this into Task or Delivery
     pickup_window = BikeBrigadeWeb.CampaignHelpers.pickup_window(campaign, rider)
 
-    dropoff_addresses = [
-      pickup_address
-      | for task <- tasks do
-          "#{task.dropoff_address} #{task.dropoff_address2} #{task.dropoff_city} #{task.dropoff_postal}"
-        end
-    ]
+    locations = [campaign.location | Enum.map(tasks, & &1.dropoff_location)]
 
     task_details =
       for task <- tasks do
-        "Name: #{task.dropoff_name}\nPhone: #{task.dropoff_phone}\nType: #{task.request_type}\nAddress: #{task.dropoff_address} #{task.dropoff_address2} #{task.dropoff_city} #{task.dropoff_postal}\nNotes: #{task.rider_notes}"
+        "Name: #{task.dropoff_name}\nPhone: #{task.dropoff_phone}\nType: #{BikeBrigadeWeb.CampaignHelpers.request_type(task)}\nAddress: #{task.dropoff_location}\nNotes: #{task.rider_notes}"
       end
       |> Enum.join("\n\n")
 
-    {destination, waypoints} = List.pop_at(dropoff_addresses, -1)
+    {destination, waypoints} = List.pop_at(locations, -1)
 
+    # TODO: this is the same as DeliveryHelpers.directions_url
     map_query =
       URI.encode_query(%{
         api: 1,
         travelmode: "bicycling",
-        origin: "#{rider.address} #{rider.city} #{rider.postal}",
+        origin: rider.location,
         waypoints: Enum.join(waypoints, "|"),
         destination: destination
       })
@@ -430,7 +472,7 @@ defmodule BikeBrigade.Delivery do
 
     assigns = %{
       rider_name: rider.name |> String.split(" ") |> List.first(),
-      pickup_address: pickup_address,
+      pickup_address: campaign.location,
       task_details: task_details,
       directions: directions,
       task_count: humanized_task_count(tasks),
@@ -443,7 +485,7 @@ defmodule BikeBrigade.Delivery do
 
   def campaign_rider_token(%Campaign{} = campaign, %Rider{} = rider) do
     # TODO
-    # this is very innefficient to look up each time, which we could cache these
+    # this is very inefficient to look up each time, which we could cache these
     query =
       from cr in CampaignRider,
         where: cr.rider_id == ^rider.id and cr.campaign_id == ^campaign.id
@@ -499,6 +541,16 @@ defmodule BikeBrigade.Delivery do
       from p in Program,
         as: :program,
         order_by: [desc: p.active, asc: p.name]
+
+    query =
+      if opts[:with_campaign_count] do
+        from p in query,
+          left_join: c in assoc(p, :campaigns),
+          group_by: p.id,
+          select_merge: %{campaign_count: count(c)}
+      else
+        query
+      end
 
     Repo.all(query)
     |> Repo.preload(preload)
@@ -774,7 +826,12 @@ defmodule BikeBrigade.Delivery do
     filter
   end
 
-  def get_opportunity!(id), do: Repo.get!(Opportunity, id)
+  def get_opportunity(id, opts \\ []) do
+    preload = Keyword.get(opts, :preload, [:location, :program])
+
+    Repo.get!(Opportunity, id)
+    |> Repo.preload(preload)
+  end
 
   def create_opportunity(attrs \\ %{}) do
     %Opportunity{}

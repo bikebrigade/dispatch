@@ -81,11 +81,11 @@ config :bike_brigade, BikeBrigade.GoogleMaps, api_key: {:system, "GOOGLE_MAPS_AP
 
 # Set slack channel IDs for messaging
 config :bike_brigade, BikeBrigade.Messaging.Slack.Operations,
-   chanel_id: "C022R3HU9B9",
+   channel_id: "C022R3HU9B9",
    channel_name: "api-playground"
 
 config :bike_brigade, BikeBrigade.Messaging.Slack.RiderSms,
-   chanel_id: "C022R3HU9B9",
+   channel_id: "C022R3HU9B9",
    channel_name: "api-playground"
 
 # Import environment specific config. This must remain at the bottom

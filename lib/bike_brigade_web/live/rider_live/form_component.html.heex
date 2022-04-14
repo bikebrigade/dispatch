@@ -22,12 +22,12 @@
       Pronouns
       <% end %>
       <div class="mt-1 rounded-md shadow-sm">
-        <%= text_input f, :pronouns, required: true, autocomplete: "pronounds", phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+        <%= text_input f, :pronouns, required: true, autocomplete: "pronouns", phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
       </div>
       <%= error_tag f, :pronouns %>
     </div>
 
-    <div clas="mt-2">
+    <div class="mt-2">
       <%= label f, :email, class: "block text-sm font-medium leading-5 text-gray-700" do %>
       Email
       <% end %>
@@ -66,7 +66,7 @@
       <%= error_tag f, :capacity %>
     </div>
 
-    <%= for l <- inputs_for(f, :location_struct) do %>
+    <%= for l <- inputs_for(f, :location) do %>
       <LocationForm.component for={l} label="Rider Location" />
     <% end %>
 
@@ -98,6 +98,15 @@
         <%= date_input f, :last_safety_check, placeholder: "YYYY-MM-DD", phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
       </div>
       <%= error_tag f, :last_safety_check %>
+    </div>
+    <div class="flex items-top mt-4 space-x-2">
+      <div class="rounded-md shadow-sm">
+        <%= checkbox f, :text_based_itinerary, phx_debounce: "blur", class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" %>
+      </div>
+      <%= label f, :text_based_itinerary, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+      Send text-only delivery instructions
+      <p class="text-gray-500">Enable this for riders without smartphones or data plans and they'll get a second message with instructions after you send the link.</p>
+      <% end %>
     </div>
     <div class="pt-8">
       <div>

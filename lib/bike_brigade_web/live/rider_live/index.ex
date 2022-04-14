@@ -6,6 +6,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   alias BikeBrigade.Riders
   alias BikeBrigade.Riders.RiderSearch
   alias BikeBrigade.LocalizedDateTime
+  alias BikeBrigade.Locations
 
   defmodule SortOptions do
     # This is a streamlined version of the one from leaderboard.ex
@@ -52,7 +53,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
 
           %__MODULE__{active: actives}
 
-        ["capacty", capacity] ->
+        ["capacity", capacity] ->
           capacity =
             @capacities
             |> Enum.filter(&String.starts_with?(&1, capacity))
@@ -89,8 +90,6 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     end
   end
 
-  @default_rider_search RiderSearch.new(preload: [:tags, :latest_campaign])
-
   @selected_color "#5850ec"
   @unselected_color "#4a5568"
 
@@ -114,6 +113,9 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     {:noreply, apply_action(socket, socket.assigns.live_action, params)}
   end
 
+  @preloads [:tags, :latest_campaign, location: [:neighborhood]]
+  @default_rider_search RiderSearch.new(preload: @preloads)
+
   defp apply_action(socket, :index, params) do
     tag_filters =
       Map.get(params, "tag", [])
@@ -126,7 +128,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     rider_search =
       RiderSearch.new(
         filters: tag_filters ++ capacity_filters,
-        preload: [:tags, :latest_campaign]
+        preload: @preloads
       )
 
     socket
@@ -359,10 +361,10 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     socket
     |> assign(:rider_search, rider_search)
     |> assign(:search_results, search_results)
-    |> maybe_fectch_location()
+    |> maybe_fetch_location()
   end
 
-  defp maybe_fectch_location(socket) do
+  defp maybe_fetch_location(socket) do
     # Only fetch locations when we're in map mode
     if socket.assigns.mode == :map do
       all_locations = RiderSearch.fetch_locations(socket.assigns.rider_search)
@@ -524,7 +526,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
             <.show_phone_if_filtered phone={rider.phone} filters={@rider_search.filters} />
           </:td>
           <:td let={rider}>
-            <%= rider.location_struct.neighborhood %>
+            <%= Locations.neighborhood(rider.location) %>
           </:td>
           <:td let={rider}>
             <ul class="flex">

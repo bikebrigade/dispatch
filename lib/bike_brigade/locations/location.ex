@@ -1,29 +1,32 @@
-defmodule BikeBrigade.Location do
+defmodule BikeBrigade.Locations.Location do
   use BikeBrigade.Schema
   import Ecto.Changeset
 
   alias BikeBrigade.Geocoder
+  alias BikeBrigade.Locations.LocationNeighborhood
 
-  @fields [:coords, :address, :neighborhood, :city, :postal, :province, :country, :unit, :buzzer]
+  @fields [:coords, :address, :city, :postal, :province, :country, :unit, :buzzer]
   @user_provided_fields [:address, :unit, :buzzer]
 
-  @primary_key false
-  embedded_schema do
+  schema "locations" do
     field :coords, Geo.PostGIS.Geometry, default: %Geo.Point{}
     field :address, :string
-    field :neighborhood, :string
     field :city, :string, default: "Toronto"
     field :postal, :string
     field :province, :string, default: "Ontario"
     field :country, :string, default: "Canada"
     field :unit, :string
     field :buzzer, :string
+
+    has_one :location_neighborhood, LocationNeighborhood
+    has_one :neighborhood, through: [:location_neighborhood, :neighborhood]
+
+    timestamps()
   end
 
   @type t :: %__MODULE__{
           coords: Geo.Point.t(),
           address: String.t(),
-          neighborhood: String.t(),
           city: String.t(),
           postal: String.t(),
           province: String.t(),
@@ -47,7 +50,7 @@ defmodule BikeBrigade.Location do
          {address, unit} <- parse_unit(address),
          {_, city} <- fetch_field(cs, :city),
          {:ok, location} <- String.trim("#{address} #{city}") |> Geocoder.lookup() do
-      for {k, v} <- %{location | unit: unit} |> Map.from_struct(),
+      for {k, v} <- Map.put(location, :unit, unit),
           !is_nil(v),
           reduce: cs do
         cs -> put_change(cs, k, v)
@@ -55,6 +58,7 @@ defmodule BikeBrigade.Location do
     else
       {:data, _} -> cs
       {:error, error} -> add_error(cs, :address, "#{error}")
+      :error -> add_error(cs, :address, "unknown error")
     end
   end
 
@@ -70,18 +74,15 @@ defmodule BikeBrigade.Location do
 
   defp parse_unit(address), do: {address, nil}
 
-  @spec set_coords(__MODULE__.t(), number(), number()) :: __MODULE__.t()
-  def set_coords(location, lat, lon) when is_float(lat) and is_float(lon) do
-    Map.put(location, :coords, %Geo.Point{coordinates: {lon, lat}, srid: 4326})
-  end
-
-  def set_coords(location, lat, lon) when is_binary(lat) and is_binary(lon) do
-    set_coords(location, String.to_float(lat), String.to_float(lon))
-  end
-
   defimpl String.Chars do
     def to_string(location) do
       "#{location.address}, #{location.city}, #{location.postal}"
+    end
+  end
+
+  defimpl Phoenix.HTML.Safe do
+    def to_iodata(location) do
+      [location.address, ", ", location.city, ", ", location.postal]
     end
   end
 end

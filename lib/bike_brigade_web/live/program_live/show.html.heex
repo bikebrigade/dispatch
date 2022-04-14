@@ -31,10 +31,10 @@
     </div>
   </:td>
   <:td let={campaign}>
-    <div class="w-24 truncate"><%= if campaign.delivery_start, do: time_interval(campaign.delivery_start, campaign.delivery_end), else: campaign.pickup_window %></div>
+    <div class="w-24 truncate"><%= pickup_window(campaign) %></div>
   </:td>
   <:td let={campaign}>
-    <%= campaign.stats.rider_count %>
+    <%= campaign.stats.signed_up_rider_count %>
   </:td>
   <:td let={campaign}>
     <%= campaign.stats.task_count %>

@@ -1,7 +1,7 @@
 defmodule BikeBrigadeWeb.OpportunityLive.FormComponent do
   use BikeBrigadeWeb, :live_component
 
-  alias BikeBrigade.Location
+  alias BikeBrigade.Locations.Location
   alias BikeBrigade.Delivery
   alias BikeBrigade.Delivery.Program
   alias BikeBrigade.LocalizedDateTime
@@ -23,7 +23,7 @@ defmodule BikeBrigadeWeb.OpportunityLive.FormComponent do
       field(:published, :boolean, default: false)
       field(:hide_address, :boolean, default: false)
 
-      embeds_one :location, Location, on_replace: :update
+      belongs_to :location, Location, on_replace: :update
     end
 
     def changeset(form, attrs \\ %{}) do
@@ -37,7 +37,7 @@ defmodule BikeBrigadeWeb.OpportunityLive.FormComponent do
         :published,
         :hide_address
       ])
-      |> cast_embed(:location, with: &Location.geocoding_changeset/2)
+      |> cast_assoc(:location, with: &Location.geocoding_changeset/2)
       |> validate_required([
         :program_id,
         :delivery_date,
@@ -105,6 +105,8 @@ defmodule BikeBrigadeWeb.OpportunityLive.FormComponent do
 
   @impl Phoenix.LiveComponent
   def update(%{opportunity: opportunity} = assigns, socket) do
+    opportunity = BikeBrigade.Repo.preload(opportunity, :location)
+
     form = OpportunityForm.from_opportunity(opportunity)
     changeset = OpportunityForm.changeset(form)
 

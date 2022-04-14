@@ -9,6 +9,8 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
   alias BikeBrigade.LocalizedDateTime
   alias BikeBrigade.Repo
 
+  import BikeBrigadeWeb.CampaignHelpers
+
   @impl Phoenix.LiveView
   def mount(_params, _session, socket) do
     {:ok,
@@ -21,6 +23,7 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
     rider =
       Riders.get_rider!(id)
       |> Repo.preload([
+        :location,
         :tags,
         :campaigns,
         :total_stats,

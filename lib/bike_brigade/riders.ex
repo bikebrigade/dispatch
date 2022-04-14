@@ -58,45 +58,66 @@ defmodule BikeBrigade.Riders do
       ** (Ecto.NoResultsError)
 
   """
-  def get_rider(id) do
+  @default_preload [:location]
+
+  def get_rider(id, opts \\ []) do
+    preload = Keyword.get(opts, :preload, @default_preload)
+
     Repo.get(Rider, id)
+    |> Repo.preload(preload)
   end
 
-  def get_rider!(id) do
+  def get_rider!(id, opts \\ []) do
+    preload = Keyword.get(opts, :preload, @default_preload)
+
     Repo.get!(Rider, id)
+    |> Repo.preload(preload)
   end
 
-  def get_riders(ids) do
+  def get_riders(ids, opts \\ []) do
+    preload = Keyword.get(opts, :preload, @default_preload)
+
     Repo.all(from r in Rider, where: r.id in ^ids)
+    |> Repo.preload(preload)
   end
 
-  def get_rider_by_email!(email) do
+  def get_rider_by_email!(email, opts \\ []) do
+    preload = Keyword.get(opts, :preload, @default_preload)
     email = String.downcase(email)
 
     Rider
     |> Repo.get_by!(email: email)
+    |> Repo.preload(preload)
   end
 
-  def get_rider_by_email(email) do
+  def get_rider_by_email(email, opts \\ []) do
+    preload = Keyword.get(opts, :preload, @default_preload)
+
     email = String.downcase(email)
 
     Rider
     |> Repo.get_by(email: email)
+    |> Repo.preload(preload)
   end
 
-  def get_rider_by_phone!(phone) do
+  def get_rider_by_phone!(phone, opts \\ []) do
+    preload = Keyword.get(opts, :preload, @default_preload)
+
     case EctoPhoneNumber.Canadian.cast(phone) do
       {:ok, phone} ->
         Repo.get_by!(Rider, phone: phone)
+        |> Repo.preload(preload)
 
       {:error, err} ->
         raise EctoPhoneNumber.InvalidNumber, message: err
     end
   end
 
-  def get_rider_by_phone(phone) do
+  def get_rider_by_phone(phone, opts \\ []) do
+    preload = Keyword.get(opts, :preload, @default_preload)
+
     case BikeBrigade.EctoPhoneNumber.Canadian.cast(phone) do
-      {:ok, phone} -> Repo.get_by(Rider, phone: phone)
+      {:ok, phone} -> Repo.get_by(Rider, phone: phone) |> Repo.preload(preload)
       {:error, _err} -> nil
     end
   end

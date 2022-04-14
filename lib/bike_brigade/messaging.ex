@@ -190,7 +190,8 @@ defmodule BikeBrigade.Messaging do
 
   @doc "Send a message and save it in the database"
   def send_sms_message(%SmsMessage{} = sms_message, attrs \\ %{}) do
-    sms_message = sms_message |> Repo.preload(:rider)
+    # TODO this preload is because we update rider later, would be nice to just have a special changeset for this bit so we dont need to preload
+    sms_message = sms_message |> Repo.preload(rider: [:location])
 
     Ecto.Multi.new()
     |> maybe_send_initial_message(sms_message.rider)
@@ -227,6 +228,31 @@ defmodule BikeBrigade.Messaging do
 
       {:error, name, reason, %{create_message: sms_message}} ->
         message_error(sms_message, "Failed in step #{name} for #{inspect(reason)}")
+    end
+  end
+
+  def send_message_in_chunks(campaign, body, rider) do
+    # TODO, split SMS semantically somehow
+
+    if String.length(body) > 1500 do
+      parts =
+        body
+        |> String.codepoints()
+        |> Enum.chunk_every(1000)
+        |> Enum.map(&Enum.join/1)
+
+      [first | rest] = parts
+      msg = new_sms_message(rider)
+
+      send_sms_message(msg, %{campaign_id: campaign.id, body: first <> "..."})
+
+      for part <- rest do
+        msg = new_sms_message(rider)
+        send_sms_message(msg, %{campaign_id: campaign.id, body: "..." <> part})
+      end
+    else
+      msg = new_sms_message(rider)
+      send_sms_message(msg, %{campaign_id: campaign.id, body: body})
     end
   end
 

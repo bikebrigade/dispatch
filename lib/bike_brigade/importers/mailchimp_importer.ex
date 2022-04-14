@@ -2,7 +2,7 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
   import Ecto.Query, warn: false
   import BikeBrigade.Utils, only: [get_config: 1, with_default: 2]
   alias BikeBrigade.Repo
-  alias BikeBrigade.Location
+  alias BikeBrigade.Locations.Location
   alias BikeBrigade.Importers.Importer
   alias BikeBrigade.Riders
   alias BikeBrigade.Messaging.Slack
@@ -16,44 +16,47 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
                    )
 
   def sync_riders() do
-    Repo.transaction(fn ->
-      last_synced =
-        Repo.one(
-          from i in Importer,
-            where: i.name == ^@importer_name,
-            lock: "FOR UPDATE SKIP LOCKED",
-            select: fragment("? ->> 'last_synced'", i.data)
-        )
+    Repo.transaction(
+      fn ->
+        last_synced =
+          Repo.one(
+            from i in Importer,
+              where: i.name == ^@importer_name,
+              lock: "FOR UPDATE SKIP LOCKED",
+              select: fragment("? ->> 'last_synced'", i.data)
+          )
 
-      list_id = get_config(:list_id)
+        list_id = get_config(:list_id)
 
-      with {:ok, members} <- MailchimpApi.get_list(list_id, last_synced) do
-        for member <- members do
-          case parse_mailchimp_attrs(member) do
-            {:ok, rider_attrs} ->
-              create_or_update(rider_attrs)
+        with {:ok, members} <- MailchimpApi.get_list(list_id, last_synced) do
+          for member <- members do
+            case parse_mailchimp_attrs(member) do
+              {:ok, rider_attrs} ->
+                create_or_update(rider_attrs)
 
-            {:error, {:update_location, rider_attrs}} ->
-              {:ok, rider} =
-                rider_attrs
-                |> put_default_location()
-                |> create_or_update()
+              {:error, {:update_location, rider_attrs}} ->
+                {:ok, rider} =
+                  rider_attrs
+                  |> put_default_location()
+                  |> create_or_update()
 
-              notify_location_error(rider)
-              tag_invalid_location(rider)
+                notify_location_error(rider)
+                tag_invalid_location(rider)
 
-            {:error, error} ->
-              notify_import_error(member, error)
+              {:error, error} ->
+                notify_import_error(member, error)
+            end
           end
-        end
 
-        Repo.insert(%Importer{name: @importer_name, data: %{last_synced: DateTime.utc_now()}},
-          returning: true,
-          on_conflict: @update_data_map,
-          conflict_target: :name
-        )
-      end
-    end)
+          Repo.insert(%Importer{name: @importer_name, data: %{last_synced: DateTime.utc_now()}},
+            returning: true,
+            on_conflict: @update_data_map,
+            conflict_target: :name
+          )
+        end
+      end,
+      timeout: :infinity
+    )
   end
 
   def create_or_update(rider_attrs) do
@@ -75,7 +78,7 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
   end
 
   def put_default_location(rider_attrs) do
-    Map.put(rider_attrs, :location_struct, %{address: "1 Front St"})
+    Map.put(rider_attrs, :location, %{address: "1 Front St"})
   end
 
   def tag_invalid_location(rider) do
@@ -155,7 +158,7 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
 
       case geolocate_raw_location(raw_location) do
         {:ok, location} ->
-          {:ok, Map.put(rider_attrs, :location_struct, Map.from_struct(location))}
+          {:ok, Map.put(rider_attrs, :location, Map.from_struct(location))}
 
         {:error, _} ->
           {:error, {:update_location, rider_attrs}}

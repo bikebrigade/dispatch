@@ -62,7 +62,7 @@
 - Switch off break-word on messages view (@Jenna)
 
 # 2021-06-12
-- Use date and time pickers to store campaign dates isntead of string
+- Use date and time pickers to store campaign dates instead of string
 
 # 2021-06-11
 - Add a global `hidePII()` and `showPII()` function

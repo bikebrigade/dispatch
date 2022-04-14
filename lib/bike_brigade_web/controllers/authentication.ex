@@ -48,7 +48,7 @@ defmodule BikeBrigadeWeb.Authentication do
   end
 
   # TODO
-  # The functions below are plusg and should be moved
+  # The functions below are plugs and should be moved
   def get_user_from_session(conn, _opts) do
     if user_id = get_session(conn, :user_id) do
       case Accounts.get_user(user_id) do
@@ -58,7 +58,7 @@ defmodule BikeBrigadeWeb.Authentication do
         nil ->
           conn
           |> renew_session()
-          |> put_flash(:erorr, "Logged in as user that does not exist")
+          |> put_flash(:error, "Logged in as user that does not exist")
       end
     else
       conn

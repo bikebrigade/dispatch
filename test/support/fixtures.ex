@@ -1,15 +1,14 @@
 defmodule BikeBrigade.Fixtures do
-  alias BikeBrigade.{Location, Accounts, Delivery, Riders, Messaging, Messaging, Repo}
+  alias BikeBrigade.{Accounts, Delivery, Riders, Messaging, Messaging, Repo}
 
-  @location %Location{
+  @location %{
               address: "926 College Street",
-              neighborhood: "Palmerston-Little Italy",
               city: "Toronto",
               postal: "M6H 1A1",
               province: "Ontario",
-              country: "Canada"
+              country: "Canada",
+              coords:  %Geo.Point{coordinates: {-79.4258633, 43.6539952}}
             }
-            |> Location.set_coords(43.6539952, -79.4258633)
 
   def fixture(name), do: fixture(name, %{})
 
@@ -49,13 +48,13 @@ defmodule BikeBrigade.Fixtures do
       %{
         delivery_start: DateTime.utc_now(),
         delivery_end: DateTime.utc_now() |> DateTime.add(60, :second),
-        name: "campaign",
-        location: Map.from_struct(@location)
+        location: @location
       }
       |> Map.merge(attrs)
       |> Delivery.create_campaign()
 
     campaign
+    |> Repo.preload(:program)
   end
 
   def fixture(:rider, attrs) do
@@ -65,14 +64,8 @@ defmodule BikeBrigade.Fixtures do
         email: Faker.Internet.email(),
         phone: fake_phone(),
         pronouns: Enum.random(~w(He/Him She/Her They/Them)),
-        address: @location.address,
-        address2: nil,
-        city: @location.city,
         country: @location.country,
-        location: @location.coords,
-        location_struct: Map.from_struct(@location),
-        postal: @location.postal,
-        province: @location.province,
+        location: @location,
         availability: %{
           "fri" => "all_day",
           "mon" => "all_day",
@@ -97,7 +90,7 @@ defmodule BikeBrigade.Fixtures do
         delivery_start: DateTime.utc_now(),
         delivery_end: DateTime.utc_now() |> DateTime.add(60, :second),
         signup_link: Faker.Internet.url(),
-        location: Map.from_struct(@location)
+        location: @location
       }
       |> Map.merge(attrs)
       |> Delivery.create_opportunity()

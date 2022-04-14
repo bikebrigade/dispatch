@@ -266,14 +266,14 @@ Hooks.LeafletMarker = {
 
       if (this.el.dataset.clickEvent) {
         marker = marker.on('click', e => {
-          // TODO: generalie to non-id paramtets
+          // TODO: generalize to non-id parameters
           let payload = null
           if (this.el.dataset.clickValueId) {
             payload = {
               id: this.el.dataset.clickValueId
             }
           }
-          // We can have targetted events or ones that go to the view itself
+          // We can have targeted events or ones that go to the view itself
           if (this.el.dataset.clickTarget) {
             this.pushEventTo(this.el.dataset.clickTarget, this.el.dataset.clickEvent, payload)
           } else {

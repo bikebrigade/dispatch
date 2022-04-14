@@ -2,13 +2,12 @@ defmodule BikeBrigadeWeb.CampaignLive.FormComponent do
   use BikeBrigadeWeb, :live_component
 
   alias BikeBrigade.LocalizedDateTime
-  alias BikeBrigade.Location
+  alias BikeBrigade.Locations.Location
   alias BikeBrigade.Delivery
   alias BikeBrigade.Delivery.{Campaign, Program}
   alias BikeBrigade.Importers.GSheetsImporter
 
   alias BikeBrigadeWeb.Components.LocationForm
-
 
   defmodule CampaignForm do
     use BikeBrigade.Schema
@@ -23,7 +22,7 @@ defmodule BikeBrigadeWeb.CampaignLive.FormComponent do
       field :rider_spreadsheet_url, :string
       field :rider_spreadsheet_layout, :string
 
-      embeds_one :location, Location, on_replace: :update
+      belongs_to :location, Location, on_replace: :update
       belongs_to :program, Program
     end
 
@@ -38,7 +37,7 @@ defmodule BikeBrigadeWeb.CampaignLive.FormComponent do
         :rider_spreadsheet_layout,
         :program_id
       ])
-      |> cast_embed(:location, with: &Location.geocoding_changeset/2)
+      |> cast_assoc(:location, with: &Location.geocoding_changeset/2)
       |> validate_required([:delivery_date, :start_time, :end_time, :location, :program_id])
     end
 
@@ -82,12 +81,17 @@ defmodule BikeBrigadeWeb.CampaignLive.FormComponent do
 
   @impl true
   def update(%{campaign: campaign} = assigns, socket) do
+    campaign =
+      campaign
+      |> BikeBrigade.Repo.preload([:location, :program])
+
     campaign_form = CampaignForm.from_campaign(campaign)
     changeset = CampaignForm.changeset(campaign_form)
 
     {:ok,
      socket
      |> assign(assigns)
+     |> assign(:campaign, campaign)
      |> assign(:campaign_form, campaign_form)
      |> assign(:changeset, changeset)}
   end

@@ -4,9 +4,12 @@ defmodule BikeBrigadeWeb.CampaignLive.TaskFormComponent do
   alias BikeBrigade.Delivery
   alias BikeBrigade.Delivery.TaskItem
 
+  alias BikeBrigadeWeb.Components.LocationForm
+
   @impl Phoenix.LiveComponent
   def update(assigns, socket) do
     %{task: task, campaign: campaign} = assigns
+    task = task |> BikeBrigade.Repo.preload([:pickup_location, :dropoff_location])
 
     changeset = Delivery.change_task(task)
     task_items = Ecto.Changeset.get_field(changeset, :task_items)
@@ -14,7 +17,9 @@ defmodule BikeBrigadeWeb.CampaignLive.TaskFormComponent do
     changeset =
       if task_items == [] do
         changeset
-        |> Ecto.Changeset.put_assoc(:task_items, [%TaskItem{task_id: task.id, item_id: campaign.program.default_item_id}])
+        |> Ecto.Changeset.put_assoc(:task_items, [
+          %TaskItem{task_id: task.id, item_id: campaign.program.default_item_id}
+        ])
       else
         changeset
       end
@@ -22,6 +27,7 @@ defmodule BikeBrigadeWeb.CampaignLive.TaskFormComponent do
     {:ok,
      socket
      |> assign(assigns)
+     |> assign(:task, task)
      |> assign(changeset: changeset)}
   end
 
@@ -60,7 +66,7 @@ defmodule BikeBrigadeWeb.CampaignLive.TaskFormComponent do
 
     changeset =
       task
-      |> Delivery.change_task(task_params)
+      |> Delivery.change_task(task_params, geocode: true)
       |> Map.put(:action, :validate)
 
     {:noreply, assign(socket, :changeset, changeset)}
@@ -77,7 +83,7 @@ defmodule BikeBrigadeWeb.CampaignLive.TaskFormComponent do
   end
 
   defp save_task(socket, :new, campaign, task_params) do
-    case Delivery.create_task_for_campaign(campaign, task_params) do
+    case Delivery.create_task_for_campaign(campaign, task_params, geocode: true) do
       {:ok, _task} ->
         {:noreply,
          socket
@@ -90,7 +96,8 @@ defmodule BikeBrigadeWeb.CampaignLive.TaskFormComponent do
 
   defp save_task(socket, :edit, _campaign, task_params) do
     %{task: task} = socket.assigns
-    case Delivery.update_task(task, task_params) do
+
+    case Delivery.update_task(task, task_params, geocode: true) do
       {:ok, _task} ->
         {:noreply,
          socket
