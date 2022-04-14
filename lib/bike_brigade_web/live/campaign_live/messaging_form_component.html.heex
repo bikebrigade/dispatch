@@ -1,18 +1,31 @@
-  <div>
+<div>
   <div class="flex flex-row space-x-3">
     <div class="w-1/2">
       <label class="block text-sm font-medium leading-5 text-gray-700">
         Preview for rider
       </label>
       <form id="select-rider-form" phx-target={@myself} phx-change="select-rider">
-      <select id="selected_rider_id" name="selected_rider_id" class="block w-full py-2 pl-3 pr-10 mt-1 text-base border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-        <%= rider_selection_options(@riders, @selected_rider) %>
-      </select>
+        <select
+          id="selected_rider_id"
+          name="selected_rider_id"
+          class="block w-full py-2 pl-3 pr-10 mt-1 text-base border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+        >
+          <%= rider_selection_options(@riders, @selected_rider) %>
+        </select>
       </form>
     </div>
     <%= if @selected_rider do %>
       <div class="flex items-end w-1/2">
-        <C.button href={Routes.delivery_show_path(@socket, :show, Delivery.campaign_rider_token(@campaign, @selected_rider))} target="_blank">
+        <C.button
+          href={
+            Routes.delivery_show_path(
+              @socket,
+              :show,
+              Delivery.campaign_rider_token(@campaign, @selected_rider)
+            )
+          }
+          target="_blank"
+        >
           Preview in app
         </C.button>
       </div>
@@ -25,162 +38,247 @@
     phx-target={@myself}
     phx-change="preview"
     phx-submit="save"
-    autocomplete="off">
-  <div class="flex flex-row mt-2 space-x-3">
-    <div class="w-1/2">
-      <div class="flex items-end justify-between">
-        <%= label f, :body, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-          Text Message
-          <C.button id="emoji-button" phx-hook="EmojiButtonHook" data-input-id={input_id(f, :instructions_template_body)} type="button" color={:white} size={:xxsmall}>
-              <Heroicons.Outline.emoji_happy aria-label="Emoji Picker" class="h-3.5 w-3.5 m-0.5 text-gray-400" />
+    autocomplete="off"
+  >
+    <div class="flex flex-row mt-2 space-x-3">
+      <div class="w-1/2">
+        <div class="flex items-end justify-between">
+          <%= label f, :body, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+            Text Message
+            <C.button
+              id="emoji-button"
+              phx-hook="EmojiButtonHook"
+              data-input-id={input_id(f, :instructions_template_body)}
+              type="button"
+              color={:white}
+              size={:xxsmall}
+            >
+              <Heroicons.Outline.emoji_happy
+                aria-label="Emoji Picker"
+                class="h-3.5 w-3.5 m-0.5 text-gray-400"
+              />
+            </C.button>
+          <% end %>
+          <.message_length_indicator length={@message_length} />
+        </div>
+        <%= for instructions_template_form <- inputs_for(f, :instructions_template) do %>
+          <%= hidden_inputs_for(instructions_template_form) %>
+          <div class="mt-1 rounded-md shadow-sm">
+            <%= textarea(instructions_template_form, :body,
+              required: true,
+              phx_hook: "Autocomplete",
+              data_autocomplete: inspect(directives()),
+              class:
+                "h-80 block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+            ) %>
+          </div>
+          <%= error_tag(instructions_template_form, :body) %>
+        <% end %>
+      </div>
+      <div class="w-1/2">
+        <label class="block text-sm font-medium leading-5 text-gray-700">
+          Preview
+        </label>
+        <div class="px-2 py-1 mt-1 overflow-auto text-gray-700 whitespace-pre-wrap bg-gray-100 rounded-md shadow-inner h-80">
+          <%= render_raw(preview(@campaign, @changeset, @selected_rider)) %>
+        </div>
+      </div>
+    </div>
+    <p class="mt-3 text-xs">
+      Available directives are:
+      <%= for directive <- directives() do %>
+        <span class="mr-1 font-serif bg-gray-100">{{{<%= directive %>}}}</span>
+      <% end %>
+    </p>
+    <div class="flex flex-row my-3 space-x-3">
+      <div class="w-1/2">
+        <%= label f, :details, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+          App Details
+          <C.button
+            id="emoji-button2"
+            phx-hook="EmojiButtonHook"
+            data-input-id={input_id(f, :details)}
+            type="button"
+            color={:white}
+            size={:xxsmall}
+          >
+            <Heroicons.Outline.emoji_happy
+              aria-label="Emoji Picker"
+              class="h-3.5 w-3.5 m-0.5 text-gray-400"
+            />
           </C.button>
         <% end %>
-        <.message_length_indicator length={@message_length} />
-      </div>
-      <%= for instructions_template_form <- inputs_for(f, :instructions_template) do %>
-        <%= hidden_inputs_for(instructions_template_form) %>
         <div class="mt-1 rounded-md shadow-sm">
-          <%= textarea instructions_template_form, :body, required: true,
-            phx_hook: "Autocomplete",
-            data_autocomplete: inspect(directives()),
-            class: "h-80 block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-            %>
+          <%= textarea(f, :details,
+            required: false,
+            class:
+              "h-60 block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+          ) %>
         </div>
-        <%= error_tag instructions_template_form, :body %>
-      <% end %>
-    </div>
-    <div class="w-1/2">
-      <label class="block text-sm font-medium leading-5 text-gray-700">
-        Preview
-      </label>
-      <div class="px-2 py-1 mt-1 overflow-auto text-gray-700 whitespace-pre-wrap bg-gray-100 rounded-md shadow-inner h-80"><%= render_raw preview(@campaign, @changeset, @selected_rider) %></div>
-    </div>
-  </div>
-  <p class="mt-3 text-xs">Available directives are: <%= for directive <- directives() do %>
-    <span class="mr-1 font-serif bg-gray-100">{{{<%= directive %>}}}</span>
-    <% end %>
-  </p>
-  <div class="flex flex-row my-3 space-x-3">
-    <div class="w-1/2">
-      <%= label f, :details, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-        App Details
-        <C.button id="emoji-button2" phx-hook="EmojiButtonHook" data-input-id={input_id(f, :details)} type="button" color={:white} size={:xxsmall}>
-            <Heroicons.Outline.emoji_happy aria-label="Emoji Picker" class="h-3.5 w-3.5 m-0.5 text-gray-400" />
-        </C.button>
-      <% end %>
-      <div class="mt-1 rounded-md shadow-sm">
-        <%= textarea f, :details, required: false,
-          class: "h-60 block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-          %>
+        <%= error_tag(f, :details) %>
       </div>
-      <%= error_tag f, :details %>
-    </div>
-    <div class="w-1/2">
-      <label class="block text-sm font-medium leading-5 text-gray-700">
-        Preview
-      </label>
-      <%= if @selected_rider do %>
-      <%# TODO: make this a proper component %>
-      <div class="w-full overflow-hidden bg-white shadow-md sm:mt-2 sm:rounded-lg">
-        <div class="flex items-start space-x-1 p-2.5 bg-white border-b border-gray-200 sm:p-4">
-          <div class="flex items-center justify-center flex-shrink-0 w-8 h-8 bg-green-700 rounded-full ring-8 ring-white">
-            <Heroicons.Solid.clipboard_check class="w-5 h-5 text-white" />
-          </div>
-          <div class="flex flex-wrap justify-between w-full pl-1 border-l border-gray-200 sm:flex-nowrap">
-            <div class="flex flex-col space-y-.5">
-              <h3 class="text-base font-semibold leading-6 text-gray-900">
-                Pick up
-              </h3>
-              <div class="inline-flex flex-shrink-0 leading-normal">
-                <Heroicons.Outline.clock aria-label="Pickup Time" class="w-4 h-4 mt-1 mr-1 text-gray-800" />
-                <%= CampaignHelpers.pickup_window(@campaign, @selected_rider) %>
+      <div class="w-1/2">
+        <label class="block text-sm font-medium leading-5 text-gray-700">
+          Preview
+        </label>
+        <%= if @selected_rider do %>
+          
+          <div class="w-full overflow-hidden bg-white shadow-md sm:mt-2 sm:rounded-lg">
+            <div class="flex items-start space-x-1 p-2.5 bg-white border-b border-gray-200 sm:p-4">
+              <div class="flex items-center justify-center flex-shrink-0 w-8 h-8 bg-green-700 rounded-full ring-8 ring-white">
+                <Heroicons.Solid.clipboard_check class="w-5 h-5 text-white" />
               </div>
-              <div class="inline-flex flex-shrink-0 leading-normal">
-                <Heroicons.Outline.location_marker aria-label="Pickup Address" class="w-4 h-4 mt-1 mr-1 text-gray-800" />
-                <%= @campaign.location.address %>
-              </div>
-              <div class="inline-flex leading-normal">
-                <Heroicons.Outline.shopping_bag class="flex-shrink-0 w-4 h-4 mt-1 mr-1 ext-gray-800 " />
-                <%= humanized_task_count(@selected_rider.assigned_tasks) %>
+              <div class="flex flex-wrap justify-between w-full pl-1 border-l border-gray-200 sm:flex-nowrap">
+                <div class="flex flex-col space-y-.5">
+                  <h3 class="text-base font-semibold leading-6 text-gray-900">
+                    Pick up
+                  </h3>
+                  <div class="inline-flex flex-shrink-0 leading-normal">
+                    <Heroicons.Outline.clock
+                      aria-label="Pickup Time"
+                      class="w-4 h-4 mt-1 mr-1 text-gray-800"
+                    />
+                    <%= CampaignHelpers.pickup_window(@campaign, @selected_rider) %>
+                  </div>
+                  <div class="inline-flex flex-shrink-0 leading-normal">
+                    <Heroicons.Outline.location_marker
+                      aria-label="Pickup Address"
+                      class="w-4 h-4 mt-1 mr-1 text-gray-800"
+                    />
+                    <%= @campaign.location.address %>
+                  </div>
+                  <div class="inline-flex leading-normal">
+                    <Heroicons.Outline.shopping_bag class="flex-shrink-0 w-4 h-4 mt-1 mr-1 ext-gray-800 " />
+                    <%= humanized_task_count(@selected_rider.assigned_tasks) %>
+                  </div>
+                </div>
+                <div class="flex flex-wrap items-start justify-end flex-shrink ml-auto">
+                  <C.button href={open_map_url(@campaign)} color={:green} size={:small}>
+                    <Heroicons.Outline.map class="icon" />
+                    Map
+                  </C.button>
+                </div>
               </div>
             </div>
-            <div class="flex flex-wrap items-start justify-end flex-shrink ml-auto">
-              <C.button href={open_map_url(@campaign)} color={:green} size={:small}>
-                <Heroicons.Outline.map class="icon" />
-                Map
-              </C.button>
-            </div>
-          </div>
-        </div>
-        <dl class="sm:divide-y sm:divide-gray-200">
-          <div class="px-6 py-2 pl-14 sm:py-5 sm:grid sm:grid-cols-8 sm:gap-2">
-            <dt class="text-sm font-medium text-gray-500">
-              Details
-            </dt>
-            <dd id="details-preview" phx-hook="Alpine" x-on:mounted="overflows = $el.firstElementChild.scrollHeight > $el.firstElementChild.clientHeight" x-on:updated="overflows = $el.firstElementChild.scrollHeight > $el.firstElementChild.clientHeight" x-data="{ collapsed: true, overflows: false }" class="relative mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-7">
-              <div :class="{ 'max-h-20': collapsed }" class="overflow-hidden whitespace-pre-wrap">
-                <%= render_raw Ecto.Changeset.get_field(@changeset, :details) %>
+            <dl class="sm:divide-y sm:divide-gray-200">
+              <div class="px-6 py-2 pl-14 sm:py-5 sm:grid sm:grid-cols-8 sm:gap-2">
+                <dt class="text-sm font-medium text-gray-500">
+                  Details
+                </dt>
+                <dd
+                  id="details-preview"
+                  phx-hook="Alpine"
+                  x-on:mounted="overflows = $el.firstElementChild.scrollHeight > $el.firstElementChild.clientHeight"
+                  x-on:updated="overflows = $el.firstElementChild.scrollHeight > $el.firstElementChild.clientHeight"
+                  x-data="{ collapsed: true, overflows: false }"
+                  class="relative mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-7"
+                >
+                  <div
+                    :class="{ 'max-h-20': collapsed }"
+                    class="overflow-hidden whitespace-pre-wrap"
+                  >
+                    <%= render_raw(Ecto.Changeset.get_field(@changeset, :details)) %>
+                  </div>
+                  <div
+                    x-show="overflows"
+                    :class="{'absolute inset-x-0 bottom-0': collapsed }"
+                    class="flex justify-around p-1.5 bg-white bg-opacity-90"
+                  >
+                    <button
+                      x-text="collapsed ? 'Show More...' : 'Show Less'"
+                      @click="collapsed = !collapsed"
+                      type="button"
+                      class="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
+                    </button>
+                  </div>
+                </dd>
               </div>
-              <div x-show="overflows" :class="{'absolute inset-x-0 bottom-0': collapsed }" class="flex justify-around p-1.5 bg-white bg-opacity-90">
-                <button x-text="collapsed ? 'Show More...' : 'Show Less'" @click="collapsed = !collapsed" type="button" class="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                </button>
-              </div>
-            </dd>
+            </dl>
           </div>
-        </dl>
-      </div>
-      <% else %>
-        <em>Need a rider with assigned tasks to preview</em>
-      <% end %>
-    </div>
-  </div>
-  <%= for sm <- inputs_for(f, :scheduled_message) do %>
-  <div class="flex mt-6" x-data="{ scheduling: false }">
-    <div class="flex items-center w-1/2">
-      <%= hidden_inputs_for sm %>
-      <div id="schedule-picker" x-show="scheduling" class="mt-1 rounded-md shadow-sm">
-        <%= if dt = Ecto.Changeset.get_field(sm.source, :send_at) do %>
-          <%= datetime_local_input sm, :send_at, id: "hacky-input-1", value: LocalizedDateTime.localize(dt), phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
         <% else %>
-          <%= datetime_local_input sm, :send_at, id: "hacky-input-2", value: nil, phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+          <em>Need a rider with assigned tasks to preview</em>
         <% end %>
-      </div>
-      <div x-show="!scheduling" class="flex flex-col w-full space-y-0.5 text-sm font-medium text-gray-700">
-        <%= if @campaign.latest_message do %>
-          <div>Last Messaged at <%= datetime(@campaign.latest_message.sent_at) %></div>
-        <% end %>
-
-        <%= if (send_at = input_value(sm, :send_at)) && send_at != "" do %>
-          <div>
-            Scheduled to be sent at <%= datetime(send_at) %>
-          </div>
-        <% end %>
-      </div>
-
-      </div>
-      <div class="flex justify-end w-1/2 space-x-2">
-        <C.button x-show="!scheduling" type="button" @click="scheduling = true"
-          class="ml-3" color={:green}> <%= case input_value(sm, :send_at) do %>
-          <% %DateTime{} -> %> Edit schedule
-          <% _ -> %>Schedule
-        <% end %>
-        </C.button>
-        <C.button x-show="!scheduling" phx-click="send" phx-disable-with="Sending..." phx-target={ @myself } data-confirm="Are you sure?">
-          Send Now
-        </C.button>
-        <C.button type="submit" @click="scheduling = false"
-          color={:secondary}
-          class="ml-3">
-          Save
-        </C.button>
-        <C.button x-show="scheduling" type="button" @click="scheduling = false"
-          phx-click="delete-schedule" phx-target={ @myself }
-          color={:red}
-          class="ml-3">
-          Delete Schedule
-        </C.button>
       </div>
     </div>
-  <% end %>
-</.form>
+    <%= for sm <- inputs_for(f, :scheduled_message) do %>
+      <div class="flex mt-6" x-data="{ scheduling: false }">
+        <div class="flex items-center w-1/2">
+          <%= hidden_inputs_for(sm) %>
+          <div id="schedule-picker" x-show="scheduling" class="mt-1 rounded-md shadow-sm">
+            <%= if dt = Ecto.Changeset.get_field(sm.source, :send_at) do %>
+              <%= datetime_local_input(sm, :send_at,
+                id: "hacky-input-1",
+                value: LocalizedDateTime.localize(dt),
+                phx_debounce: "blur",
+                class:
+                  "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+              ) %>
+            <% else %>
+              <%= datetime_local_input(sm, :send_at,
+                id: "hacky-input-2",
+                value: nil,
+                phx_debounce: "blur",
+                class:
+                  "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+              ) %>
+            <% end %>
+          </div>
+          <div
+            x-show="!scheduling"
+            class="flex flex-col w-full space-y-0.5 text-sm font-medium text-gray-700"
+          >
+            <%= if @campaign.latest_message do %>
+              <div>Last Messaged at <%= datetime(@campaign.latest_message.sent_at) %></div>
+            <% end %>
+
+            <%= if (send_at = input_value(sm, :send_at)) && send_at != "" do %>
+              <div>
+                Scheduled to be sent at <%= datetime(send_at) %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+        <div class="flex justify-end w-1/2 space-x-2">
+          <C.button
+            x-show="!scheduling"
+            type="button"
+            @click="scheduling = true"
+            class="ml-3"
+            color={:green}
+          >
+            <%= case input_value(sm, :send_at) do %>
+              <% %DateTime{} -> %>
+                Edit schedule
+              <% _ -> %>
+                Schedule
+            <% end %>
+          </C.button>
+          <C.button
+            x-show="!scheduling"
+            phx-click="send"
+            phx-disable-with="Sending..."
+            phx-target={@myself}
+            data-confirm="Are you sure?"
+          >
+            Send Now
+          </C.button>
+          <C.button type="submit" @click="scheduling = false" color={:secondary} class="ml-3">
+            Save
+          </C.button>
+          <C.button
+            x-show="scheduling"
+            type="button"
+            @click="scheduling = false"
+            phx-click="delete-schedule"
+            phx-target={@myself}
+            color={:red}
+            class="ml-3"
+          >
+            Delete Schedule
+          </C.button>
+        </div>
+      </div>
+    <% end %>
+  </.form>
 </div>

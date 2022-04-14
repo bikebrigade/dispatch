@@ -41,7 +41,8 @@ config :bike_brigade, :sms_service,
   adapter: BikeBrigade.SmsService.FakeSmsService,
   status_callback_url: :local
 
-config :bike_brigade, :geocoder, adapter: {BikeBrigade.Geocoder.FakeGeocoder, [locations: :from_seeds]}
+config :bike_brigade, :geocoder,
+  adapter: {BikeBrigade.Geocoder.FakeGeocoder, [locations: :from_seeds]}
 
 config :bike_brigade, :media_storage,
   adapter: BikeBrigade.MediaStorage.FakeMediaStorage,

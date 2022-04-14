@@ -12,5 +12,4 @@ defmodule BikeBrigadeWeb.StatusController do
     |> put_status(:ok)
     |> text(inspect(conn))
   end
-
 end

@@ -29,7 +29,6 @@ defmodule BikeBrigade.AccountsTest do
       assert Accounts.get_user(user.id) == user
     end
 
-
     test "get_user_by_phone/1 returns the user with given phone number" do
       user = user_fixture()
       assert Accounts.get_user_by_phone(user.phone) == user

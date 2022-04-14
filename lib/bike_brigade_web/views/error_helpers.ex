@@ -10,7 +10,9 @@ defmodule BikeBrigadeWeb.ErrorHelpers do
   """
   def error_tag(form, field) do
     Enum.map(Keyword.get_values(form.errors, field), fn error ->
-      content_tag(:p, "'#{Atom.to_string(field) |> Recase.to_sentence()}': #{translate_error(error)}",
+      content_tag(
+        :p,
+        "'#{Atom.to_string(field) |> Recase.to_sentence()}': #{translate_error(error)}",
         class: "mt-2 text-sm text-red-600",
         phx_feedback_for: input_id(form, field)
       )

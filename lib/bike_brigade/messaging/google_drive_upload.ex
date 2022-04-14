@@ -13,23 +13,23 @@ defmodule BikeBrigade.Messaging.GoogleDriveUpload do
 
   def upload_media(%SmsMessage{rider: rider} = message) do
     media =
-      for m  <- message.media do
+      for m <- message.media do
         if m.content_type in @content_type_allowlist do
-        {:ok, file} =
-          Drive.upload_from_url(m.url, @folder,
-            name: file_name(rider, message),
-            content_type: m.content_type
-          )
+          {:ok, file} =
+            Drive.upload_from_url(m.url, @folder,
+              name: file_name(rider, message),
+              content_type: m.content_type
+            )
 
-        %{
-          id: m.id,
-          gdrive_url: file.webViewLink,
-          gdrive_folder_url: "https://drive.google.com/drive/folders/#{@folder}"
-        }
-      else
-        %{id: m.id}
+          %{
+            id: m.id,
+            gdrive_url: file.webViewLink,
+            gdrive_folder_url: "https://drive.google.com/drive/folders/#{@folder}"
+          }
+        else
+          %{id: m.id}
+        end
       end
-    end
 
     Messaging.update_sms_message(message, %{media: media})
   end

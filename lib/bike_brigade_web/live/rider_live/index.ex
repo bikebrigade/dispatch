@@ -410,46 +410,72 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     ~H"""
     <div>
       <%= if @live_action == :message do %>
-        <UI.modal id={:bulk_message} show return_to={Routes.rider_index_path(@socket, :index)} >
+        <UI.modal id={:bulk_message} show return_to={Routes.rider_index_path(@socket, :index)}>
           <:title>Bulk Message</:title>
           <.live_component
             module={BikeBrigadeWeb.SmsMessageLive.FormComponent}
             id={:bulk_message}
             initial_riders={@initial_riders}
-            current_user={@current_user}/>
+            current_user={@current_user}
+          />
         </UI.modal>
       <% end %>
       <div class="flex items-center justify-between ">
         <div class="relative flex flex-col w-2/3">
-          <form id="rider-search" phx-change="suggest" phx-submit="filter"}
-            phx-click-away="clear-search">
+          <form
+            id="rider-search"
+            phx-change="suggest"
+            phx-submit="filter"
+            }
+            phx-click-away="clear-search"
+          >
             <div class="relative flex items-baseline w-full px-1 py-0 bg-white border border-gray-300 rounded-md shadow-sm sm:text-sm focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500">
               <.filter_list filters={@rider_search.filters} />
-              <input type="text"
+              <input
+                type="text"
                 id="rider-search-input"
                 name="value"
                 value={display_search(@search)}
                 autocomplete="off"
                 class="w-full placeholder-gray-400 border-transparent appearance-none focus:border-transparent outline-transparent ring-transparent focus:ring-0"
                 placeholder="Name, tag, capacity, last active"
-                tabindex="1"/>
-                <%= if @rider_search.filters != [] do %>
-                    <button type="button" phx-click="clear-filters" class="absolute right-1 text-gray-400 rounded-md top-2.5 hover:text-gray-500">
-                      <span class="sr-only">Clear Search</span>
-                      <Heroicons.Outline.x class="w-6 h-6" />
-                    </button>
-                <% end %>
-              </div>
-          <.suggestion_list suggestions={@suggestions} open={@show_suggestions}/>
-          <button id="submit" type="submit" class="sr-only"/>
+                tabindex="1"
+              />
+              <%= if @rider_search.filters != [] do %>
+                <button
+                  type="button"
+                  phx-click="clear-filters"
+                  class="absolute right-1 text-gray-400 rounded-md top-2.5 hover:text-gray-500"
+                >
+                  <span class="sr-only">Clear Search</span>
+                  <Heroicons.Outline.x class="w-6 h-6" />
+                </button>
+              <% end %>
+            </div>
+            <.suggestion_list suggestions={@suggestions} open={@show_suggestions} />
+            <button id="submit" type="submit" class="sr-only" />
           </form>
         </div>
         <div class="inline-flex rounded-md shadow-sm">
-          <button phx-click="set-mode" phx-value-mode="list" type="button" class={"#{if @mode == :list, do: "bg-gray-300", else: "bg-white"} relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-l-md hover:bg-gray-200 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"}>
+          <button
+            phx-click="set-mode"
+            phx-value-mode="list"
+            type="button"
+            class={
+              "#{if @mode == :list, do: "bg-gray-300", else: "bg-white"} relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-l-md hover:bg-gray-200 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+            }
+          >
             <Heroicons.Outline.table class="w-5 h-5 mr-1" />
             List
           </button>
-          <button phx-click="set-mode" phx-value-mode="map" type="button" class={"#{if @mode == :map, do: "bg-gray-300", else: "bg-white"} relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 border border-gray-300 rounded-r-md hover:bg-gray-200 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"}>
+          <button
+            phx-click="set-mode"
+            phx-value-mode="map"
+            type="button"
+            class={
+              "#{if @mode == :map, do: "bg-gray-300", else: "bg-white"} relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 border border-gray-300 rounded-r-md hover:bg-gray-200 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+            }
+          >
             Map
             <Heroicons.Outline.map class="w-5 h-5 ml-1" />
           </button>
@@ -465,14 +491,22 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
       <%= if @mode == :map do %>
         <div class="min-w-full mt-2 bg-white rounded-lg shadow">
           <div class="p-1 h-[80vh]">
-            <.rider_map rider_locations={@all_locations} selected={@selected} lat={43.653960} lng={-79.425820} />
+            <.rider_map
+              rider_locations={@all_locations}
+              selected={@selected}
+              lat={43.653960}
+              lng={-79.425820}
+            />
           </div>
-          <div class="flex items-center justify-between px-4 py-3 border-t border-gray-200 sm:px-6" aria-label="Pagination">
+          <div
+            class="flex items-center justify-between px-4 py-3 border-t border-gray-200 sm:px-6"
+            aria-label="Pagination"
+          >
             <div class="hidden sm:block">
               <p class="text-sm text-gray-700">
                 Showing
                 <span class="font-medium">
-                <%= @search_results.total %>
+                  <%= @search_results.total %>
                 </span>
                 results
               </p>
@@ -482,15 +516,23 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
       <% else %>
         <UI.table id="riders" rows={@search_results.page} class="min-w-full mt-2">
           <:th class="text-center" padding="px-3">
-          <%= checkbox :selected, :all,
-            form: "selected",
-            value: all_selected?(@search_results.page, @selected),
-            class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" %>
+            <%= checkbox(:selected, :all,
+              form: "selected",
+              value: all_selected?(@search_results.page, @selected),
+              class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+            ) %>
           </:th>
           <:th padding="px-3">
             <div class="inline-flex">
               Name
-              <C.sort_link phx-click="sort" current_field={:name} default_order={:asc} sort_field={@rider_search.sort_field} sort_order={@rider_search.sort_order} class="pl-2" />
+              <C.sort_link
+                phx-click="sort"
+                current_field={:name}
+                default_order={:asc}
+                sort_field={@rider_search.sort_field}
+                sort_order={@rider_search.sort_order}
+                class="pl-2"
+              />
             </div>
           </:th>
           <:th>
@@ -502,25 +544,43 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
           <:th>
             <div class="inline-flex">
               Capacity
-              <C.sort_link phx-click="sort" current_field={:capacity} default_order={:desc} sort_field={@rider_search.sort_field} sort_order={@rider_search.sort_order} class="pl-2" />
+              <C.sort_link
+                phx-click="sort"
+                current_field={:capacity}
+                default_order={:desc}
+                sort_field={@rider_search.sort_field}
+                sort_order={@rider_search.sort_order}
+                class="pl-2"
+              />
             </div>
           </:th>
           <:th>
             <div class="inline-flex">
               Last Active
-              <C.sort_link phx-click="sort" current_field={:last_active} default_order={:desc} sort_field={@rider_search.sort_field} sort_order={@rider_search.sort_order} class="pl-2" />
+              <C.sort_link
+                phx-click="sort"
+                current_field={:last_active}
+                default_order={:desc}
+                sort_field={@rider_search.sort_field}
+                sort_order={@rider_search.sort_order}
+                class="pl-2"
+              />
             </div>
           </:th>
-
           <:td let={rider} class="text-center" padding="px-3">
-            <%= checkbox :selected, "#{rider.id}",
+            <%= checkbox(:selected, "#{rider.id}",
               form: "selected",
               value: MapSet.member?(@selected, rider.id),
-              class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" %>
+              class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+            ) %>
           </:td>
           <:td let={rider} padding="px-3">
             <%= live_redirect to: Routes.rider_show_path(@socket, :show, rider), class: "link" do %>
-              <.bold_search string={rider.name} search={get_filter(@rider_search.filters, :name)} search_type={:word_boundary} />
+              <.bold_search
+                string={rider.name}
+                search={get_filter(@rider_search.filters, :name)}
+                search_type={:word_boundary}
+              />
             <% end %>
             <span class="text-xs lowercase ">(<%= rider.pronouns %>)</span>
             <.show_phone_if_filtered phone={rider.phone} filters={@rider_search.filters} />
@@ -531,22 +591,26 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
           <:td let={rider}>
             <ul class="flex">
               <%= for tag <- rider.tags do %>
-              <li class="before:content-[','] first:before:content-['']">
-                <button type="button" phx-click="filter" value={"tag:#{tag.name}"}}
-                  class="link">
-                  <%= if get_filter(@rider_search.filters, :tag, tag.name) do %>
-                    <span class="font-bold"><%= tag.name %></span>
-                  <% else %>
-                    <%= tag.name %>
-                  <% end %>
-                </button>
-              </li>
+                <li class="before:content-[','] first:before:content-['']">
+                  <button type="button" phx-click="filter" value={"tag:#{tag.name}"} } class="link">
+                    <%= if get_filter(@rider_search.filters, :tag, tag.name) do %>
+                      <span class="font-bold"><%= tag.name %></span>
+                    <% else %>
+                      <%= tag.name %>
+                    <% end %>
+                  </button>
+                </li>
               <% end %>
             </ul>
           </:td>
           <:td let={rider}>
-            <button type="button" phx-click="filter" value={"capacity:#{rider.capacity}"}}
-            class="link">
+            <button
+              type="button"
+              phx-click="filter"
+              value={"capacity:#{rider.capacity}"}
+              }
+              class="link"
+            >
               <%= if get_filter(@rider_search.filters, :capacity, rider.capacity) do %>
                 <span class="font-bold"><%= rider.capacity %></span>
               <% else %>
@@ -556,11 +620,16 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
           </:td>
           <:td let={rider}>
             <%= if rider.latest_campaign do %>
-              <%=  rider.latest_campaign.delivery_start |> LocalizedDateTime.to_date() |> Calendar.strftime("%b %-d, %Y") %>
+              <%= rider.latest_campaign.delivery_start
+              |> LocalizedDateTime.to_date()
+              |> Calendar.strftime("%b %-d, %Y") %>
             <% end %>
           </:td>
           <:footer>
-            <nav class="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6" aria-label="Pagination">
+            <nav
+              class="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6"
+              aria-label="Pagination"
+            >
               <div class="hidden sm:block">
                 <p class="text-sm text-gray-700">
                   Showing
@@ -573,7 +642,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
                   </span>
                   of
                   <span class="font-medium">
-                  <%= @search_results.total %>
+                    <%= @search_results.total %>
                   </span>
                   results
                 </p>
@@ -601,62 +670,65 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
 
   defp suggestion_list(assigns) do
     ~H"""
-    <dialog id="suggestion-list"
+    <dialog
+      id="suggestion-list"
       open={@open}
       class="absolute z-10 w-full p-2 mt-0 overflow-y-auto bg-white border rounded shadow-xl top-100 max-h-fit"
-      phx-window-keydown="clear-search" phx-key="escape">
+      phx-window-keydown="clear-search"
+      phx-key="escape"
+    >
       <p class="text-sm text-gray-500">Press Tab to cycle suggestions</p>
       <div class="grid grid-cols-2 gap-1">
-      <div>
-      <%= if @suggestions.name do %>
-        <h3 class="my-1 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
-          Name
-        </h3>
-        <div class="flex flex-col my-2">
-          <.suggestion type={:name} search={@suggestions.name} />
-        </div>
-      <% end %>
-      <%= if @suggestions.phone do %>
-        <h3 class="my-1 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
-          Phone
-        </h3>
-        <div class="flex flex-col my-2">
-          <.suggestion type={:phone} search={@suggestions.phone} />
-        </div>
-      <% end %>
-      <%= if @suggestions.tags != [] do %>
-        <h3 class="my-1 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
-          Tag
-        </h3>
-        <div class="flex flex-col my-2">
-          <%= for tag <- @suggestions.tags do %>
-            <.suggestion type={:tag} search={tag} />
+        <div>
+          <%= if @suggestions.name do %>
+            <h3 class="my-1 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+              Name
+            </h3>
+            <div class="flex flex-col my-2">
+              <.suggestion type={:name} search={@suggestions.name} />
+            </div>
+          <% end %>
+          <%= if @suggestions.phone do %>
+            <h3 class="my-1 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+              Phone
+            </h3>
+            <div class="flex flex-col my-2">
+              <.suggestion type={:phone} search={@suggestions.phone} />
+            </div>
+          <% end %>
+          <%= if @suggestions.tags != [] do %>
+            <h3 class="my-1 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+              Tag
+            </h3>
+            <div class="flex flex-col my-2">
+              <%= for tag <- @suggestions.tags do %>
+                <.suggestion type={:tag} search={tag} />
+              <% end %>
+            </div>
           <% end %>
         </div>
-      <% end %>
-      </div>
-      <div>
-      <%= if @suggestions.capacity != [] do %>
-        <h3 class="my-1 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
-          Capacity
-        </h3>
-        <div class="flex flex-col my-2">
-          <%= for capacity <- @suggestions.capacity do %>
-            <.suggestion type={:capacity} search={capacity} />
+        <div>
+          <%= if @suggestions.capacity != [] do %>
+            <h3 class="my-1 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+              Capacity
+            </h3>
+            <div class="flex flex-col my-2">
+              <%= for capacity <- @suggestions.capacity do %>
+                <.suggestion type={:capacity} search={capacity} />
+              <% end %>
+            </div>
+          <% end %>
+          <%= if @suggestions.active != [] do %>
+            <h3 class="my-1 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+              Last Active
+            </h3>
+            <div class="flex flex-col my-2">
+              <%= for period <- @suggestions.active do %>
+                <.suggestion type={:active} search={period} />
+              <% end %>
+            </div>
           <% end %>
         </div>
-      <% end %>
-      <%= if @suggestions.active != [] do %>
-        <h3 class="my-1 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
-          Last Active
-        </h3>
-        <div class="flex flex-col my-2">
-          <%= for period <- @suggestions.active do %>
-            <.suggestion type={:active} search={period} />
-          <% end %>
-        </div>
-      <% end %>
-      </div>
       </div>
     </dialog>
     """
@@ -665,18 +737,22 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   defp suggestion(assigns) do
     ~H"""
     <div id={"#{@type}-#{@search}"} class="px-1 py-0.5 rounded-md focus-within:bg-gray-100">
-      <button type="button" phx-click="filter" value={"#{@type}:#{@search}"}
+      <button
+        type="button"
+        phx-click="filter"
+        value={"#{@type}:#{@search}"}
         class="block ml-1 transition duration-150 ease-in-out w-fit hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
         tabindex="1"
-        phx-focus={JS.push("choose", value: %{"choose" => "#{@type}:#{@search}"})}>
+        phx-focus={JS.push("choose", value: %{"choose" => "#{@type}:#{@search}"})}
+      >
         <p class={"px-2.5 py-1.5 rounded-md text-md font-medium #{color(@type)}"}>
           <%= case @type do %>
-          <% :name -> %>
-            "<%= @search %>"<span class="ml-1 text-sm">in name</span>
-          <% :phone -> %>
-            "<%= @search %>"<span class="ml-1 text-sm">in phone number</span>
-          <% _ -> %>
-            <span class="mr-0.5 text-sm"><%= @type %>:</span><%= @search %>
+            <% :name -> %>
+              "<%= @search %>"<span class="ml-1 text-sm">in name</span>
+            <% :phone -> %>
+              "<%= @search %>"<span class="ml-1 text-sm">in phone number</span>
+            <% _ -> %>
+              <span class="mr-0.5 text-sm"><%= @type %>:</span><%= @search %>
           <% end %>
         </p>
       </button>
@@ -689,11 +765,17 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     <%= if @filters != [] do %>
       <div class="flex flex-wrap space-x-0.5 max-w-xs">
         <%= for {{type, search}, i} <- Enum.with_index(@filters) do %>
-          <div class={"my-0.5 inline-flex items-center px-2.5 py-1.5 rounded-md text-md font-medium #{color(type)}"}>
+          <div class={
+            "my-0.5 inline-flex items-center px-2.5 py-1.5 rounded-md text-md font-medium #{color(type)}"
+          }>
             <span class="text-700 mr-0.5 font-base"><%= type %>:</span><%= search %>
-            <Heroicons.Outline.x_circle class="w-5 h-5 ml-1 cursor-pointer" phx-click="remove-filter" phx-value-index={i} />
+            <Heroicons.Outline.x_circle
+              class="w-5 h-5 ml-1 cursor-pointer"
+              phx-click="remove-filter"
+              phx-value-index={i}
+            />
           </div>
-        <% end  %>
+        <% end %>
       </div>
     <% end %>
     """
@@ -701,11 +783,15 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
 
   def rider_map(assigns) do
     ~H"""
-    <div phx-hook="LeafletMapNext" id="task-map"
-        data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
-        data-lat={@lat} data-lng={@lng}
-        phx-update="ignore"
-        class="h-full">
+    <div
+      phx-hook="LeafletMapNext"
+      id="task-map"
+      data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
+      data-lat={@lat}
+      data-lng={@lng}
+      phx-update="ignore"
+      class="h-full"
+    >
     </div>
     """
   end
@@ -748,7 +834,9 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
 
         # Note the output is all one line cuz inline elements add spacing from spaces - which may be in the string
         ~H"""
-          <%= for [s, search] <- @segments do %><%= s %><span class="font-bold"><%= search %></span><% end %>
+        <%= for [s, search] <- @segments do %>
+          <%= s %><span class="font-bold"><%= search %></span>
+        <% end %>
         """
     end
   end

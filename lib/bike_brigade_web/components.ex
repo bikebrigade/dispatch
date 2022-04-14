@@ -32,7 +32,10 @@ defmodule BikeBrigadeWeb.Components do
 
   def date_inner(assigns) do
     ~H"""
-    <time datetime={@date} class="inline-flex items-center p-1 text-center border border-gray-400 rounded">
+    <time
+      datetime={@date}
+      class="inline-flex items-center p-1 text-center border border-gray-400 rounded"
+    >
       <span class="mr-1 text-sm font-semibold text-gray-500">
         <%= Calendar.strftime(@date, "%a") %>
       </span>
@@ -178,7 +181,7 @@ defmodule BikeBrigadeWeb.Components do
     ~H"""
     <button type="button" class={@class} {@attrs}>
       <div class="text-xs leading-relaxed text-center">
-        <%= render_slot @inner_block %>
+        <%= render_slot(@inner_block) %>
       </div>
     </button>
     """
@@ -191,7 +194,7 @@ defmodule BikeBrigadeWeb.Components do
 
     ~H"""
     <div class="relative flex flex-col items-center has-tooltip">
-      <%= render_slot @inner_block %>
+      <%= render_slot(@inner_block) %>
       <div class={"absolute bottom-0 flex-col items-center mb-6 tooltip #{@class}"}>
         <span class="relative z-10 p-2 text-xs leading-none text-white whitespace-no-wrap bg-black rounded-sm shadow-lg">
           <%= @tooltip %>
@@ -209,7 +212,11 @@ defmodule BikeBrigadeWeb.Components do
         <div class="flex">
           <div class="flex-shrink-0">
             <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              <path
+                fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clip-rule="evenodd"
+              />
             </svg>
           </div>
           <div class="ml-3">
@@ -219,9 +226,17 @@ defmodule BikeBrigadeWeb.Components do
           </div>
           <div class="pl-3 ml-auto">
             <div class="-mx-1.5 -my-1.5">
-              <button phx-click="lv:clear-flash" phx-value-key="info" class="inline-flex rounded-md p-1.5 text-green-500 hover:bg-green-100 focus:outline-none focus:bg-green-100 transition ease-in-out duration-150">
+              <button
+                phx-click="lv:clear-flash"
+                phx-value-key="info"
+                class="inline-flex rounded-md p-1.5 text-green-500 hover:bg-green-100 focus:outline-none focus:bg-green-100 transition ease-in-out duration-150"
+              >
                 <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                  <path
+                    fill-rule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clip-rule="evenodd"
+                  />
                 </svg>
               </button>
             </div>
@@ -235,7 +250,11 @@ defmodule BikeBrigadeWeb.Components do
         <div class="flex">
           <div class="flex-shrink-0">
             <svg class="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+              <path
+                fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                clip-rule="evenodd"
+              />
             </svg>
           </div>
           <div class="ml-3">
@@ -245,9 +264,17 @@ defmodule BikeBrigadeWeb.Components do
           </div>
           <div class="pl-3 ml-auto">
             <div class="-mx-1.5 -my-1.5">
-              <button phx-click="lv:clear-flash" phx-value-key="error" class="inline-flex rounded-md p-1.5 text-red-500 hover:bg-red-100 focus:outline-none focus:bg-red-100 transition ease-in-out duration-150">
+              <button
+                phx-click="lv:clear-flash"
+                phx-value-key="error"
+                class="inline-flex rounded-md p-1.5 text-red-500 hover:bg-red-100 focus:outline-none focus:bg-red-100 transition ease-in-out duration-150"
+              >
                 <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                  <path
+                    fill-rule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clip-rule="evenodd"
+                  />
                 </svg>
               </button>
             </div>
@@ -262,16 +289,28 @@ defmodule BikeBrigadeWeb.Components do
     assigns = assign_new(assigns, :class, fn -> "" end)
 
     ~H"""
-      <%= if @coords != %Geo.Point{} do %>
-        <div class={@class}>
-          <leaflet-map phx-hook="LeafletMap" id={"location-map-#{inspect(@coords.coordinates)}"} data-lat={ lat(@coords) } data-lng={ lng(@coords) }
-            data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
-            class="h-full">
-            <leaflet-marker phx-hook="LeafletMarker" id={"location-marker-#{inspect(@coords.coordinates)}"} data-lat={ lat(@coords) } data-lng={ lng(@coords) }
-            data-icon="warehouse" data-color="#1c64f2"></leaflet-marker>
-          </leaflet-map>
-        </div>
-      <% end %>
+    <%= if @coords != %Geo.Point{} do %>
+      <div class={@class}>
+        <leaflet-map
+          phx-hook="LeafletMap"
+          id={"location-map-#{inspect(@coords.coordinates)}"}
+          data-lat={lat(@coords)}
+          data-lng={lng(@coords)}
+          data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
+          class="h-full"
+        >
+          <leaflet-marker
+            phx-hook="LeafletMarker"
+            id={"location-marker-#{inspect(@coords.coordinates)}"}
+            data-lat={lat(@coords)}
+            data-lng={lng(@coords)}
+            data-icon="warehouse"
+            data-color="#1c64f2"
+          >
+          </leaflet-marker>
+        </leaflet-map>
+      </div>
+    <% end %>
     """
   end
 
@@ -322,7 +361,7 @@ defmodule BikeBrigadeWeb.Components do
 
     ~H"""
     <button type="button" phx-value-field={@current_field} phx-value-order={@next} {@attrs}>
-      <Icons.sort order={@order} class={@icon_class}/>
+      <Icons.sort order={@order} class={@icon_class} />
     </button>
     """
   end
@@ -330,7 +369,10 @@ defmodule BikeBrigadeWeb.Components do
   def location(assigns) do
     ~H"""
     <div class="inline-flex flex-shrink-0 leading-normal">
-    <Heroicons.Outline.location_marker aria_label="Location" class="w-4 h-4 mt-1 mr-1 text-gray-800" />
+      <Heroicons.Outline.location_marker
+        aria_label="Location"
+        class="w-4 h-4 mt-1 mr-1 text-gray-800"
+      />
       <div class="grid grid-cols-2 gap-y-0 gap-x-1">
         <div class="col-span-2"><%= @location.address %></div>
         <%= if @location.unit do %>

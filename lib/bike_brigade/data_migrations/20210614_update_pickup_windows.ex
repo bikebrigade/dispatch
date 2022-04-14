@@ -1,5 +1,4 @@
 defmodule BikeBrigade.DataMigrations.UpdatePickupWindows do
-
   # This has been superceded by the live notebook at notebooks/20210928_update_missing_dates.livemd
   import Ecto.Query, warn: false
 

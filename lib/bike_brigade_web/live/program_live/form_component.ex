@@ -63,6 +63,7 @@ defmodule BikeBrigadeWeb.ProgramLive.FormComponent do
     changeset =
       socket.assigns.program_form
       |> ProgramForm.changeset(program_form_params)
+
     with {:ok, program_params} <-
            ProgramForm.to_program_attributes(changeset),
          {:ok, _program} <- Delivery.update_program(socket.assigns.program, program_params) do

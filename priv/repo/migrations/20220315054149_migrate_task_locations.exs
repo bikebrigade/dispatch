@@ -137,12 +137,13 @@ defmodule BikeBrigade.Repo.Migrations.MigrateTaskLocations do
   defp chunked_insert_all(table, entries, opts) do
     opts = Keyword.merge([timeout: :infinity], opts)
 
-    column_count = case entries do
-      [] -> 1
-      [entry | _] -> Enum.count(entry)
-    end
+    column_count =
+      case entries do
+        [] -> 1
+        [entry | _] -> Enum.count(entry)
+      end
 
-    chunk_size = floor(@chunk_every /column_count)
+    chunk_size = floor(@chunk_every / column_count)
 
     Enum.chunk_every(entries, chunk_size)
     |> Enum.map(&BikeBrigade.Repo.insert_all(table, &1, opts))

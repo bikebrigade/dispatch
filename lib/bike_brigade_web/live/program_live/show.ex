@@ -7,9 +7,9 @@ defmodule BikeBrigadeWeb.ProgramLive.Show do
   @impl true
   def mount(_params, _session, socket) do
     {:ok,
-    socket
-      |> assign(:page, :programs)
-      |> assign(:users, [])}
+     socket
+     |> assign(:page, :programs)
+     |> assign(:users, [])}
   end
 
   @impl true

@@ -185,7 +185,10 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
     ~H"""
     <div class="flex text-xs font-medium text-gray-600">
       <span class={@color}><%= @length %>/1600</span>
-      <C.tooltip tooltip={"Messages over 1600 characters in length tend to get broken up into multiple texts"} class="w-40">
+      <C.tooltip
+        tooltip="Messages over 1600 characters in length tend to get broken up into multiple texts"
+        class="w-40"
+      >
         <Heroicons.Solid.question_mark_circle class="w-4 h-4 ml-0.5 " />
       </C.tooltip>
     </div>

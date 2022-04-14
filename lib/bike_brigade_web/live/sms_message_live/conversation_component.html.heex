@@ -1,163 +1,227 @@
-<div id={"conversation-component:#{@rider.id}"}
-    class={"sm:flex-1 max-h-full px-1 flex-col bg-white shadow sm:rounded-lg #{unless @live_action == :show, do: "hidden", else: "flex"} sm:flex"}>
-    <div class="flex-grow-0 px-4 py-5 bg-white border-b border-gray-200 sm:px-6 sm:rounded-t-lg">
-        <div class="flex flex-row items-center justify-between -mt-2 -ml-4">
-            <div class="ml-4 sm:hidden">
-                <%= live_patch to: Routes.sms_message_index_path(@socket, :index) do %>
-                <svg class="w-6 h-6 text-indigo-600" fill="none" stroke-linecap="round" stroke-linejoin="round"
-                    stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
-                    <path d="M15 19l-7-7 7-7"></path>
-                </svg>
-                <% end %>
-            </div>
-            <div class="h-10 mt-2 ml-4">
-                <h3 class="text-lg font-medium leading-6 text-gray-900">
-                    <%= if @rider do %>
-                        <div class="flex flex-col">
-                            <div class="pii"><span><%= @rider.name %></span><span class="ml-1 text-sm text-gray-500">(<%= if @rider.pronouns, do: @rider.pronouns, else: "pronouns unknown" %>)</span></div>
-                            <div class="flex inline-flex items-center text-sm text-gray-500 flex-shrink-1">
-                                <Heroicons.Outline.phone class="w-4 h-4" />
-                                <span class="pii"><%= @rider.phone %></span>
-                            </div>
-                        </div>
-                    <% else %>
-                    <span class="italic">No conversations yet</span>
-                    <% end %>
-                </h3>
-            </div>
-            <%= live_patch to: Routes.sms_message_index_path(@socket, :tasks, @rider.id) do %>
-            <div class="inline-flex text-indigo-600 sm:hidden">
-                <svg class="inline w-6 h-6" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    viewBox="0 0 24 24" stroke="currentColor">
-                    <path
-                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
-                    </path>
-                </svg>
-            </div>
-            <% end %>
-        </div>
-    </div>
-
-    <%= if @rider do %>
-        <%= if Enum.empty?(@conversation) do %>
-            <div id="conversation:empty" class="flex flex-col flex-grow px-4 py-5 sm:p-6">
-                <div class="italic text-gray-700">
-                    No messages yet
-                </div>
-            </div>
-        <% else %>
-            <div phx-hook="MessageList" id={"conversation:#{@rider.id}"} phx-update={@phx_update}
-                data-target={@myself}
-                class="flex flex-col flex-1 px-4 py-5 overflow-y-scroll scrolling-touch overscroll-contain sm:p-6">
-                <%= for message <- @conversation do %>
-                    <div id={"message:#{message.id}"}
-                        class={"flex flex-shrink-0 #{if message.incoming, do: "flex-row", else: "flex-row-reverse"}"}>
-                        <div class="w-3/5 my-2 text-gray-700">
-                            <div
-                                class={"px-2 py-1 rounded-lg #{if message.incoming, do: "bg-gray-100", else: "bg-blue-100"}"}>
-                                <%= for m <- message.media do %>
-                                <div class="p-1.5">
-                                    <%= case media_type(m) do %>
-                                    <% :image -> %>
-                                        <img class="rounded-lg" src={m.url} />
-                                    <% :video -> %>
-                                        <video class="rounded-lg" src={m.url} type={m.content_type} controls/>
-                                    <% _ -> %>
-                                        <span class="text-red-600">UNKNOWN MEDIA TYPE</span>
-                                    <% end %>
-                                    <%= if m.gdrive_url do %>
-                                        <div class="mt-0.5 flex justify-end text-xs">
-                                            Saved in Drive:
-                                            <a href={m.gdrive_folder_url} target="_blank"
-                                                class="ml-1 link">
-                                                <Heroicons.Solid.folder_open class="w-4 h-4" />
-                                            </a>
-                                            <a href={m.gdrive_url} target="_blank"
-                                                class="ml-1 link">
-                                                <Heroicons.Solid.document_download class="w-4 h-4" />
-                                            </a>
-                                        </div>
-                                    <% end %>
-                                </div>
-                                <% end %>
-                                <span class="whitespace-pre-wrap"><%= render_raw message.body %></span>
-                            </div>
-                            <div class="px-1 my-0.5 flex justify-between">
-                                <div class="text-xs font-bold"><%= datetime(message.sent_at) %></div>
-                                <div class="flex flex-row space-x-1">
-                                    <%= cond do %>
-                                    <% message.campaign_id -> %>
-                                        <a href={Routes.campaign_show_path(@socket, :show, message.campaign_id)} class="text-xs font-semibold link">
-                                           <%= Messaging.campaign_name(message) %>
-                                        </a>
-                                    <% message.sent_by_user_id -> %>
-                                        <div class="text-xs font-semibold">
-                                            Sent by <%= Messaging.sent_by_user_name(message) %>
-                                        </div>
-                                    <% true -> %>
-                                    <% end %>
-                                    <div class="text-xs text-gray-600">
-                                        <%= case message.twilio_status do %>
-                                        <% "queued" -> %>
-                                            <Heroicons.Solid.dots_horizontal class="w-4 h-4" />
-                                        <% "sent" -> %>
-                                            <Heroicons.Solid.arrow_circle_right class="w-4 h-4" />
-                                        <% "delivered" -> %>
-                                            <Heroicons.Solid.check_circle class="w-4 h-4" />
-                                        <% "undelivered" -> %>
-                                            <Heroicons.Solid.exclamation_circle class="text-red-600 w-4 h-4" />
-                                        <% "failed" -> %>
-                                            <Heroicons.Solid.exclamation_circle class="text-red-600 w-4 h-4" />
-                                        <% _ -> %>
-                                        <% end %>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                <% end %>
-            </div>
+<div
+  id={"conversation-component:#{@rider.id}"}
+  class={
+    "sm:flex-1 max-h-full px-1 flex-col bg-white shadow sm:rounded-lg #{unless @live_action == :show, do: "hidden", else: "flex"} sm:flex"
+  }
+>
+  <div class="flex-grow-0 px-4 py-5 bg-white border-b border-gray-200 sm:px-6 sm:rounded-t-lg">
+    <div class="flex flex-row items-center justify-between -mt-2 -ml-4">
+      <div class="ml-4 sm:hidden">
+        <%= live_patch to: Routes.sms_message_index_path(@socket, :index) do %>
+          <svg
+            class="w-6 h-6 text-indigo-600"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path d="M15 19l-7-7 7-7"></path>
+          </svg>
         <% end %>
-
-        <div class="flex-grow-0 px-6 py-5 bg-white border-t border-gray-200 sm:rounded-b-lg" phx-drop-target={@uploads.media.ref}>
-            <div class="w-full">
-                <.form let={f} for ={@changeset}
-                    id="conversation-form"
-                    phx-change="validate"
-                    phx-submit="send",
-                    phx-target={@myself}
-                    autocomplete="off">
-                <div class="flex flex-row items-center justify-between -mt-2 -ml-4 space-x-2">
-                    <%= textarea f, :body, phx_debounce: "blur", class: "w-full h-9 px-3 py-1.5 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
-                    <%= live_file_input @uploads.media, class: "sr-only" %>
-                    <C.button id="emoji-button" phx-hook="EmojiButtonHook" data-input-id={input_id(f, :body)} type="button" color={:white} size={:xxsmall}>
-                        <Heroicons.Outline.emoji_happy aria-label="Emoji Picker" class="h-6 w-6 m-1.5 text-gray-400" />
-                    </C.button>
-                    <label for={@uploads.media.ref} class="inline-flex items-center px-1.5 py-1.5 text-xs font-medium text-gray-700 bg-white border border-transparent border-gray-300 rounded shadow-sm cursor-pointer hover:bg-gray-50 focus:ring-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2">
-                        <C.Icons.tailwindui_upload_photo class="w-6 h-6" aria-hidden="true"/>
-                    </label>
-                    <C.button type="submit" data-confirm={@confirm_send} phx-disable-with="Sending...">Send</C.button>
-                </div>
-                <%= error_tag f, :body %>
-                <%= error_tag f, :other_error %>
-                <div class="grid grid-cols-3 gap-4">
-                <%= for entry <- @uploads.media.entries do %>
-                    <figure>
-                    <%= live_img_preview entry, class: "w-32" %>
-                    <figcaption class="flex">
-                        <div class="mr-1"> <%= entry.client_name %></div>
-                        <button type="button" phx-click="cancel-upload" phx-value-ref={entry.ref} phx-target={@myself} aria-label="cancel">&times;</button>
-
-                    </figcaption>
-                    </figure>
-                    <%= for err <- upload_errors(@uploads.media, entry) do %>
-                    <p class="alert alert-danger"><%= error_to_string(err) %></p>
-                    <% end %>
-                <% end %>
-                </div>
-
-                </.form>
+      </div>
+      <div class="h-10 mt-2 ml-4">
+        <h3 class="text-lg font-medium leading-6 text-gray-900">
+          <%= if @rider do %>
+            <div class="flex flex-col">
+              <div class="pii">
+                <span><%= @rider.name %></span>
+                <span class="ml-1 text-sm text-gray-500">
+                  (<%= if @rider.pronouns, do: @rider.pronouns, else: "pronouns unknown" %>)
+                </span>
+              </div>
+              <div class="flex inline-flex items-center text-sm text-gray-500 flex-shrink-1">
+                <Heroicons.Outline.phone class="w-4 h-4" />
+                <span class="pii"><%= @rider.phone %></span>
+              </div>
             </div>
+          <% else %>
+            <span class="italic">No conversations yet</span>
+          <% end %>
+        </h3>
+      </div>
+      <%= live_patch to: Routes.sms_message_index_path(@socket, :tasks, @rider.id) do %>
+        <div class="inline-flex text-indigo-600 sm:hidden">
+          <svg
+            class="inline w-6 h-6"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
+            </path>
+          </svg>
         </div>
+      <% end %>
+    </div>
+  </div>
+
+  <%= if @rider do %>
+    <%= if Enum.empty?(@conversation) do %>
+      <div id="conversation:empty" class="flex flex-col flex-grow px-4 py-5 sm:p-6">
+        <div class="italic text-gray-700">
+          No messages yet
+        </div>
+      </div>
+    <% else %>
+      <div
+        phx-hook="MessageList"
+        id={"conversation:#{@rider.id}"}
+        phx-update={@phx_update}
+        data-target={@myself}
+        class="flex flex-col flex-1 px-4 py-5 overflow-y-scroll scrolling-touch overscroll-contain sm:p-6"
+      >
+        <%= for message <- @conversation do %>
+          <div
+            id={"message:#{message.id}"}
+            class={
+              "flex flex-shrink-0 #{if message.incoming, do: "flex-row", else: "flex-row-reverse"}"
+            }
+          >
+            <div class="w-3/5 my-2 text-gray-700">
+              <div class={
+                "px-2 py-1 rounded-lg #{if message.incoming, do: "bg-gray-100", else: "bg-blue-100"}"
+              }>
+                <%= for m <- message.media do %>
+                  <div class="p-1.5">
+                    <%= case media_type(m) do %>
+                      <% :image -> %>
+                        <img class="rounded-lg" src={m.url} />
+                      <% :video -> %>
+                        <video class="rounded-lg" src={m.url} type={m.content_type} controls />
+                      <% _ -> %>
+                        <span class="text-red-600">UNKNOWN MEDIA TYPE</span>
+                    <% end %>
+                    <%= if m.gdrive_url do %>
+                      <div class="mt-0.5 flex justify-end text-xs">
+                        Saved in Drive:
+                        <a href={m.gdrive_folder_url} target="_blank" class="ml-1 link">
+                          <Heroicons.Solid.folder_open class="w-4 h-4" />
+                        </a>
+                        <a href={m.gdrive_url} target="_blank" class="ml-1 link">
+                          <Heroicons.Solid.document_download class="w-4 h-4" />
+                        </a>
+                      </div>
+                    <% end %>
+                  </div>
+                <% end %>
+                <span class="whitespace-pre-wrap"><%= render_raw(message.body) %></span>
+              </div>
+              <div class="px-1 my-0.5 flex justify-between">
+                <div class="text-xs font-bold"><%= datetime(message.sent_at) %></div>
+                <div class="flex flex-row space-x-1">
+                  <%= cond do %>
+                    <% message.campaign_id -> %>
+                      <a
+                        href={Routes.campaign_show_path(@socket, :show, message.campaign_id)}
+                        class="text-xs font-semibold link"
+                      >
+                        <%= Messaging.campaign_name(message) %>
+                      </a>
+                    <% message.sent_by_user_id -> %>
+                      <div class="text-xs font-semibold">
+                        Sent by <%= Messaging.sent_by_user_name(message) %>
+                      </div>
+                    <% true -> %>
+                  <% end %>
+                  <div class="text-xs text-gray-600">
+                    <%= case message.twilio_status do %>
+                      <% "queued" -> %>
+                        <Heroicons.Solid.dots_horizontal class="w-4 h-4" />
+                      <% "sent" -> %>
+                        <Heroicons.Solid.arrow_circle_right class="w-4 h-4" />
+                      <% "delivered" -> %>
+                        <Heroicons.Solid.check_circle class="w-4 h-4" />
+                      <% "undelivered" -> %>
+                        <Heroicons.Solid.exclamation_circle class="text-red-600 w-4 h-4" />
+                      <% "failed" -> %>
+                        <Heroicons.Solid.exclamation_circle class="text-red-600 w-4 h-4" />
+                      <% _ -> %>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
     <% end %>
+
+    <div
+      class="flex-grow-0 px-6 py-5 bg-white border-t border-gray-200 sm:rounded-b-lg"
+      phx-drop-target={@uploads.media.ref}
+    >
+      <div class="w-full">
+        <.form
+          let={f}
+          for={@changeset}
+          id="conversation-form"
+          phx-change="validate"
+          phx-submit="send"
+          ,
+          phx-target={@myself}
+          autocomplete="off"
+        >
+          <div class="flex flex-row items-center justify-between -mt-2 -ml-4 space-x-2">
+            <%= textarea(f, :body,
+              phx_debounce: "blur",
+              class:
+                "w-full h-9 px-3 py-1.5 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+            ) %>
+            <%= live_file_input(@uploads.media, class: "sr-only") %>
+            <C.button
+              id="emoji-button"
+              phx-hook="EmojiButtonHook"
+              data-input-id={input_id(f, :body)}
+              type="button"
+              color={:white}
+              size={:xxsmall}
+            >
+              <Heroicons.Outline.emoji_happy
+                aria-label="Emoji Picker"
+                class="h-6 w-6 m-1.5 text-gray-400"
+              />
+            </C.button>
+            <label
+              for={@uploads.media.ref}
+              class="inline-flex items-center px-1.5 py-1.5 text-xs font-medium text-gray-700 bg-white border border-transparent border-gray-300 rounded shadow-sm cursor-pointer hover:bg-gray-50 focus:ring-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2"
+            >
+              <C.Icons.tailwindui_upload_photo class="w-6 h-6" aria-hidden="true" />
+            </label>
+            <C.button type="submit" data-confirm={@confirm_send} phx-disable-with="Sending...">
+              Send
+            </C.button>
+          </div>
+          <%= error_tag(f, :body) %>
+          <%= error_tag(f, :other_error) %>
+          <div class="grid grid-cols-3 gap-4">
+            <%= for entry <- @uploads.media.entries do %>
+              <figure>
+                <%= live_img_preview(entry, class: "w-32") %>
+                <figcaption class="flex">
+                  <div class="mr-1"><%= entry.client_name %></div>
+                  <button
+                    type="button"
+                    phx-click="cancel-upload"
+                    phx-value-ref={entry.ref}
+                    phx-target={@myself}
+                    aria-label="cancel"
+                  >
+                    &times;
+                  </button>
+                </figcaption>
+              </figure>
+              <%= for err <- upload_errors(@uploads.media, entry) do %>
+                <p class="alert alert-danger"><%= error_to_string(err) %></p>
+              <% end %>
+            <% end %>
+          </div>
+        </.form>
+      </div>
+    </div>
+  <% end %>
 </div>

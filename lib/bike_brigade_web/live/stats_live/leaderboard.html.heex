@@ -4,53 +4,67 @@
     let={f}
     for={Options.changeset(@options)}
     phx-submit="update-options"
-    phx-change="update-options">
-  <div class="flex items-end justify-between">
-    <h3 class="text-lg font-medium leading-6 text-gray-900">
-     <%= if @options.period == :all_time do %>
-        All Time
-      <% else %>
-        <%= @options.start_date %> to <%= @options.end_date %>
-      <% end %>
-    </h3>
-    <div class="flex items-end space-x-3">
-      <div>
-        <span x-data={~s({period: "#{@options.period}"})} class="relative z-0 inline-flex rounded-md shadow-sm">
-          <label :class='{ "bg-gray-200": period === "all_time", "bg-white": period != "all_time"}' class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 cursor-pointer rounded-l-md hover:bg-gray-200 focus-within:z-10 focus-within:outline-none focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500">
-            <%= radio_button f, :period, :all_time, class: "sr-only", x_model: "period" %>
-            <div>All Time</div>
-          </label>
-          <label :class='{ "bg-gray-200": period === "select", "bg-white": period != "select"}' class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 border border-gray-300 cursor-pointer rounded-r-md hover:bg-gray-200 focus-within:z-10 focus-within:outline-none focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500">
-            <%= radio_button f, :period, :select, class: "sr-only", x_model: "period" %>
-            <div>Select Dates</div>
-          </label>
-        </span>
-      </div>
-      <%= if @options.period == :select do %>
-        <div class="flex items-end space-x-1">
-          <div class="w-45">
-            <%= label f, :start_date, class: "block mb-1 text-sm font-bold text-gray-700" do %>
-              Start Date
-            <% end %>
-            <%= date_input f, :start_date,
-              class: "w-full py-2.5 pl-4 pr-4 text-sm font-medium leading-none text-gray-600 rounded-lg shadow-sm focus:outline-none focus:shadow-outline cursor-pointer" %>
-            <%= error_tag f, :start_date %>
-          </div>
-          <div class="w-45">
-            <%= label f, :end_date, class: "block mb-1 text-sm font-bold text-gray-700" do %>
-              End Date
-            <% end %>
-            <%= date_input f, :end_date,
-              class: "w-full py-2.5 pl-4 pr-4 text-sm font-medium leading-none text-gray-600 rounded-lg shadow-sm focus:outline-none focus:shadow-outline cursor-pointer" %>
-            <%= error_tag f, :end_date %>
-          </div>
+    phx-change="update-options"
+  >
+    <div class="flex items-end justify-between">
+      <h3 class="text-lg font-medium leading-6 text-gray-900">
+        <%= if @options.period == :all_time do %>
+          All Time
+        <% else %>
+          <%= @options.start_date %> to <%= @options.end_date %>
+        <% end %>
+      </h3>
+      <div class="flex items-end space-x-3">
+        <div>
+          <span
+            x-data={~s({period: "#{@options.period}"})}
+            class="relative z-0 inline-flex rounded-md shadow-sm"
+          >
+            <label
+              :class="{ "bg-gray-200": period === "all_time", "bg-white": period != "all_time"}"
+              class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 cursor-pointer rounded-l-md hover:bg-gray-200 focus-within:z-10 focus-within:outline-none focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500"
+            >
+              <%= radio_button(f, :period, :all_time, class: "sr-only", x_model: "period") %>
+              <div>All Time</div>
+            </label>
+            <label
+              :class="{ "bg-gray-200": period === "select", "bg-white": period != "select"}"
+              class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 border border-gray-300 cursor-pointer rounded-r-md hover:bg-gray-200 focus-within:z-10 focus-within:outline-none focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500"
+            >
+              <%= radio_button(f, :period, :select, class: "sr-only", x_model: "period") %>
+              <div>Select Dates</div>
+            </label>
+          </span>
         </div>
-        <C.button target="_blank" href={download_path(@options)}>Download</C.button>
-      <% else %>
-       <C.button target="_blank" href={download_path(@options)}>Download</C.button>
-      <% end %>
+        <%= if @options.period == :select do %>
+          <div class="flex items-end space-x-1">
+            <div class="w-45">
+              <%= label f, :start_date, class: "block mb-1 text-sm font-bold text-gray-700" do %>
+                Start Date
+              <% end %>
+              <%= date_input(f, :start_date,
+                class:
+                  "w-full py-2.5 pl-4 pr-4 text-sm font-medium leading-none text-gray-600 rounded-lg shadow-sm focus:outline-none focus:shadow-outline cursor-pointer"
+              ) %>
+              <%= error_tag(f, :start_date) %>
+            </div>
+            <div class="w-45">
+              <%= label f, :end_date, class: "block mb-1 text-sm font-bold text-gray-700" do %>
+                End Date
+              <% end %>
+              <%= date_input(f, :end_date,
+                class:
+                  "w-full py-2.5 pl-4 pr-4 text-sm font-medium leading-none text-gray-600 rounded-lg shadow-sm focus:outline-none focus:shadow-outline cursor-pointer"
+              ) %>
+              <%= error_tag(f, :end_date) %>
+            </div>
+          </div>
+          <C.button target="_blank" href={download_path(@options)}>Download</C.button>
+        <% else %>
+          <C.button target="_blank" href={download_path(@options)}>Download</C.button>
+        <% end %>
+      </div>
     </div>
-  </div>
   </.form>
   <div class="mt-3 overflow-x-auto align-middle sm:-mx-6 lg:-mx-8 sm:px-6 lg:px-8">
     <UI.table rows={@stats}>
@@ -84,12 +98,14 @@
       <:th>
         <span class="sr-only">Message</span>
       </:th>
-
       <:td let={{rider, _campaigns, _tasks, _distance}}>
         <%= rider.name %>
       </:td>
       <:td let={{rider, _campaigns, _tasks, _distance}}>
-        <%= link rider.email, to: "mailto:#{rider.email}", class: "text-indigo-600 hover:text-indigo-900"%>
+        <%= link(rider.email,
+          to: "mailto:#{rider.email}",
+          class: "text-indigo-600 hover:text-indigo-900"
+        ) %>
       </:td>
       <:td let={{_rider, campaigns, _tasks, _distance}}>
         <%= campaigns %>
@@ -101,7 +117,10 @@
         <%= round_distance(distance) %> km
       </:td>
       <:td let={{rider, _campaigns, _tasks, _distance}}>
-        <C.button size={:xsmall} patch-to={Routes.sms_message_index_path(@socket, :show, rider.id)}>
+        <C.button
+          size={:xsmall}
+          patch-to={Routes.sms_message_index_path(@socket, :show, rider.id)}
+        >
           Message
         </C.button>
       </:td>

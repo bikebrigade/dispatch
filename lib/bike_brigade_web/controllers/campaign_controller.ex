@@ -35,8 +35,20 @@ defmodule BikeBrigadeWeb.CampaignController do
             {"", "", ""}
           end
 
-      [i, task.delivery_status, task.delivery_status_notes, rider_name, rider_email, rider_phone, task.dropoff_name, task.dropoff_location, task.dropoff_phone, CampaignHelpers.request_type(task), task.rider_notes]
-    end
+        [
+          i,
+          task.delivery_status,
+          task.delivery_status_notes,
+          rider_name,
+          rider_email,
+          rider_phone,
+          task.dropoff_name,
+          task.dropoff_location,
+          task.dropoff_phone,
+          CampaignHelpers.request_type(task),
+          task.rider_notes
+        ]
+      end
 
     # TODO: use streams?
 
@@ -64,12 +76,19 @@ defmodule BikeBrigadeWeb.CampaignController do
       "delivery notes",
       "dropoff_name",
       "dropoff address",
-      "partner tracking id",
+      "partner tracking id"
     ]
 
-    rows =  for task <- tasks do
-      [task.delivery_status, task.delivery_status_notes, task.dropoff_name, task.dropoff_location, task.partner_tracking_id]
-    end
+    rows =
+      for task <- tasks do
+        [
+          task.delivery_status,
+          task.delivery_status_notes,
+          task.dropoff_name,
+          task.dropoff_location,
+          task.partner_tracking_id
+        ]
+      end
 
     # TODO: use streams?
 
@@ -81,7 +100,8 @@ defmodule BikeBrigadeWeb.CampaignController do
     conn
     |> put_status(:ok)
     |> send_download({:binary, file},
-      filename: "#{CampaignHelpers.campaign_date(campaign)}_#{CampaignHelpers.name(campaign)}_results.csv"
+      filename:
+        "#{CampaignHelpers.campaign_date(campaign)}_#{CampaignHelpers.name(campaign)}_results.csv"
     )
   end
 end

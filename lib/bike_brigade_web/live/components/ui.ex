@@ -14,7 +14,13 @@ defmodule BikeBrigadeWeb.Components.UI do
       |> assign(:opts, opts)
 
     ~H"""
-    <div id={@id} class="fixed inset-0 z-10 overflow-hidden" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
+    <div
+      id={@id}
+      class="fixed inset-0 z-10 overflow-hidden"
+      aria-labelledby="slide-over-title"
+      role="dialog"
+      aria-modal="true"
+    >
       <div class="absolute inset-0 overflow-hidden">
         <!--
           Background overlay, show/hide based on slide-over state.
@@ -26,7 +32,11 @@ defmodule BikeBrigadeWeb.Components.UI do
             From: "opacity-100"
             To: "opacity-0"
         -->
-        <div class="absolute inset-0 transition-opacity bg-gray-500 bg-opacity-75 slideover-overlay" aria-hidden="true"></div>
+        <div
+          class="absolute inset-0 transition-opacity bg-gray-500 bg-opacity-75 slideover-overlay"
+          aria-hidden="true"
+        >
+        </div>
 
         <div class="fixed inset-y-0 right-0 flex max-w-full pl-10">
           <!--
@@ -39,28 +49,51 @@ defmodule BikeBrigadeWeb.Components.UI do
               From: "translate-x-0"
               To: "translate-x-full"
           -->
-          <div class={"w-screen #{width_css} slideover-panel"}
-              phx-window-keydown={hide_slideover(@id)} phx-key="escape">
+          <div
+            class={"w-screen #{width_css} slideover-panel"}
+            phx-window-keydown={hide_slideover(@id)}
+            phx-key="escape"
+          >
             <div class="flex flex-col h-full py-6 overflow-y-scroll bg-white shadow-xl">
               <div class="px-4 sm:px-6">
                 <div class="flex items-start justify-between">
                   <h2 class="text-lg font-medium text-center text-gray-900" id="slide-over-title">
-                    <%= render_slot @title %>
+                    <%= render_slot(@title) %>
                   </h2>
                   <div class="flex items-center ml-3 h-7">
-                    <%= live_patch "close", to: @return_to, data: [modal_return: true], class: "hidden" %>
-                    <button type="button" phx-click={hide_slideover(@id)} class="text-gray-400 bg-white rounded-md hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <%= live_patch("close",
+                      to: @return_to,
+                      data: [modal_return: true],
+                      class: "hidden"
+                    ) %>
+                    <button
+                      type="button"
+                      phx-click={hide_slideover(@id)}
+                      class="text-gray-400 bg-white rounded-md hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
                       <span class="sr-only">Close panel</span>
                       <!-- Heroicon name: outline/x -->
-                      <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      <svg
+                        class="w-6 h-6"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        aria-hidden="true"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M6 18L18 6M6 6l12 12"
+                        />
                       </svg>
                     </button>
                   </div>
                 </div>
               </div>
               <div class="relative flex-1 px-4 mt-6 sm:px-6">
-                <%= render_slot @inner_block %>
+                <%= render_slot(@inner_block) %>
               </div>
             </div>
           </div>
@@ -143,7 +176,13 @@ defmodule BikeBrigadeWeb.Components.UI do
       |> assign_new(:return_to, fn -> nil end)
 
     ~H"""
-    <div id={@id} class={"fixed z-10 inset-0 overflow-y-auto #{if @show, do: "fade-in", else: "hidden"}"} aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div
+      id={@id}
+      class={"fixed z-10 inset-0 overflow-y-auto #{if @show, do: "fade-in", else: "hidden"}"}
+      aria-labelledby="modal-title"
+      role="dialog"
+      aria-modal="true"
+    >
       <div class="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
         <!--
           Background overlay, show/hide based on modal state.
@@ -159,16 +198,25 @@ defmodule BikeBrigadeWeb.Components.UI do
           <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
         </div>
         <div
-          class={"#{if @show, do: "fade-in-scale", else: "hidden"} modal-content inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full sm:p-6"}
-          phx-window-keydown={hide_modal(@id)} phx-key="escape"}>
+          class={
+            "#{if @show, do: "fade-in-scale", else: "hidden"} modal-content inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full sm:p-6"
+          }
+          phx-window-keydown={hide_modal(@id)}
+          phx-key="escape"
+          }
+        >
           <%= if @return_to do %>
-          <div class="absolute top-0 right-0 pt-4 pr-4">
-            <%= live_patch "close", to: @return_to, data: [modal_return: true], class: "hidden" %>
-            <button type="button" phx-click={hide_modal(@id)}  class="block text-gray-400 bg-white rounded-md hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-              <span class="sr-only">Close</span>
-              <Heroicons.Outline.x class="w-6 h-6" />
-            </button>
-          </div>
+            <div class="absolute top-0 right-0 pt-4 pr-4">
+              <%= live_patch("close", to: @return_to, data: [modal_return: true], class: "hidden") %>
+              <button
+                type="button"
+                phx-click={hide_modal(@id)}
+                class="block text-gray-400 bg-white rounded-md hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                <span class="sr-only">Close</span>
+                <Heroicons.Outline.x class="w-6 h-6" />
+              </button>
+            </div>
           <% end %>
           <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
             <h2 class="my-3 text-2xl font-extrabold leading-9 text-center text-gray-900">
@@ -199,9 +247,11 @@ defmodule BikeBrigadeWeb.Components.UI do
             <thead>
               <tr>
                 <%= for th <- @th do %>
-                <th class={"text-xs font-medium leading-4 tracking-wider text-left text-gray-500 border-b border-gray-200 bg-gray-50 #{if Map.get(th, :uppercase, true), do: "uppercase"} #{Map.get(th, :padding, "px-6 py-3")} #{Map.get(th, :class)}"}>
-                  <%= render_slot(th) %>
-                </th>
+                  <th class={
+                    "text-xs font-medium leading-4 tracking-wider text-left text-gray-500 border-b border-gray-200 bg-gray-50 #{if Map.get(th, :uppercase, true), do: "uppercase"} #{Map.get(th, :padding, "px-6 py-3")} #{Map.get(th, :class)}"
+                  }>
+                    <%= render_slot(th) %>
+                  </th>
                 <% end %>
               </tr>
             </thead>
@@ -209,7 +259,9 @@ defmodule BikeBrigadeWeb.Components.UI do
               <%= for row <- @rows do %>
                 <tr>
                   <%= for td <- @td do %>
-                    <td class={"text-sm leading-5 text-gray-500 border-b border-gray-200 whitespace-nowrap #{Map.get(td, :padding, "px-6 py-4")} #{Map.get(td, :class)}"}>
+                    <td class={
+                      "text-sm leading-5 text-gray-500 border-b border-gray-200 whitespace-nowrap #{Map.get(td, :padding, "px-6 py-4")} #{Map.get(td, :class)}"
+                    }>
                       <%= render_slot(td, row) %>
                     </td>
                   <% end %>
@@ -217,7 +269,7 @@ defmodule BikeBrigadeWeb.Components.UI do
               <% end %>
             </tbody>
           </table>
-          <%= render_slot @footer %>
+          <%= render_slot(@footer) %>
         </div>
       </div>
     </div>

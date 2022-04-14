@@ -28,8 +28,8 @@ defmodule BikeBrigadeWeb.StatsLive.NavComponent do
           <Heroicons.Solid.presentation_chart_line class={@svg_class.(:journal)} />
           <span class="mr-1">Analytics Dashboard</span>
           <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-yellow-100 text-yellow-800">
-          Beta
-        </span>
+            Beta
+          </span>
         </a>
       </nav>
     </div>

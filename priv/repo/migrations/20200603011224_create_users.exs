@@ -9,6 +9,7 @@ defmodule BikeBrigade.Repo.Migrations.CreateUsers do
 
       timestamps()
     end
+
     create unique_index(:users, [:phone])
     create unique_index(:users, [:email])
   end

@@ -27,9 +27,7 @@ defmodule BikeBrigade.SingleGlobalGenServer do
       def start_link(distributed: true) do
         case GenServer.start_link(__MODULE__, unquote(initial_state), name: @name) do
           {:ok, pid} ->
-            Logger.info(
-              "#{inspect(__MODULE__)}: Starting at #{inspect(pid)}"
-            )
+            Logger.info("#{inspect(__MODULE__)}: Starting at #{inspect(pid)}")
             {:ok, pid}
 
           {:error, {:already_started, pid}} ->

@@ -8,7 +8,7 @@ defmodule BikeBrigade.Repo.Migrations.CreateImporter do
 
       timestamps()
     end
-    create unique_index(:importers, [:name])
 
+    create unique_index(:importers, [:name])
   end
 end

@@ -35,12 +35,14 @@
           <%= for task <- @tasks do %>
             <tr id={"task-#{task.id}"} class="leading-tight">
               <td class="py-.5 text-xs leading-5 text-center text-gray-500 border-r">
-                <input type="checkbox" class="w-4 h-4 ">
+                <input type="checkbox" class="w-4 h-4 " />
               </td>
               <td class="px-3 text-xs leading-5 text-gray-500 border w-96">
                 <%= if task.assigned_rider do %>
                   <div class="flex items-center justify-between">
-                    <div><%= task.assigned_rider.name %> (<%= task.assigned_rider.pronouns %>)</div>
+                    <div>
+                      <%= task.assigned_rider.name %> (<%= task.assigned_rider.pronouns %>)
+                    </div>
                     <%= if new_rider?(task.assigned_rider) do %>
                       <div class="px-2 text-xs border rounded-full">
                         New

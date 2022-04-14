@@ -5,6 +5,5 @@ defmodule BikeBrigade.Repo.Migrations.IncreaseSizeOfNotesField do
     alter table(:tasks) do
       modify :rider_notes, :text
     end
-
   end
 end

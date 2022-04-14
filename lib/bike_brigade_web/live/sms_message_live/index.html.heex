@@ -1,15 +1,17 @@
 <%= if @live_action == :new do %>
- <UI.modal show id={:new_message} return_to={Routes.sms_message_index_path(@socket, :index)} >
+  <UI.modal show id={:new_message} return_to={Routes.sms_message_index_path(@socket, :index)}>
     <:title><%= @page_title %></:title>
     <.live_component
       module={BikeBrigadeWeb.SmsMessageLive.FormComponent}
       id={:new}
-      current_user={@current_user}/>
+      current_user={@current_user}
+    />
   </UI.modal>
 <% end %>
 <div class="flex flex-wrap h-full max-h-full min-h-0 -mx-3">
-  <div
-    class={"h-full max-h-full w-full px-2 sm:overflow-hidden sm:w-4/12 #{unless @live_action == :index, do: "hidden"} sm:block"}>
+  <div class={
+    "h-full max-h-full w-full px-2 sm:overflow-hidden sm:w-4/12 #{unless @live_action == :index, do: "hidden"} sm:block"
+  }>
     <div class="flex flex-col h-full max-h-full bg-white shadow sm:rounded-lg">
       <div class="px-4 py-5 bg-white border-b border-gray-200 sm:px-6 sm:rounded-t-lg">
         <div class="flex flex-wrap items-center justify-between -mt-2 -ml-4 sm:flex-nowrap">
@@ -21,148 +23,219 @@
           <div class="flex-shrink-0 mt-2 ml-4">
             <div class="flex items-center">
               <span class="inline-flex ml-3 rounded-md shadow-sm">
-                <%= live_patch "New", to: Routes.sms_message_index_path(@socket, :new), class: "inline-flex items-center px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:ring-indigo active:bg-indigo-700" %>
+                <%= live_patch("New",
+                  to: Routes.sms_message_index_path(@socket, :new),
+                  class:
+                    "inline-flex items-center px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:ring-indigo active:bg-indigo-700"
+                ) %>
               </span>
             </div>
           </div>
         </div>
       </div>
-      <ul class="flex-grow-0 h-full max-h-full px-4 py-5 overflow-y-auto scrolling-touch overscroll-contain sm:p-6"
-          id="conversation-list" phx-hook="ConversationList"
-          phx-update="append">
+      <ul
+        class="flex-grow-0 h-full max-h-full px-4 py-5 overflow-y-auto scrolling-touch overscroll-contain sm:p-6"
+        id="conversation-list"
+        phx-hook="ConversationList"
+        phx-update="append"
+      >
         <%= for {rider, last_message} <- @conversations do %>
-        <li id={"conversation-list-item:#{rider.id}"}>
-          <%= live_patch to: Routes.sms_message_index_path(@socket, :show, rider.id),
+          <li id={"conversation-list-item:#{rider.id}"}>
+            <%= live_patch to: Routes.sms_message_index_path(@socket, :show, rider.id),
                          class: "block transition duration-150 ease-in-out hover:bg-gray-200 focus:outline-none" do %>
-          <div class="flex items-center px-2 py-2">
-            <div class="flex items-center flex-1 min-w-0">
-              <div class="flex-shrink-0 hidden mr-4 lg:block">
-                <img class="w-12 h-12 rounded-full" src={ gravatar(rider.email) } alt="" />
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="flex flex-col lg:space-x-2 lg:items-center lg:flex-row">
-                  <div
-                    class={"text-sm #{if last_message.from == rider.phone, do: "font-extrabold", else: "font-semibold"} leading-5 text-indigo-600 truncate pii"}>
-                    <%= rider.name %>
+              <div class="flex items-center px-2 py-2">
+                <div class="flex items-center flex-1 min-w-0">
+                  <div class="flex-shrink-0 hidden mr-4 lg:block">
+                    <img class="w-12 h-12 rounded-full" src={gravatar(rider.email)} alt="" />
                   </div>
-                  <div class="text-xs font-medium">
-                    <%= datetime(last_message.sent_at) %>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex flex-col lg:space-x-2 lg:items-center lg:flex-row">
+                      <div class={
+                        "text-sm #{if last_message.from == rider.phone, do: "font-extrabold", else: "font-semibold"} leading-5 text-indigo-600 truncate pii"
+                      }>
+                        <%= rider.name %>
+                      </div>
+                      <div class="text-xs font-medium">
+                        <%= datetime(last_message.sent_at) %>
+                      </div>
+                    </div>
+                    <div class={
+                      "flex items-center mt-2 text-sm #{if last_message.from == rider.phone, do: "font-extrabold", else: "font-medium"} leading-5 text-gray-500"
+                    }>
+                      <span class="truncate">
+                        <%= preview_message(last_message) %>
+                      </span>
+                    </div>
                   </div>
                 </div>
-                <div
-                  class={"flex items-center mt-2 text-sm #{if last_message.from == rider.phone, do: "font-extrabold", else: "font-medium"} leading-5 text-gray-500"}>
-                  <span class="truncate">
-                    <%= preview_message(last_message) %>
-                  </span>
-                </div>
               </div>
-            </div>
-          </div>
-          <% end %>
-        </li>
+            <% end %>
+          </li>
         <% end %>
       </ul>
     </div>
   </div>
-  <%= if @selected_rider, do: live_component ConversationComponent, id: @selected_rider.id, rider: @selected_rider, live_action: @live_action, current_user: @current_user %>
+  <%= if @selected_rider,
+    do:
+      live_component(ConversationComponent,
+        id: @selected_rider.id,
+        rider: @selected_rider,
+        live_action: @live_action,
+        current_user: @current_user
+      ) %>
   <%= if @latest_campaign_tasks != [] do %>
-  <div class={"w-full px-3 sm:w-2/12 #{unless @live_action == :tasks, do: "hidden"} sm:block"}>
-    <div class="flex-grow-0 px-4 py-5 mb-2 bg-white border-b border-gray-200 sm:hidden">
-      <div class="flex flex-row items-center -mt-2 -ml-4">
-        <div class="ml-4">
-          <%= live_patch to: Routes.sms_message_index_path(@socket, :show, @selected_rider.id) do %>
-          <svg class="w-6 h-6 text-indigo-600" fill="none" stroke-linecap="round" stroke-linejoin="round"
-            stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
-            <path d="M15 19l-7-7 7-7"></path>
-          </svg>
-          <% end %>
-        </div>
-        <div class="h-10 mt-2 ml-4">
-          <h3 class="text-lg font-medium leading-6 text-gray-900">
-            <%= @selected_rider.name %> - <%= Enum.count(@latest_campaign_tasks) %> tasks
-          </h3>
-        </div>
-      </div>
-    </div>
-    <%= for campaign <- @latest_campaign_tasks do %>
-    <a href={ Routes.campaign_show_path(@socket, :show, campaign) } class="text-lg font-medium leading-6 text-indigo-600 hover:text-indigo-500">
-      <%= campaign_name(campaign) %>
-    </a>
-      <p class="mt-1 text-sm font-medium 1text-gray-500">
-         <%= format_date(campaign.delivery_start) %>
-         <br/>
-         <%= pickup_window(campaign, @selected_rider) %>
-      </p>
-      <div class="flex items-center my-1">
-        <a href={ Routes.delivery_show_path(@socket, :show, campaign.delivery_url_token) }
-          class="font-medium text-indigo-600 hover:text-indigo-500"
-          target="_blank">
-            App
-        </a>
-        <button  x-on:click={"$clipboard(#{details_buffer(campaign)})"} title="Copy delivery details" type="button" class="inline-flex items-center p-1 ml-2 text-indigo-700 bg-indigo-100 border border-transparent rounded-full shadow-sm hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
-        </button>
-      </div>
-
-    <%= for task <- campaign.tasks do %>
-      <div class="p-2 mb-2 bg-white border-b border-gray-200 shadow sm:rounded-lg">
-        <div><%= task.dropoff_name %></div>
-        <div><%= task.dropoff_location.address %></div>
-        <div><%= task.dropoff_phone %></div>
-        <div><%= request_type(task) %></div>
-
-        <div class="flex flex-wrap p-3 -mx-2">
-          <%= for delivery_status <- ~W(pending picked_up completed failed) do %>
-          <div class="p-1">
-            <a href="#" phx-click="change-delivery-status" phx-value-task-id={ task.id }
-              phx-value-delivery-status={ delivery_status }>
-              <div
-                class={"px-1.5 py-0.5 rounded-full border-solid border-2 border-gray-400 bg-opacity-50 text-gray-800 justify-center hover:border-gray-600 #{if (task.delivery_status == String.to_atom(delivery_status)), do: "bg-gray-400"}"}>
-                <div class="text-xs text-center">
-                  <%= delivery_status %>
-                </div>
-              </div>
-            </a>
+    <div class={"w-full px-3 sm:w-2/12 #{unless @live_action == :tasks, do: "hidden"} sm:block"}>
+      <div class="flex-grow-0 px-4 py-5 mb-2 bg-white border-b border-gray-200 sm:hidden">
+        <div class="flex flex-row items-center -mt-2 -ml-4">
+          <div class="ml-4">
+            <%= live_patch to: Routes.sms_message_index_path(@socket, :show, @selected_rider.id) do %>
+              <svg
+                class="w-6 h-6 text-indigo-600"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path d="M15 19l-7-7 7-7"></path>
+              </svg>
+            <% end %>
           </div>
-          <% end %>
-        </div>
-        <div><textarea phx-blur="update-notes" phx-value-task-id={ task.id } placeholder="Notes"
-            class="w-full p-2 m-1 text-gray-700 bg-transparent border border-gray-800"><%= task.delivery_status_notes %></textarea>
+          <div class="h-10 mt-2 ml-4">
+            <h3 class="text-lg font-medium leading-6 text-gray-900">
+              <%= @selected_rider.name %> - <%= Enum.count(@latest_campaign_tasks) %> tasks
+            </h3>
+          </div>
         </div>
       </div>
+      <%= for campaign <- @latest_campaign_tasks do %>
+        <a
+          href={Routes.campaign_show_path(@socket, :show, campaign)}
+          class="text-lg font-medium leading-6 text-indigo-600 hover:text-indigo-500"
+        >
+          <%= campaign_name(campaign) %>
+        </a>
+        <p class="mt-1 text-sm font-medium 1text-gray-500">
+          <%= format_date(campaign.delivery_start) %>
+          <br />
+          <%= pickup_window(campaign, @selected_rider) %>
+        </p>
+        <div class="flex items-center my-1">
+          <a
+            href={Routes.delivery_show_path(@socket, :show, campaign.delivery_url_token)}
+            class="font-medium text-indigo-600 hover:text-indigo-500"
+            target="_blank"
+          >
+            App
+          </a>
+          <button
+            x-on:click={"$clipboard(#{details_buffer(campaign)})"}
+            title="Copy delivery details"
+            type="button"
+            class="inline-flex items-center p-1 ml-2 text-indigo-700 bg-indigo-100 border border-transparent rounded-full shadow-sm hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+              >
+              </path>
+            </svg>
+          </button>
+        </div>
+
+        <%= for task <- campaign.tasks do %>
+          <div class="p-2 mb-2 bg-white border-b border-gray-200 shadow sm:rounded-lg">
+            <div><%= task.dropoff_name %></div>
+            <div><%= task.dropoff_location.address %></div>
+            <div><%= task.dropoff_phone %></div>
+            <div><%= request_type(task) %></div>
+
+            <div class="flex flex-wrap p-3 -mx-2">
+              <%= for delivery_status <- ~W(pending picked_up completed failed) do %>
+                <div class="p-1">
+                  <a
+                    href="#"
+                    phx-click="change-delivery-status"
+                    phx-value-task-id={task.id}
+                    phx-value-delivery-status={delivery_status}
+                  >
+                    <div class={
+                      "px-1.5 py-0.5 rounded-full border-solid border-2 border-gray-400 bg-opacity-50 text-gray-800 justify-center hover:border-gray-600 #{if task.delivery_status == String.to_atom(delivery_status), do: "bg-gray-400"}"
+                    }>
+                      <div class="text-xs text-center">
+                        <%= delivery_status %>
+                      </div>
+                    </div>
+                  </a>
+                </div>
+              <% end %>
+            </div>
+            <div>
+              <textarea
+                phx-blur="update-notes"
+                phx-value-task-id={task.id}
+                placeholder="Notes"
+                class="w-full p-2 m-1 text-gray-700 bg-transparent border border-gray-800"
+              >
+                <%= task.delivery_status_notes %>
+              </textarea>
+            </div>
+          </div>
+        <% end %>
       <% end %>
-    <% end %>
-  </div>
+    </div>
   <% end %>
 </div>
 
 <%= if Enum.count(@others_present) > 0 do %>
-<div x-data='{ "open": false }'class="fixed top-0 right-0 z-10 flex-col items-end hidden mt-2 mr-2 sm:flex">
-  <div x-show="open" class="w-64 bg-white border border-gray-200 shadow sm:rounded-lg">
-    <div class="px-2 py-3 bg-white border-b border-gray-200 sm:rounded-t-lg">
-      <div class="absolute top-0 right-0 pt-4 pr-4 sm:block">
-        <button @click="open = false" type="button" class="block text-gray-400 bg-white rounded-md hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-          <span class="sr-only">Close</span>
-          <Heroicons.Outline.x class="w-6 h-6" />
-        </button>
+  <div
+    x-data="{ "open": false }"
+    class="fixed top-0 right-0 z-10 flex-col items-end hidden mt-2 mr-2 sm:flex"
+  >
+    <div x-show="open" class="w-64 bg-white border border-gray-200 shadow sm:rounded-lg">
+      <div class="px-2 py-3 bg-white border-b border-gray-200 sm:rounded-t-lg">
+        <div class="absolute top-0 right-0 pt-4 pr-4 sm:block">
+          <button
+            @click="open = false"
+            type="button"
+            class="block text-gray-400 bg-white rounded-md hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            <span class="sr-only">Close</span>
+            <Heroicons.Outline.x class="w-6 h-6" />
+          </button>
+        </div>
+        <div class="flex flex-wrap items-center">
+          <h3 class="text-lg font-medium leading-6 text-gray-900">
+            <%= Enum.count(@others_present) %> Currently Viewing
+          </h3>
+        </div>
       </div>
-      <div class="flex flex-wrap items-center">
-        <h3 class="text-lg font-medium leading-6 text-gray-900">
-          <%= Enum.count @others_present %> Currently Viewing
-        </h3>
-      </div>
-    </div>
-    <ul class="px-2 py-3">
-      <%= for user <- @others_present
+      <ul class="px-2 py-3">
+        <%= for user <- @others_present
           do %>
-      <li><%= user.name %></li>
-      <% end %>
-    </ul>
-  </div>
+          <li><%= user.name %></li>
+        <% end %>
+      </ul>
+    </div>
 
-  <button x-show="!open" @click="open = true" type="button" class="inline-flex items-center content-end p-3 text-gray-700 bg-white border border-gray-300 rounded-full shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-    <Heroicons.Solid.eye class="w-5 h-5" />
-      <span class="ml-1 text-sm font-semibold"><%= Enum.count @others_present %></span>
-  </button>
-</div>
+    <button
+      x-show="!open"
+      @click="open = true"
+      type="button"
+      class="inline-flex items-center content-end p-3 text-gray-700 bg-white border border-gray-300 rounded-full shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+    >
+      <Heroicons.Solid.eye class="w-5 h-5" />
+      <span class="ml-1 text-sm font-semibold"><%= Enum.count(@others_present) %></span>
+    </button>
+  </div>
 <% end %>

@@ -82,11 +82,12 @@ defmodule BikeBrigade.Delivery.Task do
     |> cast_assoc(:dropoff_location, location_opts)
     |> validate_required([
       :delivery_status,
-      :dropoff_location,
-      :dropoff_name,
+      # :dropoff_location_id,
+      :dropoff_name
       # :dropoff_phone,
-      :pickup_location
+      # :pickup_location_id
     ])
+    |> assoc_constraint(:dropoff_location)
     |> cast_assoc(:task_items)
   end
 

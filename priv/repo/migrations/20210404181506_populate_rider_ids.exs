@@ -10,7 +10,10 @@ defmodule BikeBrigade.Repo.Migrations.PopulateRiderIds do
     from(m in SmsMessage,
       join: r in Rider,
       on: r.phone == m.to or r.phone == m.from,
-      update: [set: [rider_id: r.id, incoming: m.to in ^BikeBrigade.Messaging.all_inbound_numbers()]])
+      update: [
+        set: [rider_id: r.id, incoming: m.to in ^BikeBrigade.Messaging.all_inbound_numbers()]
+      ]
+    )
     |> Repo.update_all([])
 
     drop index(:sms_messages, [:from])

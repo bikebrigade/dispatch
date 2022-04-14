@@ -26,14 +26,17 @@ defmodule BikeBrigade.SlackApi.PayloadBuilderTest do
       message = "hi!"
       payload = PayloadBuilder.build(channel_id, message)
 
-      %{"blocks" => [%{"text" => %{"text" => "hi!", "type" => "mrkdwn"}, "type" => "section"}], "channel" => "123"} = Jason.decode!(payload)
+      %{
+        "blocks" => [%{"text" => %{"text" => "hi!", "type" => "mrkdwn"}, "type" => "section"}],
+        "channel" => "123"
+      } = Jason.decode!(payload)
     end
   end
-
 
   test "Markdown text is escaped" do
     channel_id = "123"
     rider = fixture(:rider, %{name: "Alice Example"})
+
     message =
       create_sms(%{
         body: "three is < five & five is > three",
@@ -46,7 +49,9 @@ defmodule BikeBrigade.SlackApi.PayloadBuilderTest do
     block = body["blocks"] |> List.first()
 
     url = Routes.rider_show_url(Endpoint, :show, rider)
-    assert block["text"]["text"] == "<#{url}|*Alice Example*>: three is &lt; five &amp; five is &gt; three"
+
+    assert block["text"]["text"] ==
+             "<#{url}|*Alice Example*>: three is &lt; five &amp; five is &gt; three"
   end
 
   test "Images are included" do

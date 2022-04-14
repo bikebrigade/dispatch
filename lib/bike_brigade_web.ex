@@ -104,7 +104,6 @@ defmodule BikeBrigadeWeb do
       # Alias in components
       alias BikeBrigadeWeb.Components, as: C
       alias BikeBrigadeWeb.Components.UI
-
     end
   end
 

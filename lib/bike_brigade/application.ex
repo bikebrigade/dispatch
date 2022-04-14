@@ -13,7 +13,8 @@ defmodule BikeBrigade.Application do
         # Set up Clustering
         {Cluster.Supervisor, [topologies, [name: BikeBrigade.ClusterSupervisor]]},
         {Horde.Registry, [name: BikeBrigade.HordeRegistry, keys: :unique, members: :auto]},
-        {Horde.DynamicSupervisor, [name: BikeBrigade.HordeSupervisor, strategy: :one_for_one, members: :auto]},
+        {Horde.DynamicSupervisor,
+         [name: BikeBrigade.HordeSupervisor, strategy: :one_for_one, members: :auto]},
         # Start the Ecto repository
         BikeBrigade.Repo,
         # Start the Telemetry supervisor

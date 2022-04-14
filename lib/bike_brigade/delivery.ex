@@ -313,8 +313,7 @@ defmodule BikeBrigade.Delivery do
         join: l in assoc(r, :location),
         order_by: [
           desc: cr.rider_capacity,
-          asc:
-            r.max_distance - st_distance(l.coords, ^campaign.location.coords)
+          asc: r.max_distance - st_distance(l.coords, ^campaign.location.coords)
         ],
         left_join: t in Task,
         on: t.assigned_rider_id == r.id and t.campaign_id == ^campaign.id,
