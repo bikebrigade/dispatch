@@ -1,5 +1,6 @@
 [
   import_deps: [:ecto, :phoenix],
-  inputs: ["*.{ex,exs}", "{config,lib,test}/**/*.{ex,exs}"],
+  plugins: [Phoenix.LiveView.HTMLFormatter],
+  inputs: ["*.{ex,exs,heex}", "{config,lib,test}/**/*.{ex,exs,heex}"],
   subdirectories: ["priv/repo/"]
 ]
