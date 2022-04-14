@@ -7,7 +7,7 @@ defmodule BikeBrigade.Riders.Rider do
   alias BikeBrigade.Locations.Location
   alias BikeBrigade.Repo
   alias BikeBrigade.Riders.{Tag, RidersTag, RiderLatestCampaign}
-  alias BikeBrigade.Delivery.{Task, Campaign, CampaignRider}
+  alias BikeBrigade.Delivery.{Task, CampaignRider}
   alias BikeBrigade.Stats.RiderStats
 
   defenum(OnfleetAccountStatusEnum, invited: "invited", accepted: "accepted")

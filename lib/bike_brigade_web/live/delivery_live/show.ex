@@ -1,7 +1,6 @@
 defmodule BikeBrigadeWeb.DeliveryLive.Show do
   use BikeBrigadeWeb, {:live_view, layout: {BikeBrigadeWeb.LayoutView, "public.live.html"}}
 
-  alias BikeBrigade.LocalizedDateTime
   alias BikeBrigade.Delivery
   alias BikeBrigadeWeb.CampaignHelpers
   import BikeBrigadeWeb.DeliveryHelpers

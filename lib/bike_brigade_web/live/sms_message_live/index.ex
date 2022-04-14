@@ -60,7 +60,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
   end
 
   @impl true
-  def handle_params(params, url, socket) do
+  def handle_params(params, _url, socket) do
     {:noreply,
      socket
      |> apply_action(socket.assigns.live_action, params)}

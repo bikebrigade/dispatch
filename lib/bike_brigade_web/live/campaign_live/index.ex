@@ -4,7 +4,6 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
   alias BikeBrigade.Utils
   alias BikeBrigade.LocalizedDateTime
 
-  alias BikeBrigade.Locations.Location
   alias BikeBrigade.Delivery
   alias BikeBrigade.Delivery.Campaign
   alias BikeBrigade.Messaging.SmsMessage

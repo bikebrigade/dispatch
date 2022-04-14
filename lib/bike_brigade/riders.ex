@@ -8,7 +8,7 @@ defmodule BikeBrigade.Riders do
   alias BikeBrigade.LocalizedDateTime
 
   alias BikeBrigade.Riders.{Rider, Tag}
-  alias BikeBrigade.Delivery.{Campaign, CampaignRider, Task}
+  alias BikeBrigade.Delivery.Campaign
 
   alias BikeBrigade.EctoPhoneNumber
 

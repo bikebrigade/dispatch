@@ -1,6 +1,5 @@
 defmodule BikeBrigade.Delivery do
   import Ecto.Query, warn: false
-  import Ecto.CustomFunctions
   alias BikeBrigade.Repo
 
   alias BikeBrigade.LocalizedDateTime
