@@ -14,7 +14,6 @@ defmodule BikeBrigade.Repo.Migrations.CreateAnalyticsTables do
       timestamps()
     end
 
-
     flush()
 
     create table(:analytics_contacts) do

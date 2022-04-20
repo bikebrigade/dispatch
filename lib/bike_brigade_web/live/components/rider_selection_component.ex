@@ -40,7 +40,7 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
      socket
      |> assign(:search, search)
      |> update(:rider_search, &RiderSearch.filter(&1, name_or_phone: search))
-    |> fetch_results()}
+     |> fetch_results()}
   end
 
   def handle_event("unselect", %{"id" => id}, socket) do
@@ -75,29 +75,48 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
         <%= for {id, rider} <- @selected_riders do %>
           <.show rider={rider}>
             <:x>
-              <a href="#" phx-click="unselect" phx-value-id={ id } phx-target={ @myself }  class="block text-sm text-gray-400 bg-white rounded-md font-base hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              <a
+                href="#"
+                phx-click="unselect"
+                phx-value-id={id}
+                phx-target={@myself}
+                class="block text-sm text-gray-400 bg-white rounded-md font-base hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
                 <Heroicons.Outline.x class="w-5 h-5" />
               </a>
             </:x>
           </.show>
-          <input type="hidden" name={ @input_name } value={ id }>
+          <input type="hidden" name={@input_name} value={id} />
         <% end %>
       </div>
-    <%= if @multi || Enum.empty?(@selected_riders) do %>
-      <input type="text" phx-keyup="suggest" phx-target={ @myself } phx-debounce="50" name="search" placeholder="Type to search for riders by name"
-      class="block w-full px-3 py-2 placeholder-gray-400 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
-      <%= if @search != "" do %>
-        <ul id="rider-selection-list" class="overflow-y-auto max-h-64">
-          <%= for rider <- @search_results.page do %>
-            <li id={"rider-selection:#{rider.id}"}>
-              <a href="#" phx-click="select" phx-value-id={ rider.id } phx-target={ @myself } class="block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50">
-                <.show rider={rider}/>
-              </a>
-            </li>
-          <% end %>
-        </ul>
+      <%= if @multi || Enum.empty?(@selected_riders) do %>
+        <input
+          type="text"
+          phx-keyup="suggest"
+          phx-target={@myself}
+          phx-debounce="50"
+          name="search"
+          placeholder="Type to search for riders by name"
+          class="block w-full px-3 py-2 placeholder-gray-400 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+        />
+        <%= if @search != "" do %>
+          <ul id="rider-selection-list" class="overflow-y-auto max-h-64">
+            <%= for rider <- @search_results.page do %>
+              <li id={"rider-selection:#{rider.id}"}>
+                <a
+                  href="#"
+                  phx-click="select"
+                  phx-value-id={rider.id}
+                  phx-target={@myself}
+                  class="block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
+                >
+                  <.show rider={rider} />
+                </a>
+              </li>
+            <% end %>
+          </ul>
+        <% end %>
       <% end %>
-    <% end %>
     </div>
     """
   end
@@ -111,7 +130,7 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
     <div class="flex items-start px-3 py-4">
       <div class="flex items-center flex-1 min-w-0">
         <div class="flex-shrink-0">
-          <img class="w-12 h-12 rounded-full" src={ gravatar(@rider.email) } alt="" />
+          <img class="w-12 h-12 rounded-full" src={gravatar(@rider.email)} alt="" />
         </div>
         <div class="ml-2">
           <div class="text-sm font-medium leading-5 text-indigo-600">

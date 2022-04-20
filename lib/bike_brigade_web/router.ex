@@ -7,7 +7,6 @@ defmodule BikeBrigadeWeb.Router do
 
   alias BikeBrigadeWeb.LiveHooks
 
-
   # Don't alert expired deliveries to honeybadger
   use Honeybadger.Plug
   def handle_errors(_conn, %{reason: %BikeBrigadeWeb.DeliveryExpiredError{}}), do: :ok
@@ -89,10 +88,11 @@ defmodule BikeBrigadeWeb.Router do
       live "/riders/new", RiderLive.Index, :new
       live "/riders/:id/edit", RiderLive.Index, :edit
       live "/riders/message", RiderLive.Index, :message
-      live "/riders/map", RiderLive.Index, :map # this is mostly used for testing!
+      # this is mostly used for testing!
+      live "/riders/map", RiderLive.Index, :map
 
       # Redirect for the old next url
-      get "/riders-next",  Plugs.Redirect, to: "/riders", status: :moved_permanently
+      get "/riders-next", Plugs.Redirect, to: "/riders", status: :moved_permanently
 
       live "/stats", StatsLive.Dashboard, :show
       live "/stats/leaderboard", StatsLive.Leaderboard, :show
@@ -115,7 +115,6 @@ defmodule BikeBrigadeWeb.Router do
       live "/opportunities", OpportunityLive.Index, :index
       live "/opportunities/new", OpportunityLive.Index, :new
       live "/opportunities/:id/edit", OpportunityLive.Index, :edit
-
 
       live "/items", ItemLive.Index, :index
       live "/items/new", ItemLive.Index, :new

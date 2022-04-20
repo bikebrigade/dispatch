@@ -3,7 +3,7 @@ defmodule BikeBrigade.Repo.Migrations.AddFieldsToProgram do
 
   def change do
     alter table(:programs) do
-      add :archived, :boolean, default: :false
+      add :archived, :boolean, default: false
       add :rrule, :string
     end
   end

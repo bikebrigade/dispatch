@@ -9,7 +9,7 @@ defmodule BikeBrigade.Repo.Migrations.AddMessageTemplates do
     use BikeBrigade.Schema
 
     schema "message_templates" do
-      field :body, :string
+      field(:body, :string)
 
       Ecto.Schema.timestamps()
     end
@@ -34,9 +34,10 @@ defmodule BikeBrigade.Repo.Migrations.AddMessageTemplates do
 
     campaigns =
       Repo.all(
-        from c in "campaigns",
+        from(c in "campaigns",
           where: not is_nil(c.message),
           select: {c.id, c.message}
+        )
       )
 
     for {campaign_id, template} <- campaigns do
@@ -72,10 +73,11 @@ defmodule BikeBrigade.Repo.Migrations.AddMessageTemplates do
 
     templates =
       Repo.all(
-        from t in "message_templates",
+        from(t in "message_templates",
           join: c in "campaigns",
           on: c.instructions_template_id == t.id,
           select: {c.id, t.body}
+        )
       )
 
     for {campaign_id, body} <- templates do
@@ -83,7 +85,6 @@ defmodule BikeBrigade.Repo.Migrations.AddMessageTemplates do
         where: c.id == ^campaign_id,
         update: [set: [message: ^body]]
       )
-
       |> Repo.update_all([])
     end
 

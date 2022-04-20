@@ -11,6 +11,5 @@ defmodule BikeBrigade.Repo.Migrations.CreateSmsMessages do
 
       timestamps()
     end
-
   end
 end

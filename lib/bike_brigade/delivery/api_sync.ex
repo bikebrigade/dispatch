@@ -21,19 +21,19 @@ defmodule BikeBrigade.Delivery.ApiSync do
   Sync mailchimp id and status for all riders
   """
   def mailchimp_sync do
-      Mailchimp.Account.get!()
-      |> Mailchimp.Account.get_list!(@mailchimp_list_id)
-      |> Mailchimp.List.members!(%{
-        fields: "members.email_address,members.id,members.status",
-        count: 1000
-      })
-      |> Enum.each(fn member ->
-        r = Repo.one(from r in Rider, where: r.email == ^member.email_address)
+    Mailchimp.Account.get!()
+    |> Mailchimp.Account.get_list!(@mailchimp_list_id)
+    |> Mailchimp.List.members!(%{
+      fields: "members.email_address,members.id,members.status",
+      count: 1000
+    })
+    |> Enum.each(fn member ->
+      r = Repo.one(from r in Rider, where: r.email == ^member.email_address)
 
-        if r do
-          Riders.update_rider(r, %{mailchimp_id: member.id, mailchimp_status: member.status})
-        end
-      end)
+      if r do
+        Riders.update_rider(r, %{mailchimp_id: member.id, mailchimp_status: member.status})
+      end
+    end)
   end
 
   def get_mailchimp_member(email) do

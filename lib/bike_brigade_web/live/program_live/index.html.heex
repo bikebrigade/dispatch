@@ -1,12 +1,13 @@
 <%= if @live_action in [:new, :edit] do %>
-  <UI.modal show id={:edit} return_to={Routes.program_index_path(@socket, :index)} >
+  <UI.modal show id={:edit} return_to={Routes.program_index_path(@socket, :index)}>
     <:title><%= Atom.to_string(@live_action) |> String.capitalize() %> Program</:title>
     <.live_component
       module={BikeBrigadeWeb.ProgramLive.FormComponent}
       id={@program.id || :new}
       action={@live_action}
       program={@program}
-      return_to={Routes.program_index_path(@socket, :index)}/>
+      return_to={Routes.program_index_path(@socket, :index)}
+    />
   </UI.modal>
 <% end %>
 
@@ -19,7 +20,8 @@
       action={@live_action}
       program={@program}
       item={@item}
-      return_to={Routes.program_index_path(@socket, :index)}/>
+      return_to={Routes.program_index_path(@socket, :index)}
+    />
   </UI.modal>
 <% end %>
 
@@ -44,9 +46,11 @@
       New Program
     </C.button>
   </:th>
-
   <:td let={program}>
-    <%= live_redirect program.name, to: Routes.program_show_path(@socket, :show, program),  class: "pl-2 text-indigo-600 hover:text-indigo-900" %>
+    <%= live_redirect(program.name,
+      to: Routes.program_show_path(@socket, :show, program),
+      class: "pl-2 text-indigo-600 hover:text-indigo-900"
+    ) %>
     <%= if !program.active do %>
       <span class="inline-block px-2 ml-2 text-xs border rounded-full">
         Inactive
@@ -76,7 +80,9 @@
     <%= if program.lead, do: program.lead.name, else: "N/A" %>
   </:td>
   <:td let={program} class="px-4 py-3 text-right">
-    <%= live_patch "Edit", to: Routes.program_index_path(@socket, :edit, program), class: "text-indigo-600 hover:text-indigo-900" %>
-    <%#= link "Delete", to: "#", phx_click: "delete", phx_value_id: campaign.id, data: [confirm: "Are you sure?"], class: "pl-2 text-indigo-600 hover:text-indigo-900"  %>
+    <%= live_patch("Edit",
+      to: Routes.program_index_path(@socket, :edit, program),
+      class: "text-indigo-600 hover:text-indigo-900"
+    ) %>
   </:td>
 </UI.table>

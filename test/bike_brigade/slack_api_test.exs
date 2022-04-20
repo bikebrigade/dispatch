@@ -10,12 +10,15 @@ defmodule BikeBrigade.SlackApiTest do
     call = FakeSlack.get_last_call()
 
     assert call.method == :post
+
     assert call.headers
-      |> Enum.member?({"content-type", "application/json"})
+           |> Enum.member?({"content-type", "application/json"})
+
     assert call.headers
-      |> Enum.member?({"charset", "utf-8"})
+           |> Enum.member?({"charset", "utf-8"})
+
     assert call.headers
-      |> Enum.member?({"authorization", "Bearer #{token()}"})
+           |> Enum.member?({"authorization", "Bearer #{token()}"})
   end
 
   defp token() do

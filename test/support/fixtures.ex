@@ -2,13 +2,13 @@ defmodule BikeBrigade.Fixtures do
   alias BikeBrigade.{Accounts, Delivery, Riders, Messaging, Messaging, Repo}
 
   @location %{
-              address: "926 College Street",
-              city: "Toronto",
-              postal: "M6H 1A1",
-              province: "Ontario",
-              country: "Canada",
-              coords:  %Geo.Point{coordinates: {-79.4258633, 43.6539952}}
-            }
+    address: "926 College Street",
+    city: "Toronto",
+    postal: "M6H 1A1",
+    province: "Ontario",
+    country: "Canada",
+    coords: %Geo.Point{coordinates: {-79.4258633, 43.6539952}}
+  }
 
   def fixture(name), do: fixture(name, %{})
 

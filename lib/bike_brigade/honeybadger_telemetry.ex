@@ -93,7 +93,8 @@ defmodule BikeBrigade.HoneybadgerTelemetry do
         component: module_to_string(socket.view),
         action: socket.assigns.live_action,
         params: params,
-        session: %{}, # Not sending session for now
+        # Not sending session for now
+        session: %{},
         url: URI.to_string(socket.host_uri)
       }
     )

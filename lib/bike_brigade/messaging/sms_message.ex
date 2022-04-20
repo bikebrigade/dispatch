@@ -35,7 +35,8 @@ defmodule BikeBrigade.Messaging.SmsMessage do
     field :twilio_status, :string
     embeds_many :media, MediaItem
     belongs_to :campaign, Campaign
-    belongs_to :rider, Rider #TODO: rename to sent_to_rider or sent_to
+    # TODO: rename to sent_to_rider or sent_to
+    belongs_to :rider, Rider
     belongs_to :sent_by_user, User
 
     timestamps()
@@ -44,7 +45,18 @@ defmodule BikeBrigade.Messaging.SmsMessage do
   @doc false
   def changeset(sms_message, attrs) do
     sms_message
-    |> cast(attrs, [:to, :from, :body, :sent_at, :twilio_sid, :twilio_status, :incoming, :rider_id, :campaign_id, :sent_by_user_id])
+    |> cast(attrs, [
+      :to,
+      :from,
+      :body,
+      :sent_at,
+      :twilio_sid,
+      :twilio_status,
+      :incoming,
+      :rider_id,
+      :campaign_id,
+      :sent_by_user_id
+    ])
     |> cast_embed(:media)
     |> validate_required([:to, :from])
     |> validate_required_inclusion([:body, :media])
@@ -60,7 +72,7 @@ defmodule BikeBrigade.Messaging.SmsMessage do
       changeset
     else
       # Add the error to the first field only since Ecto requires a field name for each error.
-      error_message = error_message || "One of these fields must be present: #{inspect fields}"
+      error_message = error_message || "One of these fields must be present: #{inspect(fields)}"
       add_error(changeset, hd(fields), error_message)
     end
   end
@@ -77,6 +89,9 @@ defmodule BikeBrigade.Messaging.SmsMessage do
     |> cast_embed(:media)
     # TODO may not need rider_id here
     |> validate_required([:to, :from, :rider_id])
-    |> validate_required_inclusion([:body, :media], "Either a message or attached images are required.")
+    |> validate_required_inclusion(
+      [:body, :media],
+      "Either a message or attached images are required."
+    )
   end
 end

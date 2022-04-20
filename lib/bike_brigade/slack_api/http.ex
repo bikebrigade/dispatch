@@ -10,7 +10,8 @@ defmodule BikeBrigade.SlackApi.Http do
       raise SlackApi.Error, response
     end
 
-    body = response.body
+    body =
+      response.body
       |> Jason.decode!()
 
     # slack returns status_code 200 for some errors

@@ -85,8 +85,8 @@ defmodule BikeBrigadeWeb.CampaignHelpers do
   def pickup_window(campaign) do
     # TODO bad place for the helper
     BikeBrigadeWeb.LiveHelpers.time_interval(campaign.delivery_start, campaign.delivery_end)
-
   end
+
   def pickup_window(campaign, rider) do
     if rider.pickup_window do
       rider.pickup_window
@@ -94,7 +94,6 @@ defmodule BikeBrigadeWeb.CampaignHelpers do
       pickup_window(campaign)
     end
   end
-
 
   def name(campaign) do
     campaign = campaign
@@ -111,7 +110,6 @@ defmodule BikeBrigadeWeb.CampaignHelpers do
   end
 
   def request_type(task) do
-
     if task.task_items != [] do
       task.task_items
       |> Enum.map(&print_item/1)

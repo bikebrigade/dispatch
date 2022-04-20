@@ -8,9 +8,9 @@ defmodule BikeBrigade.Delivery.Item do
     :"Foodshare Box",
     :"Prepared Food",
     :"Food Hamper",
-    :"Groceries",
+    :Groceries,
     :"Community Fridge",
-    :"Other",
+    :Other,
     :"Non Deliverable"
   ]
 

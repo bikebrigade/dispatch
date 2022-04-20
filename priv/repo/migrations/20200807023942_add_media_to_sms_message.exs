@@ -18,7 +18,12 @@ defmodule BikeBrigade.Repo.Migrations.AddMediaToSmsMessage do
     flush()
     # migrate existing media, this includes calls to Twilio API!
 
-    existing_media = from(m in "sms_messages", where: fragment("media_urls != '{}'"), select: {%{id: m.id}, fragment("media_urls")}) |> Repo.all()
+    existing_media =
+      from(m in "sms_messages",
+        where: fragment("media_urls != '{}'"),
+        select: {%{id: m.id}, fragment("media_urls")}
+      )
+      |> Repo.all()
 
     for {m, media_urls} <- existing_media do
       media =

@@ -25,6 +25,7 @@ defmodule Mix.Tasks.FeatureFlags do
         for r <- Riders.list_riders(),
             opt_in(flag, r.id, 0.50),
             do: Riders.update_rider(r, %{flags: %{flag => true}})
+
       "75" ->
         for r <- Riders.list_riders(),
             opt_in(flag, r.id, 0.75),

@@ -1,7 +1,6 @@
 defmodule BikeBrigadeWeb.DeliveryLive.Show do
   use BikeBrigadeWeb, {:live_view, layout: {BikeBrigadeWeb.LayoutView, "public.live.html"}}
 
-  alias BikeBrigade.LocalizedDateTime
   alias BikeBrigade.Delivery
   alias BikeBrigadeWeb.CampaignHelpers
   import BikeBrigadeWeb.DeliveryHelpers
@@ -13,7 +12,9 @@ defmodule BikeBrigadeWeb.DeliveryLive.Show do
 
   @impl Phoenix.LiveView
   def mount(%{"token" => token}, _session, socket) do
-    %{campaign: campaign, rider: rider, pickup_window: pickup_window} = Delivery.get_campaign_rider!(token)
+    %{campaign: campaign, rider: rider, pickup_window: pickup_window} =
+      Delivery.get_campaign_rider!(token)
+
     # TODO this is hacky but will go away
 
     rider = %{rider | pickup_window: pickup_window}

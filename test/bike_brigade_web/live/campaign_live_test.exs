@@ -80,7 +80,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
         |> render_submit()
         |> follow_redirect(conn)
 
-        assert html =~ rider.name
+      assert html =~ rider.name
     end
   end
 

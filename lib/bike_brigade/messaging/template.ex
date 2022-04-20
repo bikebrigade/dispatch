@@ -1,14 +1,14 @@
 defmodule BikeBrigade.Messaging.Template do
   use BikeBrigade.Schema
 
- # alias BikeBrigade.Messaging.SmsMessage
+  # alias BikeBrigade.Messaging.SmsMessage
 
   import Ecto.Changeset
 
   schema "message_templates" do
     field :body, :string
     # TODO clean this up, we dont need a model for this it turns out :(
-    #has_many :messages, SmsMessage
+    # has_many :messages, SmsMessage
 
     timestamps()
   end
@@ -16,6 +16,7 @@ defmodule BikeBrigade.Messaging.Template do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, [:body])
-  #  |> cast_assoc(:messages, required: false)
+
+    #  |> cast_assoc(:messages, required: false)
   end
 end

@@ -10,7 +10,7 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
 
     test "lists programs for week programs", %{conn: conn, program: program} do
       {:ok, _index_live, html} = live(conn, Routes.program_index_path(conn, :index))
-      
+
       assert html =~ "Programs"
       assert html =~ program.name
     end

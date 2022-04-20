@@ -7,7 +7,7 @@ defmodule BikeBrigade.Riders.Rider do
   alias BikeBrigade.Locations.Location
   alias BikeBrigade.Repo
   alias BikeBrigade.Riders.{Tag, RidersTag, RiderLatestCampaign}
-  alias BikeBrigade.Delivery.{Task, Campaign, CampaignRider}
+  alias BikeBrigade.Delivery.{Task, CampaignRider}
   alias BikeBrigade.Stats.RiderStats
 
   defenum(OnfleetAccountStatusEnum, invited: "invited", accepted: "accepted")
@@ -67,7 +67,7 @@ defmodule BikeBrigade.Riders.Rider do
     field :task_enter_building, :boolean, virtual: true
     field :delivery_url_token, :string, virtual: true
     field :pickup_window, :string, virtual: true
-    
+
     has_many :assigned_tasks, Task, foreign_key: :assigned_rider_id
     has_many :campaign_riders, CampaignRider
 

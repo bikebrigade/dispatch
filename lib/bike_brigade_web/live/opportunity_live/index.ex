@@ -4,8 +4,6 @@ defmodule BikeBrigadeWeb.OpportunityLive.Index do
   alias BikeBrigade.Delivery
   alias BikeBrigade.Delivery.{Opportunity}
 
-  alias BikeBrigade.LocalizedDateTime
-
   @impl Phoenix.LiveView
   def mount(_params, _session, socket) do
     if connected?(socket) do

@@ -19,6 +19,6 @@ defmodule BikeBrigadeWeb.LiveHooks.Authentication do
   def on_mount(:default, _params, %{}, socket) do
     {:halt,
      socket
-      |> push_redirect(to: "/login")}
+     |> push_redirect(to: "/login")}
   end
 end

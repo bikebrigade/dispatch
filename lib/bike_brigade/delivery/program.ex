@@ -6,8 +6,6 @@ defmodule BikeBrigade.Delivery.Program do
 
   alias BikeBrigade.Delivery.{Item, Campaign, ProgramLatestCampaign}
 
-  alias BikeBrigade.Stats.CampaignStats
-
   defenum(SpreadsheetLayout,
     foodshare: "foodshare",
     map: "map"

@@ -3,10 +3,16 @@ defmodule BikeBrigadeWeb.EmbedTestView do
 
   def iframe(assigns) do
     ~H"""
-    <iframe id="calendar-iframe" name="calendar-iframe"
+    <iframe
+      id="calendar-iframe"
+      name="calendar-iframe"
       sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-      allowtransparency="true" scrolling="no" frameBorder="0" style="width:100%;border:none;"
-      src={@src}>
+      allowtransparency="true"
+      scrolling="no"
+      frameBorder="0"
+      style="width:100%;border:none;"
+      src={@src}
+    >
     </iframe>
     """
   end

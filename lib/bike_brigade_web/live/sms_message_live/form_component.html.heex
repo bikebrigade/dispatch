@@ -5,15 +5,22 @@
     id="sms_message-form"
     phx-target={@myself}
     phx-submit="send"
-    autocomplete="off">
+    autocomplete="off"
+  >
     <div>
       <%= label f, :to, class: "block text-sm font-medium leading-5 text-gray-700" do %>
         To
       <% end %>
       <div class="mt-1 rounded-md shadow-sm">
-        <.live_component module={C.RiderSelectionComponent} id={:select_rider} input_name="rider_ids[]" multi={true} selected_riders={@initial_riders}/>
+        <.live_component
+          module={C.RiderSelectionComponent}
+          id={:select_rider}
+          input_name="rider_ids[]"
+          multi={true}
+          selected_riders={@initial_riders}
+        />
       </div>
-      <%= error_tag f, :to %>
+      <%= error_tag(f, :to) %>
     </div>
 
     <div class="mt-2">
@@ -21,14 +28,30 @@
         Message
       <% end %>
       <div class="mt-1 rounded-md shadow-sm">
-        <%= textarea f, :body, required: true, phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+        <%= textarea(f, :body,
+          required: true,
+          phx_debounce: "blur",
+          class:
+            "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+        ) %>
       </div>
-      <%= error_tag f, :body %>
+      <%= error_tag(f, :body) %>
     </div>
 
     <div class="flex justify-end mt-6">
-      <C.button class="mr-2" id="emoji-button2" phx-hook="EmojiButtonHook" data-input-id={input_id(f, :body)} type="button" color={:white} size={:xxsmall}>
-        <Heroicons.Outline.emoji_happy aria-label="Emoji Picker" class="h-6 w-6 m-1.5 text-gray-400" />
+      <C.button
+        class="mr-2"
+        id="emoji-button2"
+        phx-hook="EmojiButtonHook"
+        data-input-id={input_id(f, :body)}
+        type="button"
+        color={:white}
+        size={:xxsmall}
+      >
+        <Heroicons.Outline.emoji_happy
+          aria-label="Emoji Picker"
+          class="h-6 w-6 m-1.5 text-gray-400"
+        />
       </C.button>
       <C.button type="submit" data-confirm={@confirm_send} phx-disable-with="Sending...">
         Send

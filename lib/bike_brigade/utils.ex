@@ -108,15 +108,15 @@ defmodule BikeBrigade.Utils do
     end)
   end
 
-
-
   @doc """
   Given a sorted list, returns a list of tuples `{x, group}`,
   where x is the result of calling `fun` on the elements in `group`.
   Maintains the sort order.
   """
   def ordered_group_by([], _fun), do: []
-  def ordered_group_by([head | rest], fun), do: ordered_group_by(rest, [{fun.(head), [head]}], fun)
+
+  def ordered_group_by([head | rest], fun),
+    do: ordered_group_by(rest, [{fun.(head), [head]}], fun)
 
   def ordered_group_by([], [{key, group} | groups], _fun) do
     Enum.reverse([{key, Enum.reverse(group)} | groups])
@@ -124,6 +124,7 @@ defmodule BikeBrigade.Utils do
 
   def ordered_group_by([head | rest], [{last_key, group} | groups], fun) do
     key = fun.(head)
+
     if key == last_key do
       ordered_group_by(rest, [{key, [head | group]} | groups], fun)
     else

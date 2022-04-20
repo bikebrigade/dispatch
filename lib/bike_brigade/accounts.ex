@@ -37,7 +37,6 @@ defmodule BikeBrigade.Accounts do
   """
   def get_user(id), do: Repo.get(User, id)
 
-
   @doc """
   Gets a single user by phone number
 
@@ -73,7 +72,6 @@ defmodule BikeBrigade.Accounts do
 
     Repo.all(query)
   end
-
 
   @doc """
   Creates a user.

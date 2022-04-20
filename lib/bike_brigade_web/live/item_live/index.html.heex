@@ -1,12 +1,13 @@
 <%= if @live_action in [:new, :edit] do %>
- <UI.modal show id={:item} return_to={Routes.campaign_index_path(@socket, :index)} >
+  <UI.modal show id={:item} return_to={Routes.campaign_index_path(@socket, :index)}>
     <:title><%= @page_title %></:title>
     <.live_component
       module={BikeBrigadeWeb.BikeBrigadeWeb.ItemLive.FormComponent}
       id={@item.id || :new}
       action={@live_action}
       item={@item}
-      return_to={Routes.item_index_path(@socket, :index)}/>
+      return_to={Routes.item_index_path(@socket, :index)}
+    />
   </UI.modal>
 <% end %>
 <UI.table class="min-w-full table-fixed" rows={@items}>
@@ -23,11 +24,10 @@
     Category
   </:th>
   <:th padding="px-3 py-3" uppercase={false}>
-    <C.button patch_to={ Routes.item_index_path(@socket, :new)}>
-    New Item
+    <C.button patch_to={Routes.item_index_path(@socket, :new)}>
+      New Item
     </C.button>
   </:th>
-
   <:td let={item}>
     <%= item.program && item.program.name %>
   </:td>
@@ -41,7 +41,16 @@
     <%= item.category %>
   </:td>
   <:td let={item}>
-    <%= live_patch "Edit", to: Routes.item_index_path(@socket, :edit, item), class: "text-indigo-600 hover:text-indigo-900" %>
-    <%= link "Delete", to: "#", phx_click: "delete", phx_value_id: item.id, data: [confirm: "Are you sure?"], class: "pl-2 text-indigo-600 hover:text-indigo-900"  %>
+    <%= live_patch("Edit",
+      to: Routes.item_index_path(@socket, :edit, item),
+      class: "text-indigo-600 hover:text-indigo-900"
+    ) %>
+    <%= link("Delete",
+      to: "#",
+      phx_click: "delete",
+      phx_value_id: item.id,
+      data: [confirm: "Are you sure?"],
+      class: "pl-2 text-indigo-600 hover:text-indigo-900"
+    ) %>
   </:td>
 </UI.table>

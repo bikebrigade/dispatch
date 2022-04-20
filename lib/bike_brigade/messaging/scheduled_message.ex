@@ -5,7 +5,6 @@ defmodule BikeBrigade.Messaging.ScheduledMessage do
 
   import Ecto.Changeset
 
-
   schema "scheduled_messages" do
     field :send_at, :utc_datetime
     belongs_to :campaign, Campaign

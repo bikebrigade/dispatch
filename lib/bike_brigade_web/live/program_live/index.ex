@@ -9,10 +9,10 @@ defmodule BikeBrigadeWeb.ProgramLive.Index do
   @impl true
   def mount(_params, _session, socket) do
     {:ok,
-    socket
-    |> assign(:page, :programs)
-    |> assign(:page_title, "Programs")
-    |> assign(:programs, list_programs())}
+     socket
+     |> assign(:page, :programs)
+     |> assign(:page_title, "Programs")
+     |> assign(:programs, list_programs())}
   end
 
   @impl true
@@ -34,6 +34,7 @@ defmodule BikeBrigadeWeb.ProgramLive.Index do
 
   defp apply_action(socket, :new_item, %{"id" => id}) do
     program = Delivery.get_program!(id)
+
     socket
     |> assign(:page_title, "New Item")
     |> assign(:program, program)
@@ -45,7 +46,6 @@ defmodule BikeBrigadeWeb.ProgramLive.Index do
     |> assign(:page_title, "Edit Item")
     |> assign(:program, Delivery.get_program!(id))
     |> assign(:item, Delivery.get_item!(item_id))
-
   end
 
   defp apply_action(socket, :index, _params) do

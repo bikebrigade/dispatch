@@ -1,136 +1,177 @@
-<.form
-  let={f}
-  for={@changeset}
-  id="new-campaign-form"
-  phx-change="validate"
-  phx-submit="save" %>
-<div class="flex">
-<div class="w-1/2 p-2 bg-white rounded-lg shadow">
-<div class="my-2">
-  <%= label f, :name, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-  Name
-  <% end %>
-  <div class="mt-1 rounded-md shadow-sm">
-    <%= text_input f, :name, required: true, phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
-  </div>
-  <%= error_tag f, :name %>
-</div>
-
-<div class="my-2">
-  <%= label f, :delivery_date, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-  Delivery Date (YYYY-MM-DD)
-  <% end %>
-  <div class="mt-1 rounded-md shadow-sm">
-    <%= text_input f, :delivery_date, required: true, phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
-  </div>
-  <%= error_tag f, :delivery_date %>
-</div>
-
-<div class="my-2">
-  <%= label f, :pickup_address, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-  Pickup Address
-  <% end %>
-  <div class="mt-1 rounded-md shadow-sm">
-    <%= text_input f, :pickup_address, required: true, phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
-  </div>
-  <%= error_tag f, :pickup_address %>
-</div>
-
-
-<%= unless @delivery_spreadsheet do %>
-<div class="my-4 sm:col-span-6">
-  <label for="delivery_spreadsheet" class="block text-sm font-medium text-gray-700">
-    Delivery spreadsheet
-  </label>
-  <div phx-drop-target={@uploads.delivery_spreadsheet.ref}
-    class="flex justify-center w-64 px-6 pt-5 pb-6 mt-2 border-2 border-gray-300 border-dashed rounded-md">
-    <div class="space-y-1 text-center">
-      <svg class="w-12 h-12 mx-auto text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48"
-        aria-hidden="true">
-        <path
-          d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-          stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-      </svg>
-      <div class="flex text-sm text-gray-600">
-        <label for={@uploads.delivery_spreadsheet.ref}
-          class="relative font-medium text-indigo-600 bg-white rounded-md cursor-pointer hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
-          <span>Upload a file</span>
-          <%= live_file_input @uploads.delivery_spreadsheet, class: "sr-only" %>
-        </label>
-        <p class="pl-1">or drag and drop</p>
+<.form let={f} for={@changeset} id="new-campaign-form" phx-change="validate" phx-submit="save" %>
+  <div class="flex">
+    <div class="w-1/2 p-2 bg-white rounded-lg shadow">
+      <div class="my-2">
+        <%= label f, :name, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+          Name
+        <% end %>
+        <div class="mt-1 rounded-md shadow-sm">
+          <%= text_input(f, :name,
+            required: true,
+            phx_debounce: "blur",
+            class:
+              "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+          ) %>
+        </div>
+        <%= error_tag(f, :name) %>
       </div>
-      <p class="text-xs text-gray-500">
-        CSV
-      </p>
+
+      <div class="my-2">
+        <%= label f, :delivery_date, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+          Delivery Date (YYYY-MM-DD)
+        <% end %>
+        <div class="mt-1 rounded-md shadow-sm">
+          <%= text_input(f, :delivery_date,
+            required: true,
+            phx_debounce: "blur",
+            class:
+              "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+          ) %>
+        </div>
+        <%= error_tag(f, :delivery_date) %>
+      </div>
+
+      <div class="my-2">
+        <%= label f, :pickup_address, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+          Pickup Address
+        <% end %>
+        <div class="mt-1 rounded-md shadow-sm">
+          <%= text_input(f, :pickup_address,
+            required: true,
+            phx_debounce: "blur",
+            class:
+              "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+          ) %>
+        </div>
+        <%= error_tag(f, :pickup_address) %>
+      </div>
+
+      <%= unless @delivery_spreadsheet do %>
+        <div class="my-4 sm:col-span-6">
+          <label for="delivery_spreadsheet" class="block text-sm font-medium text-gray-700">
+            Delivery spreadsheet
+          </label>
+          <div
+            phx-drop-target={@uploads.delivery_spreadsheet.ref}
+            class="flex justify-center w-64 px-6 pt-5 pb-6 mt-2 border-2 border-gray-300 border-dashed rounded-md"
+          >
+            <div class="space-y-1 text-center">
+              <svg
+                class="w-12 h-12 mx-auto text-gray-400"
+                stroke="currentColor"
+                fill="none"
+                viewBox="0 0 48 48"
+                aria-hidden="true"
+              >
+                <path
+                  d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <div class="flex text-sm text-gray-600">
+                <label
+                  for={@uploads.delivery_spreadsheet.ref}
+                  class="relative font-medium text-indigo-600 bg-white rounded-md cursor-pointer hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
+                >
+                  <span>Upload a file</span>
+                  <%= live_file_input(@uploads.delivery_spreadsheet, class: "sr-only") %>
+                </label>
+                <p class="pl-1">or drag and drop</p>
+              </div>
+              <p class="text-xs text-gray-500">
+                CSV
+              </p>
+            </div>
+          </div>
+        </div>
+      <% else %>
+        <div class="flex flex-col">
+          <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+            <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+              <div class="overflow-hidden border-b border-gray-200 shadow sm:rounded-lg">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead>
+                    <tr>
+                      <%= for cell <- @delivery_spreadsheet |> List.first() do %>
+                        <th
+                          scope="col"
+                          class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50"
+                        >
+                          <%= cell %>
+                        </th>
+                      <% end %>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200">
+                    <%= for row <- @delivery_spreadsheet |> Enum.drop(1) |> Enum.take(3) do %>
+                      <tr>
+                        <%= for cell <- row do %>
+                          <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
+                            <%= cell %>
+                          </td>
+                        <% end %>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <%= if Enum.count(@delivery_spreadsheet) > 4 do %>
+            <div class="my-1 text-sm font-medium tracking-wider">
+              ...<%= Enum.count(@delivery_spreadsheet) - 4 %> more rows
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <div class="my-2">
+        <%= label f, :rider_spreadsheet_url, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+          Rider Spreadsheet (link to google sheet)
+        <% end %>
+        <div class="mt-1 rounded-md shadow-sm">
+          <%= text_input(f, :rider_spreadsheet_url,
+            class:
+              "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5",
+            id: "spreadsheet",
+            file_input: "one"
+          ) %>
+        </div>
+        <%= error_tag(f, :rider_spreadsheet_url) %>
+      </div>
+
+      <span class="block w-full rounded-md shadow-sm">
+        <button
+          type="submit"
+          phx-disable-with="Saving..."
+          class="flex justify-center w-full px-4 py-2 text-sm font-medium text-white transition duration-150 ease-in-out bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:ring-indigo active:bg-indigo-700"
+        >
+          Save
+        </button>
+      </span>
+    </div>
+    <div class="w-1/2 ml-1.5">
+      <leaflet-map
+        phx-hook="LeafletMap"
+        id="campaign-location"
+        data-zoom="12"
+        data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
+        class="block p-2 bg-white rounded-lg shadow w-96 h-96"
+      >
+        <%= if pickup_location(@changeset) do %>
+          <leaflet-marker
+            phx-hook="LeafletMarker"
+            id="campaign-pickup"
+            data-lat={pickup_location(@changeset) |> lat()}
+            data-lng={pickup_location(@changeset) |> lng()}
+            data-icon="warehouse"
+            data-color="#1c64f2"
+          >
+          </leaflet-marker>
+        <% end %>
+      </leaflet-map>
     </div>
   </div>
-</div>
-<% else %>
-<div class="flex flex-col">
-  <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-    <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-      <div class="overflow-hidden border-b border-gray-200 shadow sm:rounded-lg">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead>
-            <tr>
-              <%= for cell <- @delivery_spreadsheet |> List.first() do %>
-              <th scope="col"
-                class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50">
-                <%= cell %>
-              </th>
-              <% end %>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <%= for row <- @delivery_spreadsheet |> Enum.drop(1) |> Enum.take(3) do %>
-            <tr>
-              <%= for cell <- row do %>
-              <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
-                <%= cell %>
-              </td>
-              <% end %>
-            </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-  <%= if Enum.count(@delivery_spreadsheet) > 4 do %>
-    <div class="my-1 text-sm font-medium tracking-wider">...<%= Enum.count(@delivery_spreadsheet) - 4 %> more rows</div>
-  <% end %>
-</div>
-<% end %>
-
-<div class="my-2">
-  <%= label f, :rider_spreadsheet_url, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-  Rider Spreadsheet (link to google sheet)
-  <% end %>
-  <div class="mt-1 rounded-md shadow-sm">
-    <%= text_input f, :rider_spreadsheet_url, [class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5", id: "spreadsheet", file_input: "one"] %>
-  </div>
-  <%= error_tag f, :rider_spreadsheet_url %>
-</div>
-
-<span class="block w-full rounded-md shadow-sm">
-  <button type="submit" phx-disable-with="Saving..."
-    class="flex justify-center w-full px-4 py-2 text-sm font-medium text-white transition duration-150 ease-in-out bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:ring-indigo active:bg-indigo-700">
-    Save
-  </button>
-</span>
-</div>
-<div class="w-1/2 ml-1.5">
-
-<leaflet-map phx-hook= "LeafletMap" id="campaign-location"
-    data-zoom="12"
-    data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
-    class="block p-2 bg-white rounded-lg shadow w-96 h-96">
-  <%= if pickup_location(@changeset) do %>
-    <leaflet-marker phx-hook="LeafletMarker" id="campaign-pickup" data-lat={pickup_location(@changeset) |> lat()} data-lng={pickup_location(@changeset) |> lng()}
-        data-icon="warehouse" data-color="#1c64f2"></leaflet-marker>
-  <% end %>
-</leaflet-map>
-
-</div>
-</div>
 </.form>

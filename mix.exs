@@ -18,10 +18,12 @@ defmodule BikeBrigade.MixProject do
   #
   # Type `mix help compile.app` for more information.
   def application do
-    extras = case Mix.env() do
-      :test -> []
-      _ -> [:os_mon]
-    end
+    extras =
+      case Mix.env() do
+        :test -> []
+        _ -> [:os_mon]
+      end
+
     [
       mod: {BikeBrigade.Application, []},
       extra_applications: [:logger, :runtime_tools, :honeybadger] ++ extras
@@ -43,7 +45,7 @@ defmodule BikeBrigade.MixProject do
       {:ecto_sql, "~> 3.7.1"},
       {:ecto_psql_extras, "~> 0.7.4"},
       {:postgrex, ">= 0.0.0"},
-      {:phoenix_live_view, "~> 0.17.7"},
+      {:phoenix_live_view, "~> 0.17.9"},
       {:floki, ">= 0.0.0", only: :test},
       {:phoenix_html, "~> 3.1"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
@@ -72,7 +74,9 @@ defmodule BikeBrigade.MixProject do
       {:honeybadger, "~> 0.18.1"},
       {:recase, "~> 0.5"},
       {:heroicons, "~> 0.3.0"},
-      {:linkify, git: "https://github.com/mveytsman/linkify", ref: "42c1aca5da2c2ab28abf8f304b211c2a5d2c89c7"},
+      {:linkify,
+       git: "https://github.com/mveytsman/linkify",
+       ref: "42c1aca5da2c2ab28abf8f304b211c2a5d2c89c7"},
       {:crontab, "~> 1.1.10"},
       {:tzdata, "~> 1.1"},
       {:benchee, "~> 1.0.1"},

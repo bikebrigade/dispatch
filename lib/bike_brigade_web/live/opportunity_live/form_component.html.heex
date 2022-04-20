@@ -1,49 +1,73 @@
 <div>
   <C.flash_component flash={@flash} />
   <.form
-  let={f}
-  for={@changeset}
-  id="opportunity-form"
-  phx-target={@myself}
-  phx-change="validate"
-  phx-submit="save">
+    let={f}
+    for={@changeset}
+    id="opportunity-form"
+    phx-target={@myself}
+    phx-change="validate"
+    phx-submit="save"
+  >
     <div class="my-2">
       <%= label f, :program_id, class: "block text-sm font-medium leading-5 text-gray-700" do %>
         Program
       <% end %>
       <div class="mt-1 rounded-md shadow-sm">
-        <%= select f, :program_id,  @program_options, phx_debounce: "blur", class: "block w-full py-2 pl-3 pr-10 mt-1 text-xs border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" %>
+        <%= select(f, :program_id, @program_options,
+          phx_debounce: "blur",
+          class:
+            "block w-full py-2 pl-3 pr-10 mt-1 text-xs border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+        ) %>
       </div>
-      <%= error_tag f, :program_id %>
-      <%= live_redirect "Create New Program", to: Routes.program_index_path(@socket, :new), class: "text-xs link" %>
+      <%= error_tag(f, :program_id) %>
+      <%= live_redirect("Create New Program",
+        to: Routes.program_index_path(@socket, :new),
+        class: "text-xs link"
+      ) %>
     </div>
 
     <div class="flex my-2 space-x-2">
       <div>
-          <%= label f, :delivery_date, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-            Delivery Date
-          <% end %>
-          <div class="mt-1 rounded-md shadow-sm">
-            <%= date_input f, :delivery_date, required: true, placeholder: "YYYY-MM-DD", phx_debounce: "blur", class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
-          </div>
-          <%= error_tag f, :delivery_date %>
+        <%= label f, :delivery_date, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+          Delivery Date
+        <% end %>
+        <div class="mt-1 rounded-md shadow-sm">
+          <%= date_input(f, :delivery_date,
+            required: true,
+            placeholder: "YYYY-MM-DD",
+            phx_debounce: "blur",
+            class:
+              "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+          ) %>
         </div>
-      <div>
-      <%= label f, :start_time, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-        Start
-      <% end %>
-      <div class="mt-1">
-        <%= time_input f, :start_time, required: true, phx_debounce: "blur", class: "block w-28 px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
+        <%= error_tag(f, :delivery_date) %>
       </div>
-      <%= error_tag f, :start_time %>
+      <div>
+        <%= label f, :start_time, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+          Start
+        <% end %>
+        <div class="mt-1">
+          <%= time_input(f, :start_time,
+            required: true,
+            phx_debounce: "blur",
+            class:
+              "block w-28 px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+          ) %>
+        </div>
+        <%= error_tag(f, :start_time) %>
       </div>
       <div>
         <%= label f, :end_time, class: "block text-sm font-medium leading-5 text-gray-700" do %>
           End
         <% end %>
         <div class="mt-1">
-          <%= time_input f, :end_time, required: true, phx_debounce: "blur", class: "block w-28 px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5" %>
-          <%= error_tag f, :end_time %>
+          <%= time_input(f, :end_time,
+            required: true,
+            phx_debounce: "blur",
+            class:
+              "block w-28 px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+          ) %>
+          <%= error_tag(f, :end_time) %>
         </div>
       </div>
     </div>
@@ -54,7 +78,10 @@
     <div class="my-2">
       <div class="relative flex items-start">
         <div class="flex items-center h-5">
-          <%= checkbox f, :hide_address, phx_debounce: "blur", class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" %>
+          <%= checkbox(f, :hide_address,
+            phx_debounce: "blur",
+            class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+          ) %>
         </div>
         <div class="ml-3 text-sm">
           <%= label f, :hide_address, class: "font-medium text-gray-700" do %>
@@ -69,15 +96,23 @@
         Signup Link
       <% end %>
       <div class="mt-1 rounded-md shadow-sm">
-        <%= textarea f, :signup_link, [class: "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5", id: "rider_spreadsheet", file_input: "one"] %>
+        <%= textarea(f, :signup_link,
+          class:
+            "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5",
+          id: "rider_spreadsheet",
+          file_input: "one"
+        ) %>
       </div>
-      <%= error_tag f, :signup_link %>
+      <%= error_tag(f, :signup_link) %>
     </div>
 
     <div class="mt-2">
       <div class="relative flex items-start">
         <div class="flex items-center h-5">
-          <%= checkbox f, :published, phx_debounce: "blur", class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" %>
+          <%= checkbox(f, :published,
+            phx_debounce: "blur",
+            class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+          ) %>
         </div>
         <div class="ml-3 text-sm">
           <%= label f, :published, class: "font-medium text-gray-700" do %>
@@ -89,7 +124,12 @@
 
     <%= if @opportunity.program_id do %>
       <div class="mt-6">
-        <a href={Routes.program_index_path(@socket, :edit, @opportunity.program_id)} class="text-sm link">Edit Program to change lead</a>
+        <a
+          href={Routes.program_index_path(@socket, :edit, @opportunity.program_id)}
+          class="text-sm link"
+        >
+          Edit Program to change lead
+        </a>
       </div>
     <% end %>
 

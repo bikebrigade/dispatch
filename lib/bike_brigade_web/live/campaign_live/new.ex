@@ -24,7 +24,7 @@ defmodule BikeBrigadeWeb.CampaignLive.New do
 
   @impl Phoenix.LiveView
   def handle_event("validate", %{"campaign" => campaign_params}, socket) do
-    IO.inspect campaign_params
+    IO.inspect(campaign_params)
 
     changeset =
       socket.assigns.campaign
@@ -35,9 +35,10 @@ defmodule BikeBrigadeWeb.CampaignLive.New do
   end
 
   def handle_event("save", params, socket) do
-    IO.inspect params
+    IO.inspect(params)
     {:noreply, socket}
   end
+
   defp handle_progress(:delivery_spreadsheet, entry, socket) do
     if entry.done? do
       uploaded_file =

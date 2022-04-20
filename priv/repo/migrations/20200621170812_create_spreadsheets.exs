@@ -10,6 +10,5 @@ defmodule BikeBrigade.Repo.Migrations.CreateSpreadsheets do
 
       timestamps()
     end
-
   end
 end

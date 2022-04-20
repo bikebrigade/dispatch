@@ -107,13 +107,16 @@ defmodule BikeBrigadeWeb.SmsMessageLive.ConversationComponent do
     case Messaging.send_sms_message(socket.assigns.sms_message, params) do
       {:ok, _sent_sms_message} ->
         assign_new_sms_message(socket)
+
       {:error, %Ecto.Changeset{} = changeset} ->
         assign(socket, :changeset, changeset)
     end
   end
 
   defp assign_new_sms_message(socket) do
-    sms_message = Messaging.new_sms_message(socket.assigns.rider, sent_by: socket.assigns.current_user)
+    sms_message =
+      Messaging.new_sms_message(socket.assigns.rider, sent_by: socket.assigns.current_user)
+
     changeset = Messaging.send_sms_message_changeset(sms_message)
 
     socket

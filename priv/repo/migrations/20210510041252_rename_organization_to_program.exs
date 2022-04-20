@@ -11,6 +11,5 @@ defmodule BikeBrigade.Repo.Migrations.RenameOrganizationToProgram do
 
     create index(:programs, [:lead_id])
     create index(:campaigns, [:program_id])
-
   end
 end
