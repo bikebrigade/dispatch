@@ -41,7 +41,10 @@
         baseHook = ''
           export PS1="\[\e[1;33m\][dev]\[\e[1;34m\] \w $ \[\e[0m\]"
 
-          [[ -f .env ]] && source .env
+          set -a
+          [[ -f .env.local ]] && . .env.local
+          set +a
+
         '';
 
         elixirHook = ''
