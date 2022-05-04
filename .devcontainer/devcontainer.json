@@ -40,5 +40,10 @@
 	// Uncomment to connect as a non-root user if you've added one. See https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "vscode",
 	"userEnvProbe": "loginInteractiveShell",
+
+	//create .env.local
+	"initializeCommand": "cp .env.local.sample .env.local",
+
+
 	// "postCreateCommand": ["/bin/bash", "-lic", "--", "nix-shell --run 'cp .env.local.sample .env.local && mix local.hex --force && mix local.rebar --force && mix do deps.get, ecto.create, ecto.migrate, run priv/repo/seeds.exs && npm install --prefix=assets/'"]
 }
