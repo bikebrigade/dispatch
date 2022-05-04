@@ -67,7 +67,7 @@
             aria-label="Mail"
             class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 xl:ml-1 sm:mr-.5"
           />
-          <%= @rider.email %>
+          <%= link @rider.email, to: "mailto:#{@rider.email}", class: "link" %>
         </span>
       </p>
       <p class="text-sm !leading-relaxed xl:text-base">
