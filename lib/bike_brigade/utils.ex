@@ -61,11 +61,7 @@ defmodule BikeBrigade.Utils do
   def humanized_task_count(tasks) do
     count_tasks(tasks)
     |> Enum.map(fn {item, count} ->
-      if count == 1 do
-        "1 #{item.name}"
-      else
-        "#{count} #{item.plural_name}"
-      end
+      "#{count} #{Inflex.inflect(item.name, count)}"
     end)
     |> Enum.join(" and ")
   end

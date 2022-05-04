@@ -84,8 +84,7 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
       view
       |> form("#item-form",
         item: %{
-          name: "good food",
-          plural_name: "Food Hampers",
+          name: "Food Hamper",
           description: "Awesome food hamper",
           category: "Food Hamper"
         }

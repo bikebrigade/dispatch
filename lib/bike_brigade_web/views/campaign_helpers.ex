@@ -121,10 +121,6 @@ defmodule BikeBrigadeWeb.CampaignHelpers do
 
   # TODO this could be better
   defp print_item(task_item) do
-    if task_item.count == 1 do
-      "#{task_item.count} #{task_item.item.name}"
-    else
-      "#{task_item.count} #{task_item.item.plural_name}"
-    end
+    "#{task_item.count} #{Inflex.inflect(task_item.item.name, task_item.count)}"
   end
 end
