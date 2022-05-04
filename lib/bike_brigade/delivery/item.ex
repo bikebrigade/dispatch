@@ -28,7 +28,7 @@ defmodule BikeBrigade.Delivery.Item do
   @doc false
   def changeset(item, attrs) do
     item
-    |> cast(attrs, [:program_id, :namea, :description, :category, :photo])
+    |> cast(attrs, [:program_id, :name, :description, :category, :photo])
     |> validate_required([:program_id, :name, :category])
   end
 end
