@@ -168,23 +168,29 @@ defmodule BikeBrigade.Stats do
     |> Repo.all()
   end
 
+  # TODO: we're using a custom query here while we also have the RiderStats view
+  # The issue is that we can't filter that view by campaign date easily
+  # Ideally we'd use the view normally and then custom query if searching by date?
+  @base_query from r in Rider,
+                join: t in assoc(r, :assigned_tasks),
+                join: c in assoc(t, :campaign),
+                as: :campaign,
+                join: pl in assoc(t, :pickup_location),
+                join: dl in assoc(t, :dropoff_location),
+                select: %{
+                  rider_id: r.id,
+                  campaign_id: c.id,
+                  task_id: t.id,
+                  distance: st_distance(pl.coords, dl.coords)
+                }
+
   defp leaderboard_aggregates() do
-    from r in Rider,
-      join: t in assoc(r, :assigned_tasks),
-      join: c in assoc(t, :campaign),
-      as: :campaign,
-      join: pl in assoc(t, :pickup_location),
-      join: dl in assoc(t, :dropoff_location),
-      select: %{
-        rider_id: r.id,
-        campaign_id: c.id,
-        task_id: t.id,
-        distance: st_distance(pl.coords, dl.coords)
-      }
+    from r in @base_query,
+      where: as(:campaign).delivery_start <= ^LocalizedDateTime.now()
   end
 
   defp leaderboard_aggregates(%Date{} = start_date, %Date{} = end_date) do
-    from r in leaderboard_aggregates(),
+    from r in @base_query,
       where:
         as(:campaign).delivery_start >=
           ^LocalizedDateTime.new!(start_date, ~T[00:00:00]),
