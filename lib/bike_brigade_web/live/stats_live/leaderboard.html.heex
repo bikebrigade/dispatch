@@ -75,9 +75,6 @@
         </div>
       </:th>
       <:th>
-        Email
-      </:th>
-      <:th>
         <div class="inline-flex align-baseline">
           Campaigns
           <.sort_icon field={:campaigns} options={@options} />
@@ -95,17 +92,8 @@
           <.sort_icon field={:distance} options={@options} />
         </div>
       </:th>
-      <:th>
-        <span class="sr-only">Message</span>
-      </:th>
       <:td let={{rider, _campaigns, _tasks, _distance}}>
-        <%= rider.name %>
-      </:td>
-      <:td let={{rider, _campaigns, _tasks, _distance}}>
-        <%= link(rider.email,
-          to: "mailto:#{rider.email}",
-          class: "text-indigo-600 hover:text-indigo-900"
-        ) %>
+        <%= live_redirect rider.name, to: Routes.rider_show_path(@socket, :show, rider), class: "link" %>
       </:td>
       <:td let={{_rider, campaigns, _tasks, _distance}}>
         <%= campaigns %>
@@ -115,14 +103,6 @@
       </:td>
       <:td let={{_rider, _campaigns, _tasks, distance}}>
         <%= round_distance(distance) %> km
-      </:td>
-      <:td let={{rider, _campaigns, _tasks, _distance}}>
-        <C.button
-          size={:xsmall}
-          patch-to={Routes.sms_message_index_path(@socket, :show, rider.id)}
-        >
-          Message
-        </C.button>
       </:td>
     </UI.table>
   </div>
