@@ -103,11 +103,23 @@ defmodule BikeBrigade.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
+      "bb.init": [
+        &copy_env/1,
+        "local.hex --force --if-missing",
+        "local.rebar --force --if-missing",
+        "setup"
+      ],
       setup: ["deps.get", "ecto.setup", "cmd npm install --prefix assets"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate", "test"],
       "assets.deploy": ["esbuild default --minify", "tailwind default --minify", "phx.digest"]
     ]
+  end
+
+  defp copy_env(_) do
+    unless File.exists?(".env.local") do
+      File.copy!(".env.local.sample", ".env.local")
+    end
   end
 end
