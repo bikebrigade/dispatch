@@ -10,13 +10,12 @@
 2. Copy the env file `cp .env.local.sample .env.local`
 3. Run `nix develop` inside the directory. This will create an environment that has all the dependencies installed locally. If you don't have flakes enabled, there's a backwards-compatible `nix-shell` as well.
 4. Inside the nix shell, run `docker-compose up -d`
-5. To install dependencies, run `mix deps.get`
-6. To set up the database run `mix do ecto.create, ecto.migrate`
-7. To set up the assets, `npm install --prefix=assets/`
-8. To install seeds, `mix run priv/repo/seeds.exs`
+5. Setup everything, run `mix bb.init`
 
 ## Development environment
 You'll want to be inside the `nix-shell` when working on this project. Make sure postgres is running with `docker-compose up -d`
+
+As you develop, when you've downloaded new code, you can run `mix setup` to update the dependencies and run any migrations.
 
 To start the server & console run:
 
