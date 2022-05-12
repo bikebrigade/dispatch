@@ -121,16 +121,6 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
       province = with_default(member.merge_fields[:SELECTYUI], "Ontario")
       country = with_default(member.merge_fields[:TEXT3], "Canada")
 
-      availability = %{
-        "mon" => translate_availability(member.merge_fields[:SELECT9]),
-        "tue" => translate_availability(member.merge_fields[:SELECT10]),
-        "wed" => translate_availability(member.merge_fields[:SELECT11]),
-        "thu" => translate_availability(member.merge_fields[:SELECT12]),
-        "fri" => translate_availability(member.merge_fields[:SELECT13]),
-        "sat" => translate_availability(member.merge_fields[:SELECT14]),
-        "sun" => translate_availability(member.merge_fields[:SELECT15])
-      }
-
       max_distance = translate_max_distance(member.merge_fields[:RADIO16])
       capacity = translate_capacity(member.merge_fields[:RADIO17])
 
@@ -152,7 +142,6 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
         signed_up_on: member.timestamp_opt,
         max_distance: max_distance,
         capacity: capacity,
-        availability: availability,
         raw_location: raw_location
       }
 
@@ -189,18 +178,6 @@ defmodule BikeBrigade.Importers.MailchimpImporter do
     })
     # TODO: this should be a method on the location struct to validate
     |> Ecto.Changeset.apply_action(:save)
-  end
-
-  defp translate_availability(availability) do
-    case availability do
-      "Not Available" -> :none
-      "ALL DAY (8:00am - 6:00pm)" -> :all_day
-      "MORNING (8:00am - 11:00am)" -> :morning
-      "MID-DAY (11:00am - 2:00pm)" -> :mid_day
-      "AFTERNOON (2:00pm - 5:00pm)" -> :afternoon
-      "EVENING (4:00pm - 7:00pm)" -> :evening
-      _ -> :all_day
-    end
   end
 
   defp translate_max_distance(max_distance) do

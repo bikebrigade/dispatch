@@ -117,7 +117,6 @@ defmodule BikeBrigade.Riders.Rider do
       :name,
       :email,
       :phone,
-      :availability,
       :capacity,
       :max_distance,
       :location

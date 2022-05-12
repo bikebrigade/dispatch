@@ -24,7 +24,6 @@ if Riders.list_riders() == [] do
       BikeBrigade.Riders.create_rider(%{
         address: location.address,
         # TODO
-        availability: %{},
         capacity: Utils.random_enum(Riders.Rider.CapacityEnum),
         email: Faker.Internet.email(),
         location: location,
