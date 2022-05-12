@@ -3,12 +3,20 @@ defmodule BikeBrigade.MailchimpApi do
 
   @type list_id :: String.t()
   @type opted_in :: String.t() | nil
+  @type email :: String.t()
   @type members :: list(map())
+  @type fields :: map()
 
   @callback get_list(list_id, opted_in) :: {:ok, members} | {:error, any()}
+  @callback update_member_fields(list_id, email, fields) :: :ok
 
   @doc """
   Get mailing list's members
   """
   def get_list(list_id, opted_in \\ nil), do: @mailchimp.get_list(list_id, opted_in)
+
+  @doc """
+  Update merge fields for a member
+  """
+  def update_member_fields(list_id, email, fields), do: @mailchimp.update_member_fields(list_id, email, fields)
 end
