@@ -6,7 +6,7 @@ defmodule BikeBrigade.MailchimpApi.Http do
   @count 100
 
   @impl MailchimpApi
-  def get_list(list_id, last_changed \\ nil) do
+  def get_list(list_id, opted_in \\ nil) do
     with {:ok, account} <- Mailchimp.Account.get(),
          {:ok, list} <- Mailchimp.Account.get_list(account, list_id) do
       # Infinite sequence of offsets 0,100,200,...
@@ -19,7 +19,7 @@ defmodule BikeBrigade.MailchimpApi.Http do
                  offset: offset,
                  fields:
                    "members.email_address,members.id,members.status,members.merge_fields,members.timestamp_opt",
-                 since_last_changed: last_changed
+                 since_timestamp_opt: opted_in
                }) do
             {:ok, []} -> {:halt, :ok}
             {:ok, members} -> {members, :ok}

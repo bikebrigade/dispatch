@@ -19,7 +19,7 @@ defmodule BikeBrigade.MailchimpApiTest do
     assert MailchimpApi.get_list(@list_id) == {:ok, @members}
   end
 
-  test "`get_list(list_id, last_changed)` returns members created since `last`changed" do
+  test "`get_list(list_id, opted_in)` returns members created since `opted_in`" do
     now = DateTime.utc_now() |> DateTime.to_iso8601()
 
     ten_minutes_later =

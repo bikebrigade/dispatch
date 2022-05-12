@@ -9,8 +9,8 @@ defmodule BikeBrigade.MailchimpApi.FakeMailchimp do
   end
 
   @impl MailchimpApi
-  def get_list(list_id, last_changed \\ nil) do
-    GenServer.call(__MODULE__, {:get_list, list_id, last_changed})
+  def get_list(list_id, opted_in \\ nil) do
+    GenServer.call(__MODULE__, {:get_list, list_id, opted_in})
   end
 
   def add_members(list_id, members) do
@@ -35,19 +35,19 @@ defmodule BikeBrigade.MailchimpApi.FakeMailchimp do
     {:reply, {:ok, members}, lists}
   end
 
-  def handle_call({:get_list, list_id, last_changed}, _from, lists) do
-    case DateTime.from_iso8601(last_changed) do
-      {:ok, last_changed, _offset} ->
+  def handle_call({:get_list, list_id, opted_in}, _from, lists) do
+    case DateTime.from_iso8601(opted_in) do
+      {:ok, opted_in, _offset} ->
         members =
           for {inserted_at, member} <- Map.get(lists, list_id, []),
-              :gt == DateTime.compare(inserted_at, last_changed) do
+              :gt == DateTime.compare(inserted_at, opted_in) do
             member
           end
 
         {:reply, {:ok, members}, lists}
 
       {:error, _} ->
-        {:reply, {:error, :invalid_last_changed}, lists}
+        {:reply, {:error, :invalid_opted_in}, lists}
     end
   end
 
