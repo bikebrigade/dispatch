@@ -58,6 +58,30 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
      |> assign(:search, "")}
   end
 
+
+
+  def handle_event("load_more", _values,%{ assigns: assigns } = socket) do
+    %{ rider_search: %{ limit: limit} = rider_search, search_results: %{ page: page1} } = assigns
+    IO.inspect( socket , label: "socket-step1")
+    # rs1 = %{socket.assigns.rider_search | query_changed: false , page_changed: true}
+    new_rider_search =
+    rider_search
+    |> Map.merge( %{query_changed: false , page_changed: true})
+    |> Map.update!( :offset ,&(&1 + limit) )
+    |> IO.inspect( label: "new_rider_search")
+
+     socket =  %{ assigns: %{search_results: %{page: page2} } } = socket
+     |> assign(:rider_search, new_rider_search)
+     |> fetch_results()
+
+     sr1 = Map.put(  socket.assigns.search_results, :page , page1 ++ page2)
+
+     {:noreply,
+     socket
+     |> assign( :search_results, sr1)
+     }
+  end
+
   defp fetch_results(socket) do
     {rider_search, search_results} =
       RiderSearch.fetch(socket.assigns.rider_search, socket.assigns.search_results)
@@ -100,7 +124,7 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
           class="block w-full px-3 py-2 placeholder-gray-400 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         />
         <%= if @search != "" do %>
-          <ul id="rider-selection-list" class="overflow-y-auto max-h-64">
+          <ul id="rider-selection-list" class="overflow-y-auto max-h-64" phx-hook="RiderSelectionList">
             <%= for rider <- @search_results.page do %>
               <li id={"rider-selection:#{rider.id}"}>
                 <a
