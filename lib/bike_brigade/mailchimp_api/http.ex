@@ -30,4 +30,15 @@ defmodule BikeBrigade.MailchimpApi.Http do
       {status, members}
     end
   end
+
+  @impl MailchimpApi
+  def update_member_fields(list_id, email, fields) do
+    with {:ok, account} <- Mailchimp.Account.get(),
+         {:ok, list} <- Mailchimp.Account.get_list(account, list_id),
+         {:ok, member} <- Mailchimp.List.get_member(list, email) do
+      member
+      |> Map.update(:merge_fields, %{}, &Map.merge(&1, fields))
+      |> Mailchimp.Member.update()
+    end
+  end
 end

@@ -15,7 +15,7 @@ defmodule BikeBrigade.MailchimpApi.FakeMailchimp do
 
   @impl MailchimpApi
   def update_member_fields(list_id, email, fields) do
-    GenServer.cast(__MODULE__, {:update_member_fields, list_id, email, fields})
+    GenServer.call(__MODULE__, {:update_member_fields, list_id, email, fields})
   end
 
   def add_members(list_id, members) do
@@ -56,6 +56,15 @@ defmodule BikeBrigade.MailchimpApi.FakeMailchimp do
     end
   end
 
+  def handle_call({:update_member_fields, list_id, email, fields}, _from, lists) do
+    member =
+      get_in(lists, [list_id, email])
+      |> Map.update(:merge_fields, fields, &Map.merge(&1, fields))
+
+    lists = put_in(lists[list_id][email], member)
+    {:reply, {:ok, member}, lists}
+  end
+
   @impl GenServer
   def handle_cast({:add_members, list_id, members}, lists) do
     inserted_at = DateTime.utc_now()
@@ -70,18 +79,5 @@ defmodule BikeBrigade.MailchimpApi.FakeMailchimp do
 
   def handle_cast({:clear_members, list_id}, lists) do
     {:noreply, Map.delete(lists, list_id)}
-  end
-
-  def handle_cast({:update_member_fields, list_id, email, fields}, lists) do
-    lists =
-      Map.update!(lists, list_id, fn list ->
-        Map.update!(list, email, fn member ->
-          merge_fields = Map.get(member, :merge_fields, %{})
-          |> Map.merge( fields)
-          Map.put(member, :merge_fields, merge_fields)
-        end)
-      end)
-
-    {:noreply, lists}
   end
 end

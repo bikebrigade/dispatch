@@ -8,7 +8,7 @@ defmodule BikeBrigade.MailchimpApi do
   @type fields :: map()
 
   @callback get_list(list_id, opted_in) :: {:ok, members} | {:error, any()}
-  @callback update_member_fields(list_id, email, fields) :: :ok
+  @callback update_member_fields(list_id, email, fields) :: {:ok, members} | {:error, any()}
 
   @doc """
   Get mailing list's members
