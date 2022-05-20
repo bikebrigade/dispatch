@@ -20,7 +20,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   end
 
   defmodule Suggestions do
-    @actives ~w(hour day week month year)
+    @actives ~w(hour day week month year all_time never)
     @capacities ~w(large medium small)
 
     defstruct name: nil, phone: nil, tags: [], active: [], capacity: []

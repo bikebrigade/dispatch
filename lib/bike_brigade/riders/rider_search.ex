@@ -250,9 +250,14 @@ defmodule BikeBrigade.Riders.RiderSearch do
     |> where(as(:rider).capacity == ^capacity)
   end
 
-  defp apply_filter({:active, :never}, query) do
+  defp apply_filter({:active, "never"}, query) do
     query
     |> where(is_nil(as(:latest_campaign).id))
+  end
+
+  defp apply_filter({:active, "all_time"}, query) do
+    query
+    |> where(not is_nil(as(:latest_campaign).id))
   end
 
   defp apply_filter({:active, period}, query) do
