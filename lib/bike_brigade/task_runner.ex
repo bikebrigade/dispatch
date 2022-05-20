@@ -1,6 +1,6 @@
 defmodule BikeBrigade.TaskRunner do
   import BikeBrigade.Utils, only: [get_config: 1]
-  alias BikeBrigade.Tasks.MailchimpImporter
+  alias BikeBrigade.Tasks.{MailchimpImporter, MailchimpAttributesSync}
 
   use BikeBrigade.SingleGlobalGenServer, initial_state: %{}
 
@@ -23,7 +23,9 @@ defmodule BikeBrigade.TaskRunner do
   @impl GenServer
   def handle_info(:run_importers, state) do
     honeybadger_checkin()
+    # TODO let the task decide how often to run itself
     MailchimpImporter.sync_riders()
+    MailchimpAttributesSync.sync_mailchimp_attributes()
 
     schedule_work()
     {:noreply, state}
