@@ -1,4 +1,4 @@
-defmodule BikeBrigade.Importers.GSheetsImporter do
+defmodule BikeBrigade.GSheetsImporter do
   alias BikeBrigade.Delivery
   alias BikeBrigade.Delivery.Campaign
   alias BikeBrigade.Riders

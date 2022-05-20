@@ -1,6 +1,6 @@
-defmodule BikeBrigade.Importers.Runner do
+defmodule BikeBrigade.TaskRunner do
   import BikeBrigade.Utils, only: [get_config: 1]
-  alias BikeBrigade.Importers.MailchimpImporter
+  alias BikeBrigade.Tasks.MailchimpImporter
 
   use BikeBrigade.SingleGlobalGenServer, initial_state: %{}
 

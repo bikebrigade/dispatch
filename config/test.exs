@@ -25,7 +25,7 @@ config :bike_brigade, BikeBrigadeWeb.Endpoint,
 config :logger, level: :warn
 
 # Don't run importers
-config :bike_brigade, BikeBrigade.Importers.Runner, start: false
+config :bike_brigade, BikeBrigade.TaskRunner, start: false
 
 config :honeybadger,
   environment_name: :test
