@@ -82,10 +82,10 @@ case config_env() do
           breadcrumbs_enabled: true,
           ecto_repos: [BikeBrigade.Repo]
 
-        # Importers
-        config :bike_brigade, BikeBrigade.Importers.Runner,
+        # Task Runners
+        config :bike_brigade, BikeBrigade.TaskRunner,
           start: true,
-          checkin_url: {:system, "IMPORTER_CHECKIN_URL"}
+          checkin_url: {:system, "TASK_RUNNER_CHECKIN_URL"}
 
       :staging ->
         config :bike_brigade, BikeBrigade.Repo, socket_options: [:inet6]

@@ -32,7 +32,7 @@ defmodule BikeBrigade.Application do
         # Send scheduled campaign messages
         BikeBrigade.ScheduledMessenger
       ]
-      |> BikeBrigade.Importers.Runner.append_child_spec()
+      |> BikeBrigade.TaskRunner.append_child_spec()
       |> BikeBrigade.Google.append_child_spec()
       |> BikeBrigade.SlackApi.append_child_spec()
       |> BikeBrigade.SmsService.append_child_spec()

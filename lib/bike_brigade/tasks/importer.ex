@@ -1,4 +1,4 @@
-defmodule BikeBrigade.Importers.Importer do
+defmodule BikeBrigade.Tasks.Importer do
   use BikeBrigade.Schema
   import Ecto.Changeset
 
