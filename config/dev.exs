@@ -80,8 +80,8 @@ config :phoenix, :stacktrace_depth, 20
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
 
-# Don't run importers
-config :bike_brigade, BikeBrigade.Importers.Runner, start: false
+# Don't run task runners
+config :bike_brigade, BikeBrigade.TaskRunner, start: false
 
 config :honeybadger,
   environment_name: :dev
