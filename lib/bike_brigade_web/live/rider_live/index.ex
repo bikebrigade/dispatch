@@ -3,6 +3,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
 
   alias Phoenix.LiveView.JS
 
+  alias BikeBrigade.Delivery
   alias BikeBrigade.Riders
   alias BikeBrigade.Riders.RiderSearch
   alias BikeBrigade.LocalizedDateTime
@@ -23,18 +24,19 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     @actives ~w(hour day week month year all_time never)
     @capacities ~w(large medium small)
 
-    defstruct name: nil, phone: nil, tags: [], active: [], capacity: []
+    defstruct name: nil, phone: nil, tags: [], programs: [], active: [], capacity: []
 
     @type t :: %__MODULE__{
             name: String.t() | nil,
             tags: list(String.t()),
+            programs: list(Delivery.Program.t()),
             active: list(String.t()),
             capacity: list(String.t())
           }
 
     @spec suggest(t(), String.t()) :: t()
     def suggest(suggestions, "") do
-      %{suggestions | name: nil, tags: [], active: [], capacity: []}
+      %{suggestions | name: nil, tags: [], programs: [], active: [], capacity: []}
     end
 
     def suggest(suggestions, search) do
@@ -45,6 +47,13 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
             |> Enum.map(& &1.name)
 
           %__MODULE__{tags: tags}
+
+        ["program", program] ->
+          programs =
+            Delivery.list_programs(search: program)
+            |> Enum.map(&{&1.id, &1.name})
+
+          %__MODULE__{programs: programs}
 
         ["active", active] ->
           actives =
@@ -69,6 +78,14 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
             end
             |> Enum.map(& &1.name)
 
+          programs =
+            if String.length(search) < 3 || String.starts_with?("program", String.downcase(search)) do
+              Delivery.list_programs()
+            else
+              Delivery.list_programs(search: search)
+            end
+            |> Enum.map(&{&1.id, &1.name})
+
           phone =
             if search =~ ~r/^\d+$/ do
               search
@@ -79,6 +96,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
             | name: search,
               phone: phone,
               tags: tags,
+              programs: programs,
               active: @actives,
               capacity: @capacities
           }
@@ -706,6 +724,16 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
               <% end %>
             </div>
           <% end %>
+          <%= if @suggestions.programs != [] do %>
+            <h3 class="my-1 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+              Program
+            </h3>
+            <div class="flex flex-col my-2">
+              <%= for {id, program_name} <- @suggestions.programs do %>
+                <.suggestion type={:program} search={program_name} search_id={id} />
+              <% end %>
+            </div>
+          <% end %>
         </div>
         <div>
           <%= if @suggestions.capacity != [] do %>
@@ -735,15 +763,17 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   end
 
   defp suggestion(assigns) do
+    assigns = assign_new(assigns, :search_id, fn -> assigns.search end)
+
     ~H"""
-    <div id={"#{@type}-#{@search}"} class="px-1 py-0.5 rounded-md focus-within:bg-gray-100">
+    <div id={"#{@type}-#{@search_id}"} class="px-1 py-0.5 rounded-md focus-within:bg-gray-100">
       <button
         type="button"
         phx-click="filter"
-        value={"#{@type}:#{@search}"}
+        value={"#{@type}:#{@search_id}"}
         class="block ml-1 transition duration-150 ease-in-out w-fit hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
         tabindex="1"
-        phx-focus={JS.push("choose", value: %{"choose" => "#{@type}:#{@search}"})}
+        phx-focus={JS.push("choose", value: %{"choose" => "#{@type}:#{@search_id}"})}
       >
         <p class={"px-2.5 py-1.5 rounded-md text-md font-medium #{color(@type)}"}>
           <%= case @type do %>
@@ -751,6 +781,8 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
               "<%= @search %>"<span class="ml-1 text-sm">in name</span>
             <% :phone -> %>
               "<%= @search %>"<span class="ml-1 text-sm">in phone number</span>
+            <% :program -> %>
+              <span class="mr-0.5 text-sm"><%= @type %>:</span><%= @search %>
             <% _ -> %>
               <span class="mr-0.5 text-sm"><%= @type %>:</span><%= @search %>
           <% end %>
@@ -845,6 +877,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     case type do
       :name -> "text-emerald-800 bg-emerald-100"
       :tag -> "text-indigo-800 bg-indigo-100"
+      :program -> "text-indigo-800 bg-indigo-100"
       :active -> "text-amber-900 bg-amber-100"
       :capacity -> "text-rose-900 bg-rose-100"
       :phone -> "text-cyan-900 bg-cyan-100"

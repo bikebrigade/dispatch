@@ -3,8 +3,8 @@ defmodule BikeBrigade.Riders.RiderSearch do
 
   alias BikeBrigade.Repo
 
-  alias BikeBrigade.Riders.{Rider, RiderSearch}
-  alias BikeBrigade.Riders.Tag
+  alias BikeBrigade.Riders.{Rider, RiderSearch, Tag}
+  alias BikeBrigade.Stats.RiderStats
 
   defstruct [
     :sort_field,
@@ -27,7 +27,7 @@ defmodule BikeBrigade.Riders.RiderSearch do
         }
 
   @sort_orders [:desc, :asc]
-  @sortable_fields [:name, :capacity, :last_active, :phone, :name_or_phone]
+  @sortable_fields [:name, :capacity, :last_active, :phone]
   @default_opts [
     sort_field: :last_active,
     sort_order: :desc,
@@ -237,6 +237,12 @@ defmodule BikeBrigade.Riders.RiderSearch do
     )
   end
 
+  defp apply_filter({:program, program_id}, query) do
+    query
+    |> maybe_join_program_stats()
+    |> where(fragment("? = ANY(?)", ^String.to_integer(program_id), as(:programs).ids))
+  end
+
   defp apply_filter({:tag, tag}, query) do
     query
     |> where(fragment("? = ANY(?)", ^tag, as(:tags).tags))
@@ -263,5 +269,21 @@ defmodule BikeBrigade.Riders.RiderSearch do
   defp apply_filter({:active, period}, query) do
     query
     |> where(as(:latest_campaign).delivery_start > ago(1, ^period))
+  end
+
+  defp maybe_join_program_stats(query) do
+
+    if has_named_binding?(query, :programs) do
+      query
+    else
+      programs_query =
+        from(rs in RiderStats,
+          join: r in assoc(rs, :rider),
+          where: r.id == parent_as(:rider).id and not is_nil(rs.program_id),
+          select: %{ids: fragment("array_agg(?)", rs.program_id)}
+        )
+      query
+      |> join(:left_lateral, [rider: r], subquery(programs_query), as: :programs)
+    end
   end
 end
