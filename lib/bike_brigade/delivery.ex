@@ -541,6 +541,14 @@ defmodule BikeBrigade.Delivery do
         order_by: [desc: p.active, asc: p.name]
 
     query =
+      if search = opts[:search] do
+        query
+        |> where([program: p], ilike(p.name, ^"%#{search}%"))
+      else
+        query
+      end
+
+    query =
       if opts[:with_campaign_count] do
         from p in query,
           left_join: c in assoc(p, :campaigns),
