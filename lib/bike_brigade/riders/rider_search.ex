@@ -237,10 +237,13 @@ defmodule BikeBrigade.Riders.RiderSearch do
     )
   end
 
-  defp apply_filter({:program, program_id}, query) do
+  defp apply_filter({:program, program_id}, query) when is_binary(program_id) do
+    apply_filter({:program, String.to_integer(program_id)}, query)
+  end
+
+  defp apply_filter({:program, program_id}, query) when is_integer(program_id) do
     query
-    |> maybe_join_program_stats()
-    |> where(fragment("? = ANY(?)", ^String.to_integer(program_id), as(:programs).ids))
+    |> join(:inner, [rider: r], rs in RiderStats, on: rs.rider_id == r.id and rs.program_id == ^program_id)
   end
 
   defp apply_filter({:tag, tag}, query) do
@@ -269,21 +272,5 @@ defmodule BikeBrigade.Riders.RiderSearch do
   defp apply_filter({:active, period}, query) do
     query
     |> where(as(:latest_campaign).delivery_start > ago(1, ^period))
-  end
-
-  defp maybe_join_program_stats(query) do
-
-    if has_named_binding?(query, :programs) do
-      query
-    else
-      programs_query =
-        from(rs in RiderStats,
-          join: r in assoc(rs, :rider),
-          where: r.id == parent_as(:rider).id and not is_nil(rs.program_id),
-          select: %{ids: fragment("array_agg(?)", rs.program_id)}
-        )
-      query
-      |> join(:left_lateral, [rider: r], subquery(programs_query), as: :programs)
-    end
   end
 end
