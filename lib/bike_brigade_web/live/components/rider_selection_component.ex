@@ -68,7 +68,6 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
     rider_search
     |> Map.merge( %{query_changed: false , page_changed: true})
     |> Map.update!( :offset ,&(&1 + limit) )
-    |> IO.inspect( label: "new_rider_search")
 
      socket =  %{ assigns: %{search_results: %{page: page2} } } = socket
      |> assign(:rider_search, new_rider_search)
