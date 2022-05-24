@@ -62,7 +62,6 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
 
   def handle_event("load_more", _values,%{ assigns: assigns } = socket) do
     %{ rider_search: %{ limit: limit} = rider_search, search_results: %{ page: page1} } = assigns
-    IO.inspect( socket , label: "socket-step1")
     # rs1 = %{socket.assigns.rider_search | query_changed: false , page_changed: true}
     new_rider_search =
     rider_search
