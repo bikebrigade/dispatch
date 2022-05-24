@@ -583,6 +583,14 @@ defmodule BikeBrigade.Delivery do
     |> Repo.preload(preload)
   end
 
+  def get_program_by_name(name, opts \\ []) do
+    preload = Keyword.get(opts, :preload, [])
+
+    Program
+    |> Repo.get_by(name: name)
+    |> Repo.preload(preload)
+  end
+
   @doc """
   Creates a program.
 

@@ -37,6 +37,13 @@ defmodule BikeBrigade.Riders.RiderSearch do
     preload: []
   ]
 
+  defmodule Filter do
+    @derive Jason.Encoder
+    defstruct [:type, :search, :id]
+
+    @type t :: %Filter{type: atom(), search: String.t(), id: integer() | nil}
+  end
+
   defmodule Results do
     defstruct page: [], all_locations: [], total: 0, page_first: 0, page_last: 0
 
@@ -218,18 +225,18 @@ defmodule BikeBrigade.Riders.RiderSearch do
     Enum.reduce(filters, query, &apply_filter/2)
   end
 
-  @spec apply_filter({atom(), any()}, Ecto.Query.t()) :: Ecto.Query.t()
-  defp apply_filter({:name, search}, query) do
+  @spec apply_filter(Filter.t(), Ecto.Query.t()) :: Ecto.Query.t()
+  defp apply_filter(%Filter{type: :name, search: search}, query) do
     query
     |> where(ilike(as(:rider).name, ^"#{search}%") or ilike(as(:rider).name, ^"% #{search}%"))
   end
 
-  defp apply_filter({:phone, search}, query) do
+  defp apply_filter(%Filter{type: :phone, search: search}, query) do
     query
     |> where(like(as(:rider).phone, ^"%#{search}%"))
   end
 
-  defp apply_filter({:name_or_phone, search}, query) do
+  defp apply_filter(%Filter{type: :name_or_phone, search: search}, query) do
     query
     |> where(
       ilike(as(:rider).name, ^"#{search}%") or ilike(as(:rider).name, ^"% #{search}%") or
@@ -237,21 +244,17 @@ defmodule BikeBrigade.Riders.RiderSearch do
     )
   end
 
-  defp apply_filter({:program, program_id}, query) when is_binary(program_id) do
-    apply_filter({:program, String.to_integer(program_id)}, query)
-  end
-
-  defp apply_filter({:program, program_id}, query) when is_integer(program_id) do
+  defp apply_filter(%Filter{type: :program, id: id}, query) do
     query
-    |> join(:inner, [rider: r], rs in RiderStats, on: rs.rider_id == r.id and rs.program_id == ^program_id)
+    |> join(:inner, [rider: r], rs in RiderStats, on: rs.rider_id == r.id and rs.program_id == ^id)
   end
 
-  defp apply_filter({:tag, tag}, query) do
+  defp apply_filter(%Filter{type: :tag, search: tag}, query) do
     query
     |> where(fragment("? = ANY(?)", ^tag, as(:tags).tags))
   end
 
-  defp apply_filter({:capacity, capacity}, query) do
+  defp apply_filter(%Filter{type: :capacity, search: capacity}, query) do
     # TODO this may be easier with Ecto.Enum instead of EctoEnum
     {:ok, capacity} = Rider.CapacityEnum.dump(capacity)
 
@@ -259,17 +262,17 @@ defmodule BikeBrigade.Riders.RiderSearch do
     |> where(as(:rider).capacity == ^capacity)
   end
 
-  defp apply_filter({:active, "never"}, query) do
+  defp apply_filter(%Filter{type: :active, search: "never"}, query) do
     query
     |> where(is_nil(as(:latest_campaign).id))
   end
 
-  defp apply_filter({:active, "all_time"}, query) do
+  defp apply_filter(%Filter{type: :active, search: "all_time"}, query) do
     query
     |> where(not is_nil(as(:latest_campaign).id))
   end
 
-  defp apply_filter({:active, period}, query) do
+  defp apply_filter(%Filter{type: :active, search: period}, query) do
     query
     |> where(as(:latest_campaign).delivery_start > ago(1, ^period))
   end
