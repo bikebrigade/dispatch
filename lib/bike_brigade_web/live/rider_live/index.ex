@@ -799,7 +799,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
             <% :name -> %>
               "<%= @filter.search %>"<span class="ml-1 text-sm">in name</span>
             <% :phone -> %>
-              "<%= @filer.search %>"<span class="ml-1 text-sm">in phone number</span>
+              "<%= @filter.search %>"<span class="ml-1 text-sm">in phone number</span>
             <% :program -> %>
               <span class="mr-0.5 text-sm"><%= @filter.type %>:</span><%= @filter.search %>
             <% _ -> %>
