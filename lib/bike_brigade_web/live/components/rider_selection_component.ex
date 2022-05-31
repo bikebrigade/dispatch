@@ -65,22 +65,13 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
 
 
   def handle_event("load_more", _values,%{ assigns: assigns } = socket) do
-    %{ rider_search: %{ limit: limit} = rider_search, search_results: %{ page: page1} } = assigns
-    # rs1 = %{socket.assigns.rider_search | query_changed: false , page_changed: true}
-    new_rider_search =
-    rider_search
-    |> Map.merge( %{query_changed: false , page_changed: true})
-    |> Map.update!( :offset ,&(&1 + limit) )
-
-     socket =  %{ assigns: %{search_results: %{page: page2} } } = socket
-     |> assign(:rider_search, new_rider_search)
-     |> fetch_results()
-
-     sr1 = Map.put(  socket.assigns.search_results, :page , page1 ++ page2)
-
+    %{ rider_search: rider_search, riders: riders } = assigns
+    next_page_rs= RiderSearch.next_page(rider_search)
+    {rider_search, search_results} = RiderSearch.fetch(next_page_rs)
      {:noreply,
      socket
-     |> assign( :search_results, sr1)
+     |> assign( :riders, riders ++ search_results.page )
+     |> assign(:rider_search, rider_search)
      }
   end
 
@@ -90,7 +81,9 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
 
     socket
     |> assign(:rider_search, rider_search)
-    |> assign(:search_results, search_results)
+    # do we still need to assign search results ?
+    # |> assign(:search_results, search_results)
+    |> assign(:riders, search_results.page)
   end
 
   @impl true
@@ -127,7 +120,7 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
         />
         <%= if @search != "" do %>
           <ul id="rider-selection-list" class="overflow-y-auto max-h-64" phx-hook="RiderSelectionList">
-            <%= for rider <- @search_results.page do %>
+            <%= for rider <- @riders do %>
               <li id={"rider-selection:#{rider.id}"}>
                 <a
                   href="#"
