@@ -81,8 +81,6 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
 
     socket
     |> assign(:rider_search, rider_search)
-    # do we still need to assign search results ?
-    # |> assign(:search_results, search_results)
     |> assign(:riders, search_results.page)
   end
 
