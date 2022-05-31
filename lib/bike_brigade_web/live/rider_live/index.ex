@@ -3,8 +3,10 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
 
   alias Phoenix.LiveView.JS
 
+  alias BikeBrigade.Delivery
   alias BikeBrigade.Riders
   alias BikeBrigade.Riders.RiderSearch
+  alias BikeBrigade.Riders.RiderSearch.Filter
   alias BikeBrigade.LocalizedDateTime
   alias BikeBrigade.Locations
 
@@ -20,21 +22,24 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   end
 
   defmodule Suggestions do
-    @actives ~w(hour day week month year)
+    @actives ~w(hour day week month year all_time never)
+             |> Enum.map(&%Filter{type: :active, search: &1})
     @capacities ~w(large medium small)
+                |> Enum.map(&%Filter{type: :capacity, search: &1})
 
-    defstruct name: nil, phone: nil, tags: [], active: [], capacity: []
+    defstruct name: nil, phone: nil, tags: [], programs: [], active: [], capacity: []
 
     @type t :: %__MODULE__{
-            name: String.t() | nil,
-            tags: list(String.t()),
-            active: list(String.t()),
-            capacity: list(String.t())
+            name: Filter.t() | nil,
+            tags: list(Filter.t()),
+            programs: list(Filter.t()),
+            active: list(Filter.t()),
+            capacity: list(Filter.t())
           }
 
     @spec suggest(t(), String.t()) :: t()
     def suggest(suggestions, "") do
-      %{suggestions | name: nil, tags: [], active: [], capacity: []}
+      %{suggestions | name: nil, tags: [], programs: [], active: [], capacity: []}
     end
 
     def suggest(suggestions, search) do
@@ -42,21 +47,28 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
         ["tag", tag] ->
           tags =
             Riders.search_tags(tag)
-            |> Enum.map(& &1.name)
+            |> Enum.map(&%Filter{type: :tag, search: &1.name})
 
           %__MODULE__{tags: tags}
+
+        ["program", program] ->
+          programs =
+            Delivery.list_programs(search: program)
+            |> Enum.map(&%Filter{type: :program, search: &1.name, id: &1.id})
+
+          %__MODULE__{programs: programs}
 
         ["active", active] ->
           actives =
             @actives
-            |> Enum.filter(&String.starts_with?(&1, active))
+            |> Enum.filter(&String.starts_with?(&1.search, active))
 
           %__MODULE__{active: actives}
 
         ["capacity", capacity] ->
           capacity =
             @capacities
-            |> Enum.filter(&String.starts_with?(&1, capacity))
+            |> Enum.filter(&String.starts_with?(&1.search, capacity))
 
           %__MODULE__{capacity: capacity}
 
@@ -68,17 +80,30 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
               Riders.search_tags(search)
             end
             |> Enum.map(& &1.name)
+            |> Enum.map(&%Filter{type: :tag, search: &1})
+
+          programs =
+            if String.length(search) < 3 ||
+                 String.starts_with?("program", String.downcase(search)) do
+              Delivery.list_programs()
+            else
+              Delivery.list_programs(search: search)
+            end
+            |> Enum.map(&%Filter{type: :program, search: &1.name, id: &1.id})
 
           phone =
             if search =~ ~r/^\d+$/ do
-              search
+              %Filter{type: :phone, search: search}
             end
+
+          name = %Filter{type: :name, search: search}
 
           %{
             suggestions
-            | name: search,
+            | name: name,
               phone: phone,
               tags: tags,
+              programs: programs,
               active: @actives,
               capacity: @capacities
           }
@@ -157,12 +182,28 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   end
 
   @impl Phoenix.LiveView
-  def handle_event("filter", %{"value" => search}, socket) do
-    filter = parse_filter(search)
+  def handle_event("filter", params, socket) do
+    new_filter =
+      case params do
+        %{"type" => type, "search" => search, "id" => id} ->
+          %Filter{type: String.to_existing_atom(type), search: search, id: id}
+
+        %{"type" => type, "search" => search} ->
+          {String.to_existing_atom(type), search}
+
+        %{"value" => value} when is_binary(value) and value != "" ->
+          parse_filter(value)
+
+        # don't add a filter
+        _ ->
+          nil
+      end
+
+    new_filters = if new_filter, do: [new_filter], else: []
 
     {:noreply,
      socket
-     |> update(:rider_search, &RiderSearch.filter(&1, &1.filters ++ [filter]))
+     |> update(:rider_search, &RiderSearch.filter(&1, &1.filters ++ new_filters))
      |> fetch_results()
      |> clear_search()
      |> clear_selected()}
@@ -310,20 +351,26 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     {:noreply, socket}
   end
 
-  defp parse_filter(search) do
-    case String.split(search, ":", parts: 2) do
-      [type, filter] ->
-        type = String.to_atom(type)
-        filter = String.trim(filter)
+  defp parse_filter(value) do
+    case String.split(value, ":", parts: 2) do
+      ["program", search] ->
+        if program = Delivery.get_program_by_name(search) do
+          %Filter{type: :program, search: search, id: program.id}
+        end
 
-        {type, filter}
+      [type, search] ->
+        %Filter{type: String.to_atom(type), search: search}
 
-      [filter] ->
-        {:name, String.trim(filter)}
+      [search] ->
+        %Filter{type: :name, search: String.trim(search)}
     end
   end
 
-  defp display_search(search) do
+  defp display_search(%{"type" => type, "search" => search}) do
+    "#{type}:#{search}"
+  end
+
+  defp display_search(search) when is_binary(search) do
     case String.split(search, ":", parts: 2) do
       [filter] -> filter
       ["name", filter] -> filter
@@ -426,7 +473,6 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
             id="rider-search"
             phx-change="suggest"
             phx-submit="filter"
-            }
             phx-click-away="clear-search"
           >
             <div class="relative flex items-baseline w-full px-1 py-0 bg-white border border-gray-300 rounded-md shadow-sm sm:text-sm focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500">
@@ -592,7 +638,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
             <ul class="flex">
               <%= for tag <- rider.tags do %>
                 <li class="before:content-[','] first:before:content-['']">
-                  <button type="button" phx-click="filter" value={"tag:#{tag.name}"} } class="link">
+                  <button type="button" phx-click={add_filter(:tag, tag.name)} class="link">
                     <%= if get_filter(@rider_search.filters, :tag, tag.name) do %>
                       <span class="font-bold"><%= tag.name %></span>
                     <% else %>
@@ -604,13 +650,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
             </ul>
           </:td>
           <:td let={rider}>
-            <button
-              type="button"
-              phx-click="filter"
-              value={"capacity:#{rider.capacity}"}
-              }
-              class="link"
-            >
+            <button type="button" phx-click={add_filter(:capacity, rider.capacity)} } class="link">
               <%= if get_filter(@rider_search.filters, :capacity, rider.capacity) do %>
                 <span class="font-bold"><%= rider.capacity %></span>
               <% else %>
@@ -685,7 +725,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
               Name
             </h3>
             <div class="flex flex-col my-2">
-              <.suggestion type={:name} search={@suggestions.name} />
+              <.suggestion filter={@suggestions.name} />
             </div>
           <% end %>
           <%= if @suggestions.phone do %>
@@ -693,7 +733,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
               Phone
             </h3>
             <div class="flex flex-col my-2">
-              <.suggestion type={:phone} search={@suggestions.phone} />
+              <.suggestion filter={@suggestions.phone} />
             </div>
           <% end %>
           <%= if @suggestions.tags != [] do %>
@@ -702,7 +742,17 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
             </h3>
             <div class="flex flex-col my-2">
               <%= for tag <- @suggestions.tags do %>
-                <.suggestion type={:tag} search={tag} />
+                <.suggestion filter={tag} />
+              <% end %>
+            </div>
+          <% end %>
+          <%= if @suggestions.programs != [] do %>
+            <h3 class="my-1 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+              Program
+            </h3>
+            <div class="flex flex-col my-2">
+              <%= for program <- @suggestions.programs do %>
+                <.suggestion filter={program} />
               <% end %>
             </div>
           <% end %>
@@ -714,7 +764,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
             </h3>
             <div class="flex flex-col my-2">
               <%= for capacity <- @suggestions.capacity do %>
-                <.suggestion type={:capacity} search={capacity} />
+                <.suggestion filter={capacity} />
               <% end %>
             </div>
           <% end %>
@@ -724,7 +774,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
             </h3>
             <div class="flex flex-col my-2">
               <%= for period <- @suggestions.active do %>
-                <.suggestion type={:active} search={period} />
+                <.suggestion filter={period} />
               <% end %>
             </div>
           <% end %>
@@ -736,23 +786,24 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
 
   defp suggestion(assigns) do
     ~H"""
-    <div id={"#{@type}-#{@search}"} class="px-1 py-0.5 rounded-md focus-within:bg-gray-100">
+    <div id={dom_id(@filter)} class="px-1 py-0.5 rounded-md focus-within:bg-gray-100">
       <button
         type="button"
-        phx-click="filter"
-        value={"#{@type}:#{@search}"}
+        phx-click={add_filter(@filter)}
         class="block ml-1 transition duration-150 ease-in-out w-fit hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
         tabindex="1"
-        phx-focus={JS.push("choose", value: %{"choose" => "#{@type}:#{@search}"})}
+        phx-focus={JS.push("choose", value: %{"choose" => @filter})}
       >
-        <p class={"px-2.5 py-1.5 rounded-md text-md font-medium #{color(@type)}"}>
-          <%= case @type do %>
+        <p class={"px-2.5 py-1.5 rounded-md text-md font-medium #{color(@filter.type)}"}>
+          <%= case @filter.type do %>
             <% :name -> %>
-              "<%= @search %>"<span class="ml-1 text-sm">in name</span>
+              "<%= @filter.search %>"<span class="ml-1 text-sm">in name</span>
             <% :phone -> %>
-              "<%= @search %>"<span class="ml-1 text-sm">in phone number</span>
+              "<%= @filter.search %>"<span class="ml-1 text-sm">in phone number</span>
+            <% :program -> %>
+              <span class="mr-0.5 text-sm"><%= @filter.type %>:</span><%= @filter.search %>
             <% _ -> %>
-              <span class="mr-0.5 text-sm"><%= @type %>:</span><%= @search %>
+              <span class="mr-0.5 text-sm"><%= @filter.type %>:</span><%= @filter.search %>
           <% end %>
         </p>
       </button>
@@ -760,11 +811,19 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     """
   end
 
+  defp dom_id(%Filter{type: type, id: id}) when not is_nil(id) do
+    "#{type}-#{id}"
+  end
+
+  defp dom_id(%Filter{type: type, search: search}) do
+    "#{type}-#{search}"
+  end
+
   defp filter_list(assigns) do
     ~H"""
     <%= if @filters != [] do %>
       <div class="flex flex-wrap space-x-0.5 max-w-xs">
-        <%= for {{type, search}, i} <- Enum.with_index(@filters) do %>
+        <%= for {%Filter{type: type, search: search}, i} <- Enum.with_index(@filters) do %>
           <div class={
             "my-0.5 inline-flex items-center px-2.5 py-1.5 rounded-md text-md font-medium #{color(type)}"
           }>
@@ -834,9 +893,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
 
         # Note the output is all one line cuz inline elements add spacing from spaces - which may be in the string
         ~H"""
-        <%= for [s, search] <- @segments do %>
-          <%= s %><span class="font-bold"><%= search %></span>
-        <% end %>
+        <%= raw(for [s, search] <- @segments, do: ~s(#{s}<span class="font-bold">#{search}</span>)) %>
         """
     end
   end
@@ -845,6 +902,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     case type do
       :name -> "text-emerald-800 bg-emerald-100"
       :tag -> "text-indigo-800 bg-indigo-100"
+      :program -> "text-indigo-800 bg-indigo-100"
       :active -> "text-amber-900 bg-amber-100"
       :capacity -> "text-rose-900 bg-rose-100"
       :phone -> "text-cyan-900 bg-cyan-100"
@@ -855,23 +913,31 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     MapSet.size(selected) != 0 && Enum.count(riders) == MapSet.size(selected)
   end
 
-  defp get_filter(filters, kind) when is_atom(kind) do
+  defp get_filter(filters, type) do
     filters
     |> Enum.find_value(fn
-      {^kind, filter} -> filter
+      %Filter{type: ^type, search: search} -> search
       _ -> false
     end)
   end
 
-  defp get_filter(filters, kind, filter) when is_atom(kind) and is_binary(filter) do
+  defp get_filter(filters, type, search) when is_atom(search) do
+    get_filter(filters, type, Atom.to_string(search))
+  end
+
+  defp get_filter(filters, type, search) when is_binary(search) do
     filters
     |> Enum.find_value(fn
-      {^kind, ^filter} -> filter
+      %Filter{type: ^type, search: ^search} -> search
       _ -> false
     end)
   end
 
-  defp get_filter(filters, kind, filter) when is_atom(kind) and is_atom(filter) do
-    get_filter(filters, kind, Atom.to_string(filter))
+  defp add_filter(%Filter{} = filter) do
+    JS.push("filter", value: filter)
+  end
+
+  defp add_filter(type, search) do
+    JS.push("filter", value: %Filter{type: type, search: search})
   end
 end

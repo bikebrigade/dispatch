@@ -3,6 +3,7 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
 
   alias BikeBrigade.Riders
   alias BikeBrigade.Riders.RiderSearch
+  alias BikeBrigade.Riders.RiderSearch.Filter
 
   @impl Phoenix.LiveComponent
   def mount(socket) do
@@ -39,7 +40,10 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
     {:noreply,
      socket
      |> assign(:search, search)
-     |> update(:rider_search, &RiderSearch.filter(&1, name_or_phone: search))
+     |> update(
+       :rider_search,
+       &RiderSearch.filter(&1, [%Filter{type: :name_or_phone, search: search}])
+     )
      |> fetch_results()}
   end
 

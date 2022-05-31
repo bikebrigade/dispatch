@@ -49,7 +49,6 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
         :name,
         :email,
         :phone,
-        :availability,
         :capacity,
         :max_distance,
         :location

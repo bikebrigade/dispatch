@@ -9,8 +9,13 @@ defmodule BikeBrigade.MailchimpApi.FakeMailchimp do
   end
 
   @impl MailchimpApi
-  def get_list(list_id, last_changed \\ nil) do
-    GenServer.call(__MODULE__, {:get_list, list_id, last_changed})
+  def get_list(list_id, opted_in \\ nil) do
+    GenServer.call(__MODULE__, {:get_list, list_id, opted_in})
+  end
+
+  @impl MailchimpApi
+  def update_member_fields(list_id, email, fields) do
+    GenServer.call(__MODULE__, {:update_member_fields, list_id, email, fields})
   end
 
   def add_members(list_id, members) do
@@ -35,20 +40,29 @@ defmodule BikeBrigade.MailchimpApi.FakeMailchimp do
     {:reply, {:ok, members}, lists}
   end
 
-  def handle_call({:get_list, list_id, last_changed}, _from, lists) do
-    case DateTime.from_iso8601(last_changed) do
-      {:ok, last_changed, _offset} ->
+  def handle_call({:get_list, list_id, opted_in}, _from, lists) do
+    case DateTime.from_iso8601(opted_in) do
+      {:ok, opted_in, _offset} ->
         members =
-          for {inserted_at, member} <- Map.get(lists, list_id, []),
-              :gt == DateTime.compare(inserted_at, last_changed) do
+          for {_email, member} <- Map.get(lists, list_id, %{}),
+              :gt == DateTime.compare(member[:inserted_at], opted_in) do
             member
           end
 
         {:reply, {:ok, members}, lists}
 
       {:error, _} ->
-        {:reply, {:error, :invalid_last_changed}, lists}
+        {:reply, {:error, :invalid_opted_in}, lists}
     end
+  end
+
+  def handle_call({:update_member_fields, list_id, email, fields}, _from, lists) do
+    member =
+      get_in(lists, [list_id, email])
+      |> Map.update(:merge_fields, fields, &Map.merge(&1, fields))
+
+    lists = put_in(lists[list_id][email], member)
+    {:reply, {:ok, member}, lists}
   end
 
   @impl GenServer
@@ -56,11 +70,11 @@ defmodule BikeBrigade.MailchimpApi.FakeMailchimp do
     inserted_at = DateTime.utc_now()
 
     updates =
-      for member <- members do
-        {inserted_at, member}
+      for member <- members, into: %{} do
+        {member[:email], Map.put(member, :inserted_at, inserted_at)}
       end
 
-    {:noreply, Map.update(lists, list_id, updates, fn l -> l ++ updates end)}
+    {:noreply, Map.update(lists, list_id, updates, fn l -> Map.merge(l, updates) end)}
   end
 
   def handle_cast({:clear_members, list_id}, lists) do

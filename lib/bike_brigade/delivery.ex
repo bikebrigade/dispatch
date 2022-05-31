@@ -541,6 +541,14 @@ defmodule BikeBrigade.Delivery do
         order_by: [desc: p.active, asc: p.name]
 
     query =
+      if search = opts[:search] do
+        query
+        |> where([program: p], ilike(p.name, ^"%#{search}%"))
+      else
+        query
+      end
+
+    query =
       if opts[:with_campaign_count] do
         from p in query,
           left_join: c in assoc(p, :campaigns),
@@ -572,6 +580,14 @@ defmodule BikeBrigade.Delivery do
     preload = Keyword.get(opts, :preload, [])
 
     Repo.get!(Program, id)
+    |> Repo.preload(preload)
+  end
+
+  def get_program_by_name(name, opts \\ []) do
+    preload = Keyword.get(opts, :preload, [])
+
+    Program
+    |> Repo.get_by(name: name)
     |> Repo.preload(preload)
   end
 

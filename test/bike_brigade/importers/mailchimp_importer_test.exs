@@ -1,8 +1,8 @@
-defmodule BikeBrigade.Importers.MailchimpImporterTest do
+defmodule BikeBrigade.Tasks.MailchimpImporterTest do
   use BikeBrigade.DataCase
 
   alias BikeBrigade.Repo
-  alias BikeBrigade.Importers.MailchimpImporter
+  alias BikeBrigade.Tasks.MailchimpImporter
   alias BikeBrigade.MailchimpApi.FakeMailchimp
   alias BikeBrigade.SlackApi.FakeSlack
 
@@ -45,18 +45,18 @@ defmodule BikeBrigade.Importers.MailchimpImporterTest do
 
   describe "sync_riders/0" do
     setup do
-      saved_env = Application.get_env(:bike_brigade, BikeBrigade.Importers.MailchimpImporter)
+      saved_env = Application.get_env(:bike_brigade, BikeBrigade.Tasks.MailchimpImporter)
 
       Application.put_env(
         :bike_brigade,
-        BikeBrigade.Importers.MailchimpImporter,
+        BikeBrigade.Tasks.MailchimpImporter,
         Keyword.put(saved_env, :list_id, @list_id)
       )
 
       on_exit(fn ->
         FakeMailchimp.clear_members(@list_id)
 
-        Application.put_env(:bike_brigade, BikeBrigade.Importers.MailchimpImporter, saved_env)
+        Application.put_env(:bike_brigade, BikeBrigade.Tasks.MailchimpImporter, saved_env)
       end)
     end
 

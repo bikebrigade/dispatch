@@ -65,7 +65,10 @@ config :phoenix, :json_library, Jason
 config :geo_postgis,
   json_library: Jason
 
-config :bike_brigade, BikeBrigade.Importers.MailchimpImporter,
+config :bike_brigade, BikeBrigade.Tasks.MailchimpImporter,
+  list_id: {:system, "MAILCHIMP_LIST_ID"}
+
+  config :bike_brigade, BikeBrigade.Tasks.MailchimpAttributesSync,
   list_id: {:system, "MAILCHIMP_LIST_ID"}
 
 # We use the same phone number for our authentication and regular messaging by they are configurable separately for now

@@ -1,3 +1,5 @@
+# 2022-05-25
+  - Search riders by program!
 # 2022-03-14
   - Maps of all the riders integrated into rider search
   - Indicator when resending campaign messages
