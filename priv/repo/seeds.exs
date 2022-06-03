@@ -57,7 +57,7 @@ for program <- Delivery.list_programs() do
   if Delivery.list_campaigns()
      |> Enum.filter(fn campaign -> campaign.program_id == program.id end) == [] do
     # Seed 1 campaign/program
-    campaign = Seeder.campaign()
+    campaign = Seeder.campaign_for_program(program)
 
     # Seed 3 tasks/campaign
     for _ <- 1..3 do

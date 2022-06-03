@@ -15,15 +15,14 @@ defmodule BikeBrigade.Repo.Seeds.Seeder do
       })
   end
 
-  def campaign() do
+  def campaign_for_program(program) do
     current_week =
       LocalizedDateTime.today()
       |> Date.beginning_of_week()
 
     {:ok, campaign} =
       Delivery.create_campaign(%{
-        # key :name not found in: %BikeBrigade.Delivery.Campaign{…}
-        name: Faker.Company.name(),
+        program_id: program.id,
         delivery_start: current_week |> start_of_day(),
         delivery_end: current_week |> Date.add(6) |> end_of_day(),
         location: Toronto.random_location()
