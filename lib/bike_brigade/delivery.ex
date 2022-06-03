@@ -677,9 +677,20 @@ defmodule BikeBrigade.Delivery do
       iex> list_items()
       [%Item{}, ...]
 
+      iex> list_items(42)
+      [%Item{program_id: 42, …}, …]
+
   """
-  def list_items do
+  def list_items(program_id \\ nil) do
     query = from i in Item, order_by: i.name
+
+    query =
+      if program_id do
+        query
+        |> where([i], i.program_id == ^program_id)
+      else
+        query
+      end
 
     Repo.all(query)
     |> Repo.preload(:program)
