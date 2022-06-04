@@ -70,7 +70,7 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
     {rider_search, search_results} = RiderSearch.fetch(next_page_rs)
      {:noreply,
      socket
-     |> assign( :riders, riders ++ search_results.page )
+     |> assign(:riders, riders ++ search_results.page )
      |> assign(:rider_search, rider_search)
      }
   end
