@@ -18,6 +18,7 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
      |> assign(:search, "")
      |> assign(:rider_search, RiderSearch.new(limit: 10))
      |> assign(:search_results, %RiderSearch.Results{})
+     |> assign(:riders, [])
      |> assign(:multi, false)}
   end
 
