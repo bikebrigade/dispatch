@@ -1,8 +1,6 @@
 defmodule BikeBrigade.Repo.Migrations.AddCampaignToTask do
   use Ecto.Migration
   alias BikeBrigade.Repo
-  alias BikeBrigade.Delivery.{Task, CampaignTask}
-  alias BikeBrigade.Messaging.SmsMessage
   import Ecto.Query
 
   def up do
