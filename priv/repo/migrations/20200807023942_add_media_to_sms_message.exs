@@ -30,7 +30,7 @@ defmodule BikeBrigade.Repo.Migrations.AddMediaToSmsMessage do
         for media_url <- media_urls, media_url != nil do
           content_type =
             HTTPoison.head!(media_url, %{}, follow_redirect: true).headers
-            |> Enum.find(fn {k, v} -> k == "Content-Type" end)
+            |> Enum.find(fn {k, _v} -> k == "Content-Type" end)
             |> elem(1)
 
           %SmsMessage.MediaItem{url: media_url, content_type: content_type}

@@ -1,6 +1,6 @@
 defmodule BikeBrigade.Repo.Migrations.TaskLocation do
   use Ecto.Migration
-  import BikeBrigade.MigrationUtils
+  # import BikeBrigade.MigrationUtils
 
   import Ecto.Query
   import Geo.PostGIS

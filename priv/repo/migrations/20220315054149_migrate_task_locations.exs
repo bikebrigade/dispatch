@@ -1,5 +1,5 @@
 defmodule BikeBrigade.Repo.Migrations.MigrateTaskLocations do
-  import BikeBrigade.MigrationUtils
+  # import BikeBrigade.MigrationUtils
 
   use Ecto.Migration
 
