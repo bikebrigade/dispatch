@@ -1,6 +1,6 @@
 defmodule BikeBrigade.Repo.Migrations.CampaignStatsView do
   use Ecto.Migration
-  import BikeBrigade.MigrationUtils
+  # import BikeBrigade.MigrationUtils
 
   def change do
     # removing since we load these views later

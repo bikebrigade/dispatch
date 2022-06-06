@@ -1,7 +1,7 @@
 defmodule BikeBrigade.Repo.Migrations.UnifyViews do
   use Ecto.Migration
 
-  import BikeBrigade.MigrationUtils
+  # import BikeBrigade.MigrationUtils
 
   def up do
     # removing since we load these views later
