@@ -75,7 +75,7 @@ defmodule BikeBrigade.Delivery.Campaign do
     |> cast_assoc(:riders, required: false)
     |> cast_assoc(:instructions_template, required: false)
     |> cast_assoc(:scheduled_message, required: false)
-    |> validate_required([:delivery_start, :delivery_end, :location])
+    |> validate_required([:delivery_start, :delivery_end, :location, :program_id])
     # TODO is this actually unique
     |> unique_constraint(:name)
   end
