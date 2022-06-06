@@ -18,6 +18,7 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
      |> assign(:search, "")
      |> assign(:rider_search, RiderSearch.new(limit: 10))
      |> assign(:search_results, %RiderSearch.Results{})
+     |> assign(:riders, [])
      |> assign(:multi, false)}
   end
 
@@ -62,13 +63,26 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
      |> assign(:search, "")}
   end
 
+
+
+  def handle_event("load_more", _values,%{ assigns: assigns } = socket) do
+    %{ rider_search: rider_search, riders: riders } = assigns
+    next_page_rs= RiderSearch.next_page(rider_search)
+    {rider_search, search_results} = RiderSearch.fetch(next_page_rs)
+     {:noreply,
+     socket
+     |> assign(:riders, riders ++ search_results.page )
+     |> assign(:rider_search, rider_search)
+     }
+  end
+
   defp fetch_results(socket) do
     {rider_search, search_results} =
       RiderSearch.fetch(socket.assigns.rider_search, socket.assigns.search_results)
 
     socket
     |> assign(:rider_search, rider_search)
-    |> assign(:search_results, search_results)
+    |> assign(:riders, search_results.page)
   end
 
   @impl true
@@ -104,8 +118,8 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
           class="block w-full px-3 py-2 placeholder-gray-400 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         />
         <%= if @search != "" do %>
-          <ul id="rider-selection-list" class="overflow-y-auto max-h-64">
-            <%= for rider <- @search_results.page do %>
+          <ul id="rider-selection-list" class="overflow-y-auto max-h-64" phx-hook="RiderSelectionList">
+            <%= for rider <- @riders do %>
               <li id={"rider-selection:#{rider.id}"}>
                 <a
                   href="#"
