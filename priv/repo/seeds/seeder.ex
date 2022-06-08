@@ -7,11 +7,10 @@ defmodule BikeBrigade.Repo.Seeds.Seeder do
     Utils
   }
 
-  alias BikeBrigade.Accounts.User
   alias BikeBrigade.Repo.Seeds.Toronto
 
   def user() do
-    {:ok, %User{} = user} =
+    {:ok, %Accounts.User{} = user} =
       Accounts.create_user(%{
         name: "Dispatcher McGee",
         phone: "647-555-5555",
@@ -22,11 +21,13 @@ defmodule BikeBrigade.Repo.Seeds.Seeder do
   end
 
   def program() do
-    {:ok, %Delivery.Program{}} =
+    {:ok, %Delivery.Program{} = program} =
       Delivery.create_program(%{
         name: Faker.Company.name(),
         start_date: LocalizedDateTime.now()
       })
+
+    program
   end
 
   def campaign_for_program(program) do
@@ -34,7 +35,7 @@ defmodule BikeBrigade.Repo.Seeds.Seeder do
       LocalizedDateTime.today()
       |> Date.beginning_of_week()
 
-    {:ok, campaign} =
+    {:ok, %Delivery.Campaign{} = campaign} =
       Delivery.create_campaign(%{
         program_id: program.id,
         delivery_start: current_week |> start_of_day(),
@@ -48,7 +49,7 @@ defmodule BikeBrigade.Repo.Seeds.Seeder do
   def rider() do
     location = Toronto.random_location()
 
-    {:ok, rider} =
+    {:ok, %Riders.Rider{} = rider} =
       Riders.create_rider(%{
         address: location.address,
         # TODO
@@ -71,11 +72,12 @@ defmodule BikeBrigade.Repo.Seeds.Seeder do
       Riders.list_riders()
       |> Enum.random()
 
-    # validate_required([:campaign_id, :rider_id, :rider_capacity, :enter_building, :token])
     Delivery.create_campaign_rider(%{
       campaign_id: campaign.id,
       rider_id: rider.id
     })
+
+    rider
   end
 
   def task_for_campaign(campaign) do
@@ -95,12 +97,14 @@ defmodule BikeBrigade.Repo.Seeds.Seeder do
       |> Ecto.Enum.values(:category)
       |> Enum.random()
 
-    {:ok, _item} =
+    {:ok, %Delivery.Item{} = item} =
       Delivery.create_item(%{
         program_id: program.id,
         name: Faker.Food.dish(),
         category: random_item_category
       })
+
+    item
   end
 
   defp start_of_day(date), do: set_time(date, ~T[00:00:00])
