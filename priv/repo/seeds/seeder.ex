@@ -78,7 +78,16 @@ defmodule BikeBrigade.Repo.Seeds.Seeder do
     })
   end
 
-  defdelegate task_for_campaign(campaign), to: Delivery, as: :create_task_for_campaign
+  def task_for_campaign(campaign) do
+    {:ok, %Delivery.Task{} = task} =
+      campaign
+      |> Delivery.create_task_for_campaign(%{
+        dropoff_name: Faker.Person.first_name(),
+        dropoff_location: Toronto.random_location()
+      })
+
+    task
+  end
 
   def item_for_program(program) do
     random_item_category =
