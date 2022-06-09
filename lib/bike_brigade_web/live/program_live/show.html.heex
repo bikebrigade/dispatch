@@ -10,6 +10,20 @@
     />
   </UI.modal>
 <% end %>
+
+<%= if @live_action in [:new_campaign] do %>
+  <UI.modal show id={:new_campaign} return_to={Routes.program_show_path(@socket, :show, @program)}>
+  <:title>New Campaign</:title>
+    <.live_component
+      module={BikeBrigadeWeb.CampaignLive.FormComponent}
+      id={"campaign-#{@campaign.id || :new}"}
+      action={@live_action}
+      campaign={@campaign}
+      return_to={Routes.program_show_path(@socket, :show, @program)}
+    />
+  </UI.modal>
+<% end %>
+
 <div class="flex items-center justify-between mb-4">
   <h1 class="text-lg font-medium leading-6 text-gray-900">
     <%= @program.name %>
@@ -22,7 +36,7 @@
   <:th>Riders</:th>
   <:th>Deliveries</:th>
   <:th class="flex justify-end" padding="px-3 py-3" uppercase={false}>
-    <C.button redirect_to={Routes.campaign_index_path(@socket, :new)}>
+    <C.button redirect_to={Routes.program_show_path(@socket, :new_campaign, @program)}>
       New Campaign
     </C.button>
   </:th>
