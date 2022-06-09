@@ -19,14 +19,6 @@ defmodule BikeBrigadeWeb.ProgramLive.Show do
     {:noreply, apply_action(socket, socket.assigns.live_action, params)}
   end
 
-  def apply_action(socket, :show, %{"id" => id}) do
-    program = Delivery.get_program!(id, preload: [:lead, :items, campaigns: [:stats]])
-
-    socket
-    |> assign(:page_title, program.name)
-    |> assign(:program, program)
-  end
-
   def apply_action(socket, :new_campaign, %{"id" => id}) do
     program = Delivery.get_program!(id, preload: [:lead, :items, campaigns: [:stats]])
     campaign = Delivery.new_campaign(%{program_id: program.id})
@@ -34,5 +26,13 @@ defmodule BikeBrigadeWeb.ProgramLive.Show do
     socket
     |> assign(:program, program)
     |> assign(:campaign, campaign)
+  end
+
+  def apply_action(socket, _other_action, %{"id" => id}) do
+    program = Delivery.get_program!(id, preload: [:lead, :items, campaigns: [:stats]])
+
+    socket
+    |> assign(:page_title, program.name)
+    |> assign(:program, program)
   end
 end
