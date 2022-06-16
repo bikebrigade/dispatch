@@ -222,6 +222,22 @@ defmodule BikeBrigade.Delivery do
     |> Repo.insert()
   end
 
+  def new_campaign(attrs \\ %{}) do
+    today = LocalizedDateTime.today()
+    start_time = ~T[17:00:00]
+    end_time = ~T[19:30:00]
+
+    delivery_start = LocalizedDateTime.new!(today, start_time)
+    delivery_end = LocalizedDateTime.new!(today, end_time)
+
+    %Campaign{
+      delivery_start: delivery_start,
+      delivery_end: delivery_end
+    }
+    |> Campaign.changeset(attrs)
+    |> Ecto.Changeset.apply_changes()
+  end
+
   def get_campaign(id, opts \\ []) do
     preload = Keyword.get(opts, :preload, [:location, :program])
 

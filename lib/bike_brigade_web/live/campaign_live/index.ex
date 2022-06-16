@@ -5,7 +5,6 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
   alias BikeBrigade.LocalizedDateTime
 
   alias BikeBrigade.Delivery
-  alias BikeBrigade.Delivery.Campaign
   alias BikeBrigade.Messaging.SmsMessage
 
   import BikeBrigadeWeb.CampaignHelpers
@@ -70,16 +69,11 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
   end
 
   defp apply_action(socket, :new, _params) do
-    today = LocalizedDateTime.today()
-    start_time = ~T[17:00:00]
-    end_time = ~T[19:30:00]
-
-    delivery_start = LocalizedDateTime.new!(today, start_time)
-    delivery_end = LocalizedDateTime.new!(today, end_time)
+    campaign = Delivery.new_campaign()
 
     socket
     |> assign(:page_title, "New Campaign")
-    |> assign(:campaign, %Campaign{delivery_start: delivery_start, delivery_end: delivery_end})
+    |> assign(:campaign, campaign)
   end
 
   defp apply_action(socket, :duplicate, %{"id" => id}) do
