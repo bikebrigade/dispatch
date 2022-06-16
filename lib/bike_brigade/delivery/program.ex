@@ -49,7 +49,7 @@ defmodule BikeBrigade.Delivery.Program do
     has_many :campaigns, Campaign, preload_order: [desc: :delivery_start]
 
     has_many :items, Item
-    belongs_to :default_item, Campaign
+    belongs_to :default_item, Item
 
     timestamps()
   end
