@@ -113,7 +113,7 @@ defmodule BikeBrigade.Tasks.MailchimpImporter do
     with {:ok, phone} <- BikeBrigade.EctoPhoneNumber.Canadian.cast(phone) do
       email = member.email_address
       name = String.trim("#{member.merge_fields[:FNAME]} #{member.merge_fields[:LNAME]}")
-      pronouns = member.merge_fields[:RADIOYUI_]
+      pronouns = member.merge_fields[:SELECT475]
       address = member.merge_fields[:TEXTYUI_3]
       _address2 = member.merge_fields[:TEXT2]
       postal = member.merge_fields[:TEXT5]
@@ -122,7 +122,7 @@ defmodule BikeBrigade.Tasks.MailchimpImporter do
       country = with_default(member.merge_fields[:TEXT3], "Canada")
 
       max_distance = translate_max_distance(member.merge_fields[:RADIO16])
-      capacity = translate_capacity(member.merge_fields[:RADIO17])
+      capacity = translate_capacity(member.merge_fields[:RADIOYUI_])
 
       raw_location = %{
         address: address,
