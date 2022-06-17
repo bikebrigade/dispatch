@@ -200,13 +200,13 @@ defmodule BikeBrigade.Tasks.MailchimpImporter do
 
   defp translate_capacity(capacity) do
     case capacity do
-      "1 personal backpack + cargo trailer (approximately 8-10 bags of groceries OR 4 large tureens of soup OR large quantity of prepared meals)" ->
+      ~r/1 personal backpack \+ cargo trailer/ ->
         :large
 
-      "1 personal backpack + saddlebags (approximately 4 bags of groceries OR 8-10 prepared meals)" ->
+      ~r/1 personal backpack \+ saddlebags/ ->
         :medium
 
-      "1 personal backpack (approximately 1 bag or groceries OR 4-6 prepared meals OR personal medications)" ->
+      ~r/1 personal backpack/ ->
         :small
 
       _ ->
