@@ -113,7 +113,14 @@ defmodule BikeBrigade.Tasks.MailchimpImporter do
     with {:ok, phone} <- BikeBrigade.EctoPhoneNumber.Canadian.cast(phone) do
       email = member.email_address
       name = String.trim("#{member.merge_fields[:FNAME]} #{member.merge_fields[:LNAME]}")
-      pronouns = member.merge_fields[:SELECT475]
+
+      pronouns =
+        if member.merge_fields[:SELECT475] == "" do
+          member.merge_fields[:TEXT7C393]
+        else
+          member.merge_fields[:SELECT475]
+        end
+
       address = member.merge_fields[:TEXTYUI_3]
       _address2 = member.merge_fields[:TEXT2]
       postal = member.merge_fields[:TEXT5]
