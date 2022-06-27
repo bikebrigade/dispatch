@@ -62,6 +62,7 @@ defmodule BikeBrigade.MixProject do
       {:ecto_enum, "~> 1.4"},
       {:geo_postgis, "~> 3.4.0"},
       {:lib_lat_lon, "~> 0.4"},
+      {:nextexif, "~> 0.0"}, #required by lib_lat_lon
       {:topo, "~> 0.4.0"},
       {:ex_twilio, "~> 0.9.1"},
       {:mailchimp, "~> 0.1.2"},
