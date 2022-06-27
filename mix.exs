@@ -41,8 +41,8 @@ defmodule BikeBrigade.MixProject do
   defp deps do
     [
       {:phoenix, "~> 1.6.5"},
-      {:phoenix_ecto, "~> 4.4.0"},
-      {:ecto_sql, "~> 3.7.1"},
+      {:phoenix_ecto, "~> 4.4"},
+      {:ecto_sql, "~> 3.7"},
       {:ecto_psql_extras, "~> 0.7.4"},
       {:postgrex, ">= 0.0.0"},
       {:phoenix_live_view, "~> 0.17.9"},
@@ -59,7 +59,7 @@ defmodule BikeBrigade.MixProject do
       {:httpoison, "~> 1.6"},
       {:nimble_csv, "~> 1.2.0"},
       {:ex_phone_number, "~> 0.2"},
-      {:ecto_enum, "~> 1.4.0"},
+      {:ecto_enum, "~> 1.4"},
       {:geo_postgis, "~> 3.4.0"},
       {:lib_lat_lon, "~> 0.4"},
       {:topo, "~> 0.4.0"},
