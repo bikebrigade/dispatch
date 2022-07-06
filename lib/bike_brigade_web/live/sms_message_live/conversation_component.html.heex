@@ -117,7 +117,11 @@
                 <span class="whitespace-pre-wrap"><%= render_raw(message.body) %></span>
               </div>
               <div class="px-1 my-0.5 flex justify-between">
-                <div class="text-xs font-bold"><%= datetime(message.sent_at) %></div>
+                <div class="text-xs font-bold">
+                  <C.tooltip tooltip={"Twilio SID: #{message.twilio_sid}"}>
+                    <%= datetime(message.sent_at) %>
+                  </C.tooltip>
+                </div>
                 <div class="flex flex-row space-x-1">
                   <%= cond do %>
                     <% message.campaign_id -> %>
