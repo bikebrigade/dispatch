@@ -26,7 +26,12 @@
           <%= if @rider do %>
             <div class="flex flex-col">
               <div class="pii">
-                <span><%= live_redirect @rider.name, to: Routes.rider_show_path(@socket, :show, @rider), class: "link" %></span>
+                <span>
+                  <%= live_redirect(@rider.name,
+                    to: Routes.rider_show_path(@socket, :show, @rider),
+                    class: "link"
+                  ) %>
+                </span>
                 <span class="ml-1 text-sm text-gray-500">
                   (<%= if @rider.pronouns, do: @rider.pronouns, else: "pronouns unknown" %>)
                 </span>
@@ -131,15 +136,25 @@
                   <div class="text-xs text-gray-600">
                     <%= case message.twilio_status do %>
                       <% "queued" -> %>
-                        <Heroicons.Solid.dots_horizontal class="w-4 h-4" />
+                        <C.tooltip tooltip="Queued">
+                          <Heroicons.Solid.dots_horizontal class="w-4 h-4" />
+                        </C.tooltip>
                       <% "sent" -> %>
-                        <Heroicons.Solid.arrow_circle_right class="w-4 h-4" />
+                        <C.tooltip tooltip="Sent">
+                          <Heroicons.Solid.arrow_circle_right class="w-4 h-4" />
+                        </C.tooltip>
                       <% "delivered" -> %>
-                        <Heroicons.Solid.check_circle class="w-4 h-4" />
+                        <C.tooltip tooltip="Delivered">
+                          <Heroicons.Solid.check_circle class="w-4 h-4" />
+                        </C.tooltip>
                       <% "undelivered" -> %>
-                        <Heroicons.Solid.exclamation_circle class="text-red-600 w-4 h-4" />
+                        <C.tooltip tooltip="Undelivered">
+                          <Heroicons.Solid.exclamation_circle class="w-4 h-4 text-red-600" />
+                        </C.tooltip>
                       <% "failed" -> %>
-                        <Heroicons.Solid.exclamation_circle class="text-red-600 w-4 h-4" />
+                        <C.tooltip tooltip="Failed">
+                          <Heroicons.Solid.exclamation_circle class="w-4 h-4 text-red-600" />
+                        </C.tooltip>
                       <% _ -> %>
                     <% end %>
                   </div>
