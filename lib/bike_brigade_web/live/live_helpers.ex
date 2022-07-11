@@ -26,7 +26,7 @@ defmodule BikeBrigadeWeb.LiveHelpers do
 
   def datetime(datetime) do
     LocalizedDateTime.localize(datetime)
-    |> Calendar.strftime("%x %-I:%M%p")
+    |> Calendar.strftime("%x %-I:%M%p %Z")
   end
 
   def time_interval(start_datetime, end_datetime) do
