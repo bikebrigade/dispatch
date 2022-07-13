@@ -28,7 +28,7 @@ defmodule BikeBrigadeWeb.LoginLive do
     defp validate_user_exists(changeset, field) when is_atom(field) do
       validate_change(changeset, field, fn _, phone ->
         case Accounts.get_user_by_phone(phone) do
-          nil -> [{field, "this phone number isn't registered!"}]
+          nil -> [{field, "We can't find your number. Have you signed up for Bike Brigade?"}]
           _ -> []
         end
       end)
