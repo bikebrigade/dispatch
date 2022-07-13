@@ -8,11 +8,19 @@ defmodule BikeBrigadeWeb.ErrorHelpers do
   @doc """
   Generates tag for inlined form input errors.
   """
-  def error_tag(form, field) do
+  def error_tag(form, field, opts \\ []) do
+    show_field = Keyword.get(opts, :show_field, true)
     Enum.map(Keyword.get_values(form.errors, field), fn error ->
+      error_string =
+        if show_field do
+          "'#{Atom.to_string(field) |> Recase.to_sentence()}': #{translate_error(error)}"
+        else
+          translate_error(error)
+        end
+
       content_tag(
         :p,
-        "'#{Atom.to_string(field) |> Recase.to_sentence()}': #{translate_error(error)}",
+        error_string,
         class: "mt-2 text-sm text-red-600",
         phx_feedback_for: input_id(form, field)
       )
