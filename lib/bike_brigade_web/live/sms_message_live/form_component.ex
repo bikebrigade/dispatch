@@ -43,8 +43,10 @@ defmodule BikeBrigadeWeb.SmsMessageLive.FormComponent do
     media =
       consume_uploaded_entries(socket, :media, fn %{path: path}, %{client_type: content_type} ->
         # TODO do some guards on content type here
-        MediaStorage.upload_file!(path, content_type)
+        {:ok, MediaStorage.upload_file!(path, content_type)}
       end)
+
+    media |> IO.inspect()
 
     sms_message_params = Map.put(sms_message_params, "media", media)
 
@@ -77,15 +79,6 @@ defmodule BikeBrigadeWeb.SmsMessageLive.FormComponent do
     {:noreply, cancel_upload(socket, :media, ref)}
   end
 
-  # defp send_sms_message(socket, sms_message_params) do
-  #   case Messaging.send_sms_message(socket.assigns.sms_message, sms_message_params) do
-  #     {:ok, _sent_sms_message} ->
-  #       assign_new_sms_message(socket)
-
-  #     {:error, %Ecto.Changeset{} = changeset} ->
-  #       assign(socket, :changeset, changeset)
-  #   end
-  # end
   def error_to_string(:too_large), do: "Too large"
   def error_to_string(:too_many_files), do: "You have selected too many files"
   def error_to_string(:not_accepted), do: "You have selected an unacceptable file type"
