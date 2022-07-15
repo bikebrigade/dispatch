@@ -1,61 +1,98 @@
-<div>
-  <.form
-    let={f}
-    for={@changeset}
-    id="sms_message-form"
-    phx-target={@myself}
-    phx-submit="send"
-    autocomplete="off"
-  >
-    <div>
-      <%= label f, :to, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-        To
-      <% end %>
-      <div class="mt-1 rounded-md shadow-sm">
-        <.live_component
-          module={C.RiderSelectionComponent}
-          id={:select_rider}
-          input_name="rider_ids[]"
-          multi={true}
-          selected_riders={@initial_riders}
-        />
+<div
+  class="flex-grow-0 px-6 py-5 bg-white border-t border-gray-200 sm:rounded-b-lg"
+  phx-drop-target={@uploads.media.ref}
+>
+  <div class="w-full">
+    <.form
+      let={f}
+      for={@changeset}
+      id="sms_message-form"
+      phx-change="validate"
+      phx-submit="send"
+      phx-target={@myself}
+      autocomplete="off"
+    >
+      <div>
+        <%= label f, :to, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+          To
+        <% end %>
+        <div class="mt-1 rounded-md shadow-sm">
+          <.live_component
+            module={C.RiderSelectionComponent}
+            id={:select_rider}
+            input_name="rider_ids[]"
+            multi={true}
+            selected_riders={@initial_riders}
+          />
+        </div>
+        <%= error_tag(f, :to) %>
       </div>
-      <%= error_tag(f, :to) %>
-    </div>
 
-    <div class="mt-2">
-      <%= label f, :body, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-        Message
-      <% end %>
-      <div class="mt-1 rounded-md shadow-sm">
-        <%= textarea(f, :body,
-          required: true,
-          phx_debounce: "blur",
-          class:
-            "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-        ) %>
+      <div class="mt-2">
+        <%= label f, :body, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+          Message
+        <% end %>
+        <div class="mt-1 rounded-md shadow-sm">
+          <%= textarea(f, :body,
+            required: true,
+            phx_debounce: "blur",
+            class:
+              "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+          ) %>
+        </div>
+        <%= error_tag(f, :body) %>
+      </div>
+
+      <div class="flex justify-end mt-6 space-x-2">
+        <C.button
+          class=""
+          id="emoji-button2"
+          phx-hook="EmojiButtonHook"
+          data-input-id={input_id(f, :body)}
+          type="button"
+          color={:white}
+          size={:xxsmall}
+        >
+          <Heroicons.Outline.emoji_happy
+            aria-label="Emoji Picker"
+            class="h-6 w-6 m-1.5 text-gray-400"
+          />
+        </C.button>
+        <%= live_file_input(@uploads.media, class: "sr-only") %>
+        <label
+          for={@uploads.media.ref}
+          class="inline-flex items-center px-1.5 py-1.5 text-xs font-medium text-gray-700 bg-white border border-transparent border-gray-300 rounded shadow-sm cursor-pointer hover:bg-gray-50 focus:ring-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2"
+        >
+          <C.Icons.tailwindui_upload_photo class="w-6 h-6" aria-hidden="true" />
+        </label>
+        <C.button type="submit" data-confirm={@confirm_send} phx-disable-with="Sending...">
+          Send
+        </C.button>
       </div>
       <%= error_tag(f, :body) %>
-    </div>
-
-    <div class="flex justify-end mt-6">
-      <C.button
-        class="mr-2"
-        id="emoji-button2"
-        phx-hook="EmojiButtonHook"
-        data-input-id={input_id(f, :body)}
-        type="button"
-        color={:white}
-        size={:xxsmall}
-      >
-        <Heroicons.Outline.emoji_happy
-          aria-label="Emoji Picker"
-          class="h-6 w-6 m-1.5 text-gray-400"
-        />
-      </C.button>
-      <C.button type="submit" data-confirm={@confirm_send} phx-disable-with="Sending...">
-        Send
-      </C.button>
-    </div>
-  </.form>
+      <%= error_tag(f, :other_error) %>
+      <div class="grid grid-cols-3 gap-4">
+        <%= for entry <- @uploads.media.entries do %>
+          <figure>
+            <%= live_img_preview(entry, class: "w-32") %>
+            <figcaption class="flex">
+              <div class="mr-1"><%= entry.client_name %></div>
+              <button
+                type="button"
+                phx-click="cancel-upload"
+                phx-value-ref={entry.ref}
+                phx-target={@myself}
+                aria-label="cancel"
+              >
+                &times;
+              </button>
+            </figcaption>
+          </figure>
+          <%= for err <- upload_errors(@uploads.media, entry) do %>
+            <p class="alert alert-danger"><%= error_to_string(err) %></p>
+          <% end %>
+        <% end %>
+      </div>
+    </.form>
+  </div>
 </div>
