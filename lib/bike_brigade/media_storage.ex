@@ -18,7 +18,7 @@ defmodule BikeBrigade.MediaStorage do
   @spec upload_file(path, content_type) :: success | error
   @spec upload_file(path, content_type, bucket) :: success | error
   def upload_file(path, content_type, bucket \\ find_bucket()) do
-    case @media_storage.upload_file(path, content_type, bucket) do
+    case adapter().upload_file(path, content_type, bucket) do
       {:ok, %{url: _, content_type: _} = response} ->
         {:ok, response}
 
@@ -30,7 +30,8 @@ defmodule BikeBrigade.MediaStorage do
   @spec upload_file!(path, content_type) :: response
   @spec upload_file!(path, content_type, bucket) :: response
   def upload_file!(path, content_type, bucket \\ find_bucket()) do
-    case @media_storage.upload_file(path, content_type, bucket) do
+    case adapter().upload_file(path, content_type, bucket) do
+
       {:ok, %{url: _, content_type: _} = response} ->
         response
 
