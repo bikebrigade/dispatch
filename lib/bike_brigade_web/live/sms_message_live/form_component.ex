@@ -46,8 +46,6 @@ defmodule BikeBrigadeWeb.SmsMessageLive.FormComponent do
         {:ok, MediaStorage.upload_file!(path, content_type)}
       end)
 
-    media |> IO.inspect()
-
     sms_message_params = Map.put(sms_message_params, "media", media)
 
     riders = Riders.get_riders(rider_ids)
