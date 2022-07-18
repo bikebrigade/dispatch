@@ -83,6 +83,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
   end
 
   defp apply_action(socket, :index, _params) do
+    IO.inspect(_params)
     socket
     |> assign(:campaign, nil)
   end

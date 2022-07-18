@@ -1,16 +1,12 @@
 defmodule BikeBrigade.Adapter do
   defmacro __using__(cfg_section) do
-    {module, args} =
-      BikeBrigade.Utils.fetch_env!(cfg_section, :adapter)
-      |> extract_module_and_args()
-
     quote do
-      # Generate a module attribute that exposes the module
-      Module.put_attribute(
-        __MODULE__,
-        unquote(cfg_section),
-        unquote(module)
-      )
+      @doc """
+      Expose the dynamically configured adapter
+      """
+      def adapter() do
+        BikeBrigade.Adapter.Utils.extract_adapter(unquote(cfg_section))
+      end
 
       @doc """
       Add a child spec to `children` if the adapter
@@ -18,24 +14,30 @@ defmodule BikeBrigade.Adapter do
       """
       @spec append_child_spec(list) :: list
       def append_child_spec(children) when is_list(children) do
-        module = unquote(module)
-        args = unquote(args)
+        module = BikeBrigade.Adapter.Utils.extract_adapter(unquote(cfg_section))
+        args = BikeBrigade.Adapter.Utils.extract_adapter_args(unquote(cfg_section))
 
         case Kernel.function_exported?(module, :start_link, 1) do
           true -> children ++ [{module, args}]
           false -> children
         end
       end
-
-      @doc """
-      Expose the dynamically configured adapter
-      """
-      def adapter(), do: unquote(module)
     end
   end
 
-  defp extract_module_and_args(module) when is_atom(module), do: {module, []}
+  defmodule Utils do
+    def extract_adapter(cfg_section) do
+      case BikeBrigade.Utils.fetch_env!(cfg_section, :adapter) do
+        module when is_atom(module) -> module
+        {module, _} when is_atom(module) -> module
+      end
+    end
 
-  defp extract_module_and_args({module, args}) when is_atom(module) and is_list(args),
-    do: {module, args}
+    def extract_adapter_args(cfg_section) do
+      case BikeBrigade.Utils.fetch_env!(cfg_section, :adapter) do
+        module when is_atom(module) -> []
+        {module, args} when is_atom(module) and is_list(args) -> args
+      end
+    end
+  end
 end

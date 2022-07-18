@@ -146,8 +146,8 @@ case System.get_env("GOOGLE_SERVICE_JSON") do
 
   _no_json ->
     config :bike_brigade, :media_storage,
-      adapter: BikeBrigade.MediaStorage.FakeMediaStorage,
-      bucket: System.get_env("GOOGLE_STORAGE_BUCKET", "bike-brigade-fake")
+      adapter: BikeBrigade.MediaStorage.LocalMediaStorage,
+      bucket: "bike-brigade-media"
 end
 
 case System.get_env("MAILCHIMP_API_KEY") do

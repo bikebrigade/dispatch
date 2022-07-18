@@ -30,7 +30,7 @@ defmodule BikeBrigade.SmsService do
   end
 
   def send_sms(message, opts) when is_list(message) do
-    sms_service = Keyword.get(opts, :sms_service, @sms_service)
+    sms_service = Keyword.get(opts, :sms_service, adapter())
 
     payload =
       case Keyword.get(opts, :send_callback, false) do
@@ -64,7 +64,7 @@ defmodule BikeBrigade.SmsService do
   end
 
   def request_valid?(url, params, signature) do
-    @sms_service.request_valid?(url, params, signature)
+    adapter().request_valid?(url, params, signature)
   end
 
   def sending_confirmation_message() do
