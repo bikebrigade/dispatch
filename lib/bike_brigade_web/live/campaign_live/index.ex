@@ -36,38 +36,6 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
     {:noreply, assign(socket, :campaigns, fetch_campaigns(socket.assigns.current_week))}
   end
 
-  @impl true
-  def handle_event("next-week", _params, socket) do
-    current_week = Date.add(socket.assigns.current_week, 7)
-
-    {:noreply,
-     push_patch(socket,
-       to: Routes.campaign_index_path(socket, :index, current_week: current_week)
-     )}
-  end
-
-  @impl true
-  def handle_event("prev-week", _params, socket) do
-    current_week = Date.add(socket.assigns.current_week, -7)
-
-    {:noreply,
-     push_patch(socket,
-       to: Routes.campaign_index_path(socket, :index, current_week: current_week)
-     )}
-  end
-
-  @impl true
-  def handle_event("this-week", _params, socket) do
-    current_week =
-      LocalizedDateTime.today()
-      |> Date.beginning_of_week()
-
-    {:noreply,
-     push_patch(socket,
-       to: Routes.campaign_index_path(socket, :index, current_week: current_week)
-     )}
-  end
-
   defp apply_action(socket, :edit, %{"id" => id}) do
     socket
     |> assign(:page_title, "Edit Campaign")
