@@ -13,10 +13,10 @@ defmodule BikeBrigade.MailchimpApi do
   @doc """
   Get mailing list's members
   """
-  def get_list(list_id, opted_in \\ nil), do: @mailchimp.get_list(list_id, opted_in)
+  def get_list(list_id, opted_in \\ nil), do: adapter().get_list(list_id, opted_in)
 
   @doc """
   Update merge fields for a member
   """
-  def update_member_fields(list_id, email, fields), do: @mailchimp.update_member_fields(list_id, email, fields)
+  def update_member_fields(list_id, email, fields), do: adapter().update_member_fields(list_id, email, fields)
 end

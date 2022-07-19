@@ -12,7 +12,7 @@ defmodule BikeBrigade.Geocoder do
   def lookup(search, opts \\ [])
 
   def lookup(search, opts) when is_binary(search) do
-    module = Keyword.get(opts, :module, @geocoder)
+    module = Keyword.get(opts, :module, adapter())
     pid = Keyword.get(opts, :pid, module)
 
     module.lookup(pid, search)
