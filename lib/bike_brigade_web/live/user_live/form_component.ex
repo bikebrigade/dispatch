@@ -28,7 +28,7 @@ defmodule BikeBrigadeWeb.UserLive.FormComponent do
   end
 
   defp save_user(socket, :edit, user_params) do
-    case Accounts.update_user(socket.assigns.user, user_params) do
+    case Accounts.update_user_as_admin(socket.assigns.user, user_params) do
       {:ok, _user} ->
         {:noreply,
          socket

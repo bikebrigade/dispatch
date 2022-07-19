@@ -6,10 +6,17 @@ defmodule BikeBrigadeWeb.UserLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok,
-     socket
-     |> assign(:page, :dispatchers)
-     |> assign(:users, list_users())}
+    if socket.assigns.current_user.is_dispatcher do
+      {:ok,
+       socket
+       |> assign(:page, :dispatchers)
+       |> assign(:users, list_users())}
+    else
+      {:ok,
+       socket
+       |> put_flash(:error, "You must be a dispatcher to view this page")
+       |> push_redirect(to: "/riders")} #TODO redirect where?
+    end
   end
 
   @impl true

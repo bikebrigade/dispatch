@@ -24,4 +24,11 @@ defmodule BikeBrigade.Accounts.User do
     |> unique_constraint(:phone)
     |> unique_constraint(:email)
   end
+
+  @doc "This changeset is to be used by admin users"
+  def admin_changeset(user, attrs) do
+    user
+    |> changeset(attrs)
+    |> cast(attrs, [:is_dispatcher, :rider_id])
+  end
 end

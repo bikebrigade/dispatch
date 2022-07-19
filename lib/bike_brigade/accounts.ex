@@ -110,6 +110,15 @@ defmodule BikeBrigade.Accounts do
   end
 
   @doc """
+  Updates a user using the admin changeset.
+  """
+  def update_user_as_admin(%User{} = user, attrs) do
+    user
+    |> User.admin_changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
   Deletes a user.
 
   ## Examples

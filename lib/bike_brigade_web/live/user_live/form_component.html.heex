@@ -52,6 +52,19 @@
       <%= error_tag(f, :phone) %>
     </div>
 
+    <div class="mt-2">
+      <%= label f, :is_dispatcher, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+        Dispatcher?
+      <% end %>
+      <div class="mt-1">
+        <%= checkbox(f, :is_dispatcher,
+          phx_debounce: "blur",
+          class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+        ) %>
+      </div>
+      <%= error_tag(f, :is_dispatcher) %>
+    </div>
+
     <div class="flex justify-end mt-6">
       <C.button type="submit" phx_disable_with="Saving...">
         Save
