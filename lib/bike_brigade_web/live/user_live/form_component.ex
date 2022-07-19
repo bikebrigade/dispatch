@@ -47,7 +47,7 @@ defmodule BikeBrigadeWeb.UserLive.FormComponent do
   end
 
   defp save_user(socket, :new, user_params) do
-    case Accounts.create_user(user_params) do
+    case Accounts.create_user_as_admin(user_params) do
       {:ok, _user} ->
         {:noreply,
          socket

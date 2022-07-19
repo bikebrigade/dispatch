@@ -74,20 +74,11 @@ defmodule BikeBrigade.Accounts do
   end
 
   @doc """
-  Creates a user.
-
-  ## Examples
-
-      iex> create_user(%{field: value})
-      {:ok, %User{}}
-
-      iex> create_user(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
+  Creates a user (using the admin changeset).
   """
-  def create_user(attrs \\ %{}) do
+  def create_user_as_admin(attrs \\ %{}) do
     %User{}
-    |> User.changeset(attrs)
+    |> User.admin_changeset(attrs)
     |> Repo.insert()
   end
 
