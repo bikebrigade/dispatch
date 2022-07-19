@@ -10,12 +10,12 @@ defmodule BikeBrigade.Accounts.User do
     field :email, :string
     field :name, :string
     field :phone, EctoPhoneNumber.Canadian
+    field :is_dispatcher, :boolean
     belongs_to :rider, Rider
 
     timestamps()
   end
 
-  # TODO: when casting :rider_id make this an admin_changeset!
   @doc false
   def changeset(user, attrs) do
     user
