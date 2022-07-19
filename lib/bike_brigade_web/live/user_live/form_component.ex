@@ -2,14 +2,17 @@ defmodule BikeBrigadeWeb.UserLive.FormComponent do
   use BikeBrigadeWeb, :live_component
 
   alias BikeBrigade.Accounts
+  alias BikeBrigade.Repo
 
   @impl true
   def update(%{user: user} = assigns, socket) do
+    user = Repo.preload(user, :rider)
     changeset = Accounts.change_user(user)
 
     {:ok,
      socket
      |> assign(assigns)
+     |> assign(:user, user)
      |> assign(:changeset, changeset)}
   end
 
@@ -28,6 +31,9 @@ defmodule BikeBrigadeWeb.UserLive.FormComponent do
   end
 
   defp save_user(socket, :edit, user_params) do
+    # TODO: We should probably not allow users to have no rider associated
+    # But for now let's make it possible for consistency
+    user_params = Map.put_new(user_params, "rider_id", nil)
     case Accounts.update_user_as_admin(socket.assigns.user, user_params) do
       {:ok, _user} ->
         {:noreply,
