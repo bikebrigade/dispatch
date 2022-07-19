@@ -14,7 +14,7 @@ defmodule BikeBrigade.AccountsTest do
       {:ok, user} =
         attrs
         |> Enum.into(@valid_attrs)
-        |> Accounts.create_user()
+        |> Accounts.create_user_as_admin()
 
       user
     end
@@ -48,14 +48,14 @@ defmodule BikeBrigade.AccountsTest do
     end
 
     test "create_user/1 with valid data creates a user" do
-      assert {:ok, %User{} = user} = Accounts.create_user(@valid_attrs)
+      assert {:ok, %User{} = user} = Accounts.create_user_as_admin(@valid_attrs)
       assert user.email == "some email"
       assert user.name == "some name"
       assert user.phone == "+16475551234"
     end
 
     test "create_user/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Accounts.create_user(@invalid_attrs)
+      assert {:error, %Ecto.Changeset{}} = Accounts.create_user_as_admin(@invalid_attrs)
     end
 
     test "update_user/2 with valid data updates the user" do

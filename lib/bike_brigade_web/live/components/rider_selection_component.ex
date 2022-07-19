@@ -26,6 +26,9 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
   def update(assigns, socket) do
     assigns =
       case assigns do
+        %{selected_rider: r} when not is_nil(r) ->
+          Map.put(assigns, :selected_riders, %{r.id => r})
+
         %{selected_riders: selected_riders} when is_list(selected_riders) ->
           Map.put(assigns, :selected_riders, Map.new(selected_riders, fn r -> {r.id, r} end))
 
@@ -63,17 +66,15 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
      |> assign(:search, "")}
   end
 
-
-
-  def handle_event("load_more", _values,%{ assigns: assigns } = socket) do
-    %{ rider_search: rider_search, riders: riders } = assigns
-    next_page_rs= RiderSearch.next_page(rider_search)
+  def handle_event("load_more", _values, %{assigns: assigns} = socket) do
+    %{rider_search: rider_search, riders: riders} = assigns
+    next_page_rs = RiderSearch.next_page(rider_search)
     {rider_search, search_results} = RiderSearch.fetch(next_page_rs)
-     {:noreply,
+
+    {:noreply,
      socket
-     |> assign(:riders, riders ++ search_results.page )
-     |> assign(:rider_search, rider_search)
-     }
+     |> assign(:riders, riders ++ search_results.page)
+     |> assign(:rider_search, rider_search)}
   end
 
   defp fetch_results(socket) do

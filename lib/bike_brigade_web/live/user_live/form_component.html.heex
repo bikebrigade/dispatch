@@ -3,7 +3,6 @@
     let={f}
     for={@changeset}
     id="user-form"
-    ,
     phx-target={@myself}
     phx-change="validate"
     phx-submit="save"
@@ -51,6 +50,31 @@
         ) %>
       </div>
       <%= error_tag(f, :phone) %>
+    </div>
+    <div class="mt-2">
+      <%= label f, :rider_id, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+        Associated Rider (This will eventually allow all riders to login. Be careful if changing 😸)
+      <% end %>
+      <div class="mt-1 rounded-md shadow-sm">
+        <.live_component
+          module={C.RiderSelectionComponent}
+          id={:select_rider}
+          input_name={input_name(f, :rider_id)}
+          selected_rider={@user.rider}
+        />
+      </div>
+    </div>
+    <div class="mt-2">
+      <%= label f, :is_dispatcher, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+        Dispatcher?
+      <% end %>
+      <div class="mt-1">
+        <%= checkbox(f, :is_dispatcher,
+          phx_debounce: "blur",
+          class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+        ) %>
+      </div>
+      <%= error_tag(f, :is_dispatcher) %>
     </div>
 
     <div class="flex justify-end mt-6">

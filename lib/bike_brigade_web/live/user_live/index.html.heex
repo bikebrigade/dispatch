@@ -1,6 +1,6 @@
 <%= if @live_action in [:new, :edit] do %>
   <UI.modal show id={:edit} return_to={Routes.user_index_path(@socket, :index)}>
-    <:title><%= Atom.to_string(@live_action) |> String.capitalize() %> Dispatcherlive</:title>
+    <:title><%= Atom.to_string(@live_action) |> String.capitalize() %> Dispatcher</:title>
     <.live_component
       module={BikeBrigadeWeb.UserLive.FormComponent}
       id={@user.id || :new}
@@ -16,6 +16,9 @@
   </:th>
   <:th>
     Phone
+  </:th>
+  <:th>
+    Dispatcher?
   </:th>
   <:th class="flex justify-end" padding="px-3 py-3" uppercase={false}>
     <C.button patch_to={Routes.user_index_path(@socket, :new)}>
@@ -35,6 +38,13 @@
   </:td>
   <:td let={user}>
     <%= user.phone %>
+  </:td>
+  <:td let={user}>
+    <%= if user.is_dispatcher do %>
+      ✅
+    <% else %>
+      ❌
+    <% end %>
   </:td>
   <:td class="text-right" let={user}>
     <%= live_patch("Edit",

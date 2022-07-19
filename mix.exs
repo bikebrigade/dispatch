@@ -110,7 +110,7 @@ defmodule BikeBrigade.MixProject do
         "local.rebar --force --if-missing",
         "setup"
       ],
-      setup: ["deps.get", "ecto.setup", "cmd npm install --prefix assets"],
+      setup: ["deps.get", "ecto.setup", "cmd mix ecto.migrate --migrations-path priv/repo/data_migrations", "cmd npm install --prefix assets"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate", "test"],
