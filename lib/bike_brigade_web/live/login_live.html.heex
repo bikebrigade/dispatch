@@ -1,14 +1,14 @@
 <C.flash_component flash={@flash} />
-<div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+<div class="px-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
   <div class="flex flex-col justify-center min-h-screen py-12 bg-gray-50 sm:px-6 lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
       <img
-        class="w-auto h-8 mx-auto"
-        src={Routes.static_path(@socket, "/images/logo-black.png")}
+        class="w-auto mx-auto h-28"
+        src={Routes.static_path(@socket, "/images/bike-brigade-black.svg")}
         alt="Toronto Bike Brigade"
       />
-      <h2 class="mt-6 text-3xl font-extrabold leading-9 text-center text-gray-900">
-        Sign in to your account
+      <h2 class="mt-6 text-3xl font-extrabold leading-9 text-center text-gray-900 lg:text-4xl">
+        Sign into your Bike Brigade account
       </h2>
     </div>
 
@@ -30,28 +30,37 @@
               </div>
               <%= error_tag(f, :phone, show_field: false) %>
             </div>
-            <div class="flex items-center justify-between mt-6">
-              <div class="text-sm leading-5">
-                <a
-                  href="#"
-                  data-confirm="Please contact someone from the Bike Brigade directly to get set up!"
-                  class="font-medium text-indigo-600 transition duration-150 ease-in-out hover:text-indigo-500 focus:outline-none focus:underline"
-                >
-                  Need an account?
-                </a>
-              </div>
-            </div>
-
             <div class="mt-6">
               <span class="block w-full rounded-md shadow-sm">
                 <button
                   type="submit"
                   class="flex justify-center w-full px-4 py-2 text-sm font-medium text-white transition duration-150 ease-in-out bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:ring-indigo active:bg-indigo-700"
                 >
-                  Get Code
+                  Get Login Code
                 </button>
               </span>
             </div>
+            <div class="mt-6">
+              <div class="relative">
+                <div class="absolute inset-0 flex items-center">
+                  <div class="w-full border-t border-gray-300"></div>
+                </div>
+                <div class="relative flex justify-center text-sm">
+                  <span class="px-2 text-gray-500 bg-white"> Not a volunteer yet? </span>
+                </div>
+              </div>
+            </div>
+            <div class="mt-6 text-center">
+                <a
+                  href="https://www.bikebrigade.ca/volunteer"
+                  class="px-4 py-2 text-xs font-medium text-gray-500 transition duration-150 ease-in-out border border-gray-500 rounded-md transparent hover:text-gray-800 hover:border-gray-800 focus:border-gray-800 active:border-gray-800 focus:outline-none focus:ring-gray active:text-gray-800"
+                >
+                  Sign Up!
+                </a>
+            </div>
+            <p class="mt-6 text-xs text-center">
+              Need help? Email <a class="text-indigo-600 hover:text-gray-600" href="mailto:info@bikebrigade.ca">info@bikebrigade.ca</a>
+            </p>
           </.form>
         <% else %>
           <div class="mb-3 text-sm font-medium leading-5 text-gray-700">
