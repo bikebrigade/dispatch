@@ -12,9 +12,9 @@ defmodule BikeBrigadeWeb.Features.LoginTest do
 
     session
     |> visit("/login")
-    |> assert_has(css("h2", text: "Sign in to your account"))
+    |> assert_has(css("h2", text: "Sign into your Bike Brigade account"))
     |> fill_in(text_field("Phone number"), with: user.phone)
-    |> click(button("Get Code"))
+    |> click(button("Get Login Code"))
     |> assert_has(
       css("*[role=notice]", text: "We sent an authentication code to your phone number")
     )
