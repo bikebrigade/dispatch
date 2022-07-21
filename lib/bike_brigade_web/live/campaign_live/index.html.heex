@@ -1,24 +1,24 @@
 <%= if @live_action in [:new, :edit] do %>
-  <UI.modal show id={:edit} return_to={Routes.campaign_index_path(@socket, :index)}>
+  <UI.modal show id={:edit} return_to={Routes.campaign_index_path(@socket, :index, current_week: @current_week)}>
     <:title><%= Atom.to_string(@live_action) |> String.capitalize() %> Campaign</:title>
     <.live_component
       module={BikeBrigadeWeb.CampaignLive.FormComponent}
       id={"campaign-#{@campaign.id || :new}"}
       action={@live_action}
       campaign={@campaign}
-      return_to={Routes.campaign_index_path(@socket, :index)}
+      return_to={Routes.campaign_index_path(@socket, :index, current_week: @current_week)}
     />
   </UI.modal>
 <% end %>
 <%= if @live_action == :duplicate do %>
-  <UI.modal show id={:duplicate} return_to={Routes.campaign_index_path(@socket, :index)}>
+  <UI.modal show id={:duplicate} return_to={Routes.campaign_index_path(@socket, :index, current_week: @current_week)}>
     <:title>Duplicate campaign</:title>
     <.live_component
       module={BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent}
       id={:duplicate}
       action={@live_action}
       campaign={@campaign}
-      return_to={Routes.campaign_index_path(@socket, :index)}
+      return_to={Routes.campaign_index_path(@socket, :index, current_week: @current_week)}
     />
   </UI.modal>
 <% end %>
@@ -36,27 +36,22 @@
   </div>
   <div class="flex justify-between flex-1 sm:justify-end">
     <span class="relative z-0 inline-flex rounded-md shadow-sm">
-      <button
-        type="button"
-        phx-click="prev-week"
-        class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-      >
+      <%= live_patch to: Routes.campaign_index_path(@socket, :index, current_week: Date.add(@current_week, -7)), 
+        class: "relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+do %>
         <Heroicons.Solid.chevron_left class="w-5 h-5" />
-      </button>
-      <button
-        type="button"
-        phx-click="this-week"
-        class="relative items-center hidden px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 sm:inline-flex hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-      >
+      <% end %>
+      <%= live_patch to: Routes.campaign_index_path(@socket, :index, current_week: Date.beginning_of_week(LocalizedDateTime.today())), 
+        class: "relative items-center hidden px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 sm:inline-flex hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+do %>
         Today
-      </button>
-      <button
-        type="button"
-        phx-click="next-week"
-        class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-      >
+      <% end %>
+
+      <%= live_patch to: Routes.campaign_index_path(@socket, :index, current_week: Date.add(@current_week, 7)), 
+        class: "relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+do %>
         <Heroicons.Solid.chevron_right class="w-5 h-5" />
-      </button>
+      <% end %>
     </span>
   </div>
   <C.button patch_to={Routes.campaign_index_path(@socket, :new)} class="ml-2" %>
