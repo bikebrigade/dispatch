@@ -16,6 +16,7 @@
         inherit (lib) optional optionals;
 
         basePackages = [
+          chromedriver
           git
           libxml2
           openssl
