@@ -116,6 +116,8 @@ defmodule BikeBrigadeWeb.Router do
       live "/opportunities/new", OpportunityLive.Index, :new
       live "/opportunities/:id/edit", OpportunityLive.Index, :edit
 
+      live "/itinerary", ItineraryLive.Index, :index
+
       live "/items", ItemLive.Index, :index
       live "/items/new", ItemLive.Index, :new
       live "/items/:id/edit", ItemLive.Index, :edit
