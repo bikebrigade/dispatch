@@ -8,14 +8,30 @@ defmodule BikeBrigadeWeb.ItineraryLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    today = LocalizedDateTime.today()
+    # TODO: browse itinerary by date
+    date = LocalizedDateTime.today()
+
+    # In the future we may have current_user.rider preloaded, but for now we will load it in `fetch_campaigns/2`
+    rider_id = socket.assigns.current_user.rider_id
+
+    socket =
+      if rider_id do
+        socket
+        |> assign(
+          :campaigns,
+          fetch_campaigns(rider_id, date)
+        )
+      else
+        socket
+        |> assign(:campaigns, [])
+        |> put_flash(:error, "User is not associated with a rider!")
+      end
 
     {:ok,
      socket
      |> assign(:page, :itinerary)
      |> assign(:page_title, "Itinerary")
-     |> assign(:today, today)
-     |> assign(:campaigns, fetch_campaigns(socket, today))}
+     |> assign(:date, date)}
   end
 
   @impl true
@@ -23,20 +39,9 @@ defmodule BikeBrigadeWeb.ItineraryLive.Index do
     {:noreply, socket}
   end
 
-  defp fetch_campaigns(socket, today) do
-    if not is_nil(socket.assigns.current_user.rider_id) do
-      Riders.list_campaigns_with_task_counts(
-        Riders.get_rider!(socket.assigns.current_user.rider_id),
-        today
-      )
-    else
-      socket |> put_flash(:error, "User needs rider_id")
-
-      Riders.list_campaigns_with_task_counts(
-        Riders.get_rider!(26),
-        ~D[2022-06-27]
-      )
-    end
+  defp fetch_campaigns(rider_id, date) do
+    Riders.get_rider!(rider_id)
+    |> Riders.list_campaigns_with_task_counts(date)
   end
 
   defp get_location(assigns) do

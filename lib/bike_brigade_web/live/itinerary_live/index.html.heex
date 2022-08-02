@@ -5,7 +5,7 @@
   <div class="hidden sm:block">
     <p class="font-medium">
       Itinerary for 
-      <%= Calendar.strftime(@today, "%A %B %-d, %Y") %>
+      <%= Calendar.strftime(@date, "%A %B %-d, %Y") %>
     </p>
   </div>
   <div class="flex justify-between flex-1 sm:justify-end">
@@ -66,5 +66,5 @@
     </div>
   <% end %>
 <% else %>
-  <div class="py-4 pl-4">No campaigns found for today</div>
+  <div class="py-4 pl-4">No campaigns found for this day.</div>
 <% end %>

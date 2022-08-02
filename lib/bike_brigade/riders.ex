@@ -146,7 +146,7 @@ defmodule BikeBrigade.Riders do
         group_by: c.id,
         order_by: [asc: c.delivery_start],
         where: ^where,
-        preload: [:program],
+        preload: [:program, :location],
         select: {c, count(t)}
 
     Repo.all(query)
