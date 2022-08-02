@@ -31,8 +31,7 @@ defmodule BikeBrigadeWeb.ItineraryLive.Index do
           do: socket.assigns.current_user.rider_id,
           else: 26
       ),
-      # today
-      ~D[2022-06-27]
+      today
     )
   end
 
