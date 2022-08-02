@@ -36,32 +36,6 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
     {:noreply, assign(socket, :campaigns, fetch_campaigns(socket.assigns.current_week))}
   end
 
-  @impl true
-  def handle_event("next-week", _params, socket) do
-    current_week = Date.add(socket.assigns.current_week, 7)
-
-    {:noreply,
-     assign(socket, current_week: current_week, campaigns: fetch_campaigns(current_week))}
-  end
-
-  @impl true
-  def handle_event("prev-week", _params, socket) do
-    current_week = Date.add(socket.assigns.current_week, -7)
-
-    {:noreply,
-     assign(socket, current_week: current_week, campaigns: fetch_campaigns(current_week))}
-  end
-
-  @impl true
-  def handle_event("this-week", _params, socket) do
-    current_week =
-      LocalizedDateTime.today()
-      |> Date.beginning_of_week()
-
-    {:noreply,
-     assign(socket, current_week: current_week, campaigns: fetch_campaigns(current_week))}
-  end
-
   defp apply_action(socket, :edit, %{"id" => id}) do
     socket
     |> assign(:page_title, "Edit Campaign")
@@ -82,8 +56,21 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
     |> assign(:campaign, Delivery.get_campaign(id))
   end
 
-  defp apply_action(socket, :index, _params) do
-    IO.inspect(_params)
+  defp apply_action(socket, :index, params) do
+    socket =
+      case params do
+        %{"current_week" => week} ->
+          week = Date.from_iso8601!(week)
+
+          assign(socket,
+            current_week: week,
+            campaigns: fetch_campaigns(week)
+          )
+
+        _ ->
+          socket
+      end
+
     socket
     |> assign(:campaign, nil)
   end

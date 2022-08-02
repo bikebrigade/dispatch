@@ -33,6 +33,8 @@
 
         elixirPackages = [ beam.packages.erlangR25.elixir_1_13 ];
 
+        chromePackages = [ chromedriver ] ++ optional stdenv.isLinux chromium;
+
         nodePackages = [ nodejs yarn ];
 
         deployPackages = [ flyctl ];
@@ -61,7 +63,7 @@
         devShell = with pkgs;
           mkShell {
             buildInputs = basePackages ++ elixirPackages ++ nodePackages
-              ++ deployPackages;
+              ++ deployPackages ++ chromePackages;
 
             shellHook = baseHook + elixirHook + nodeHook;
           };
