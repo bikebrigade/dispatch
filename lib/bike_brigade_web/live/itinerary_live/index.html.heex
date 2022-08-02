@@ -4,42 +4,33 @@
 >
   <div class="hidden sm:block">
     <p class="font-medium">
-      Itinerary for
-      <%= case Date.day_of_week(@today) do 
-      1 -> "Monday"
-      2 -> "Tuesday"
-      3 -> "Wednesday"
-      4 -> "Thursday"
-      5 -> "Friday"
-      6 -> "Saturday"
-      _ -> "Sunday"
-      end %>        
-      <%= Calendar.strftime(@today, "%B %-d, %Y") %>
+      Itinerary for 
+      <%= Calendar.strftime(@today, "%A %B %-d, %Y") %>
     </p>
   </div>
   <div class="flex justify-between flex-1 sm:justify-end">
-    <%= if @deliveries != [] do %>
-      <%= Enum.reduce(@deliveries, 0, fn {_delivery, task_count}, acc -> task_count + acc end) %> <%= Inflex.inflect("delivery", Enum.reduce(@deliveries, 0, fn {_delivery, task_count}, acc -> task_count + acc end)) %> for
-      <%= length(@deliveries) %> <%= Inflex.inflect("campaign", length(@deliveries)) %>
+    <%= if @campaigns != [] do %>
+      <%= get_task_count(@campaigns) %> <%= Inflex.inflect("delivery", get_task_count(@campaigns)) %> for
+      <%= length(@campaigns) %> <%= Inflex.inflect("campaign", length(@campaigns)) %>
     <% end %>
   </div>
 </nav>
-<%= if @deliveries != [] do %>
-  <%= for {delivery, task_count} <- @deliveries do %>
+<%= if @campaigns != [] do %>
+  <%= for {campaign, task_count} <- @campaigns do %>
     <div class="flex w-full bg-white shadow sm:my-1 sm:rounded-md">
       <ul role="list" class="w-full divide-y divide-gray-200">
-          <li id={"campaign-#{delivery.id}"}>
+          <li id={"campaign-#{campaign.id}"}>
             <div class="px-4 py-4">
               <div class="items-center justify-between md:flex">
                 <div class="flex items-center mb-2 space-x-1">
-                  <%= live_redirect(name(delivery),
-                    to: Routes.campaign_show_path(@socket, :show, delivery),
+                  <%= live_redirect(name(campaign),
+                    to: Routes.campaign_show_path(@socket, :show, campaign),
                     class: "link font-bold"
                   ) %>
                 </div>
                 <div class="flex-shrink-0 space-y-1 md:space-y-0 md:space-x-2 md:flex">
                   <C.button
-                    patch_to={Routes.campaign_show_path(@socket, :show, delivery)}
+                    patch_to={Routes.campaign_show_path(@socket, :show, campaign)}
                     size={:medium}
                   >
                     Details
@@ -53,11 +44,11 @@
                       aria-label="Pickup Time"
                       class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
                     />
-                    <%= pickup_window(delivery) %>
+                    <%= pickup_window(campaign) %>
                   </p>
                 </div>
               </div>
-              <.get_location delivery={delivery} />
+              <.get_location campaign={campaign} />
               <div class="mt-2 sm:flex sm:justify-between">
                 <div class="sm:flex">
                   <p class="flex items-center text-sm text-gray-500">
@@ -75,5 +66,5 @@
     </div>
   <% end %>
 <% else %>
-  <div class="py-4 pl-4">No deliveries found for today</div>
+  <div class="py-4 pl-4">No campaigns found for today</div>
 <% end %>

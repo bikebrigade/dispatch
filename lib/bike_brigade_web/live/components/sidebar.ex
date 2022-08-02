@@ -27,15 +27,6 @@ defmodule BikeBrigadeWeb.Components.Sidebar do
         Campaigns
       </.sidebar_link>
       <.sidebar_link
-        selected={@current_page == :itinerary}
-        to={Routes.itinerary_index_path(@socket, :index)}
-      >
-        <:icon let={class}>
-          <Heroicons.Outline.clipboard_list class={class} />
-        </:icon>
-        My Itinerary
-      </.sidebar_link>
-      <.sidebar_link
         selected={@current_page == :opportunities}
         to={Routes.opportunity_index_path(@socket, :index)}
       >
