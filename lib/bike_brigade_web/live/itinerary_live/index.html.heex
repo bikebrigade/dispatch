@@ -2,17 +2,17 @@
   class="flex items-end justify-between px-4 py-3 mb-1 border-b-2 border-gray-200"
   aria-label="Pagination"
 >
-  <div class="hidden sm:block">
-    <p class="font-medium">
+  <div class="items-center block font-medium xl:flex">
+    <p>
       Itinerary for 
       <%= Calendar.strftime(@date, "%A %B %-d, %Y") %>
     </p>
-  </div>
-  <div class="flex justify-between flex-1 sm:ml-3">
-    <%= if @campaigns != [] do %>
-      <%= get_task_count(@campaigns) %> <%= Inflex.inflect("delivery", get_task_count(@campaigns)) %> for
-      <%= length(@campaigns) %> <%= Inflex.inflect("campaign", length(@campaigns)) %>
-    <% end %>
+    <div class="flex justify-between flex-1 text-gray-500 xl:ml-3">
+      <%= if @campaigns != [] do %>
+        <%= get_task_count(@campaigns) %> <%= Inflex.inflect("delivery", get_task_count(@campaigns)) %> for
+        <%= length(@campaigns) %> <%= Inflex.inflect("campaign", length(@campaigns)) %>
+      <% end %>
+    </div>
   </div>
   <div class="flex justify-end flex-1">
     <span class="relative z-0 inline-flex rounded-md shadow-sm">
