@@ -1,5 +1,5 @@
 <nav
-  class="flex items-center justify-between px-4 py-3 mb-1 border-b-2 border-gray-200"
+  class="flex items-end justify-between px-4 py-3 mb-1 border-b-2 border-gray-200"
   aria-label="Pagination"
 >
   <div class="hidden sm:block">
@@ -8,11 +8,31 @@
       <%= Calendar.strftime(@date, "%A %B %-d, %Y") %>
     </p>
   </div>
-  <div class="flex justify-between flex-1 sm:justify-end">
+  <div class="flex justify-between flex-1 sm:ml-3">
     <%= if @campaigns != [] do %>
       <%= get_task_count(@campaigns) %> <%= Inflex.inflect("delivery", get_task_count(@campaigns)) %> for
       <%= length(@campaigns) %> <%= Inflex.inflect("campaign", length(@campaigns)) %>
     <% end %>
+  </div>
+  <div class="flex justify-end flex-1">
+    <span class="relative z-0 inline-flex rounded-md shadow-sm">
+      <%= live_patch to: Routes.itinerary_index_path(@socket, :index, date: Date.add(@date, -1)), 
+        class: "relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+do %>
+        <Heroicons.Solid.chevron_left class="w-5 h-5" />
+      <% end %>
+      <%= live_patch to: Routes.itinerary_index_path(@socket, :index, date: LocalizedDateTime.today), 
+        class: "relative items-center hidden px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 sm:inline-flex hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+do %>
+        Today
+      <% end %>
+
+      <%= live_patch to: Routes.itinerary_index_path(@socket, :index, date: Date.add(@date, 1)), 
+        class: "relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+do %>
+        <Heroicons.Solid.chevron_right class="w-5 h-5" />
+      <% end %>
+    </span>
   </div>
 </nav>
 <%= if @campaigns != [] do %>
