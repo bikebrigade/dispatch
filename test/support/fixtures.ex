@@ -20,7 +20,7 @@ defmodule BikeBrigade.Fixtures do
         phone: fake_phone()
       }
       |> Map.merge(attrs)
-      |> Accounts.create_user()
+      |> Accounts.create_user_as_admin()
 
     user
   end

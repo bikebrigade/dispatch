@@ -27,6 +27,7 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
         :tags,
         :campaigns,
         :total_stats,
+        :user,
         program_stats: [:program],
         latest_campaign: [:program]
       ])
