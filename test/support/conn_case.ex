@@ -46,7 +46,7 @@ defmodule BikeBrigadeWeb.ConnCase do
   def login(%{conn: conn}) do
     user = fixture(:user)
 
-    %{conn: login_user(conn, user)}
+    %{user: user, conn: login_user(conn, user)}
   end
 
   def create_program(%{}) do
