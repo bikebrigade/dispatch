@@ -11,7 +11,7 @@ defmodule BikeBrigade.Repo.Seeds.Seeder do
 
   def user() do
     {:ok, %Accounts.User{} = user} =
-      Accounts.create_user(%{
+      Accounts.create_user_as_admin(%{
         name: "Dispatcher McGee",
         phone: "647-555-5555",
         email: "dispatcher@example.com"

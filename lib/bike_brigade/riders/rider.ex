@@ -4,6 +4,7 @@ defmodule BikeBrigade.Riders.Rider do
   import Ecto.Query, warn: false
   import EctoEnum
 
+  alias BikeBrigade.Accounts.User
   alias BikeBrigade.Locations.Location
   alias BikeBrigade.Repo
   alias BikeBrigade.Riders.{Tag, RidersTag, RiderLatestCampaign}
@@ -67,6 +68,8 @@ defmodule BikeBrigade.Riders.Rider do
     field :task_enter_building, :boolean, virtual: true
     field :delivery_url_token, :string, virtual: true
     field :pickup_window, :string, virtual: true
+
+    has_one :user, User
 
     has_many :assigned_tasks, Task, foreign_key: :assigned_rider_id
     has_many :campaign_riders, CampaignRider
