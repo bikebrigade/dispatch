@@ -17,12 +17,12 @@
   <:th>
     Phone
   </:th>
-  <:th>
-    Dispatcher?
+  <:th class="text-right">
+    Status
   </:th>
   <:th class="flex justify-end" padding="px-3 py-3" uppercase={false}>
     <C.button patch_to={Routes.user_index_path(@socket, :new)}>
-      Create new dispatcher
+      New
     </C.button>
   </:th>
   <:td let={user}>
@@ -39,11 +39,12 @@
   <:td let={user}>
     <%= user.phone %>
   </:td>
-  <:td let={user}>
+  <:td class="text-right" let={user}>
     <%= if user.is_dispatcher do %>
-      ✅
-    <% else %>
-      ❌
+      🧑‍🔧
+    <% end %>
+    <%= if user.rider_id  do %>
+      🚴
     <% end %>
   </:td>
   <:td class="text-right" let={user}>

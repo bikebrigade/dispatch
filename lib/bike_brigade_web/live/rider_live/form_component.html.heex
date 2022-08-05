@@ -8,6 +8,16 @@
     phx-change="validate"
     phx-submit="save"
   >
+    <div>
+      <%= if @rider.user do %>
+        <span class="mr-2 text-emerald-600">Login Enabled</span>
+      <% else %>
+        <span class="mr-2 text-amber-600">Login not Enabled</span>
+        <C.button phx-click="enable-login" phx-target={@myself} size={:xsmall} color={:secondary}>
+          Enable
+        </C.button>
+      <% end %>
+    </div>
     <div class="mt-2">
       <%= label f, :name, class: "block text-sm font-medium leading-5 text-gray-700" do %>
         Name
@@ -146,7 +156,7 @@
       </div>
       <%= error_tag(f, :last_safety_check) %>
     </div>
-    <div class="flex items-top mt-4 space-x-2">
+    <div class="flex mt-4 space-x-2 items-top">
       <div class="rounded-md shadow-sm">
         <%= checkbox(f, :text_based_itinerary,
           phx_debounce: "blur",
@@ -182,7 +192,9 @@
               <%= label flag_form, :opt_in_to_new_number, class: "font-medium text-gray-700" do %>
                 Use toll-free number for texting
               <% end %>
-              <p class="text-gray-500">Use 1-855 number when messaging this rider. Note that Freedom mobile has issues with sending picture messages to this number, so this should be turned off for Freedom users, switching them to the 647 number.</p>
+              <p class="text-gray-500">
+                Use 1-855 number when messaging this rider. Note that Freedom mobile has issues with sending picture messages to this number, so this should be turned off for Freedom users, switching them to the 647 number.
+              </p>
             </div>
           </div>
         </div>
