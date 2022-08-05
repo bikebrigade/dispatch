@@ -60,6 +60,8 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
   end
 
   def handle_event("select", %{"id" => id}, socket) do
+    id = String.to_integer(id)
+
     {:noreply,
      socket
      |> update(:selected_riders, &Map.put_new_lazy(&1, id, fn -> Riders.get_rider!(id) end))
@@ -115,8 +117,10 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
           phx-target={@myself}
           phx-debounce="50"
           name="search"
+          autocomplete="off"
           placeholder="Type to search for riders by name"
           class="block w-full px-3 py-2 placeholder-gray-400 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          form="select-form"
         />
         <%= if @search != "" do %>
           <ul id="rider-selection-list" class="overflow-y-auto max-h-64" phx-hook="RiderSelectionList">
