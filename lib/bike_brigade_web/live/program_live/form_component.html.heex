@@ -152,9 +152,11 @@
             <:td let={item}>
               <%= item.category %>
             </:td>
-            <:td let={item} class="flex justify-center">
+            <:td let={item}>
               <%= if item.hidden do %>
-                <Heroicons.Outline.eye_off class="flex-shrink-0 w-6 h-6 mx-1 text-gray-600" />
+                <div class="flex justify-center">
+                  <Heroicons.Outline.eye_off class="flex-shrink-0 w-6 h-6 mx-1 text-gray-600" />
+                </div>
               <% end %>
             </:td>
             <:td class="text-right" let={item}>
