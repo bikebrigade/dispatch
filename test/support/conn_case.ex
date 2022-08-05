@@ -44,7 +44,7 @@ defmodule BikeBrigadeWeb.ConnCase do
   end
 
   def login(%{conn: conn}) do
-    user = fixture(:user)
+    user = fixture(:user, %{is_dispatcher: true})
 
     %{conn: login_user(conn, user)}
   end
