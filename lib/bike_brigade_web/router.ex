@@ -15,6 +15,7 @@ defmodule BikeBrigadeWeb.Router do
   import BikeBrigadeWeb.Authentication,
     only: [
       require_authenticated_user: 2,
+      require_dispatcher: 2,
       redirect_if_user_is_authenticated: 2,
       get_user_from_session: 2
     ]
@@ -50,7 +51,7 @@ defmodule BikeBrigadeWeb.Router do
   end
 
   scope "/analytics" do
-    pipe_through [:sessions, :fetch_live_flash, :require_authenticated_user]
+    pipe_through [:sessions, :fetch_live_flash, :require_dispatcher]
 
     forward "/", ReverseProxyPlug,
       upstream: get_config(:analytics_upstream),
