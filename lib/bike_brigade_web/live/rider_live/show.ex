@@ -64,12 +64,15 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
 
   defp apply_action(socket, :profile, _params) do
     socket
-    |> assign(:page, :riders)
+    |> assign(:page_title, "Profile")
+    |> assign(:page, :profile)
     |> assign_rider(socket.assigns.current_user.rider_id)
   end
 
   defp apply_action(socket, :edit_profile, _params) do
     socket
+    |> assign(:page_title, "Edit Profile")
+    |> assign(:page, :profile)
     |> assign(
       :return_to,
       Routes.rider_show_path(socket, :profile)
