@@ -54,6 +54,19 @@
       <%= error_tag(f, :category) %>
     </div>
 
+    <div class="my-2">
+      <%= label f, :hidden, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+        Hidden?
+      <% end %>
+      <div class="mt-1">
+        <%= checkbox(f, :hidden,
+          phx_debounce: "blur",
+          class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+        ) %>
+      </div>
+      <%= error_tag(f, :hidden) %>
+    </div>
+
     <div class="flex justify-end mt-6">
       <C.button type="submit" phx-disable-with="Saving...">
         Save
