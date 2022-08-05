@@ -95,7 +95,7 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
     socket
     |> assign(
       :return_to,
-      Routes.rider_show_path(socket, :show, socket.assigns.rider)
+      Routes.rider_show_path(socket, :show, id)
     )
     |> assign_rider(id)
   end
