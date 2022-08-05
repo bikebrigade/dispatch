@@ -76,7 +76,7 @@
         </div>
         <div class="flex-1 h-0 mt-5 overflow-y-auto">
           <nav class="px-2">
-            <C.Sidebar.component socket={@socket} current_page={@page} />
+            <C.Sidebar.component socket={@socket} current_page={@page} is_dispatcher={@current_user.is_dispatcher}/>
           </nav>
         </div>
       </div>
@@ -99,11 +99,11 @@
       <div class="flex flex-col flex-1 h-0 mt-5 overflow-y-auto">
         <!-- Sidebar component, swap this element with another sidebar if you like -->
         <nav class="flex-1 px-2 bg-white">
-          <C.Sidebar.component socket={@socket} current_page={@page} />
+          <C.Sidebar.component socket={@socket} current_page={@page} is_dispatcher={@current_user.is_dispatcher}/>
         </nav>
       </div>
       <div class="flex flex-col flex-shrink-0 p-4 border-t border-gray-200">
-        <a href="#" class="flex-shrink-0 block group">
+        <a href={Routes.rider_show_path(@socket, :profile)} class="flex-shrink-0 block group">
           <div class="flex items-center">
             <div>
               <img

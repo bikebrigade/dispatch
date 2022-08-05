@@ -8,16 +8,23 @@
     phx-change="validate"
     phx-submit="save"
   >
-    <div>
-      <%= if @rider.user do %>
-        <span class="mr-2 text-emerald-600">Login Enabled</span>
-      <% else %>
-        <span class="mr-2 text-amber-600">Login not Enabled</span>
-        <C.button phx-click="enable-login" phx-target={@myself} size={:xsmall} color={:secondary}>
-          Enable
-        </C.button>
-      <% end %>
-    </div>
+    <%= if @action == :edit do %>
+      <div>
+        <%= if @rider.user do %>
+          <span class="mr-2 text-emerald-600">Login Enabled</span>
+        <% else %>
+          <span class="mr-2 text-amber-600">Login not Enabled</span>
+          <C.button
+            phx-click="enable-login"
+            phx-target={@myself}
+            size={:xsmall}
+            color={:secondary}
+          >
+            Enable
+          </C.button>
+        <% end %>
+      </div>
+    <% end %>
     <div class="mt-2">
       <%= label f, :name, class: "block text-sm font-medium leading-5 text-gray-700" do %>
         Name
@@ -50,36 +57,45 @@
       <%= error_tag(f, :pronouns) %>
     </div>
 
-    <div class="mt-2">
-      <%= label f, :email, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-        Email
-      <% end %>
-      <div class="mt-1 rounded-md shadow-sm">
-        <%= text_input(f, :email,
-          required: true,
-          autocomplete: "email",
-          phx_debounce: "blur",
-          class:
-            "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-        ) %>
+    <div class="px-2 py-3 mt-2 -mx-2 border-2 border-gray-300 border-dashed rounded-md">
+      <div class="">
+        <%= label f, :email, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+          Email
+        <% end %>
+        <div class="mt-1 rounded-md shadow-sm">
+          <%= text_input(f, :email,
+            disabled: @action == :edit_profile,
+            required: true,
+            autocomplete: "email",
+            phx_debounce: "blur",
+            class:
+              "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none"
+          ) %>
+        </div>
+        <%= error_tag(f, :email) %>
       </div>
-      <%= error_tag(f, :email) %>
-    </div>
 
-    <div class="mt-2">
-      <%= label f, :phone, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-        Phone number
-      <% end %>
-      <div class="mt-1 rounded-md shadow-sm">
-        <%= text_input(f, :phone,
-          required: true,
-          autocomplete: "tel",
-          phx_debounce: "blur",
-          class:
-            "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-        ) %>
+      <div class="mt-2">
+        <%= label f, :phone, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+          Phone number
+        <% end %>
+        <div class="mt-1 rounded-md shadow-sm">
+          <%= text_input(f, :phone,
+            disabled: @action == :edit_profile,
+            required: true,
+            autocomplete: "tel",
+            phx_debounce: "blur",
+            class:
+              "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none"
+          ) %>
+        </div>
+        <%= error_tag(f, :phone) %>
       </div>
-      <%= error_tag(f, :phone) %>
+      <%= if @action == :edit_profile do %>
+        <div class="mt-2 text-sm">
+          If you wish to update your contact information please email info@bikebrigade.ca
+        </div>
+      <% end %>
     </div>
 
     <div class="mt-2">
@@ -114,92 +130,96 @@
       <LocationForm.component for={l} label="Rider Location" />
     <% end %>
 
-    <div class="mt-2">
-      <%= label f, :internal_notes, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-        Notes (internal)
-      <% end %>
-      <div class="mt-1 rounded-md shadow-sm">
-        <%= textarea(f, :internal_notes,
-          class:
-            "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5",
-          placeholder: "These are for Bike Brigade use, and not shared with riders"
-        ) %>
+    <%= if @action == :edit do %>
+      <div class="mt-2">
+        <%= label f, :internal_notes, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+          Notes (internal)
+        <% end %>
+        <div class="mt-1 rounded-md shadow-sm">
+          <%= textarea(f, :internal_notes,
+            class:
+              "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5",
+            placeholder: "These are for Bike Brigade use, and not shared with riders"
+          ) %>
+        </div>
+        <%= error_tag(f, :internal_notes) %>
       </div>
-      <%= error_tag(f, :internal_notes) %>
-    </div>
 
-    <div class="mt-2">
-      <%= label f, :max_distance, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-        Max distance
-      <% end %>
-      <div class="mt-1 rounded-md shadow-sm">
-        <%= text_input(f, :max_distance,
-          required: true,
-          phx_debounce: "blur",
-          class:
-            "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-        ) %>
+      <div class="mt-2">
+        <%= label f, :max_distance, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+          Max distance
+        <% end %>
+        <div class="mt-1 rounded-md shadow-sm">
+          <%= text_input(f, :max_distance,
+            required: true,
+            phx_debounce: "blur",
+            class:
+              "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+          ) %>
+        </div>
+        <%= error_tag(f, :max_distance) %>
       </div>
-      <%= error_tag(f, :max_distance) %>
-    </div>
-    <div class="mt-2">
-      <%= label f, :last_safety_check, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-        Last Safety Check
-      <% end %>
-      <div class="mt-1 rounded-md shadow-sm">
-        <%= date_input(f, :last_safety_check,
-          placeholder: "YYYY-MM-DD",
-          phx_debounce: "blur",
-          class:
-            "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-        ) %>
+      <div class="mt-2">
+        <%= label f, :last_safety_check, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+          Last Safety Check
+        <% end %>
+        <div class="mt-1 rounded-md shadow-sm">
+          <%= date_input(f, :last_safety_check,
+            placeholder: "YYYY-MM-DD",
+            phx_debounce: "blur",
+            class:
+              "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+          ) %>
+        </div>
+        <%= error_tag(f, :last_safety_check) %>
       </div>
-      <%= error_tag(f, :last_safety_check) %>
-    </div>
-    <div class="flex mt-4 space-x-2 items-top">
-      <div class="rounded-md shadow-sm">
-        <%= checkbox(f, :text_based_itinerary,
-          phx_debounce: "blur",
-          class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-        ) %>
+
+      <div class="flex mt-4 space-x-2 items-top">
+        <div class="rounded-md shadow-sm">
+          <%= checkbox(f, :text_based_itinerary,
+            phx_debounce: "blur",
+            class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+          ) %>
+        </div>
+        <%= label f, :text_based_itinerary, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+          Send text-only delivery instructions
+          <p class="text-gray-500">
+            Enable this for riders without smartphones or data plans and they'll get a second message with instructions after you send the link.
+          </p>
+        <% end %>
       </div>
-      <%= label f, :text_based_itinerary, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-        Send text-only delivery instructions
-        <p class="text-gray-500">
-          Enable this for riders without smartphones or data plans and they'll get a second message with instructions after you send the link.
-        </p>
-      <% end %>
-    </div>
-    <div class="pt-8">
-      <div>
-        <h3 class="text-lg font-medium leading-6 text-gray-900">
-          Flags
-        </h3>
-        <p class="mt-1 text-sm text-gray-500">
-          Opt the rider into various features
-        </p>
-      </div>
-      <%= for flag_form <- inputs_for(f, :flags) do %>
-        <div class="mt-4 space-y-4">
-          <div class="relative flex items-start">
-            <div class="flex items-center h-5">
-              <%= checkbox(flag_form, :opt_in_to_new_number,
-                phx_debounce: "blur",
-                class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-              ) %>
-            </div>
-            <div class="ml-3 text-sm">
-              <%= label flag_form, :opt_in_to_new_number, class: "font-medium text-gray-700" do %>
-                Use toll-free number for texting
-              <% end %>
-              <p class="text-gray-500">
-                Use 1-855 number when messaging this rider. Note that Freedom mobile has issues with sending picture messages to this number, so this should be turned off for Freedom users, switching them to the 647 number.
-              </p>
+
+      <div class="pt-8">
+        <div>
+          <h3 class="text-lg font-medium leading-6 text-gray-900">
+            Flags
+          </h3>
+          <p class="mt-1 text-sm text-gray-500">
+            Opt the rider into various features
+          </p>
+        </div>
+        <%= for flag_form <- inputs_for(f, :flags) do %>
+          <div class="mt-4 space-y-4">
+            <div class="relative flex items-start">
+              <div class="flex items-center h-5">
+                <%= checkbox(flag_form, :opt_in_to_new_number,
+                  phx_debounce: "blur",
+                  class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                ) %>
+              </div>
+              <div class="ml-3 text-sm">
+                <%= label flag_form, :opt_in_to_new_number, class: "font-medium text-gray-700" do %>
+                  Use toll-free number for texting
+                <% end %>
+                <p class="text-gray-500">
+                  Use 1-855 number when messaging this rider. Note that Freedom mobile has issues with sending picture messages to this number, so this should be turned off for Freedom users, switching them to the 647 number.
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      <% end %>
-    </div>
+        <% end %>
+      </div>
+    <% end %>
     <div class="flex justify-end mt-6">
       <C.button type="save" phx_disable_with="Saving...">
         Save
