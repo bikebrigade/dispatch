@@ -74,5 +74,12 @@ defmodule BikeBrigade.AccountsTest do
       user = fixture(:user)
       assert %Ecto.Changeset{} = Accounts.change_user(user)
     end
+
+    test "create_user_for_rider/1 creates a user for a rider" do
+      rider = fixture(:rider)
+      assert {:ok, %User{} = user} = Accounts.create_user_for_rider(rider)
+      assert {user.name, user.phone, user.email} == {rider.name, rider.phone, rider.email}
+      assert !user.is_dispatcher
+    end
   end
 end
