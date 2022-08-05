@@ -63,10 +63,16 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
   end
 
   defp apply_action(socket, :profile, _params) do
-    socket
-    |> assign(:page_title, "Profile")
-    |> assign(:page, :profile)
-    |> assign_rider(socket.assigns.current_user.rider_id)
+    if socket.assigns.current_user.rider_id do
+      socket
+      |> assign(:page_title, "Profile")
+      |> assign(:page, :profile)
+      |> assign_rider(socket.assigns.current_user.rider_id)
+    else
+      socket
+      |> put_flash(:error, "You must be registered as a Rider to edit your profile")
+      |> push_redirect(to: "/")
+    end
   end
 
   defp apply_action(socket, :edit_profile, _params) do
