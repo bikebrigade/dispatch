@@ -4,7 +4,7 @@
 >
   <div class="items-center block font-medium xl:flex">
     <p>
-      Itinerary for 
+      Itinerary for
       <%= Calendar.strftime(@date, "%A %B %-d, %Y") %>
     </p>
     <div class="flex justify-between flex-1 text-gray-500 xl:ml-3">
@@ -16,19 +16,19 @@
   </div>
   <div class="flex justify-end flex-1">
     <span class="relative z-0 inline-flex rounded-md shadow-sm">
-      <%= live_patch to: Routes.itinerary_index_path(@socket, :index, date: Date.add(@date, -1)), 
+      <%= live_patch to: Routes.itinerary_index_path(@socket, :index, date: Date.add(@date, -1)),
         aria_label: "Previous Day",
         class: "relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
 do %>
         <Heroicons.Solid.chevron_left class="w-5 h-5" />
       <% end %>
-      <%= live_patch to: Routes.itinerary_index_path(@socket, :index, date: LocalizedDateTime.today), 
+      <%= live_patch to: Routes.itinerary_index_path(@socket, :index, date: LocalizedDateTime.today),
         class: "relative items-center hidden px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 sm:inline-flex hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
 do %>
         Today
       <% end %>
 
-      <%= live_patch to: Routes.itinerary_index_path(@socket, :index, date: Date.add(@date, 1)), 
+      <%= live_patch to: Routes.itinerary_index_path(@socket, :index, date: Date.add(@date, 1)),
         aria_label: "Next Day",
         class: "relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
 do %>
@@ -38,7 +38,7 @@ do %>
   </div>
 </nav>
 <%= if @campaigns != [] do %>
-  <%= for {campaign, task_count, token} <- @campaigns do %>
+  <%= for {campaign, token, tasks} <- @campaigns do %>
     <div class="flex w-full bg-white shadow sm:my-1 sm:rounded-md">
       <ul role="list" class="w-full divide-y divide-gray-200">
           <li id={"campaign-#{campaign.id}"}>
@@ -78,7 +78,7 @@ do %>
                       aria-label="Location"
                       class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
                     />
-                    <%= task_count %> Food <%= Inflex.inflect("Hamper", task_count)%>
+                    <%= humanized_task_count(tasks) %>
                   </p>
                 </div>
               </div>
