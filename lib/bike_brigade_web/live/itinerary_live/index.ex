@@ -70,6 +70,6 @@ defmodule BikeBrigadeWeb.ItineraryLive.Index do
   end
 
   defp get_task_count(campaigns) do
-    Enum.reduce(campaigns, 0, fn {_campaign, task_count}, acc -> task_count + acc end)
+    Enum.reduce(campaigns, 0, fn {_campaign, task_count, _token}, acc -> task_count + acc end)
   end
 end

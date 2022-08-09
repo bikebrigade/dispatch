@@ -139,15 +139,16 @@ defmodule BikeBrigade.Riders do
     query =
       from c in Campaign,
         as: :campaign,
-        join: r in assoc(c, :riders),
+        join: cr in assoc(c, :campaign_riders),
+        join: r in assoc(cr, :rider),
         where: r.id == ^rider.id,
         left_join: t in assoc(c, :tasks),
         on: t.assigned_rider_id == ^rider.id,
-        group_by: c.id,
+        group_by: [c.id, cr.id],
         order_by: [asc: c.delivery_start],
         where: ^where,
         preload: [:program, :location],
-        select: {c, count(t)}
+        select: {c, count(t), cr.token}
 
     Repo.all(query)
   end

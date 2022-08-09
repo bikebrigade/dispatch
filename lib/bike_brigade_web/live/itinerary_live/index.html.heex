@@ -38,7 +38,7 @@ do %>
   </div>
 </nav>
 <%= if @campaigns != [] do %>
-  <%= for {campaign, task_count} <- @campaigns do %>
+  <%= for {campaign, task_count, token} <- @campaigns do %>
     <div class="flex w-full bg-white shadow sm:my-1 sm:rounded-md">
       <ul role="list" class="w-full divide-y divide-gray-200">
           <li id={"campaign-#{campaign.id}"}>
@@ -52,7 +52,7 @@ do %>
                 </div>
                 <div class="flex-shrink-0 space-y-1 md:space-y-0 md:space-x-2 md:flex">
                   <C.button
-                    patch_to={Routes.campaign_show_path(@socket, :show, campaign)}
+                    patch_to={Routes.delivery_show_path(@socket, :show, token)}
                     size={:medium}
                   >
                     Details
