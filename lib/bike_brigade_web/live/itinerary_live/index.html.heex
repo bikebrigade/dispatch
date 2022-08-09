@@ -8,9 +8,9 @@
       <%= Calendar.strftime(@date, "%A %B %-d, %Y") %>
     </p>
     <div class="flex justify-between flex-1 text-gray-500 xl:ml-3">
-      <%= if @campaigns != [] do %>
-        <%= get_task_count(@campaigns) %> <%= Inflex.inflect("delivery", get_task_count(@campaigns)) %> for
-        <%= length(@campaigns) %> <%= Inflex.inflect("campaign", length(@campaigns)) %>
+      <%= if @campaign_riders != [] do %>
+        <%= get_task_count(@campaign_riders) %> <%= Inflex.inflect("delivery", get_task_count(@campaign_riders)) %> for
+        <%= length(@campaign_riders) %> <%= Inflex.inflect("campaign", length(@campaign_riders)) %>
       <% end %>
     </div>
   </div>
@@ -37,22 +37,22 @@ do %>
     </span>
   </div>
 </nav>
-<%= if @campaigns != [] do %>
-  <%= for {campaign, token, tasks} <- @campaigns do %>
+<%= if @campaign_riders != [] do %>
+  <%= for cr <- @campaign_riders do %>
     <div class="flex w-full bg-white shadow sm:my-1 sm:rounded-md">
       <ul role="list" class="w-full divide-y divide-gray-200">
-          <li id={"campaign-#{campaign.id}"}>
+          <li id={"campaign-#{cr.campaign.id}"}>
             <div class="px-4 py-4">
               <div class="items-center justify-between md:flex">
                 <div class="flex items-center mb-2 space-x-1">
-                  <%= live_redirect(name(campaign),
-                    to: Routes.campaign_show_path(@socket, :show, campaign),
+                  <%= live_redirect(name(cr.campaign),
+                    to: Routes.campaign_show_path(@socket, :show, cr.campaign),
                     class: "link font-bold"
                   ) %>
                 </div>
                 <div class="flex-shrink-0 space-y-1 md:space-y-0 md:space-x-2 md:flex">
                   <C.button
-                    patch_to={Routes.delivery_show_path(@socket, :show, token)}
+                    patch_to={Routes.delivery_show_path(@socket, :show, cr.token)}
                     size={:medium}
                   >
                     Details
@@ -66,11 +66,11 @@ do %>
                       aria-label="Pickup Time"
                       class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
                     />
-                    <%= pickup_window(campaign) %>
+                    <%= pickup_window(cr.campaign) %>
                   </p>
                 </div>
               </div>
-              <.get_location campaign={campaign} />
+              <.get_location campaign={cr.campaign} />
               <div class="mt-2 sm:flex sm:justify-between">
                 <div class="sm:flex">
                   <p class="flex items-center text-sm text-gray-500">
@@ -78,7 +78,7 @@ do %>
                       aria-label="Location"
                       class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
                     />
-                    <%= humanized_task_count(tasks) %>
+                    <%= humanized_task_count(cr.campaign.tasks) %>
                   </p>
                 </div>
               </div>

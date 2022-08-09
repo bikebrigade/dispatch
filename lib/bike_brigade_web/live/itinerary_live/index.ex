@@ -37,8 +37,8 @@ defmodule BikeBrigadeWeb.ItineraryLive.Index do
     if rider_id do
       socket
       |> assign(
-        :campaigns,
-        fetch_campaigns(rider_id, date)
+        :campaign_riders,
+        Riders.get_itinerary(rider_id, date)
       )
     else
       socket
@@ -46,30 +46,6 @@ defmodule BikeBrigadeWeb.ItineraryLive.Index do
       |> put_flash(:error, "User is not associated with a rider!")
     end
     |> assign(:date, date)
-  end
-
-  def fetch_campaigns(rider_id, date) do
-    # In the future we may have current_user.rider preloaded, but for now we will load it in `fetch_campaigns/2`
-
-    # campaigns = Riders.get_rider!(rider_id)
-    # |> Riders.list_campaigns_with_task_counts(date)
-
-    # We want: [{CampaignRider, Campaign, Tasks}] for a given date
-    start_of_day = LocalizedDateTime.new!(date, ~T[00:00:00])
-    end_of_day = LocalizedDateTime.new!(date, ~T[23:59:59])
-
-    campaign_riders =
-      BikeBrigade.Repo.all(BikeBrigade.Delivery.CampaignRider)
-      |> BikeBrigade.Repo.preload(campaign: [:location, :program, tasks: [task_items: [:item]]])
-      |> Enum.filter(fn cr -> cr.rider_id == rider_id end)
-      |> Enum.filter(fn cr ->
-        cr.campaign.delivery_start >= start_of_day && cr.campaign.delivery_end <= end_of_day
-      end)
-
-    for cr <- campaign_riders do
-      tasks = Enum.filter(cr.campaign.tasks, fn t -> t.assigned_rider_id == cr.rider_id end)
-      {cr.campaign, cr.token, tasks}
-    end
   end
 
   defp get_location(assigns) do
@@ -88,9 +64,9 @@ defmodule BikeBrigadeWeb.ItineraryLive.Index do
     """
   end
 
-  defp get_task_count(campaigns) do
-    Enum.reduce(campaigns, 0, fn {_campaign, _token, tasks}, task_count ->
-      task_count + Enum.count(tasks)
-    end)
+  defp get_task_count(campaign_riders) do
+    campaign_riders
+    |> Enum.map(fn cr -> length(cr.campaign.tasks) end)
+    |> Enum.sum()
   end
 end
