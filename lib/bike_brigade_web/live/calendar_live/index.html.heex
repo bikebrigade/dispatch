@@ -91,7 +91,7 @@
                     <%= opportunity.program.campaign_blurb %>
                   </div>
                 <% end %>
-                <%= if opportunity.program.items != []  do %>
+                <%= if Enum.filter(opportunity.program.items, fn item -> not item.hidden end) != []  do %>
                   <div class="flex items-start text-sm text-gray-300">
                     <Heroicons.Outline.shopping_bag
                       aria-label="Pickup Time"
@@ -99,7 +99,7 @@
                     />
                     <div class="flex flex-col">
                       You'll be delivering:
-                      <%= for item <- opportunity.program.items do %>
+                      <%= for item when not item.hidden <- opportunity.program.items do %>
                         <p class="text-sm text-gray-300">
                           <span class="font-bold"><%= item.name %></span> -
                           <%= item.description %>

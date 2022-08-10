@@ -8,65 +8,81 @@ defmodule BikeBrigadeWeb.Components.Sidebar do
   def component(assigns) do
     ~H"""
     <div>
+      <%= if @is_dispatcher do %>
+        <div class="pb-2 mb-2 border-b border-gray-200 border-dashed">
+          <.sidebar_link
+            selected={@current_page == :programs}
+            to={Routes.program_index_path(@socket, :index)}
+          >
+            <:icon let={class}>
+              <Heroicons.Outline.collection class={class} />
+            </:icon>
+            Programs
+          </.sidebar_link>
+          <.sidebar_link
+            selected={@current_page == :campaigns}
+            to={Routes.campaign_index_path(@socket, :index)}
+          >
+            <:icon let={class}>
+              <Heroicons.Outline.cube class={class} />
+            </:icon>
+            Campaigns
+          </.sidebar_link>
+          <.sidebar_link
+            selected={@current_page == :opportunities}
+            to={Routes.opportunity_index_path(@socket, :index)}
+          >
+            <:icon let={class}>
+              <Heroicons.Outline.clipboard_list class={class} />
+            </:icon>
+            Opportunities
+          </.sidebar_link>
+          <.sidebar_link
+            selected={@current_page == :riders}
+            to={Routes.rider_index_path(@socket, :index)}
+          >
+            <:icon let={class}>
+              <Heroicons.Outline.user_group class={class} />
+            </:icon>
+            Riders
+          </.sidebar_link>
+          <.sidebar_link
+            selected={@current_page == :stats}
+            to={Routes.stats_dashboard_path(@socket, :show)}
+          >
+            <:icon let={class}>
+              <Heroicons.Outline.chart_bar class={class} />
+            </:icon>
+            Stats
+          </.sidebar_link>
+          <.sidebar_link
+            selected={@current_page == :dispatchers}
+            to={Routes.user_index_path(@socket, :index)}
+          >
+            <:icon let={class}>
+              <Heroicons.Outline.users class={class} />
+            </:icon>
+            Dispatchers
+          </.sidebar_link>
+          <.sidebar_link
+            selected={@current_page == :messages}
+            to={Routes.sms_message_index_path(@socket, :index)}
+          >
+            <:icon let={class}>
+              <Heroicons.Outline.chat class={class} />
+            </:icon>
+            Messages
+          </.sidebar_link>
+        </div>
+      <% end %>
       <.sidebar_link
-        selected={@current_page == :programs}
-        to={Routes.program_index_path(@socket, :index)}
+        selected={@current_page == :profile}
+        to={Routes.rider_show_path(@socket, :profile)}
       >
         <:icon let={class}>
-          <Heroicons.Outline.collection class={class} />
+          <Heroicons.Outline.user_circle class={class} />
         </:icon>
-        Programs
-      </.sidebar_link>
-      <.sidebar_link
-        selected={@current_page == :campaigns}
-        to={Routes.campaign_index_path(@socket, :index)}
-      >
-        <:icon let={class}>
-          <Heroicons.Outline.cube class={class} />
-        </:icon>
-        Campaigns
-      </.sidebar_link>
-      <.sidebar_link
-        selected={@current_page == :opportunities}
-        to={Routes.opportunity_index_path(@socket, :index)}
-      >
-        <:icon let={class}>
-          <Heroicons.Outline.clipboard_list class={class} />
-        </:icon>
-        Opportunities
-      </.sidebar_link>
-      <.sidebar_link selected={@current_page == :riders} to={Routes.rider_index_path(@socket, :index)}>
-        <:icon let={class}>
-          <Heroicons.Outline.user_group class={class} />
-        </:icon>
-        Riders
-      </.sidebar_link>
-      <.sidebar_link
-        selected={@current_page == :stats}
-        to={Routes.stats_dashboard_path(@socket, :show)}
-      >
-        <:icon let={class}>
-          <Heroicons.Outline.chart_bar class={class} />
-        </:icon>
-        Stats
-      </.sidebar_link>
-      <.sidebar_link
-        selected={@current_page == :dispatchers}
-        to={Routes.user_index_path(@socket, :index)}
-      >
-        <:icon let={class}>
-          <Heroicons.Outline.users class={class} />
-        </:icon>
-        Dispatchers
-      </.sidebar_link>
-      <.sidebar_link
-        selected={@current_page == :messages}
-        to={Routes.sms_message_index_path(@socket, :index)}
-      >
-        <:icon let={class}>
-          <Heroicons.Outline.chat class={class} />
-        </:icon>
-        Messages
+        My Profile
       </.sidebar_link>
       <.sidebar_link
         selected={@current_page == :logout}

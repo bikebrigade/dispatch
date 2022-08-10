@@ -19,6 +19,7 @@ defmodule BikeBrigade.Delivery.Item do
     field :description, :string
     field :name, :string
     field :photo, :string
+    field :hidden, :boolean
 
     belongs_to :program, Program
 
@@ -28,7 +29,7 @@ defmodule BikeBrigade.Delivery.Item do
   @doc false
   def changeset(item, attrs) do
     item
-    |> cast(attrs, [:program_id, :name, :description, :category, :photo])
+    |> cast(attrs, [:program_id, :name, :description, :category, :photo, :hidden])
     |> validate_required([:program_id, :name, :category])
   end
 end

@@ -8,7 +8,7 @@ defmodule BikeBrigadeWeb.Features.LoginTest do
   alias BikeBrigade.SmsService.FakeSmsService
 
   feature "user can visit homepage", %{session: session} do
-    user = fixture(:user)
+    user = fixture(:user, %{is_dispatcher: true})
 
     session
     |> visit("/login")

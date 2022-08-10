@@ -76,6 +76,19 @@ defmodule BikeBrigadeWeb.Authentication do
     end
   end
 
+  def require_dispatcher(conn, _opts) do
+    case conn.assigns[:current_user] do
+      %{is_dispatcher: true} ->
+        conn
+
+      _ ->
+        conn
+        |> put_flash(:error, "You must be a dispatcher to access this page.")
+        |> redirect(to: Routes.login_path(conn, :index))
+        |> halt()
+    end
+  end
+
   def redirect_if_user_is_authenticated(conn, _opts) do
     if conn.assigns[:current_user] do
       conn

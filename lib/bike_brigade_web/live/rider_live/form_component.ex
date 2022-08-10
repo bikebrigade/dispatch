@@ -3,6 +3,7 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
 
   alias BikeBrigade.Repo
   alias BikeBrigade.Locations.Location
+  alias BikeBrigade.Accounts
   alias BikeBrigade.Riders
   alias BikeBrigade.Riders.Rider
   alias BikeBrigadeWeb.Components.LocationForm
@@ -108,6 +109,22 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
 
   def handle_event("save", %{"rider_form" => rider_form_params}, socket) do
     save_rider(socket, socket.assigns.action, rider_form_params)
+  end
+
+  def handle_event("enable-login", _params, socket) do
+    socket =
+      case Accounts.create_user_for_rider(socket.assigns.rider) do
+        {:ok, _user} ->
+          socket
+          |> put_flash(:info, "Login enabled")
+          |> push_redirect(to: socket.assigns.return_to)
+
+        {:error, _error} ->
+          socket
+          |> put_flash(:error, "Unable to enable login")
+      end
+
+    {:noreply, socket}
   end
 
   defp save_rider(socket, :edit, rider_form_params) do

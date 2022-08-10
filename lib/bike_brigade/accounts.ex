@@ -7,6 +7,7 @@ defmodule BikeBrigade.Accounts do
   alias BikeBrigade.Repo
 
   alias BikeBrigade.Accounts.User
+  alias BikeBrigade.Riders.Rider
 
   @doc """
   Returns the list of users.
@@ -77,6 +78,17 @@ defmodule BikeBrigade.Accounts do
   Creates a user (using the admin changeset).
   """
   def create_user_as_admin(attrs \\ %{}) do
+    %User{}
+    |> User.admin_changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Creates a user for a given rider
+  """
+  def create_user_for_rider(%Rider{} = rider) do
+    attrs = %{rider_id: rider.id, name: rider.name, email: rider.email, phone: rider.phone}
+
     %User{}
     |> User.admin_changeset(attrs)
     |> Repo.insert()

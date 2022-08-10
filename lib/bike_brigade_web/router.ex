@@ -15,6 +15,7 @@ defmodule BikeBrigadeWeb.Router do
   import BikeBrigadeWeb.Authentication,
     only: [
       require_authenticated_user: 2,
+      require_dispatcher: 2,
       redirect_if_user_is_authenticated: 2,
       get_user_from_session: 2
     ]
@@ -50,7 +51,7 @@ defmodule BikeBrigadeWeb.Router do
   end
 
   scope "/analytics" do
-    pipe_through [:sessions, :fetch_live_flash, :require_authenticated_user]
+    pipe_through [:sessions, :fetch_live_flash, :require_dispatcher]
 
     forward "/", ReverseProxyPlug,
       upstream: get_config(:analytics_upstream),
@@ -81,9 +82,18 @@ defmodule BikeBrigadeWeb.Router do
   scope "/", BikeBrigadeWeb do
     pipe_through [:browser, :require_authenticated_user, :set_honeybadger_context]
 
-    get "/", Plugs.Redirect, to: "/campaigns"
+    get "/", Plugs.RedirectUser, dispatcher: [to: "/campaigns"], default: [to: "/profile"]
 
-    live_session :dispatch, on_mount: LiveHooks.Authentication do
+    live_session :user, on_mount: LiveHooks.Authentication do
+      live "/profile", RiderLive.Show, :profile
+      live "/profile/edit", RiderLive.Show, :edit_profile
+    end
+  end
+
+  scope "/", BikeBrigadeWeb do
+    pipe_through [:browser, :require_dispatcher, :set_honeybadger_context]
+
+    live_session :dispatch, on_mount: {LiveHooks.Authentication, :require_dispatcher} do
       live "/riders", RiderLive.Index, :index
       live "/riders/new", RiderLive.Index, :new
       live "/riders/:id/edit", RiderLive.Index, :edit
@@ -229,5 +239,27 @@ defmodule BikeBrigadeWeb.Plugs.Redirect do
     |> put_status(status)
     |> redirect(options)
     |> halt()
+  end
+end
+
+defmodule BikeBrigadeWeb.Plugs.RedirectUser do
+  alias BikeBrigadeWeb.Plugs.Redirect
+
+  @behaviour Plug
+
+  @impl Plug
+  def init(options) do
+    options
+  end
+
+  @impl Plug
+  def call(conn, options) do
+    case conn.assigns.current_user do
+      %{is_dispatcher: true} ->
+        Redirect.call(conn, options[:dispatcher])
+
+      _ ->
+        Redirect.call(conn, options[:default])
+    end
   end
 end
