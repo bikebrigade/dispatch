@@ -42,7 +42,7 @@ defmodule BikeBrigadeWeb.ItineraryLive.Index do
       )
     else
       socket
-      |> assign(:campaigns, [])
+      |> assign(:campaign_riders, [])
       |> put_flash(:error, "User is not associated with a rider!")
     end
     |> assign(:date, date)
