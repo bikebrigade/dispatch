@@ -209,7 +209,7 @@
               <%= if date == @today, do: "Today", else: format_date(date) %>
             </h4>
             <%= if !Enum.empty?(campaigns) do %>
-              <%= for {campaign, task_count, _token} <- campaigns do %>
+              <%= for {campaign, task_count} <- campaigns do %>
                 <div class="mb-3">
                   <span class="text-sm text-gray-500"><%= pickup_window(campaign) %></span>
                   <p class="font-bold leading-snug">
