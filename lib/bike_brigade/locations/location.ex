@@ -74,15 +74,35 @@ defmodule BikeBrigade.Locations.Location do
 
   defp parse_unit(address), do: {address, nil}
 
+  def print_address(location) do
+    case location do
+      %{unit: nil, buzzer: nil, address: address} ->
+        address
+
+      %{unit: unit, buzzer: nil, address: address} ->
+        "#{address} Unit #{unit}"
+
+      %{unit: nil, buzzer: buzzer, address: address} ->
+        "#{address} (Buzz #{buzzer})"
+
+      %{unit: unit, buzzer: buzzer, address: address} ->
+        "#{address} Unit #{unit} (Buzz #{buzzer})"
+    end
+  end
+
   defimpl String.Chars do
+    alias BikeBrigade.Locations.Location
+
     def to_string(location) do
-      "#{location.address}, #{location.city}, #{location.postal}"
+      "#{Location.print_address(location)}, #{location.city}, #{location.postal}"
     end
   end
 
   defimpl Phoenix.HTML.Safe do
+    alias BikeBrigade.Locations.Location
+
     def to_iodata(location) do
-      [location.address, ", ", location.city, ", ", location.postal]
+      [Location.print_address(location), ", ", location.city, ", ", location.postal]
     end
   end
 end

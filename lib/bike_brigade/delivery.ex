@@ -5,7 +5,6 @@ defmodule BikeBrigade.Delivery do
   alias BikeBrigade.LocalizedDateTime
 
   import Geo.PostGIS, only: [st_distance: 2]
-
   alias BikeBrigade.Riders.Rider
 
   alias BikeBrigade.Messaging
