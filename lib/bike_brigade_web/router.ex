@@ -87,6 +87,8 @@ defmodule BikeBrigadeWeb.Router do
     live_session :user, on_mount: LiveHooks.Authentication do
       live "/profile", RiderLive.Show, :profile
       live "/profile/edit", RiderLive.Show, :edit_profile
+
+      live "/itinerary", ItineraryLive.Index, :index
     end
   end
 
@@ -125,8 +127,6 @@ defmodule BikeBrigadeWeb.Router do
       live "/opportunities", OpportunityLive.Index, :index
       live "/opportunities/new", OpportunityLive.Index, :new
       live "/opportunities/:id/edit", OpportunityLive.Index, :edit
-
-      live "/itinerary", ItineraryLive.Index, :index
 
       live "/items", ItemLive.Index, :index
       live "/items/new", ItemLive.Index, :new
