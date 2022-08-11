@@ -81,11 +81,15 @@ defmodule BikeBrigade.Repo.Seeds.Seeder do
   end
 
   def task_for_campaign(campaign) do
+    item = Enum.random(Delivery.list_items(campaign.program_id))
+    count = Enum.random(1..5)
+
     {:ok, %Delivery.Task{} = task} =
       campaign
       |> Delivery.create_task_for_campaign(%{
         dropoff_name: Faker.Person.first_name(),
-        dropoff_location: Toronto.random_location()
+        dropoff_location: Toronto.random_location(),
+        task_items: [%{item_id: item.id, count: count}]
       })
 
     task
