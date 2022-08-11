@@ -9,7 +9,7 @@ defmodule BikeBrigadeWeb.UserLive.Index do
     if socket.assigns.current_user.is_dispatcher do
       {:ok,
        socket
-       |> assign(:page, :dispatchers)
+       |> assign(:page, :users)
        |> assign(:users, list_users())}
     else
       {:ok,

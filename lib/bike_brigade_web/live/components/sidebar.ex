@@ -56,13 +56,13 @@ defmodule BikeBrigadeWeb.Components.Sidebar do
             Stats
           </.sidebar_link>
           <.sidebar_link
-            selected={@current_page == :dispatchers}
+            selected={@current_page == :users}
             to={Routes.user_index_path(@socket, :index)}
           >
             <:icon let={class}>
               <Heroicons.Outline.users class={class} />
             </:icon>
-            Dispatchers
+            Users
           </.sidebar_link>
           <.sidebar_link
             selected={@current_page == :messages}
