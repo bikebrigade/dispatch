@@ -1,46 +1,32 @@
 defmodule BikeBrigadeWeb.RiderLiveTest do
   use BikeBrigadeWeb.ConnCase
 
-  alias BikeBrigade.Accounts
   alias BikeBrigade.LocalizedDateTime
 
   import Phoenix.LiveViewTest
 
-  describe "Index" do
-    setup [:create_rider, :login]
+  describe "Itinerary for User without associated Rider" do
+    setup [:login]
 
-    test "Displays error when user has no rider", %{conn: conn, user: user} do
-      # Make sure we actually don't have a rider
-      assert user.rider_id == nil
-
+    test "Displays error when user has no rider", %{conn: conn} do
       {:ok, _index_live, html} = live(conn, Routes.itinerary_index_path(conn, :index))
 
       assert html =~ "Itinerary"
       assert html =~ "User is not associated with a rider!"
     end
+  end
 
-    test "Doesn't have error when user has a rider", %{conn: conn, user: user, rider: rider} do
-      # Associate the user with a rider
-      # In the future the fixture may do this for us
-      {:ok, user} = Accounts.update_user_as_admin(user, %{rider_id: rider.id})
+  describe "Itinerary for User with associated Rider" do
+    setup [:login_as_rider]
 
-      # Make sure we actually have a rider
-      assert user.rider_id != nil
-
+    test "doesn't show an error", %{conn: conn} do
       {:ok, _index_live, html} = live(conn, Routes.itinerary_index_path(conn, :index))
 
       assert html =~ "Itinerary"
       refute html =~ "User is not associated with a rider!"
     end
 
-    test "No campaigns for today's date", %{conn: conn, user: user, rider: rider} do
-      # Associate the user with a rider
-      # In the future the fixture may do this for us
-      {:ok, user} = Accounts.update_user_as_admin(user, %{rider_id: rider.id})
-
-      # Make sure we actually have a rider
-      assert user.rider_id != nil
-
+    test "shows days without campaigns", %{conn: conn} do
       {:ok, _index_live, html} = live(conn, Routes.itinerary_index_path(conn, :index))
 
       assert html =~ "Itinerary"
@@ -48,14 +34,7 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
       assert html =~ "No campaigns found for this day."
     end
 
-    test "Go to previous day", %{conn: conn, user: user, rider: rider} do
-      # Associate the user with a rider
-      # In the future the fixture may do this for us
-      {:ok, user} = Accounts.update_user_as_admin(user, %{rider_id: rider.id})
-
-      # Make sure we actually have a rider
-      assert user.rider_id != nil
-
+    test "can go to previous day", %{conn: conn} do
       {:ok, view, html} = live(conn, Routes.itinerary_index_path(conn, :index))
 
       assert html =~ "Itinerary"
