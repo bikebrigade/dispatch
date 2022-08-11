@@ -1,7 +1,10 @@
 defmodule BikeBrigadeWeb.RiderLiveTest do
   use BikeBrigadeWeb.ConnCase
 
+  alias BikeBrigade.Delivery
   alias BikeBrigade.LocalizedDateTime
+
+  alias BikeBrigade.Repo.Seeds.Toronto
 
   import Phoenix.LiveViewTest
 
@@ -17,7 +20,7 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
   end
 
   describe "Itinerary for User with associated Rider" do
-    setup [:login_as_rider]
+    setup [:create_campaign, :login_as_rider]
 
     test "doesn't show an error", %{conn: conn} do
       {:ok, _index_live, html} = live(conn, Routes.itinerary_index_path(conn, :index))
@@ -47,6 +50,57 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
       previous_day = Date.add(LocalizedDateTime.today(), -1)
 
       assert html =~ Calendar.strftime(previous_day, "%A %B %-d, %Y")
+    end
+
+    test "can go to next day", %{conn: conn} do
+      {:ok, view, html} = live(conn, Routes.itinerary_index_path(conn, :index))
+
+      assert html =~ "Itinerary"
+
+      html =
+        view
+        |> element("[aria-label='Next Day']")
+        |> render_click()
+
+      next_day = Date.add(LocalizedDateTime.today(), 1)
+
+      assert html =~ Calendar.strftime(next_day, "%A %B %-d, %Y")
+    end
+
+    test "displays itinerary with campaigns", %{
+      conn: conn,
+      rider: rider,
+      campaign: campaign,
+      program: program
+    } do
+      # TODO: make this a fixture
+      # Add rider to campaign
+      {:ok, campaign_rider} =
+        Delivery.create_campaign_rider(%{
+          campaign_id: campaign.id,
+          rider_id: rider.id
+        })
+
+      # Create a task assigned to rider
+      {:ok, task} =
+        Delivery.create_task_for_campaign(campaign, %{
+          dropoff_name: Faker.Person.first_name(),
+          dropoff_location: Toronto.random_location(),
+          task_items: [%{item_id: hd(program.items).id, count: 1}],
+          assigned_rider_id: rider.id
+        })
+
+      {:ok, view, html} = live(conn, Routes.itinerary_index_path(conn, :index))
+
+      assert html =~ program.name
+      assert html =~ "1 #{hd(program.items).name}"
+
+      # redirect to delivery details page
+      {:ok, _view, _html} =
+        view
+        |> element("a", "Details")
+        |> render_click()
+        |> follow_redirect(conn, "/app/delivery/#{campaign_rider.token}")
     end
   end
 end
