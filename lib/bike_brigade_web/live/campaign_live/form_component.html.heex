@@ -71,9 +71,7 @@
       ) %>
     </div>
 
-    <%= for l <- inputs_for(f, :location) do %>
-      <LocationForm.component for={l} label="Pickup Location" />
-    <% end %>
+    <.live_component module={LiveLocation} location={@campaign.location} id={@campaign.location.id} label="Pickup Location"/>
 
     <div class="my-2">
       <%= label f, :task_spreadsheet_url, class: "block text-sm font-medium leading-5 text-gray-700" do %>
