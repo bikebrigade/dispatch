@@ -4,10 +4,42 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
   alias Phoenix.LiveView.JS
   alias BikeBrigade.Locations.Location
 
+  @impl Phoenix.LiveComponent
+  def mount(socket) do
+    {:ok, socket}
+  end
+
+  @impl Phoenix.LiveComponent
+  def update(%{as: as, location: location} = assigns, socket) do
+    changeset = Location.changeset(location)
+    form = Phoenix.HTML.FormData.to_form(changeset, as: as)
+
+    {:ok,
+     socket
+     |> assign(assigns)
+     |> assign_new(:form, fn -> form end)}
+  end
+
+  @impl Phoenix.LiveComponent
+  def handle_event("geocode", %{"value" => value} = foo, socket) do
+    IO.inspect("geocode")
+
+    # eventually derived from value
+    params = %{address: "123 Max Lane"}
+    changeset = Location.changeset(socket.assigns.location, params)
+    form = Phoenix.HTML.FormData.to_form(changeset, as: socket.assigns.as)
+
+    {:noreply,
+     socket
+     |> assign(:form, form)}
+  end
+
+  @impl Phoenix.LiveComponent
   def render(assigns) do
     ~H"""
-    <div id={"location-form-#{@id}"} class="my-2">
-      <input type="hidden" name="campaign[location][coords]" value={dump_coords(@location)} />
+    <div id={@id} class="my-2">
+      <%= hidden_input(@form, :coords, value: dump_coords(@location)) %>
+
       <div class="text-sm font-medium leading-5 text-gray-700">
         <%= @label %>
       </div>
@@ -15,7 +47,7 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
         <div class="flex mt-1">
           <div class="w-full rounded-md shadow-sm">
             <input
-              phx-focus={show_edit_mode("location-form-#{@id}")}
+              phx-focus={show_edit_mode(@id)}
               phx-keydown="geocode"
               phx-target={@myself}
               type="text"
@@ -23,11 +55,7 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
               class="block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
             />
           </div>
-          <button
-            type="button"
-            class="hidden ml-1 edit-mode"
-            phx-click={hide_edit_mode("location-form-#{@id}")}
-          >
+          <button type="button" class="hidden ml-1 edit-mode" phx-click={hide_edit_mode(@id)}>
             <Heroicons.Solid.chevron_down class="w-5 h-5" />
           </button>
         </div>
@@ -39,15 +67,13 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
               </label>
               <%= @location.address %>
               <div class="mt-1 rounded-md shadow-sm">
-                <input
-                  type="text"
-                  name="campaign[location][address]"
-                  value={@location.address}
-                  required="true"
-                  phx-debounce="blur"
-                  autocomplete="street-address"
-                  class="block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-                />
+                <%= text_input(@form, :address,
+                  required: true,
+                  phx_debounce: "blur",
+                  autocomplete: "street-address",
+                  class:
+                    "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+                ) %>
               </div>
               <%= # error_tag(@location, :address) %>
             </div>
@@ -58,7 +84,7 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
               <div class="mt-1 rounded-md shadow-sm">
                 <input
                   type="text"
-                  name="campaign[location][unit]"
+                  name="campaign_form[location][unit]"
                   value={@location.unit}
                   class="block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
                 />
@@ -71,7 +97,7 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
               <div class="mt-1 rounded-md shadow-sm">
                 <input
                   type="text"
-                  name="campaign[location][buzzer]"
+                  name="campaign_form[location][buzzer]"
                   value={@location.buzzer}
                   class="block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
                 />
@@ -86,7 +112,7 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
               <div class="mt-1 rounded-md shadow-sm">
                 <input
                   type="text"
-                  name="campaign[location][postal]"
+                  name="campaign_form[location][postal]"
                   value={@location.postal}
                   required="true"
                   class="block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
@@ -101,7 +127,7 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
               <div class="mt-1 rounded-md shadow-sm">
                 <input
                   type="text"
-                  name="campaign[location][city]"
+                  name="campaign_form[location][city]"
                   value={@location.city}
                   required="true"
                   class="block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
@@ -116,7 +142,7 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
               <div class="mt-1 rounded-md shadow-sm">
                 <input
                   type="text"
-                  name="campaign[location][province]"
+                  name="campaign_form[location][province]"
                   value={@location.province}
                   required="true"
                   class="block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
@@ -131,7 +157,7 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
               <div class="mt-1 rounded-md shadow-sm">
                 <input
                   type="text"
-                  name="campaign[location][country]"
+                  name="campaign_form[location][country]"
                   value={@location.country}
                   required="true"
                   class="block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
@@ -163,25 +189,5 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
 
   defp cast_coords(location) do
     location.coords
-  end
-
-  @impl Phoenix.LiveComponent
-  def mount(socket) do
-    {:ok, socket}
-  end
-
-  @impl Phoenix.LiveComponent
-  def update(assigns, socket) do
-    {:ok, assign(socket, assigns)}
-  end
-
-  @impl Phoenix.LiveComponent
-  def handle_event("geocode", %{"value" => value} = foo, socket) do
-    IO.inspect(socket)
-
-    IO.inspect(foo)
-
-    {:noreply,
-     socket |> assign(:location, IO.inspect(Map.put(socket.assigns.location, :address, value)))}
   end
 end
