@@ -118,7 +118,7 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
           phx-debounce="50"
           name="search"
           autocomplete="off"
-          placeholder="Type to search for riders by name"
+          placeholder="Type to search for riders by name or phone number"
           class="block w-full px-3 py-2 placeholder-gray-400 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           form="select-form"
         />
