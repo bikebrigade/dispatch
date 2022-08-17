@@ -9,7 +9,6 @@ defmodule BikeBrigade.Riders.Rider do
   alias BikeBrigade.Repo
   alias BikeBrigade.Riders.{Tag, RidersTag, RiderLatestCampaign}
   alias BikeBrigade.Delivery.{Task, CampaignRider}
-  alias BikeBrigade.Messaging.{SmsMessage}
   alias BikeBrigade.Stats.RiderStats
 
   defenum(OnfleetAccountStatusEnum, invited: "invited", accepted: "accepted")
@@ -147,7 +146,7 @@ defmodule BikeBrigade.Riders.Rider do
 
   def soft_delete_changeset(rider) do
     rider
-    |> change(name: nil, phone: nil, email: nil, pronouns: nil, deleted_at: DateTime.utc_now())
+    |> change(name: "Deleted Rider", phone: nil, email: nil, pronouns: nil, deleted_at: DateTime.utc_now())
     |> put_assoc(:location, nil)
     |> put_assoc(:messages, [])
     |> put_assoc(:tags, [])

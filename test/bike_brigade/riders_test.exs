@@ -27,8 +27,7 @@ defmodule BikeBrigade.AccountsTest do
 
     test "removes riders's PII", %{rider: %{location_id: location_id} = rider} do
       assert {:ok, rider} = Riders.remove_rider(rider)
-
-      assert is_nil(rider.name)
+      assert rider.name == "Deleted Rider"
       assert is_nil(rider.phone)
       assert is_nil(rider.email)
       assert is_nil(rider.pronouns)
