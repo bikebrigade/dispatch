@@ -9,6 +9,7 @@ defmodule BikeBrigade.Riders.Rider do
   alias BikeBrigade.Repo
   alias BikeBrigade.Riders.{Tag, RidersTag, RiderLatestCampaign}
   alias BikeBrigade.Delivery.{Task, CampaignRider}
+  alias BikeBrigade.Messaging.{SmsMessage}
   alias BikeBrigade.Stats.RiderStats
 
   defenum(OnfleetAccountStatusEnum, invited: "invited", accepted: "accepted")
@@ -57,7 +58,7 @@ defmodule BikeBrigade.Riders.Rider do
     field :last_safety_check, :date
     field :internal_notes, :string
 
-    belongs_to :location, Location, on_replace: :update
+    belongs_to :location, Location, on_replace: :delete
 
     # TODO look into removing these virtuals
     field :distance, :integer, virtual: true
@@ -69,7 +70,7 @@ defmodule BikeBrigade.Riders.Rider do
     field :delivery_url_token, :string, virtual: true
     field :pickup_window, :string, virtual: true
 
-    has_one :user, User
+    has_one :user, User, on_replace: :delete_if_exists
 
     has_many :assigned_tasks, Task, foreign_key: :assigned_rider_id
     has_many :campaign_riders, CampaignRider
@@ -92,6 +93,9 @@ defmodule BikeBrigade.Riders.Rider do
     # TODO cleanup
     many_to_many :tags, Tag, join_through: RidersTag, on_replace: :delete
 
+    has_many :messages, SmsMessage, on_replace: :delete_if_exists
+
+    field :deleted_at, :utc_datetime_usec
     timestamps()
   end
 
@@ -139,6 +143,15 @@ defmodule BikeBrigade.Riders.Rider do
   def tags_changeset(changeset, tags) do
     changeset
     |> put_assoc(:tags, insert_and_get_all_tags(tags))
+  end
+
+  def soft_delete_changeset(rider) do
+    rider
+    |> change(name: nil, phone: nil, email: nil, pronouns: nil, deleted_at: DateTime.utc_now())
+    |> put_assoc(:location, nil)
+    |> put_assoc(:messages, [])
+    |> put_assoc(:tags, [])
+    |> put_assoc(:user, nil)
   end
 
   def set_signed_up_on(%Ecto.Changeset{} = changeset) do

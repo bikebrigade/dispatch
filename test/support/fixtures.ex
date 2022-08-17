@@ -10,7 +10,7 @@ defmodule BikeBrigade.Fixtures do
     coords: %Geo.Point{coordinates: {-79.4258633, 43.6539952}}
   }
 
-  def fixture(name), do: fixture(name, %{})
+  def fixture(name) when is_atom(name), do: fixture(name, %{})
 
   def fixture(:user, attrs) do
     {:ok, user} =
@@ -102,6 +102,12 @@ defmodule BikeBrigade.Fixtures do
     @location
   end
 
+  def fixture(:sms_message_from_rider, rider),
+    do: fixture(:sms_message_from_rider, rider, %{})
+
+  def fixture(:sms_message_to_rider, rider),
+    do: fixture(:sms_message_to_rider, rider, %{})
+
   def fixture(:sms_message, attrs) do
     defaults = %{
       incoming: true,
@@ -129,6 +135,14 @@ defmodule BikeBrigade.Fixtures do
     }
 
     Map.merge(defaults, attrs)
+  end
+
+  def fixture(:sms_message_from_rider, rider, attrs) do
+    fixture(:sms_message, Map.merge(attrs, %{rider_id: rider.id, from: rider.phone}))
+  end
+
+  def fixture(:sms_message_to_rider, rider, attrs) do
+    fixture(:sms_message, Map.merge(attrs, %{rider_id: rider.id, to: rider.phone}))
   end
 
   defp fake_name() do
