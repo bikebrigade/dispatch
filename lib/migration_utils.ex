@@ -2,10 +2,10 @@ defmodule BikeBrigade.MigrationUtils do
   @doc """
   Creates a view with a given `name`, with the sql for it in `repo/sql/<filename>`
   """
-  # Be careful about changing this as migrations depend on it.
   require Logger
 
-  def load_sql(filename, reverse \\ nil) do
+  # Be careful about changing this as migrations depend on it.
+  def load_sql(filename, down \\ nil, order \\ :normal) do
     path =
       Path.join([
         :code.priv_dir(:bike_brigade),
@@ -16,10 +16,10 @@ defmodule BikeBrigade.MigrationUtils do
 
     case File.read(path) do
       {:ok, sql} ->
-        if reverse do
-          Ecto.Migration.execute(sql, reverse)
-        else
-          Ecto.Migration.execute(sql)
+        cond do
+          is_nil(down) -> Ecto.Migration.execute(sql)
+          order == :normal -> Ecto.Migration.execute(sql, down)
+          order == :reverse -> Ecto.Migration.execute(down, sql)
         end
 
       {:error, err} ->
@@ -27,5 +27,16 @@ defmodule BikeBrigade.MigrationUtils do
           "Ignoring file referenced in migration #{filename} - due to error #{:file.format_error(err)}"
         )
     end
+  end
+
+  def load_view(name) do
+    filename = "#{name}_view.sql"
+
+    load_sql(filename, "DROP VIEW IF EXISTS #{name}")
+  end
+
+  def drop_view(name) do
+    filename = "#{name}_view.sql"
+    load_sql(filename, "DROP VIEW IF EXISTS #{name}", :reverse)
   end
 end
