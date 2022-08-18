@@ -3,102 +3,82 @@ defmodule BikeBrigade.UtilsTest do
   import BikeBrigadeWeb.Components.LiveLocation, only: [lookup_location: 2]
   import Ecto.Changeset
 
-  test "Changes address and postal with address and city" do
-    location = %BikeBrigade.Locations.Location{
-      address: "542 Dovercourt Rd",
-      unit: nil,
-      buzzer: nil,
-      postal: "M6H 2W6",
-      city: "Toronto",
-      province: "Ontario",
-      country: "Canada"
-    }
+  describe "lookup_location/2" do
+    setup do
+      location = %BikeBrigade.Locations.Location{
+        address: "542 Dovercourt Rd",
+        unit: nil,
+        buzzer: nil,
+        postal: "M6H 2W6",
+        city: "Toronto",
+        province: "Ontario",
+        country: "Canada"
+      }
 
-    value = "16 Millington St Toronto"
+      %{location: location}
+    end
 
-    assert %BikeBrigade.Locations.Location{
-             address: "16 Millington St",
-             unit: nil,
-             buzzer: nil,
-             postal: "M4X 1W8",
-             city: "Toronto",
-             province: "Ontario",
-             country: "Canada"
-           } = apply_changes(lookup_location(location, value))
-  end
+    test "Changes address and postal with address and city", %{location: location} do
+      value = "16 Millington St Toronto"
 
-  @tag :skip
-  test "Allows for just postal code" do
-    location = %BikeBrigade.Locations.Location{
-      address: "540 Manning Avenue",
-      unit: "123",
-      buzzer: nil,
-      postal: "M6G 2V9",
-      city: "Toronto",
-      province: "Ontario",
-      country: "Canada"
-    }
+      assert %BikeBrigade.Locations.Location{
+               address: "16 Millington St",
+               unit: nil,
+               buzzer: nil,
+               postal: "M4X 1W8",
+               city: "Toronto",
+               province: "Ontario",
+               country: "Canada"
+             } = apply_changes(lookup_location(location, value))
+    end
 
-    value = "M4X 1W8"
+    @tag :skip
+    test "Allows for just postal code", %{location: location} do
+      value = "M4X 1W8"
 
-    assert %BikeBrigade.Locations.Location{
-             address: nil,
-             unit: nil,
-             buzzer: nil,
-             postal: "M4X 1W8",
-             city: "Toronto",
-             province: "Ontario",
-             country: "Canada"
-           } = apply_changes(lookup_location(location, value))
-  end
+      assert %BikeBrigade.Locations.Location{
+               address: nil,
+               unit: nil,
+               buzzer: nil,
+               postal: "M4X 1W8",
+               city: "Toronto",
+               province: "Ontario",
+               country: "Canada"
+             } = apply_changes(lookup_location(location, value))
+    end
 
-  @tag :skip
-  test "Clears unit when does not have in value" do
-    location = %BikeBrigade.Locations.Location{
-      address: "540 Manning Avenue",
-      unit: "123",
-      buzzer: nil,
-      postal: "M6G 2V9",
-      city: "Toronto",
-      province: "Ontario",
-      country: "Canada"
-    }
+    @tag :skip
+    test "Clears unit when does not have in value", %{location: location} do
+      location = %{location | unit: "123"}
 
-    value = "540 Manning Avenue Toronto"
+      value = "542 Dovercourt Rd"
 
-    assert %BikeBrigade.Locations.Location{
-             address: "540 Manning Avenue",
-             unit: nil,
-             buzzer: nil,
-             postal: "M6G 2V9",
-             city: "Toronto",
-             province: "Ontario",
-             country: "Canada"
-           } = apply_changes(lookup_location(location, value))
-  end
+      assert %BikeBrigade.Locations.Location{
+               address: "542 Dovercourt Rd",
+               unit: nil,
+               buzzer: nil,
+               postal: "M6H 2W6",
+               city: "Toronto",
+               province: "Ontario",
+               country: "Canada"
+             } = apply_changes(lookup_location(location, value))
+    end
 
-  @tag :skip
-  test "Clears buzzzer when does not have in value" do
-    location = %BikeBrigade.Locations.Location{
-      address: "540 Manning Avenue",
-      unit: nil,
-      buzzer: "1234",
-      postal: "M6G 2V9",
-      city: "Toronto",
-      province: "Ontario",
-      country: "Canada"
-    }
+    @tag :skip
+    test "Clears buzzzer when does not have in value", %{location: location} do
+      location = %{location | buzzer: "Buzz 1234"}
 
-    value = "540 Manning Avenue Toronto"
+      value = "542 Dovercourt Rd"
 
-    assert %BikeBrigade.Locations.Location{
-             address: "540 Manning Avenue",
-             unit: nil,
-             buzzer: nil,
-             postal: "M6G 2V9",
-             city: "Toronto",
-             province: "Ontario",
-             country: "Canada"
-           } = apply_changes(lookup_location(location, value))
+      assert %BikeBrigade.Locations.Location{
+               address: "542 Dovercourt Rd",
+               unit: nil,
+               buzzer: nil,
+               postal: "M6H 2W6",
+               city: "Toronto",
+               province: "Ontario",
+               country: "Canada"
+             } = apply_changes(lookup_location(location, value))
+    end
   end
 end
