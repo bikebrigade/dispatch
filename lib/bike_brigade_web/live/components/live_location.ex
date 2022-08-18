@@ -3,6 +3,7 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
 
   alias Phoenix.LiveView.JS
   alias BikeBrigade.Locations.Location
+  alias BikeBrigade.Geocoder
 
   @impl Phoenix.LiveComponent
   def mount(socket) do
@@ -20,14 +21,27 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
      |> assign_new(:form, fn -> form end)}
   end
 
+  def lookup_location(location, value) do
+    params =
+      case IO.inspect(Geocoder.lookup(value)) do
+        {:ok, location_lookup} -> location_lookup
+        _ -> %{}
+      end
+
+    Location.changeset(
+      location,
+      params
+    )
+  end
+
   @impl Phoenix.LiveComponent
   def handle_event("geocode", %{"value" => value} = foo, socket) do
     IO.inspect("geocode")
 
-    # eventually derived from value
-    params = %{address: "123 Max Lane"}
-    changeset = Location.changeset(socket.assigns.location, params)
-    form = Phoenix.HTML.FormData.to_form(changeset, as: socket.assigns.as)
+    form =
+      socket.assigns.location
+      |> lookup_location(value)
+      |> Phoenix.HTML.FormData.to_form(as: socket.assigns.as)
 
     {:noreply,
      socket
@@ -65,7 +79,6 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
               <label class="block text-xs font-medium leading-5 text-gray-700">
                 Address
               </label>
-              <%= @location.address %>
               <div class="mt-1 rounded-md shadow-sm">
                 <%= text_input(@form, :address,
                   required: true,
@@ -82,12 +95,11 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
                 Unit
               </label>
               <div class="mt-1 rounded-md shadow-sm">
-                <input
-                  type="text"
-                  name="campaign_form[location][unit]"
-                  value={@location.unit}
-                  class="block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-                />
+                <%= text_input(@form, :unit,
+                  phx_debounce: "blur",
+                  class:
+                    "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+                ) %>
               </div>
             </div>
             <div class="w-1/4">
@@ -95,12 +107,11 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
                 Buzzer
               </label>
               <div class="mt-1 rounded-md shadow-sm">
-                <input
-                  type="text"
-                  name="campaign_form[location][buzzer]"
-                  value={@location.buzzer}
-                  class="block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-                />
+                <%= text_input(@form, :buzzer,
+                  phx_debounce: "blur",
+                  class:
+                    "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+                ) %>
               </div>
             </div>
           </div>
@@ -110,13 +121,12 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
                 Postal Code
               </label>
               <div class="mt-1 rounded-md shadow-sm">
-                <input
-                  type="text"
-                  name="campaign_form[location][postal]"
-                  value={@location.postal}
-                  required="true"
-                  class="block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-                />
+                <%= text_input(@form, :postal,
+                  required: true,
+                  phx_debounce: "blur",
+                  class:
+                    "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+                ) %>
               </div>
               <%= # error_tag(@location, :postal) %>
             </div>
@@ -125,13 +135,12 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
                 City
               </label>
               <div class="mt-1 rounded-md shadow-sm">
-                <input
-                  type="text"
-                  name="campaign_form[location][city]"
-                  value={@location.city}
-                  required="true"
-                  class="block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-                />
+                <%= text_input(@form, :city,
+                  required: true,
+                  phx_debounce: "blur",
+                  class:
+                    "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+                ) %>
               </div>
               <%= # error_tag(@location, :city) %>
             </div>
@@ -140,13 +149,12 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
                 Province
               </label>
               <div class="mt-1 rounded-md shadow-sm">
-                <input
-                  type="text"
-                  name="campaign_form[location][province]"
-                  value={@location.province}
-                  required="true"
-                  class="block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-                />
+                <%= text_input(@form, :province,
+                  required: true,
+                  phx_debounce: "blur",
+                  class:
+                    "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+                ) %>
               </div>
               <%= # error_tag(@location, :province) %>
             </div>
@@ -155,13 +163,12 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
                 Country
               </label>
               <div class="mt-1 rounded-md shadow-sm">
-                <input
-                  type="text"
-                  name="campaign_form[location][country]"
-                  value={@location.country}
-                  required="true"
-                  class="block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-                />
+                <%= text_input(@form, :country,
+                  required: true,
+                  phx_debounce: "blur",
+                  class:
+                    "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+                ) %>
               </div>
               <%= # error_tag(@location, :country) %>
             </div>
