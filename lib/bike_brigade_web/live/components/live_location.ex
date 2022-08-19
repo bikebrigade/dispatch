@@ -21,11 +21,55 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
      |> assign_new(:form, fn -> form end)}
   end
 
+  # def parse_unit(address) when is_binary(address) do
+  #   case Regex.run(~r/^\s*(?<unit>[^\s]+)\s*-\s*(?<address>.*)$/, address) do
+  #     [_, unit, parsed_address] ->
+  #       {parsed_address, unit}
+
+  #     _ ->
+  #       {address, nil}
+  #   end
+  # end
+
+  # def parse_unit(address), do: {address, nil}
+
+  def parse_postal_code(value) do
+    case Regex.run(~r/^\W*([a-z]\d[a-z])\s*(\d[a-z]\d)\W*$/i, value) do
+      [_, left, right] ->
+        String.upcase("#{left} #{right}")
+
+      _ ->
+        nil
+    end
+  end
+
+  def postal_lookup(postal) do
+    %{
+      address: nil,
+      unit: nil,
+      buzzer: nil,
+      postal: "M4X 1W8",
+      city: "Toronto",
+      province: "Ontario",
+      country: "Canada",
+      coords: %Geo.Point{coordinates: {-79.3682647, 43.6658229}}
+    }
+  end
+
+  defp parse_coords(coords) do
+  end
+
   def lookup_location(location, value) do
     params =
-      case IO.inspect(Geocoder.lookup(value)) do
-        {:ok, location_lookup} -> location_lookup
-        _ -> %{}
+      if postal = parse_postal_code(value) do
+        postal_lookup(postal)
+      else
+        case IO.inspect(Geocoder.lookup(value)) do
+          {:ok, location_lookup} -> location_lookup
+          _ -> %{}
+        end
+        |> Map.put(:unit, nil)
+        |> Map.put(:buzzer, nil)
       end
 
     Location.changeset(
