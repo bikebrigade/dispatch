@@ -5,9 +5,12 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
   alias BikeBrigade.Locations.Location
   alias BikeBrigade.Geocoder
 
+  import Ecto.Changeset
+
   @impl Phoenix.LiveComponent
   def mount(socket) do
-    {:ok, socket}
+    IO.inspect("mount")
+    {:ok, socket |> assign(:hidden, true)}
   end
 
   @impl Phoenix.LiveComponent
@@ -21,17 +24,31 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
      |> assign_new(:form, fn -> form end)}
   end
 
-  # def parse_unit(address) when is_binary(address) do
-  #   case Regex.run(~r/^\s*(?<unit>[^\s]+)\s*-\s*(?<address>.*)$/, address) do
-  #     [_, unit, parsed_address] ->
-  #       {parsed_address, unit}
+  def parse_unit(value) do
+    case Regex.run(~r/unit[: ]*([0-9]*)/i, value) do
+      [_, unit] ->
+        unit
 
-  #     _ ->
-  #       {address, nil}
-  #   end
-  # end
+      _ ->
+        case Regex.run(~r/^\s*(?<unit>[^\s]+)\s*-\s*(?<value>.*)$/, value) do
+          [_, unit, _] ->
+            unit
 
-  # def parse_unit(address), do: {address, nil}
+          _ ->
+            nil
+        end
+    end
+  end
+
+  def parse_buzzer(value) do
+    case Regex.run(~r/buzz[: ]*([0-9]*)/i, value) do
+      [_, buzzer] ->
+        buzzer
+
+      _ ->
+        nil
+    end
+  end
 
   def parse_postal_code(value) do
     case Regex.run(~r/^\W*([a-z]\d[a-z])\s*(\d[a-z]\d)\W*$/i, value) do
@@ -39,38 +56,18 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
         String.upcase("#{left} #{right}")
 
       _ ->
-        nil
+        value
     end
-  end
-
-  def postal_lookup(postal) do
-    %{
-      address: nil,
-      unit: nil,
-      buzzer: nil,
-      postal: "M4X 1W8",
-      city: "Toronto",
-      province: "Ontario",
-      country: "Canada",
-      coords: %Geo.Point{coordinates: {-79.3682647, 43.6658229}}
-    }
-  end
-
-  defp parse_coords(coords) do
   end
 
   def lookup_location(location, value) do
     params =
-      if postal = parse_postal_code(value) do
-        postal_lookup(postal)
-      else
-        case IO.inspect(Geocoder.lookup(value)) do
-          {:ok, location_lookup} -> location_lookup
-          _ -> %{}
-        end
-        |> Map.put(:unit, nil)
-        |> Map.put(:buzzer, nil)
+      case value |> parse_postal_code() |> Geocoder.lookup() do
+        {:ok, location_lookup} -> location_lookup
+        _ -> %{}
       end
+      |> Map.put(:unit, parse_unit(value))
+      |> Map.put(:buzzer, parse_buzzer(value))
 
     Location.changeset(
       location,
@@ -79,17 +76,28 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
   end
 
   @impl Phoenix.LiveComponent
-  def handle_event("geocode", %{"value" => value} = foo, socket) do
-    IO.inspect("geocode")
+  def handle_event("geocode", %{"value" => value}, socket) do
+    # IO.inspect("geocode")
 
-    form =
-      socket.assigns.location
-      |> lookup_location(value)
-      |> Phoenix.HTML.FormData.to_form(as: socket.assigns.as)
+    # changeset = lookup_location(socket.assigns.location, value)
+
+    # form = Phoenix.HTML.FormData.to_form(changeset, as: socket.assigns.as)
+
+    # {:noreply,
+    #  socket
+    #  |> assign(:form, form)
+    #  |> assign(:location, apply_changes(changeset))}
+
+    {:noreply, socket}
+  end
+
+  @impl Phoenix.LiveComponent
+  def handle_event("toggle_hidden", _params, socket) do
+    IO.inspect("toggle_hidden")
 
     {:noreply,
      socket
-     |> assign(:form, form)}
+     |> assign(:hidden, not socket.assigns.hidden)}
   end
 
   @impl Phoenix.LiveComponent
@@ -101,23 +109,32 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
       <div class="text-sm font-medium leading-5 text-gray-700">
         <%= @label %>
       </div>
-      <div class="location-locationm-container px-2 py-0.5 -mx-2 my-0.5">
+      <div class={"#{if not @hidden, do: "border-2 border-dashed"} px-2 py-0.5 -mx-2 my-0.5"}>
         <div class="flex mt-1">
           <div class="w-full rounded-md shadow-sm">
             <input
-              phx-focus={show_edit_mode(@id)}
-              phx-keydown="geocode"
-              phx-target={@myself}
+              id={"#{@id}-location-input"}
+              phx-focus={on_focus(@location, @hidden, target: @myself)}
+              phx-keydown={JS.push("geocode", target: @myself)}
               type="text"
-              value={to_string(@location)}
+              value={location_input_value(@location, @hidden)}
               class="block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
             />
           </div>
-          <button type="button" class="hidden ml-1 edit-mode" phx-click={hide_edit_mode(@id)}>
+          <button
+            type="button"
+            class={"#{if @hidden, do: "hidden"} ml-1 edit-mode"}
+            phx-click={
+              JS.set_attribute({"value", location_input_value(@location, true)},
+                to: "##{@id}-location-input"
+              )
+              |> JS.push("toggle_hidden", target: @myself)
+            }
+          >
             <Heroicons.Solid.chevron_down class="w-5 h-5" />
           </button>
         </div>
-        <div class="hidden my-1 edit-mode">
+        <div class={"#{if @hidden, do: "hidden"} my-1 edit-mode"}>
           <div class="flex space-x-1">
             <div class="w-1/2">
               <label class="block text-xs font-medium leading-5 text-gray-700">
@@ -125,7 +142,6 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
               </label>
               <div class="mt-1 rounded-md shadow-sm">
                 <%= text_input(@form, :address,
-                  required: true,
                   phx_debounce: "blur",
                   autocomplete: "street-address",
                   class:
@@ -224,12 +240,37 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
     """
   end
 
+  defp on_focus(location, hidden, opts \\ []) do
+    if hidden do
+      JS.set_attribute({"value", location_input_value(location, false)})
+      |> JS.push("toggle_hidden", opts)
+    end
+  end
+
+  defp location_input_value(location, hidden) do
+    IO.inspect(hidden)
+    IO.inspect(location)
+
+    if hidden do
+      to_string(location)
+    else
+      case location.address do
+        nil -> location.postal
+        _ -> location.address
+      end
+    end
+  end
+
   defp hide_edit_mode(id) do
+    IO.inspect("hide")
+
     JS.hide(to: "##{id} .edit-mode")
     |> JS.remove_class("border-2 border-dashed", to: "##{id} .location-locationm-container")
   end
 
   defp show_edit_mode(id) do
+    IO.inspect("show")
+
     JS.show(to: "##{id} .edit-mode")
     |> JS.add_class("border-2 border-dashed", to: "##{id} .location-locationm-container")
   end
