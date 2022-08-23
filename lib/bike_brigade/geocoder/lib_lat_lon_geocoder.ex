@@ -27,6 +27,26 @@ defmodule BikeBrigade.Geocoder.LibLatLonGeocoder do
            coords: %Geo.Point{coordinates: {lon, lat}}
          }}
 
+      {:ok,
+       %{
+         coords: %{lat: lat, lon: lon},
+         details: %{
+           locality: city,
+           postal_code: postal,
+           administrative_area_level_1: province,
+           country: country
+         }
+       }} ->
+        {:ok,
+         %{
+           address: nil,
+           city: city,
+           postal: postal,
+           province: province,
+           country: country,
+           coords: %Geo.Point{coordinates: {lon, lat}}
+         }}
+
       {:ok, _} ->
         {:error, "unable to geolocate address"}
 
