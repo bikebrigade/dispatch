@@ -3,6 +3,8 @@ defmodule BikeBrigade.Geocoder.LibLatLonGeocoder do
 
   alias LibLatLon.Providers.GoogleMaps
 
+  def lookup(_, ""), do: {:error, "unable to geolocate address"}
+
   def lookup(_, search) do
     case GoogleMaps.lookup(search) do
       {:ok,
