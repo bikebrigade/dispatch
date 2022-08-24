@@ -61,8 +61,11 @@ defmodule BikeBrigade.MixProject do
       {:ex_phone_number, "~> 0.2"},
       {:ecto_enum, "~> 1.4"},
       {:geo_postgis, "~> 3.4.0"},
-      {:lib_lat_lon, "~> 0.4"},
-      {:nextexif, "~> 0.0"}, #required by lib_lat_lon
+      {:lib_lat_lon,
+       git: "https://github.com/nathan-louie/lib_lat_lon",
+       ref: "4d102cc59a79d51ddfc6b76f1dc7269c8b05d1ae"},
+      # required by lib_lat_lon
+      {:nextexif, "~> 0.0"},
       {:topo, "~> 0.4.0"},
       {:ex_twilio, "~> 0.9.1"},
       {:mailchimp, "~> 0.1.2"},
@@ -110,7 +113,12 @@ defmodule BikeBrigade.MixProject do
         "local.rebar --force --if-missing",
         "setup"
       ],
-      setup: ["deps.get", "ecto.setup", "cmd mix ecto.migrate --migrations-path priv/repo/data_migrations", "cmd npm install --prefix assets"],
+      setup: [
+        "deps.get",
+        "ecto.setup",
+        "cmd mix ecto.migrate --migrations-path priv/repo/data_migrations",
+        "cmd npm install --prefix assets"
+      ],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate", "test"],

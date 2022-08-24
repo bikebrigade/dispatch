@@ -6,7 +6,7 @@ defmodule BikeBrigade.Geocoder.LibLatLonGeocoder do
   def lookup(_, ""), do: {:error, "unable to geolocate address"}
 
   def lookup(_, search) do
-    case GoogleMaps.lookup(search) do
+    case GoogleMaps.lookup(search, %{region: "on.ca"}) do
       {:ok,
        %{
          coords: %{lat: lat, lon: lon},
