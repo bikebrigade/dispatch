@@ -285,6 +285,7 @@ defmodule BikeBrigadeWeb.Components do
     """
   end
 
+  # TODO finish the LeafletNext refactor so we can get rid of this
   def map(assigns) do
     assigns = assign_new(assigns, :class, fn -> "" end)
 
@@ -308,6 +309,31 @@ defmodule BikeBrigadeWeb.Components do
             data-color="#1c64f2"
           >
           </leaflet-marker>
+        </leaflet-map>
+      </div>
+    <% end %>
+    """
+  end
+
+  @doc "Map component using the refactored javascript hook"
+  def map_next(assigns) do
+    assigns =
+      assigns
+      |> assign_new(:class, fn -> "" end)
+      |> assign_new(:initial_markers, fn -> [] end)
+
+    ~H"""
+    <%= if @coords != %Geo.Point{} do %>
+      <div class={@class}>
+        <leaflet-map
+          phx-hook="LeafletMapNext"
+          id={"location-map-#{inspect(@coords.coordinates)}"}
+          data-lat={lat(@coords)}
+          data-lng={lng(@coords)}
+          data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
+          data-initial_markers={@initial_markers}
+          class="h-full"
+        >
         </leaflet-map>
       </div>
     <% end %>

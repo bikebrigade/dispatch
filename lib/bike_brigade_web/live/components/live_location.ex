@@ -98,7 +98,8 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
   def handle_event("toggle_hidden", _params, socket) do
     {:noreply,
      socket
-     |> assign(:hidden, not socket.assigns.hidden)}
+     |> assign(:hidden, not socket.assigns.hidden)
+     |> push_event("redraw-map", %{})}
   end
 
   @impl Phoenix.LiveComponent
@@ -252,11 +253,28 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
               <%= # error_tag(@location, :country) %>
             </div>
           </div>
-          <C.map coords={cast_coords(@location)} class="w-full h-64 mt-2" />
+          <C.map_next
+            coords={cast_coords(@location)}
+            class="w-full h-64 mt-2"
+            initial_markers={encode_marker(@location)}
+          />
         </div>
       </div>
     </div>
     """
+  end
+
+  defp encode_marker(location) do
+    [
+      %{
+        id: location.id,
+        lat: lat(location),
+        lng: lng(location),
+        icon: "warehouse",
+        color: "#1c64f2"
+      }
+    ]
+    |> Jason.encode!()
   end
 
   defp on_focus(location, hidden, opts \\ []) do
