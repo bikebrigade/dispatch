@@ -61,9 +61,7 @@ defmodule BikeBrigade.MixProject do
       {:ex_phone_number, "~> 0.2"},
       {:ecto_enum, "~> 1.4"},
       {:geo_postgis, "~> 3.4.0"},
-      {:lib_lat_lon,
-       git: "https://github.com/nathan-louie/lib_lat_lon",
-       ref: "4d102cc59a79d51ddfc6b76f1dc7269c8b05d1ae"},
+      {:lib_lat_lon, "~> 0.7"},
       # required by lib_lat_lon
       {:nextexif, "~> 0.0"},
       {:topo, "~> 0.4.0"},
