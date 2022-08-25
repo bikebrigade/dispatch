@@ -9,7 +9,6 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
 
   @impl Phoenix.LiveComponent
   def mount(socket) do
-    IO.inspect("mount")
     {:ok, socket |> assign(:hidden, true)}
   end
 
@@ -77,24 +76,15 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
 
   @impl Phoenix.LiveComponent
   def handle_event("geocode", %{"value" => value}, socket) do
-    # IO.inspect("geocode")
+    changeset = lookup_location(socket.assigns.location, value)
 
-    # changeset = lookup_location(socket.assigns.location, value)
+    form = Phoenix.HTML.FormData.to_form(changeset, as: socket.assigns.as)
 
-    # form = Phoenix.HTML.FormData.to_form(changeset, as: socket.assigns.as)
-
-    # {:noreply,
-    #  socket
-    #  |> assign(:form, form)
-    #  |> assign(:location, apply_changes(changeset))}
-
-    {:noreply, socket}
+    {:noreply, socket |> assign(:location, apply_changes(changeset)) |> assign(:form, form)}
   end
 
   @impl Phoenix.LiveComponent
   def handle_event("toggle_hidden", _params, socket) do
-    IO.inspect("toggle_hidden")
-
     {:noreply,
      socket
      |> assign(:hidden, not socket.assigns.hidden)}
@@ -115,7 +105,7 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
             <input
               id={"#{@id}-location-input"}
               phx-focus={on_focus(@location, @hidden, target: @myself)}
-              phx-keydown={JS.push("geocode", target: @myself)}
+              phx-keyup={JS.push("geocode", target: @myself)}
               type="text"
               value={location_input_value(@location, @hidden)}
               class="block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
@@ -248,9 +238,6 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
   end
 
   defp location_input_value(location, hidden) do
-    IO.inspect(hidden)
-    IO.inspect(location)
-
     if hidden do
       to_string(location)
     else
@@ -259,20 +246,6 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
         _ -> location.address
       end
     end
-  end
-
-  defp hide_edit_mode(id) do
-    IO.inspect("hide")
-
-    JS.hide(to: "##{id} .edit-mode")
-    |> JS.remove_class("border-2 border-dashed", to: "##{id} .location-locationm-container")
-  end
-
-  defp show_edit_mode(id) do
-    IO.inspect("show")
-
-    JS.show(to: "##{id} .edit-mode")
-    |> JS.add_class("border-2 border-dashed", to: "##{id} .location-locationm-container")
   end
 
   defp dump_coords(location) do
