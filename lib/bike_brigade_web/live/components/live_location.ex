@@ -99,20 +99,28 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
   @impl Phoenix.LiveComponent
   def handle_event("geocode", %{"value" => value}, socket) do
     changeset = lookup_location(socket.assigns.location, value)
-
     form = Phoenix.HTML.FormData.to_form(changeset, as: socket.assigns.as)
     {:noreply, socket |> assign(:location, apply_changes(changeset)) |> assign(:form, form)}
   end
 
   @impl Phoenix.LiveComponent
   def handle_event("change", params, socket) do
-    # [_, parent_form, child_form] = Regex.run(~r/(\w+)\[(\w+)\]/i, socket.assigns.as)
-    # field = ascii_string([{:not, ?[}, {:not, ?]}], min: 1)
     list = FormParams.parse(socket.assigns.as)
 
     location_params = get_in(params, list)
 
-    changeset = Location.changeset(socket.assigns.location, location_params)
+    changeset =
+      case location_params do
+        %{"address" => address} ->
+          lookup_location(socket.assigns.location, address)
+
+        %{"postal" => postal} ->
+          lookup_location(socket.assigns.location, postal)
+
+        _ ->
+          Location.changeset(socket.assigns.location, %{})
+      end
+
     form = Phoenix.HTML.FormData.to_form(changeset, as: socket.assigns.as)
     {:noreply, socket |> assign(:location, apply_changes(changeset)) |> assign(:form, form)}
   end
@@ -234,10 +242,11 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
               </label>
               <div class="mt-1 rounded-md shadow-sm">
                 <%= text_input(@form, :city,
+                  disabled: true,
                   phx_change: "change",
                   phx_target: @myself,
                   class:
-                    "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+                    "disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
                 ) %>
               </div>
               <%= # error_tag(@location, :city) %>
@@ -248,10 +257,11 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
               </label>
               <div class="mt-1 rounded-md shadow-sm">
                 <%= text_input(@form, :province,
+                  disabled: true,
                   phx_change: "change",
                   phx_target: @myself,
                   class:
-                    "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+                    " disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
                 ) %>
               </div>
               <%= # error_tag(@location, :province) %>
@@ -262,10 +272,11 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
               </label>
               <div class="mt-1 rounded-md shadow-sm">
                 <%= text_input(@form, :country,
+                  disabled: true,
                   phx_change: "change",
                   phx_target: @myself,
                   class:
-                    "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+                    "disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
                 ) %>
               </div>
               <%= # error_tag(@location, :country) %>
