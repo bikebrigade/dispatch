@@ -94,6 +94,7 @@ defmodule BikeBrigade.Locations.Location do
     alias BikeBrigade.Locations.Location
 
     def to_string(location) do
+      # TODO refactor print_address aboe
       case location do
         %{address: nil, city: city, postal: postal} ->
           "#{postal}, #{city}"
@@ -108,7 +109,7 @@ defmodule BikeBrigade.Locations.Location do
     alias BikeBrigade.Locations.Location
 
     def to_iodata(location) do
-      [Location.print_address(location), ", ", location.city, ", ", location.postal]
+      String.Chars.to_string(location)
     end
   end
 end
