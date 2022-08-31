@@ -7,6 +7,28 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
 
   import Ecto.Changeset
 
+  defmodule FormParams do
+    @moduledoc """
+    Parse the form name in the format "foo[bar][baz]" into ["foo", "bar", "baz"]
+    """
+    import NimbleParsec
+
+    defparsecp(
+      :form_parser,
+      ascii_string([{:not, ?[}, {:not, ?]}], min: 1)
+      |> repeat(
+        ignore(string("["))
+        |> concat(ascii_string([{:not, ?[}, {:not, ?]}], min: 1))
+        |> ignore(string("]"))
+      )
+    )
+
+    def parse(name) do
+      {_, list, _, _, _, _} = form_parser(name)
+      list
+    end
+  end
+
   @impl Phoenix.LiveComponent
   def mount(socket) do
     {:ok, socket |> assign(:hidden, true)}
@@ -94,7 +116,14 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
     {:noreply, socket |> assign(:location, apply_changes(changeset)) |> assign(:form, form)}
   end
 
-  def handle_event("change", %{"campaign_form" => %{"location" => location_params}}, socket) do
+  def handle_event("change", params, socket) do
+    # [_, parent_form, child_form] = Regex.run(~r/(\w+)\[(\w+)\]/i, socket.assigns.as)
+    # field = ascii_string([{:not, ?[}, {:not, ?]}], min: 1)
+
+    list = FormParams.parse(socket.assigns.as)
+
+    location_params = get_in(params, list)
+
     changeset = Location.changeset(socket.assigns.location, location_params)
     form = Phoenix.HTML.FormData.to_form(changeset, as: socket.assigns.as)
     {:noreply, socket |> assign(:location, apply_changes(changeset)) |> assign(:form, form)}

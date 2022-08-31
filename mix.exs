@@ -90,6 +90,7 @@ defmodule BikeBrigade.MixProject do
       {:libcluster, "~> 3.3"},
       {:horde, "~> 0.8.6"},
       {:inflex, "~> 2.0.0"},
+      {:nimble_parsec, "~> 1.0"},
 
       # LiveBook Stuff
       {:kino, "~> 0.4.1"},
