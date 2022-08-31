@@ -31,7 +31,7 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
 
   @impl Phoenix.LiveComponent
   def mount(socket) do
-    {:ok, socket |> assign(:hidden, true)}
+    {:ok, socket |> assign(:open, false)}
   end
 
   @impl Phoenix.LiveComponent
@@ -101,25 +101,13 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
     changeset = lookup_location(socket.assigns.location, value)
 
     form = Phoenix.HTML.FormData.to_form(changeset, as: socket.assigns.as)
-
     {:noreply, socket |> assign(:location, apply_changes(changeset)) |> assign(:form, form)}
   end
 
   @impl Phoenix.LiveComponent
-  def handle_event("change-field", %{"value" => value, "field" => field}, socket) do
-    params = Map.new() |> Map.put(String.to_existing_atom(field), value)
-
-    changeset = socket.assigns.location |> Location.changeset(params)
-
-    form = Phoenix.HTML.FormData.to_form(changeset, as: socket.assigns.as)
-
-    {:noreply, socket |> assign(:location, apply_changes(changeset)) |> assign(:form, form)}
-  end
-
   def handle_event("change", params, socket) do
     # [_, parent_form, child_form] = Regex.run(~r/(\w+)\[(\w+)\]/i, socket.assigns.as)
     # field = ascii_string([{:not, ?[}, {:not, ?]}], min: 1)
-
     list = FormParams.parse(socket.assigns.as)
 
     location_params = get_in(params, list)
@@ -130,11 +118,18 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
   end
 
   @impl Phoenix.LiveComponent
-  def handle_event("toggle_hidden", _params, socket) do
+  def handle_event("open", _params, socket) do
     {:noreply,
      socket
-     |> assign(:hidden, not socket.assigns.hidden)
+     |> assign(:open, true)
      |> push_event("redraw-map", %{})}
+  end
+
+  @impl Phoenix.LiveComponent
+  def handle_event("close", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(:open, false)}
   end
 
   @impl Phoenix.LiveComponent
@@ -146,33 +141,36 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
       <div class="text-sm font-medium leading-5 text-gray-700">
         <%= @label %>
       </div>
-      <div class={"#{if not @hidden, do: "border-2 border-dashed"} px-2 py-0.5 -mx-2 my-0.5"}>
+      <div class={"#{if @open, do: "border-2 border-dashed"} px-2 py-0.5 -mx-2 my-0.5"}>
         <div class="flex mt-1">
-          <div class="w-full rounded-md shadow-sm">
-            <%= @location %>
+          <div class="relative w-full rounded-md shadow-sm">
             <input
-              id={"#{@id}-location-input"}
-              phx-focus={on_focus(@location, @hidden, target: @myself)}
+              id={"#{@id}-location-input-open"}
+              phx-focus={JS.push("open", target: @myself)}
               phx-keyup={JS.push("geocode", target: @myself)}
               type="text"
-              value={location_input_value(@location, @hidden)}
+              value={location_input_value(@location)}
               class="block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+            />
+            <input
+              disabled
+              id={"#{@id}-location-input-closed"}
+              type="text"
+              value={@location}
+              class={
+                "#{if @open, do: "hidden"} pointer-events-none absolute top-0 left-0 block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+              }
             />
           </div>
           <button
             type="button"
-            class={"#{if @hidden, do: "hidden"} ml-1 edit-mode"}
-            phx-click={
-              JS.set_attribute({"value", location_input_value(@location, true)},
-                to: "##{@id}-location-input"
-              )
-              |> JS.push("toggle_hidden", target: @myself)
-            }
+            class={"#{if !@open, do: "hidden"} ml-1 edit-mode"}
+            phx-click={JS.push("close", target: @myself)}
           >
             <Heroicons.Solid.chevron_down class="w-5 h-5" />
           </button>
         </div>
-        <div class={"#{if @hidden, do: "hidden"} my-1 edit-mode"}>
+        <div class={"#{if !@open, do: "hidden"} my-1 edit-mode"}>
           <div class="flex space-x-1">
             <div class="w-1/2">
               <label class="block text-xs font-medium leading-5 text-gray-700">
@@ -297,21 +295,10 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
     |> Jason.encode!()
   end
 
-  defp on_focus(location, hidden, opts \\ []) do
-    if hidden do
-      JS.set_attribute({"value", location_input_value(location, false)})
-      |> JS.push("toggle_hidden", opts)
-    end
-  end
-
-  defp location_input_value(location, hidden) do
-    if hidden do
-      to_string(location)
-    else
-      case location.address do
-        nil -> location.postal
-        _ -> location.address
-      end
+  defp location_input_value(location) do
+    case location.address do
+      nil -> location.postal
+      _ -> location.address
     end
   end
 
