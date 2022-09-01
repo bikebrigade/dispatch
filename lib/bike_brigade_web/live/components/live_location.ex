@@ -49,10 +49,10 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
   def parse_postal_code(value) do
     case Regex.run(@postal_regex, value) do
       [_, left, right] ->
-        String.upcase("#{left} #{right}")
+        {:ok, String.upcase("#{left} #{right}")}
 
       _ ->
-        value
+        {:error, :invalid_postal}
     end
   end
 
@@ -70,6 +70,61 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
       params
     )
   end
+
+  def change_location(location, :smart_input, value) do
+    case Geocoder.lookup(value) do
+      {:ok, geocoded_params} -> change(location, geocoded_params)
+      {:error, _} -> change(location, %{})
+    end
+  end
+
+  def change_location(location, :address, address) do
+    case Geocoder.lookup(address) do
+      {:ok, geocoded_params} -> change(location, geocoded_params)
+      {:error, _} -> change(location, %{address: address, unit: nil, buzzer: nil})
+    end
+  end
+
+  def change_location(location, :postal, postal) do
+    with {:ok, parsed_postal} <- parse_postal_code(postal),
+         {:ok, geocoded_params} <- Geocoder.lookup(parsed_postal) do
+      change(location, geocoded_params)
+    else
+      {:error, _} ->
+        change(location, %{postal: postal, unit: nil, buzzer: nil})
+        |> add_error(:location, "invalid postal code")
+    end
+  end
+
+  def change_location(location, :unit, unit) do
+    change(location, %{unit: unit})
+  end
+
+  def change_location(location, :buzzer, buzzer) do
+    change(location, %{buzzer: buzzer})
+  end
+
+  def change_location(location, _field, _value) do
+    change(location)
+  end
+
+  # if postal =~ @postal_regex do
+  #       case postal |> parse_postal_code() |> Geocoder.lookup() do
+  #         {:ok, geocoded_params} ->
+  #           Location.changeset(
+  #             socket.assigns.location,
+  #             geocoded_params
+  #             |> Map.put(:unit, nil)
+  #             |> Map.put(:buzzer, nil)
+  #           )
+
+  #         {:error, _} ->
+  #           Location.changeset(socket.assigns.location, %{postal: postal})
+  #           |> add_error(:postal, "can't geocode postal")
+  #       end
+  #     else
+  #       Location.changeset(socket.assigns.location, %{postal: postal})
+  #     end
 
   @impl Phoenix.LiveComponent
   def handle_event("geocode", %{"value" => value}, socket) do
@@ -99,46 +154,59 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
 
     location_params = get_in(params, list)
 
-    changeset =
+    {field, value} =
       case location_params do
-        %{"address" => address} ->
-          case Geocoder.lookup(address) do
-            {:ok, geocoded_params} ->
-              Location.changeset(
-                socket.assigns.location,
-                geocoded_params
-                |> Map.put(:unit, nil)
-                |> Map.put(:buzzer, nil)
-              )
-
-            {:error, _} ->
-              Location.changeset(socket.assigns.location, %{address: address})
-              |> add_error(:address, "can't geocode address")
-          end
-
-        %{"postal" => postal} ->
-          if postal =~ @postal_regex do
-            case postal |> parse_postal_code() |> Geocoder.lookup() do
-              {:ok, geocoded_params} ->
-                Location.changeset(
-                  socket.assigns.location,
-                  geocoded_params
-                  |> Map.put(:unit, nil)
-                  |> Map.put(:buzzer, nil)
-                )
-
-              {:error, _} ->
-                Location.changeset(socket.assigns.location, %{postal: postal})
-                |> add_error(:postal, "can't geocode postal")
-            end
-          else
-            Location.changeset(socket.assigns.location, %{postal: postal})
-          end
-
-        _ ->
-          Location.changeset(socket.assigns.location, %{})
+        %{"address" => address} -> {:address, address}
+        %{"postal" => postal} -> {:postal, postal}
+        %{"unit" => unit} -> {:unit, unit}
+        %{"buzzer" => buzzer} -> {:buzzer, buzzer}
+        %{"smart_input" => value} -> {:smart_input, value}
       end
+
+    changeset =
+      change_location(socket.assigns.location, field, value)
       |> Map.put(:action, :validate)
+
+    # case location_params do
+    #   %{"address" => address} ->
+
+    #     case Geocoder.lookup(address) do
+    #       {:ok, geocoded_params} ->
+    #         Location.changeset(
+    #           socket.assigns.location,
+    #           geocoded_params
+    #           |> Map.put(:unit, nil)
+    #           |> Map.put(:buzzer, nil)
+    #         )
+
+    #       {:error, _} ->
+    #         Location.changeset(socket.assigns.location, %{address: address})
+    #         |> add_error(:address, "can't geocode address")
+    #     end
+
+    #   %{"postal" => postal} ->
+    #     if postal =~ @postal_regex do
+    #       case postal |> parse_postal_code() |> Geocoder.lookup() do
+    #         {:ok, geocoded_params} ->
+    #           Location.changeset(
+    #             socket.assigns.location,
+    #             geocoded_params
+    #             |> Map.put(:unit, nil)
+    #             |> Map.put(:buzzer, nil)
+    #           )
+
+    #         {:error, _} ->
+    #           Location.changeset(socket.assigns.location, %{postal: postal})
+    #           |> add_error(:postal, "can't geocode postal")
+    #       end
+    #     else
+    #       Location.changeset(socket.assigns.location, %{postal: postal})
+    #     end
+
+    #   _ ->
+    #     Location.changeset(socket.assigns.location, %{})
+    # end
+    #      |> Map.put(:action, :validate)
 
     form = Phoenix.HTML.FormData.to_form(changeset, as: socket.assigns.as)
     {:noreply, socket |> assign(:location, apply_changes(changeset)) |> assign(:form, form)}
@@ -174,8 +242,9 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
             <div class="rounded-md shadow-sm">
               <input
                 id={"#{@id}-location-input-open"}
+                name={input_name(@form, :smart_input)}
                 phx-focus={JS.push("open", target: @myself)}
-                phx-keyup={JS.push("geocode", target: @myself)}
+                phx-change={JS.push("change", target: @myself)}
                 type="text"
                 value={location_input_value(@location)}
                 class="block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
@@ -190,7 +259,7 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
                 }
               />
             </div>
-            <%= error_tag(@form, :big_input, show_field: false) %>
+            <%= error_tag(@form, :location, show_field: false) %>
           </div>
           <button
             type="button"
