@@ -45,32 +45,6 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
      |> assign_new(:form, fn -> form end)}
   end
 
-  def parse_unit(value) do
-    case Regex.run(~r/unit[: ]*([0-9]*)/i, value) do
-      [_, unit] ->
-        unit
-
-      _ ->
-        case Regex.run(~r/^\s*(?<unit>[^\s]+)\s*-\s*(?<value>.*)$/, value) do
-          [_, unit, _] ->
-            unit
-
-          _ ->
-            nil
-        end
-    end
-  end
-
-  def parse_buzzer(value) do
-    case Regex.run(~r/buzz[: ]*([0-9]*)/i, value) do
-      [_, buzzer] ->
-        buzzer
-
-      _ ->
-        nil
-    end
-  end
-
   def parse_postal_code(value) do
     case Regex.run(~r/^\W*([a-z]\d[a-z])\s*(\d[a-z]\d)\W*$/i, value) do
       [_, left, right] ->
@@ -85,10 +59,10 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
     params =
       case value |> parse_postal_code() |> Geocoder.lookup() do
         {:ok, location_lookup} -> location_lookup
-        _ -> %{}
+        _ -> Map.new()
       end
-      |> Map.put(:unit, parse_unit(value))
-      |> Map.put(:buzzer, parse_buzzer(value))
+      |> Map.put(:unit, nil)
+      |> Map.put(:buzzer, nil)
 
     Location.changeset(
       location,
@@ -283,7 +257,7 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
             </div>
           </div>
           <C.map_next
-            coords={cast_coords(@location)}
+            coords={@location.coords}
             class="w-full h-64 mt-2"
             initial_markers={encode_marker(@location)}
           />
@@ -307,17 +281,10 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
   end
 
   defp location_input_value(location) do
-    case location.address do
-      nil -> location.postal
-      _ -> location.address
-    end
+    location.address || location.postal
   end
 
   defp dump_coords(location) do
     location.coords |> Geo.JSON.encode!() |> Jason.encode!()
-  end
-
-  defp cast_coords(location) do
-    location.coords
   end
 end

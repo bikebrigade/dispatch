@@ -1,6 +1,7 @@
-defmodule BikeBrigade.UtilsTest do
+defmodule BikeBrigade.LiveLocationTest do
   use ExUnit.Case, async: true
   import BikeBrigadeWeb.Components.LiveLocation, only: [lookup_location: 2, parse_postal_code: 1]
+  import BikeBrigade.Geocoder
   import Ecto.Changeset
 
   describe "lookup_location/2" do
@@ -34,6 +35,10 @@ defmodule BikeBrigade.UtilsTest do
 
     test "Allows for just postal code", %{location: location} do
       value = "M4X 1W8"
+
+      IO.inspect(lookup_location(location, value))
+      IO.inspect(BikeBrigade.Geocoder.lookup(value))
+      IO.inspect(BikeBrigade.Geocoder.lookup("1 Roof Garden Lane"))
 
       assert %BikeBrigade.Locations.Location{
                address: nil,
@@ -111,8 +116,11 @@ defmodule BikeBrigade.UtilsTest do
     assert parse_postal_code("M4X1W8") == "M4X 1W8"
     assert parse_postal_code("m4x 1w8") == "M4X 1W8"
     assert parse_postal_code("m4x1w8") == "M4X 1W8"
-    assert parse_postal_code("m4x 1w") == nil
-    assert parse_postal_code("16 Millington St, Toronto, M4X 1W8") == nil
+    assert parse_postal_code("m4x 1w") == "m4x 1w"
+
+    assert parse_postal_code("16 Millington St, Toronto, M4X 1W8") ==
+             "16 Millington St, Toronto, M4X 1W8"
+
     assert parse_postal_code(" m4x 1w8, ") == "M4X 1W8"
     assert parse_postal_code(", M4X   1W8") == "M4X 1W8"
   end
