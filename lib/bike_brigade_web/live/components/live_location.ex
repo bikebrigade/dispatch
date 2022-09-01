@@ -45,8 +45,9 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
      |> assign_new(:form, fn -> form end)}
   end
 
+  @postal_regex ~r/^\W*([a-z]\d[a-z])\s*(\d[a-z]\d)\W*$/i
   def parse_postal_code(value) do
-    case Regex.run(~r/^\W*([a-z]\d[a-z])\s*(\d[a-z]\d)\W*$/i, value) do
+    case Regex.run(@postal_regex, value) do
       [_, left, right] ->
         String.upcase("#{left} #{right}")
 
@@ -86,14 +87,29 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
     changeset =
       case location_params do
         %{"address" => address} ->
-          lookup_location(socket.assigns.location, address)
+          case Geocoder.lookup(address) do
+            {:ok, geocoded_params} ->
+              Location.changeset(
+                socket.assigns.location,
+                geocoded_params
+              )
+
+            {:error, _} ->
+              Location.changeset(socket.assigns.location, %{address: address})
+              |> add_error(:address, "can't geocode address")
+          end
 
         %{"postal" => postal} ->
-          lookup_location(socket.assigns.location, postal)
+          if postal =~ @postal_regex do
+            lookup_location(socket.assigns.location, postal)
+          else
+            Location.changeset(socket.assigns.location, %{postal: postal})
+          end
 
         _ ->
           Location.changeset(socket.assigns.location, %{})
       end
+      |> Map.put(:action, :validate)
 
     form = Phoenix.HTML.FormData.to_form(changeset, as: socket.assigns.as)
     {:noreply, socket |> assign(:location, apply_changes(changeset)) |> assign(:form, form)}
@@ -166,7 +182,7 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
                     "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
                 ) %>
               </div>
-              <%= # error_tag(@location, :address) %>
+              <%= error_tag(@form, :address, show_field: false) %>
             </div>
             <div class="w-1/4">
               <label class="block text-xs font-medium leading-5 text-gray-700">
@@ -201,8 +217,10 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
                 Postal Code
               </label>
               <div class="mt-1 rounded-md shadow-sm">
+                <%= input_value(@form, :postal) %>
                 <%= text_input(@form, :postal,
                   phx_change: "change",
+                  #                  phx_debounce: "1000",
                   phx_target: @myself,
                   class:
                     "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
