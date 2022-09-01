@@ -63,4 +63,24 @@ defmodule BikeBrigade.Locations.LocationTest do
       assert geocoded.unit == "11"
     end
   end
+
+  test "String.Chats.to_string/1" do
+    # 540 Manning Ave,M6G 2V9,Toronto,43.660616,-79.4149899
+
+    location = %Location{
+      country: "Canada",
+      province: "Ontario",
+      city: "Toronto",
+      postal: "M6G 2V9"
+    }
+
+    assert "#{location}" == "M6G 2V9, Toronto"
+    assert "#{%{location | address: "540 Manning Ave"}}" == "540 Manning Ave, M6G 2V9, Toronto"
+    assert "#{%{location | address: "540 Manning Ave", unit: "123"}}" == "540 Manning Ave Unit 123, M6G 2V9, Toronto"
+    assert "#{%{location | address: "540 Manning Ave", buzzer: "57"}}" == "540 Manning Ave (Buzz 57), M6G 2V9, Toronto"
+    assert "#{%{location | address: "540 Manning Ave",  unit: "123", buzzer: "57"}}" == "540 Manning Ave Unit 123 (Buzz 57), M6G 2V9, Toronto"
+
+
+
+  end
 end
