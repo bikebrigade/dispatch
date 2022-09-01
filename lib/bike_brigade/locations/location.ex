@@ -74,34 +74,37 @@ defmodule BikeBrigade.Locations.Location do
 
   def parse_unit(address), do: {address, nil}
 
-  def print_address(location) do
-    case location do
-      %{unit: nil, buzzer: nil, address: address} ->
-        address
+  # def print_address(location) do
+  #   case location do
+  #     %{unit: nil, buzzer: nil, address: address} ->
+  #       address
 
-      %{unit: unit, buzzer: nil, address: address} ->
-        "#{address} Unit #{unit}"
+  #     %{unit: unit, buzzer: nil, address: address} ->
+  #       "#{address} Unit #{unit}"
 
-      %{unit: nil, buzzer: buzzer, address: address} ->
-        "#{address} (Buzz #{buzzer})"
+  #     %{unit: nil, buzzer: buzzer, address: address} ->
+  #       "#{address} (Buzz #{buzzer})"
 
-      %{unit: unit, buzzer: buzzer, address: address} ->
-        "#{address} Unit #{unit} (Buzz #{buzzer})"
-    end
-  end
+  #     %{unit: unit, buzzer: buzzer, address: address} ->
+  #       "#{address} Unit #{unit} (Buzz #{buzzer})"
+  #   end
+  # end
 
   defimpl String.Chars do
     alias BikeBrigade.Locations.Location
 
     def to_string(location) do
-      # TODO refactor print_address aboe
-      case location do
-        %{address: nil, city: city, postal: postal} ->
-          "#{postal}, #{city}"
+      # TODO refactor print_address above
 
-        _ ->
-          "#{Location.print_address(location)}, #{location.postal}, #{location.city}"
-      end
+      [
+        "#{if not is_nil(location.address), do: "#{location.address}"}",
+        "#{if not is_nil(location.unit), do: "Unit #{location.unit}"}",
+        "#{if not is_nil(location.buzzer), do: "(Buzz #{location.buzzer})"}",
+        "#{if not is_nil(location.postal), do: "#{location.postal}"}",
+        "#{if not is_nil(location.city), do: "#{location.city}"}"
+      ]
+      |> Enum.reject(fn x -> x == "" end)
+      |> Enum.join(", ")
     end
   end
 
