@@ -73,7 +73,22 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
 
   @impl Phoenix.LiveComponent
   def handle_event("geocode", %{"value" => value}, socket) do
-    changeset = lookup_location(socket.assigns.location, value)
+    changeset =
+      case value |> parse_postal_code() |> Geocoder.lookup() do
+        {:ok, geocoded_params} ->
+          Location.changeset(
+            socket.assigns.location,
+            geocoded_params
+            |> Map.put(:unit, nil)
+            |> Map.put(:buzzer, nil)
+          )
+
+        {:error, _} ->
+          Location.changeset(socket.assigns.location, %{})
+          |> add_error(:big_input, "can't geocode")
+      end
+      |> Map.put(:action, :validate)
+
     form = Phoenix.HTML.FormData.to_form(changeset, as: socket.assigns.as)
     {:noreply, socket |> assign(:location, apply_changes(changeset)) |> assign(:form, form)}
   end
@@ -92,6 +107,8 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
               Location.changeset(
                 socket.assigns.location,
                 geocoded_params
+                |> Map.put(:unit, nil)
+                |> Map.put(:buzzer, nil)
               )
 
             {:error, _} ->
@@ -101,7 +118,19 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
 
         %{"postal" => postal} ->
           if postal =~ @postal_regex do
-            lookup_location(socket.assigns.location, postal)
+            case postal |> parse_postal_code() |> Geocoder.lookup() do
+              {:ok, geocoded_params} ->
+                Location.changeset(
+                  socket.assigns.location,
+                  geocoded_params
+                  |> Map.put(:unit, nil)
+                  |> Map.put(:buzzer, nil)
+                )
+
+              {:error, _} ->
+                Location.changeset(socket.assigns.location, %{postal: postal})
+                |> add_error(:postal, "can't geocode postal")
+            end
           else
             Location.changeset(socket.assigns.location, %{postal: postal})
           end
@@ -141,24 +170,27 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
       </div>
       <div class={"#{if @open, do: "border-2 border-dashed"} px-2 py-0.5 -mx-2 my-0.5"}>
         <div class="flex mt-1">
-          <div class="relative w-full rounded-md shadow-sm">
-            <input
-              id={"#{@id}-location-input-open"}
-              phx-focus={JS.push("open", target: @myself)}
-              phx-keyup={JS.push("geocode", target: @myself)}
-              type="text"
-              value={location_input_value(@location)}
-              class="block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-            />
-            <input
-              disabled
-              id={"#{@id}-location-input-closed"}
-              type="text"
-              value={@location}
-              class={
-                "#{if @open, do: "hidden"} pointer-events-none absolute top-0 left-0 block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-              }
-            />
+          <div class="relative w-full">
+            <div class="rounded-md shadow-sm">
+              <input
+                id={"#{@id}-location-input-open"}
+                phx-focus={JS.push("open", target: @myself)}
+                phx-keyup={JS.push("geocode", target: @myself)}
+                type="text"
+                value={location_input_value(@location)}
+                class="block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+              />
+              <input
+                disabled
+                id={"#{@id}-location-input-closed"}
+                type="text"
+                value={@location}
+                class={
+                  "#{if @open, do: "hidden"} pointer-events-none absolute top-0 left-0 block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+                }
+              />
+            </div>
+            <%= error_tag(@form, :big_input, show_field: false) %>
           </div>
           <button
             type="button"
@@ -175,6 +207,7 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
                 Address
               </label>
               <div class="mt-1 rounded-md shadow-sm">
+                <%= @location.address %>
                 <%= text_input(@form, :address,
                   phx_change: "change",
                   phx_target: @myself,
@@ -226,7 +259,7 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
                     "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
                 ) %>
               </div>
-              <%= # error_tag(@location, :postal) %>
+              <%= error_tag(@form, :postal, show_field: false) %>
             </div>
             <div class="w-1/4">
               <label class="block text-xs font-medium leading-5 text-gray-700">
