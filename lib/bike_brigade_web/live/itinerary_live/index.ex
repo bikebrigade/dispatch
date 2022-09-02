@@ -53,7 +53,7 @@ defmodule BikeBrigadeWeb.ItineraryLive.Index do
     <div class="mt-2 sm:flex sm:justify-between">
       <div class="sm:flex">
         <p class="flex items-center text-sm text-gray-500">
-          <Heroicons.Outline.location_marker
+          <Heroicons.Outline.map_pin
             aria-label="Location"
             class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
           />

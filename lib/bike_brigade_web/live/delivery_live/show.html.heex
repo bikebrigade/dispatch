@@ -59,7 +59,7 @@
         aria-hidden="true"
       >
         <div class="flex items-center justify-center flex-shrink-0 w-8 h-8 bg-green-700 rounded-full ring-8 ring-white">
-          <Heroicons.Solid.clipboard_check class="w-5 h-5 text-white" />
+          <Heroicons.Mini.clipboard_document_check class="w-5 h-5 text-white" />
         </div>
         <div class="w-full pl-1 border-l border-gray-200 sm:flex-nowrap">
           <div class="flex flex-col space-y-.5">
@@ -74,21 +74,21 @@
                   size={:small}
                   color={:green}
                 >
-                  <Heroicons.Outline.map class="w-5 h-5 mr-1 -ml-0.5" />
+                  <Heroicons.Mini.map class="w-5 h-5 mr-1 -ml-0.5" />
                   Map
                 </C.button>
               </div>
             </div>
             <div class="inline-flex flex-shrink-0 leading-normal">
-              <Heroicons.Outline.clock
+              <Heroicons.Mini.clock
                 aria-label="Pickup Time"
-                class="w-4 h-4 mt-1 mr-1 text-gray-800"
+                class="w-4 h-4 mt-1 mr-1 text-gray-500"
               />
               <%= CampaignHelpers.pickup_window(@campaign, @rider) %>
             </div>
             <C.location location={@campaign.location} />
             <div class="inline-flex leading-normal">
-              <Heroicons.Outline.shopping_bag class="flex-shrink-0 w-4 h-4 mt-1 mr-1 ext-gray-800 " />
+              <Heroicons.Mini.shopping_bag class="flex-shrink-0 w-4 h-4 mt-1 mr-1 text-gray-500 " />
               <%= humanized_task_count(@rider.assigned_tasks) %>
             </div>
           </div>
@@ -161,11 +161,11 @@
                       aria-label={"Text Delivery #{i}"}
                       size={:small}
                     >
-                      <Heroicons.Outline.chat_alt class="w-5 h-5 mr-1 -ml-0.5" />
+                      <Heroicons.Mini.chat_bubble_bottom_center_text class="w-5 h-5 mr-1 -ml-0.5" />
                       Text
                     </C.button>
                     <C.button href={tel_url(task)} aria-label={"Call Delivery #{i}"} size={:small}>
-                      <Heroicons.Outline.phone class="w-5 h-5 mr-1 -ml-0.5" />
+                      <Heroicons.Mini.phone_arrow_up_right class="w-5 h-5 mr-1 -ml-0.5" />
                       Call
                     </C.button>
                   <% end %>
@@ -175,23 +175,23 @@
                     aria-label={"Map Delivery #{i}"}
                     size={:small}
                   >
-                    <Heroicons.Outline.map class="w-5 h-5 mr-1 -ml-0.5" />
+                    <Heroicons.Mini.map class="w-5 h-5 mr-1 -ml-0.5" />
                     Map
                   </C.button>
                 </div>
               </div>
               <div class="inline-flex flex-shrink-0 leading-normal">
-                <Heroicons.Outline.user
+                <Heroicons.Mini.user
                   aria-label="Dropoff Name"
-                  class="w-4 h-4 mt-1 mr-1 text-gray-800"
+                  class="w-4 h-4 mt-1 mr-1 text-gray-500"
                 />
                 <%= task.dropoff_name %>
               </div>
               <C.location location={task.dropoff_location} />
               <div class="inline-flex flex-shrink-0 leading-normal">
-                <Heroicons.Outline.phone
+                <Heroicons.Mini.device_phone_mobile
                   aria-label="Dropoff Phone"
-                  class="w-4 h-4 mt-1 mr-1 text-gray-800"
+                  class="w-4 h-4 mt-1 mr-1 text-gray-500"
                 />
                 <%= if !is_nil(task.dropoff_phone) do %>
                   <%= task.dropoff_phone %>
@@ -200,7 +200,7 @@
                 <% end %>
               </div>
               <div class="inline-flex leading-normal">
-                <Heroicons.Outline.shopping_bag class="flex-shrink-0 w-4 h-4 mt-1 mr-1 ext-gray-800 " />
+                <Heroicons.Mini.shopping_bag class="flex-shrink-0 w-4 h-4 mt-1 mr-1 text-gray-500 " />
                 <%= CampaignHelpers.request_type(task) %>
               </div>
             </div>
@@ -257,7 +257,7 @@
     <div class="w-full overflow-hidden bg-white shadow-md sm:mt-2 sm:rounded-lg">
       <div class="flex items-start space-x-1 p-2.5 bg-white border-b border-gray-200 sm:p-4">
         <div class="flex items-center justify-center flex-shrink-0 w-8 h-8 bg-green-700 rounded-full ring-8 ring-white">
-          <Heroicons.Solid.star class="w-5 h-5 text-white" />
+          <Heroicons.Mini.star class="w-5 h-5 text-white" />
         </div>
         <div class="w-full pl-1 border-l border-gray-200 sm:flex-nowrap">
           <div class="flex flex-row items-center justify-between">
@@ -266,7 +266,7 @@
             </h2>
             <div class="flex flex-wrap items-start justify-end flex-shrink ml-auto">
               <C.button href={sms_done_url(@campaign, @rider)} class="ml-auto" color={:green}>
-                <Heroicons.Outline.chat_alt class="w-5 h-5 mr-1 -ml-0.5" />
+                <Heroicons.Mini.chat_bubble_left_right class="w-5 h-5 mr-1 -ml-0.5" />
                 I'm done!
               </C.button>
             </div>
@@ -283,7 +283,7 @@
       </div>
       <div class="relative flex justify-center">
         <span class="px-2 text-gray-500 bg-gray-50">
-          <Heroicons.Outline.map class="w-5 h-5 text-gray-500" />
+          <Heroicons.Mini.map class="w-5 h-5 text-gray-500" />
         </span>
       </div>
     </div>

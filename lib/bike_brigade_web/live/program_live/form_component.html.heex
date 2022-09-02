@@ -102,7 +102,7 @@
                 type="button"
               >
                 <span class="sr-only">Close</span>
-                <Heroicons.Outline.x class="w-6 h-6" />
+                <Heroicons.Solid.x_mark class="w-6 h-6" />
               </C.button>
             </div>
           </div>
@@ -141,7 +141,7 @@
                 New Item
               </C.button>
             </:th>
-            
+
 
             <:td let={item}>
               <%= item.name %>
@@ -155,7 +155,7 @@
             <:td let={item}>
               <%= if item.hidden do %>
                 <div class="flex justify-center">
-                  <Heroicons.Outline.eye_off class="flex-shrink-0 w-6 h-6 mx-1 text-gray-600" />
+                  <Heroicons.Outline.eye_slash class="flex-shrink-0 w-6 h-6 mx-1 text-gray-600" />
                 </div>
               <% end %>
             </:td>

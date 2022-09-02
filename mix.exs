@@ -74,7 +74,7 @@ defmodule BikeBrigade.MixProject do
       {:mustache, "~> 0.4.0"},
       {:honeybadger, "~> 0.18.1"},
       {:recase, "~> 0.5"},
-      {:heroicons, "~> 0.3.0"},
+      {:heroicons, git: "https://github.com/mveytsman/heroicons_elixir"},
       {:linkify,
        git: "https://github.com/mveytsman/linkify",
        ref: "42c1aca5da2c2ab28abf8f304b211c2a5d2c89c7"},
