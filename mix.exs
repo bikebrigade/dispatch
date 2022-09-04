@@ -62,7 +62,8 @@ defmodule BikeBrigade.MixProject do
       {:ecto_enum, "~> 1.4"},
       {:geo_postgis, "~> 3.4.0"},
       {:lib_lat_lon, "~> 0.4"},
-      {:nextexif, "~> 0.0"}, #required by lib_lat_lon
+      # required by lib_lat_lon
+      {:nextexif, "~> 0.0"},
       {:topo, "~> 0.4.0"},
       {:ex_twilio, "~> 0.9.1"},
       {:mailchimp, "~> 0.1.2"},
@@ -74,7 +75,7 @@ defmodule BikeBrigade.MixProject do
       {:mustache, "~> 0.4.0"},
       {:honeybadger, "~> 0.18.1"},
       {:recase, "~> 0.5"},
-      {:heroicons, git: "https://github.com/mveytsman/heroicons_elixir"},
+      {:heroicons, "~> 0.4.1"},
       {:linkify,
        git: "https://github.com/mveytsman/linkify",
        ref: "42c1aca5da2c2ab28abf8f304b211c2a5d2c89c7"},
@@ -110,7 +111,12 @@ defmodule BikeBrigade.MixProject do
         "local.rebar --force --if-missing",
         "setup"
       ],
-      setup: ["deps.get", "ecto.setup", "cmd mix ecto.migrate --migrations-path priv/repo/data_migrations", "cmd npm install --prefix assets"],
+      setup: [
+        "deps.get",
+        "ecto.setup",
+        "cmd mix ecto.migrate --migrations-path priv/repo/data_migrations",
+        "cmd npm install --prefix assets"
+      ],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate", "test"],
