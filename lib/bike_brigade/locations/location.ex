@@ -72,7 +72,7 @@ defmodule BikeBrigade.Locations.Location do
     end
   end
 
-  def parse_unit(address), do: {address, nil}
+  defp parse_unit(address), do: {address, nil}
 
   defimpl String.Chars do
     alias BikeBrigade.Locations.Location
