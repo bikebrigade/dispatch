@@ -142,17 +142,13 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   @default_rider_search RiderSearch.new(preload: @preloads)
 
   defp apply_action(socket, :index, params) do
-    tag_filters =
-      Map.get(params, "tag", [])
-      |> Enum.map(fn tag -> {:tag, tag} end)
-
-    capacity_filters =
-      Map.get(params, "capacity", [])
-      |> Enum.map(fn tag -> {:capacity, tag} end)
+    filters =
+      Map.get(params, "filters", [])
+      |> Enum.map(&parse_filter/1)
 
     rider_search =
       RiderSearch.new(
-        filters: tag_filters ++ capacity_filters,
+        filters: filters,
         preload: @preloads
       )
 
