@@ -108,24 +108,6 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
     change(location)
   end
 
-  # if postal =~ @postal_regex do
-  #       case postal |> parse_postal_code() |> Geocoder.lookup() do
-  #         {:ok, geocoded_params} ->
-  #           Location.changeset(
-  #             socket.assigns.location,
-  #             geocoded_params
-  #             |> Map.put(:unit, nil)
-  #             |> Map.put(:buzzer, nil)
-  #           )
-
-  #         {:error, _} ->
-  #           Location.changeset(socket.assigns.location, %{postal: postal})
-  #           |> add_error(:postal, "can't geocode postal")
-  #       end
-  #     else
-  #       Location.changeset(socket.assigns.location, %{postal: postal})
-  #     end
-
   @impl Phoenix.LiveComponent
   def handle_event("geocode", %{"value" => value}, socket) do
     changeset =
