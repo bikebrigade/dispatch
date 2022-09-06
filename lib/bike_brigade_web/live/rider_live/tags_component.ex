@@ -61,14 +61,14 @@ defmodule BikeBrigadeWeb.RiderLive.TagsComponent do
         form={"#{@id}-form"}
         id={"#{@id}-tag-input"}
         type="text"
-        class="border-transparent appearance-none focus:border-transparent outline-transparent ring-transparent focus:ring-0"
+        class="w-1/2 border-transparent appearance-none focus:border-transparent outline-transparent ring-transparent focus:ring-0"
         phx-hook="TagsComponentHook"
         phx-keyup="suggest"
         phx-target={@myself}
         autocomplete="off"
         phx-debounce="50"
         name="search"
-        placeholder="Type to search for tags"
+        placeholder="Type to search or create tags"
       />
       <ul id="tag-selection-list" class="overflow-y-auto max-h-64">
         <%= for tag <- @suggested_tags do %>
