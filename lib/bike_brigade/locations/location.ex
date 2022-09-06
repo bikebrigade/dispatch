@@ -62,7 +62,7 @@ defmodule BikeBrigade.Locations.Location do
     end
   end
 
-  def parse_unit(address) when is_binary(address) do
+  defp parse_unit(address) when is_binary(address) do
     case Regex.run(~r/^\s*(?<unit>[^\s]+)\s*-\s*(?<address>.*)$/, address) do
       [_, unit, parsed_address] ->
         {parsed_address, unit}
