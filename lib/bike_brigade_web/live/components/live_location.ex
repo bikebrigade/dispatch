@@ -45,32 +45,6 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
      |> assign_new(:form, fn -> form end)}
   end
 
-  @postal_regex ~r/^\W*([a-z]\d[a-z])\s*(\d[a-z]\d)\W*$/i
-  def parse_postal_code(value) do
-    case Regex.run(@postal_regex, value) do
-      [_, left, right] ->
-        {:ok, String.upcase("#{left} #{right}")}
-
-      _ ->
-        {:error, :invalid_postal}
-    end
-  end
-
-  def lookup_location(location, value) do
-    params =
-      case value |> parse_postal_code() |> Geocoder.lookup() do
-        {:ok, location_lookup} -> location_lookup
-        _ -> Map.new()
-      end
-      |> Map.put(:unit, nil)
-      |> Map.put(:buzzer, nil)
-
-    Location.changeset(
-      location,
-      params
-    )
-  end
-
   def change_location(location, :smart_input, value) do
     case Geocoder.lookup(value) do
       {:ok, geocoded_params} -> change(location, geocoded_params)
@@ -108,27 +82,17 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
     change(location)
   end
 
-  @impl Phoenix.LiveComponent
-  def handle_event("geocode", %{"value" => value}, socket) do
-    changeset =
-      case value |> parse_postal_code() |> Geocoder.lookup() do
-        {:ok, geocoded_params} ->
-          Location.changeset(
-            socket.assigns.location,
-            geocoded_params
-            |> Map.put(:unit, nil)
-            |> Map.put(:buzzer, nil)
-          )
+  @postal_regex ~r/^\W*([a-z]\d[a-z])\s*(\d[a-z]\d)\W*$/i
+  defp parse_postal_code(value) do
+    case Regex.run(@postal_regex, value) do
+      [_, left, right] ->
+        {:ok, String.upcase("#{left} #{right}")}
 
-        {:error, _} ->
-          Location.changeset(socket.assigns.location, %{})
-          |> add_error(:big_input, "can't geocode")
-      end
-      |> Map.put(:action, :validate)
-
-    form = Phoenix.HTML.FormData.to_form(changeset, as: socket.assigns.as)
-    {:noreply, socket |> assign(:location, apply_changes(changeset)) |> assign(:form, form)}
+      _ ->
+        {:error, :invalid_postal}
+    end
   end
+
 
   @impl Phoenix.LiveComponent
   def handle_event("change", params, socket) do
