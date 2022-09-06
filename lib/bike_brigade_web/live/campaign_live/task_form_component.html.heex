@@ -8,7 +8,7 @@
     phx-submit="save"
   >
     <C.flash_component flash={@flash} />
-    
+
     <%= if @campaign.program.items == [] do %>
       <div class="mt-2">
         You'll have to set up the kinds of items that we delivery for
@@ -82,7 +82,7 @@
                   class="block text-gray-400 bg-white rounded-md hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                   <span class="sr-only">Close</span>
-                  <Heroicons.Outline.x class="w-6 h-6" />
+                  <Heroicons.Solid.x_mark class="w-6 h-6" />
                 </button>
               </div>
             <% end %>
