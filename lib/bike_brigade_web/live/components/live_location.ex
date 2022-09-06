@@ -149,47 +149,6 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
       change_location(socket.assigns.location, field, value)
       |> Map.put(:action, :validate)
 
-    # case location_params do
-    #   %{"address" => address} ->
-
-    #     case Geocoder.lookup(address) do
-    #       {:ok, geocoded_params} ->
-    #         Location.changeset(
-    #           socket.assigns.location,
-    #           geocoded_params
-    #           |> Map.put(:unit, nil)
-    #           |> Map.put(:buzzer, nil)
-    #         )
-
-    #       {:error, _} ->
-    #         Location.changeset(socket.assigns.location, %{address: address})
-    #         |> add_error(:address, "can't geocode address")
-    #     end
-
-    #   %{"postal" => postal} ->
-    #     if postal =~ @postal_regex do
-    #       case postal |> parse_postal_code() |> Geocoder.lookup() do
-    #         {:ok, geocoded_params} ->
-    #           Location.changeset(
-    #             socket.assigns.location,
-    #             geocoded_params
-    #             |> Map.put(:unit, nil)
-    #             |> Map.put(:buzzer, nil)
-    #           )
-
-    #         {:error, _} ->
-    #           Location.changeset(socket.assigns.location, %{postal: postal})
-    #           |> add_error(:postal, "can't geocode postal")
-    #       end
-    #     else
-    #       Location.changeset(socket.assigns.location, %{postal: postal})
-    #     end
-
-    #   _ ->
-    #     Location.changeset(socket.assigns.location, %{})
-    # end
-    #      |> Map.put(:action, :validate)
-
     form = Phoenix.HTML.FormData.to_form(changeset, as: socket.assigns.as)
     {:noreply, socket |> assign(:location, apply_changes(changeset)) |> assign(:form, form)}
   end
