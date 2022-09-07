@@ -106,8 +106,6 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
   end
 
   defp assign_stats(socket) do
-    IO.inspect(socket.assigns.options)
-
     stats =
       case socket.assigns.options do
         %Options{period: :all_time, sort_by: sort_by, sort_order: sort_order} ->
@@ -136,7 +134,7 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
       href="#"
       class="pl-2 text-gray-500 hover:text-gray-700"
     >
-      <Icons.sort order={:desc} />
+      <Heroicons.Mini.bars_arrow_down class="w-5 h-5" />
     </a>
     """
   end
@@ -150,7 +148,7 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
       href="#"
       class="pl-2 text-gray-500 hover:text-gray-700"
     >
-      <Icons.sort order={:asc} />
+      <Heroicons.Mini.bars_arrow_up class="w-5 h-5" />
     </a>
     """
   end
@@ -164,7 +162,7 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
       href="#"
       class="pl-2 text-gray-300 hover:text-gray-700"
     >
-      <Icons.sort order={:desc} />
+      <Heroicons.Mini.bars_arrow_down class="w-5 h-5" />
     </a>
     """
   end

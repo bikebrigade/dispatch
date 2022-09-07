@@ -42,16 +42,16 @@
 
       <p class="text-sm !leading-relaxed xl:text-base">
         <span class="block xl:inline">
-          <Heroicons.Outline.clipboard_list
+          <Heroicons.Mini.calendar
             aria-label="Calendar"
-            class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 sm:mr-.5"
+            class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 sm:mr-.5"
           />
           <span>Signed up on: <%= format_date(@rider.signed_up_on) %></span>
         </span>
         <span class="block xl:inline">
-          <Heroicons.Outline.fire
+          <Heroicons.Mini.fire
             aria-label="Fire"
-            class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 xl:ml-1 sm:mr-.5"
+            class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 xl:ml-1 sm:mr-.5"
           />
           <span>
             Latest activity: <.latest_campaign_info socket={@socket} rider={@rider} />
@@ -60,50 +60,50 @@
       </p>
       <p class="text-sm !leading-relaxed xl:text-base">
         <span class="">
-          <Heroicons.Outline.location_marker
+          <Heroicons.Mini.map_pin
             aria-label="Marker"
-            class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 sm:mr-.5"
+            class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 sm:mr-.5"
           />
           <%= @rider.location.address %>
         </span>
         <span class="block xl:inline">
-          <Heroicons.Outline.phone
+          <Heroicons.Mini.device_phone_mobile
             aria-label="Phone"
-            class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 xl:ml-1 sm:mr-.5"
+            class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 xl:ml-1 sm:mr-.5"
           />
           <%= @rider.phone %>
         </span>
         <span class="block xl:inline">
-          <Heroicons.Outline.mail
+          <Heroicons.Mini.envelope
             aria-label="Mail"
-            class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 xl:ml-1 sm:mr-.5"
+            class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 xl:ml-1 sm:mr-.5"
           />
           <%= link(@rider.email, to: "mailto:#{@rider.email}", class: "link") %>
         </span>
       </p>
       <p class="text-sm !leading-relaxed xl:text-base">
         <span class="">
-          <Heroicons.Outline.briefcase
+          <Heroicons.Mini.briefcase
             aria-label="Briefcase"
-            class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 sm:mr-.5"
+            class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 sm:mr-.5"
           />
           <%= live_redirect(@rider.capacity,
-            to: Routes.rider_index_path(@socket, :index, %{capacity: [@rider.capacity]}),
+            to: Routes.rider_index_path(@socket, :index, %{filters: ["capacity:#{@rider.capacity}"]}),
             class: "link"
           ) %>
         </span>
         <%= if @rider.text_based_itinerary do %>
           <span class="">
-            <Heroicons.Outline.status_offline
+            <Heroicons.Mini.signal_slash
               aria-label="Status Offline"
-              class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 sm:mr-.5"
+              class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 sm:mr-.5"
             /> Text-only delivery instructions
           </span>
         <% end %>
         <span class="block xl:inline">
-          <Heroicons.Outline.tag
+          <Heroicons.Mini.tag
             aria-label="Tag"
-            class="inline-flex flex-shrink-0 w-5 h-5 text-gray-400 xl:ml-2 sm:mr-.5"
+            class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 xl:ml-2 sm:mr-.5"
           />
           <%= if Enum.empty?(@rider.tags) do %>
             No tags
@@ -112,7 +112,7 @@
               <%= for tag <- @rider.tags do %>
                 <span class="before:content-[','] first:before:content-['']">
                   <%= live_redirect(tag.name,
-                    to: Routes.rider_index_path(@socket, :index, %{tag: [tag.name]}),
+                    to: Routes.rider_index_path(@socket, :index,%{filters: ["capacity:#{@rider.capacity}"]}),
                     class: "link"
                   ) %>
                 </span>

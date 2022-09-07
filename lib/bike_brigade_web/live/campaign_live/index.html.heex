@@ -36,18 +36,18 @@
   </div>
   <div class="flex justify-between flex-1 sm:justify-end">
     <span class="relative z-0 inline-flex rounded-md shadow-sm">
-      <%= live_patch to: Routes.campaign_index_path(@socket, :index, current_week: Date.add(@current_week, -7)), 
+      <%= live_patch to: Routes.campaign_index_path(@socket, :index, current_week: Date.add(@current_week, -7)),
         class: "relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
 do %>
         <Heroicons.Solid.chevron_left class="w-5 h-5" />
       <% end %>
-      <%= live_patch to: Routes.campaign_index_path(@socket, :index, current_week: Date.beginning_of_week(LocalizedDateTime.today())), 
+      <%= live_patch to: Routes.campaign_index_path(@socket, :index, current_week: Date.beginning_of_week(LocalizedDateTime.today())),
         class: "relative items-center hidden px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 sm:inline-flex hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
 do %>
         Today
       <% end %>
 
-      <%= live_patch to: Routes.campaign_index_path(@socket, :index, current_week: Date.add(@current_week, 7)), 
+      <%= live_patch to: Routes.campaign_index_path(@socket, :index, current_week: Date.add(@current_week, 7)),
         class: "relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
 do %>
         <Heroicons.Solid.chevron_right class="w-5 h-5" />
@@ -103,23 +103,23 @@ do %>
               </div>
               <div class="mt-2 sm:flex sm:justify-between">
                 <div class="sm:flex">
-                  <p class="flex items-center text-sm text-gray-500">
-                    <Heroicons.Outline.clock
+                  <p class="flex items-center text-sm text-gray-700">
+                    <Heroicons.Mini.clock
                       aria-label="Pickup Time"
-                      class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
+                      class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-500"
                     />
                     <%= pickup_window(c) %>
                   </p>
-                  <p class="flex items-center mt-2 text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                    <C.Icons.maki_bicycle_share class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
+                  <p class="flex items-center mt-2 text-sm text-gray-700 sm:mt-0 sm:ml-6">
+                    <C.Icons.maki_bicycle_share class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-500" />
                     <%= c.stats.signed_up_rider_count %>
                   </p>
-                  <p class="flex items-center mt-2 text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                    <Heroicons.Outline.shopping_bag class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
+                  <p class="flex items-center mt-2 text-sm text-gray-700 sm:mt-0 sm:ml-6">
+                    <Heroicons.Mini.shopping_bag class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-500" />
                     <%= c.stats.task_count %>
                   </p>
                 </div>
-                <div class="flex items-center mt-2 text-sm text-gray-500 sm:mt-0">
+                <div class="flex items-center mt-2 text-sm text-gray-700 sm:mt-0">
                   <.message_info campaign={c} />
                 </div>
               </div>

@@ -37,7 +37,7 @@
                 </span>
               </div>
               <div class="inline-flex items-center text-sm text-gray-500 flex-shrink-1">
-                <Heroicons.Outline.phone class="w-4 h-4" />
+                <Heroicons.Mini.device_phone_mobile class="w-4 h-4" />
                 <span class="pii"><%= @rider.phone %></span>
               </div>
             </div>
@@ -108,7 +108,7 @@
                           <Heroicons.Solid.folder_open class="w-4 h-4" />
                         </a>
                         <a href={m.gdrive_url} target="_blank" class="ml-1 link">
-                          <Heroicons.Solid.document_download class="w-4 h-4" />
+                          <Heroicons.Solid.document_arrow_down class="w-4 h-4" />
                         </a>
                       </div>
                     <% end %>
@@ -141,23 +141,23 @@
                     <%= case message.twilio_status do %>
                       <% "queued" -> %>
                         <C.tooltip tooltip="Queued">
-                          <Heroicons.Solid.dots_horizontal class="w-4 h-4" />
+                          <Heroicons.Mini.ellipsis_horizontal class="w-4 h-4" />
                         </C.tooltip>
                       <% "sent" -> %>
                         <C.tooltip tooltip="Sent">
-                          <Heroicons.Solid.arrow_circle_right class="w-4 h-4" />
+                          <Heroicons.Mini.arrow_right_circle class="w-4 h-4" />
                         </C.tooltip>
                       <% "delivered" -> %>
                         <C.tooltip tooltip="Delivered">
-                          <Heroicons.Solid.check_circle class="w-4 h-4" />
-                        </C.tooltip>
+                          <Heroicons.Mini.check_circle class="w-4 h-4" />
+                        </C.tooltip>🙂
                       <% "undelivered" -> %>
                         <C.tooltip tooltip="Undelivered">
-                          <Heroicons.Solid.exclamation_circle class="w-4 h-4 text-red-600" />
+                          <Heroicons.Mini.exclamation_circle class="w-4 h-4 text-red-600" />
                         </C.tooltip>
                       <% "failed" -> %>
                         <C.tooltip tooltip="Failed">
-                          <Heroicons.Solid.exclamation_circle class="w-4 h-4 text-red-600" />
+                          <Heroicons.Mini.exclamation_circle class="w-4 h-4 text-red-600" />
                         </C.tooltip>
                       <% _ -> %>
                     <% end %>
@@ -198,12 +198,10 @@
               data-input-id={input_id(f, :body)}
               type="button"
               color={:white}
-              size={:xxsmall}
+              size={:xsmall}
+              class="py-1 text-lg"
             >
-              <Heroicons.Outline.emoji_happy
-                aria-label="Emoji Picker"
-                class="h-6 w-6 m-1.5 text-gray-400"
-              />
+              🙂
             </C.button>
             <label
               for={@uploads.media.ref}

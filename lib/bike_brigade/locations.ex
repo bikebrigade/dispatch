@@ -9,4 +9,8 @@ defmodule BikeBrigade.Locations do
       "Unknown"
     end
   end
+
+  def neighborhood(nil) do
+    "Unknown"
+  end
 end

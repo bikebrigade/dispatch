@@ -3,7 +3,7 @@
     <C.button phx-click="auto-assign" size={:small} class="space-x-1">
       <p>Auto Assign</p>
       <C.tooltip tooltip="This will assign the remaining tasks" class="w-40">
-        <Heroicons.Outline.exclamation_circle class="w-4 h-4" />
+        <Heroicons.Mini.exclamation_circle class="w-4 h-4" />
       </C.tooltip>
     </C.button>
     <C.button patch_to={Routes.campaign_show_path(@socket, :add_rider, @campaign)} size={:small}>
@@ -64,17 +64,17 @@
               </span>
             </div>
             <%= if rider.task_enter_building do %>
-              <Heroicons.Outline.office_building class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end" />
+              <Heroicons.Mini.building_office class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end" />
             <% end %>
             <%= if has_notes?(rider) do %>
-              <Heroicons.Outline.pencil_alt class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500" />
+              <Heroicons.Mini.pencil_square class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500" />
             <% end %>
             <%= if rider.text_based_itinerary do %>
               <C.tooltip
                 tooltip="This rider will receive an extra message with text-only delivery instructions"
                 class="w-40"
               >
-                <Heroicons.Outline.status_offline class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500" />
+                <Heroicons.Mini.signal_slash class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500" />
               </C.tooltip>
             <% end %>
           </div>
@@ -82,14 +82,14 @@
         <%= if selected?(@selected_rider, rider) do %>
           <div class="p-2 mx-1 rounded-b shadow-inner bg-gray-50">
             <div class="flex flex-row my-2">
-              <Heroicons.Outline.clock class="flex-shrink-0 w-4 h-4 text-gray-500" />
+              <Heroicons.Mini.clock class="flex-shrink-0 w-4 h-4 text-gray-500" />
               <div class="mx-1 text-sm leading-5 text-gray-800">
                 <%= pickup_window(@campaign, rider) %>
               </div>
             </div>
             <%= if has_notes?(rider) do %>
               <div class="flex flex-row my-2">
-                <Heroicons.Outline.pencil_alt class="flex-shrink-0 w-4 h-4 text-gray-500" />
+                <Heroicons.Mini.pencil_square class="flex-shrink-0 w-4 h-4 text-gray-500" />
                 <div class="mx-1 text-sm leading-5 text-gray-600">
                   <%= rider.task_notes %>
                 </div>
@@ -98,7 +98,7 @@
             <%= if Enum.count(rider.assigned_tasks) > 0 do %>
               <%= for task <- rider.assigned_tasks do %>
                 <div class="flex flex-row my-2">
-                  <Heroicons.Outline.location_marker class="flex-shrink-0 w-4 h-4 text-gray-500" />
+                  <Heroicons.Mini.map_pin class="flex-shrink-0 w-4 h-4 text-gray-500" />
                   <a href="#" phx-click="select-task" phx-value-id={task.id} class="flex flex-col">
                     <div class="mx-1 text-sm leading-5 text-indigo-600">
                       <span class="pii"><%= task.dropoff_location %></span>
