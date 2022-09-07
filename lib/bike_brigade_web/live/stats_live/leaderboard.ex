@@ -5,8 +5,6 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
 
   alias BikeBrigade.LocalizedDateTime
 
-  alias BikeBrigadeWeb.Components.Icons
-
   defmodule Options do
     # This pattern is from  https://mattpruitt.com/articles/phoenix-forms-with-ecto-embedded-schema
     # evaluating about using it more
