@@ -46,26 +46,35 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
   end
 
   def change_location(location, :smart_input, value) do
-    case Geocoder.lookup(value) do
-      {:ok, geocoded_params} -> change(location, geocoded_params)
-      {:error, _} -> change(location, %{})
+    if is_partial_postal?(value) do
+      change_location(location, :postal, value)
+    else
+      change_location(location, :address, value)
     end
   end
 
   def change_location(location, :address, address) do
     case Geocoder.lookup(address) do
-      {:ok, geocoded_params} -> change(location, geocoded_params)
-      {:error, _} -> change(location, %{address: address, unit: nil, buzzer: nil})
+      {:ok, geocoded_params} ->
+        change(location, reset_notes(geocoded_params))
+
+      {:error, _} ->
+        change(location, %{address: address})
+        |> add_error(:location, "unable to lookup address")
     end
   end
 
   def change_location(location, :postal, postal) do
     with {:ok, parsed_postal} <- parse_postal_code(postal),
          {:ok, geocoded_params} <- Geocoder.lookup(parsed_postal) do
-      change(location, geocoded_params)
+      change(location, reset_notes(geocoded_params))
     else
+      {:error, :partial_postal} ->
+        # Don't add errors if the postal is partial
+        change(location, reset_notes(%{postal: postal}))
+
       {:error, _} ->
-        change(location, %{postal: postal, unit: nil, buzzer: nil})
+        change(location, reset_notes(%{postal: postal}))
         |> add_error(:location, "invalid postal code")
     end
   end
@@ -82,17 +91,47 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
     change(location)
   end
 
-  @postal_regex ~r/^\W*([a-z]\d[a-z])\s*(\d[a-z]\d)\W*$/i
+  defp reset_notes(params) do
+    Map.merge(params, %{unit: nil, buzzer: nil})
+  end
+
+  @postal_regex [
+                  # A
+                  "^[[:alpha:]]$|",
+                  # A1
+                  "^[[:alpha:]][[:digit:]]$|",
+                  # A1A
+                  "^[[:alpha:]][[:digit:]][[:alpha:]]$|",
+                  # A1A 1
+                  "^[[:alpha:]][[:digit:]][[:alpha:]][[:space:]]*[[:digit:]]$|",
+                  # A1A 1A
+                  "^[[:alpha:]][[:digit:]][[:alpha:]][[:space:]]*[[:digit:]][[:alpha:]]$|",
+                  # A1A 1A1 (with captures)
+                  "^([[:alpha:]][[:digit:]][[:alpha:]])[[:space:]]*([[:digit:]][[:alpha:]][[:digit:]])$"
+                ]
+                |> Enum.join()
+                |> Regex.compile!()
+
   defp parse_postal_code(value) do
-    case Regex.run(@postal_regex, value) do
+    case Regex.run(@postal_regex, String.trim(value)) do
       [_, left, right] ->
         {:ok, String.upcase("#{left} #{right}")}
 
-      _ ->
+      [_] ->
+        {:error, :partial_postal}
+
+      nil ->
         {:error, :invalid_postal}
     end
   end
 
+  defp is_partial_postal?(value) do
+    case parse_postal_code(value) do
+      {:ok, _postal} -> true
+      {:error, :partial_postal} -> true
+      _ -> false
+    end
+  end
 
   @impl Phoenix.LiveComponent
   def handle_event("change", params, socket) do
@@ -181,7 +220,6 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
                 Address
               </label>
               <div class="mt-1 rounded-md shadow-sm">
-                <%= @location.address %>
                 <%= text_input(@form, :address,
                   phx_change: "change",
                   phx_target: @myself,
@@ -224,7 +262,6 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
                 Postal Code
               </label>
               <div class="mt-1 rounded-md shadow-sm">
-                <%= input_value(@form, :postal) %>
                 <%= text_input(@form, :postal,
                   phx_change: "change",
                   #                  phx_debounce: "1000",
