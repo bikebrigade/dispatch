@@ -64,6 +64,82 @@ defmodule BikeBrigade.Locations.LocationTest do
     end
   end
 
+  describe "change_location/2" do
+    setup do
+      location = fixture(:location)
+      FakeGeocoder.inject_address("#{location.address}", location)
+      FakeGeocoder.inject_address("#{location.postal}", location)
+
+      %{location: location}
+    end
+
+    test "change address", %{location: %{address: address, coords: coords} = location} do
+      assert {:error, _} =
+               Location.change_location(%Location{}, :address, "11414")
+               |> Ecto.Changeset.apply_action(:update)
+
+      assert {:ok, %{address: "", coords: %Geo.Point{}}} =
+               Location.change_location(%Location{}, :address, "")
+               |> Ecto.Changeset.apply_action(:update)
+
+      assert {:ok, %{address: ^address, coords: ^coords}} =
+               Location.change_location(%Location{}, :address, location.address)
+               |> Ecto.Changeset.apply_action(:update)
+    end
+
+    test "change postal", %{location: %{postal: postal, coords: coords} = location} do
+      assert {:error, _} =
+               Location.change_location(%Location{}, :postal, "m62aaaa")
+               |> Ecto.Changeset.apply_action(:update)
+
+      assert {:ok, %{postal: "m6a", coords: %Geo.Point{}}} =
+               Location.change_location(%Location{}, :postal, "m6a")
+               |> Ecto.Changeset.apply_action(:update)
+
+      assert {:ok, %{postal: postal, coords: ^coords}} =
+               Location.change_location(%Location{}, :postal, postal)
+               |> Ecto.Changeset.apply_action(:update)
+    end
+
+    test "change using smart input", %{
+      location: %{address: address, postal: postal, coords: coords} = location
+    } do
+      assert {:error, _} =
+               Location.change_location(%Location{}, :smart_input, "m62aaaa")
+               |> Ecto.Changeset.apply_action(:update)
+
+      assert {:error, _} =
+               Location.change_location(%Location{}, :smart_input, "924 Fake street")
+               |> Ecto.Changeset.apply_action(:update)
+
+      assert {:ok, %{postal: "m6a", coords: %Geo.Point{}}} =
+               Location.change_location(%Location{}, :smart_input, "m6a")
+               |> Ecto.Changeset.apply_action(:update)
+
+      assert {:ok, %{address: ^address, postal: ^postal, coords: ^coords}} =
+               Location.change_location(%Location{}, :smart_input, address)
+               |> Ecto.Changeset.apply_action(:update)
+
+      assert {:ok, %{address: ^address, postal: ^postal, coords: ^coords}} =
+               Location.change_location(%Location{}, :smart_input, postal)
+               |> Ecto.Changeset.apply_action(:update)
+    end
+  end
+
+  test "parse_postal_code/1" do
+    assert Location.parse_postal_code("A") == {:error, :partial_postal}
+    assert Location.parse_postal_code("A1") == {:error, :partial_postal}
+    assert Location.parse_postal_code("A1a") == {:error, :partial_postal}
+    assert Location.parse_postal_code("A1a2") == {:error, :partial_postal}
+    assert Location.parse_postal_code("A1a 2") == {:error, :partial_postal}
+    assert Location.parse_postal_code("A1a 2A") == {:error, :partial_postal}
+    assert Location.parse_postal_code("A1a2A") == {:error, :partial_postal}
+    assert Location.parse_postal_code("A1a2A1") == {:ok, "A1A 2A1"}
+    assert Location.parse_postal_code("A1a 2A1") == {:ok, "A1A 2A1"}
+    assert Location.parse_postal_code("A1a 2A12") == {:error, :invalid_postal}
+    assert Location.parse_postal_code("Aa") == {:error, :invalid_postal}
+  end
+
   test "String.Chats.to_string/1" do
     # 540 Manning Ave,M6G 2V9,Toronto,43.660616,-79.4149899
 
@@ -76,11 +152,14 @@ defmodule BikeBrigade.Locations.LocationTest do
 
     assert "#{location}" == "M6G 2V9, Toronto"
     assert "#{%{location | address: "540 Manning Ave"}}" == "540 Manning Ave, M6G 2V9, Toronto"
-    assert "#{%{location | address: "540 Manning Ave", unit: "123"}}" == "540 Manning Ave Unit 123, M6G 2V9, Toronto"
-    assert "#{%{location | address: "540 Manning Ave", buzzer: "57"}}" == "540 Manning Ave (Buzz 57), M6G 2V9, Toronto"
-    assert "#{%{location | address: "540 Manning Ave",  unit: "123", buzzer: "57"}}" == "540 Manning Ave Unit 123 (Buzz 57), M6G 2V9, Toronto"
 
+    assert "#{%{location | address: "540 Manning Ave", unit: "123"}}" ==
+             "540 Manning Ave Unit 123, M6G 2V9, Toronto"
 
+    assert "#{%{location | address: "540 Manning Ave", buzzer: "57"}}" ==
+             "540 Manning Ave (Buzz 57), M6G 2V9, Toronto"
 
+    assert "#{%{location | address: "540 Manning Ave", unit: "123", buzzer: "57"}}" ==
+             "540 Manning Ave Unit 123 (Buzz 57), M6G 2V9, Toronto"
   end
 end

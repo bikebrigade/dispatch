@@ -41,6 +41,7 @@ defmodule BikeBrigade.Locations.Location do
     |> validate_required([:coords, :city, :province, :country])
   end
 
+  # TODO remove this and replace with `change_location` / the new live location widget
   def geocoding_changeset(struct, params \\ %{}) do
     cs =
       struct
@@ -59,6 +60,107 @@ defmodule BikeBrigade.Locations.Location do
       {:data, _} -> cs
       {:error, error} -> add_error(cs, :address, "#{error}")
       :error -> add_error(cs, :address, "unknown error")
+    end
+  end
+
+  @doc """
+  Change location with a given field
+  """
+  def change_location(location, :smart_input, value) do
+    if is_partial_postal?(value) do
+      change_location(location, :postal, value)
+    else
+      change_location(location, :address, value)
+    end
+  end
+
+  def change_location(location, :address, "") do
+    change(location, %{address: ""})
+  end
+
+  def change_location(location, :address, address) do
+    case Geocoder.lookup(address) do
+      {:ok, geocoded_params} ->
+        change(location, reset_notes(geocoded_params))
+
+      {:error, _} ->
+        change(location, %{address: address})
+        |> add_error(:location, "unable to lookup address")
+    end
+  end
+
+  def change_location(location, :postal, postal) do
+    with {:ok, parsed_postal} <- parse_postal_code(postal),
+         {:ok, geocoded_params} <- Geocoder.lookup(parsed_postal) do
+      change(location, reset_notes(geocoded_params))
+    else
+      {:error, :partial_postal} ->
+        # Don't add errors if the postal is partial
+        change(location, reset_notes(%{postal: postal}))
+
+      {:error, _} ->
+        change(location, reset_notes(%{postal: postal}))
+        |> add_error(:location, "invalid postal code")
+    end
+  end
+
+  def change_location(location, :unit, unit) do
+    change(location, %{unit: unit})
+  end
+
+  def change_location(location, :buzzer, buzzer) do
+    change(location, %{buzzer: buzzer})
+  end
+
+  def change_location(location, _field, _value) do
+    change(location)
+  end
+
+  defp reset_notes(params) do
+    Map.merge(params, %{unit: nil, buzzer: nil})
+  end
+
+  @postal_regex [
+                  # A
+                  "^[[:alpha:]]$|",
+                  # A1
+                  "^[[:alpha:]][[:digit:]]$|",
+                  # A1A
+                  "^[[:alpha:]][[:digit:]][[:alpha:]]$|",
+                  # A1A 1
+                  "^[[:alpha:]][[:digit:]][[:alpha:]][[:space:]]*[[:digit:]]$|",
+                  # A1A 1A
+                  "^[[:alpha:]][[:digit:]][[:alpha:]][[:space:]]*[[:digit:]][[:alpha:]]$|",
+                  # A1A 1A1 (with captures)
+                  "^([[:alpha:]][[:digit:]][[:alpha:]])[[:space:]]*([[:digit:]][[:alpha:]][[:digit:]])$"
+                ]
+                |> Enum.join()
+                |> Regex.compile!()
+
+  @doc """
+  Parse a postal code, returning one of:
+    * `{:ok, formated_postal_code}`
+    * `{:error, :partial_postal}`
+    * `{:error, :invalid_postal}`
+  """
+  def parse_postal_code(value) do
+    case Regex.run(@postal_regex, String.trim(value)) do
+      [_, left, right] ->
+        {:ok, String.upcase("#{left} #{right}")}
+
+      [_] ->
+        {:error, :partial_postal}
+
+      nil ->
+        {:error, :invalid_postal}
+    end
+  end
+
+  defp is_partial_postal?(value) do
+    case parse_postal_code(value) do
+      {:ok, _postal} -> true
+      {:error, :partial_postal} -> true
+      _ -> false
     end
   end
 
