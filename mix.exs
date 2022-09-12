@@ -61,7 +61,7 @@ defmodule BikeBrigade.MixProject do
       {:ex_phone_number, "~> 0.2"},
       {:ecto_enum, "~> 1.4"},
       {:geo_postgis, "~> 3.4.0"},
-      {:lib_lat_lon, "~> 0.4"},
+      {:lib_lat_lon, "~> 0.7"},
       # required by lib_lat_lon
       {:nextexif, "~> 0.0"},
       {:topo, "~> 0.4.0"},
@@ -90,6 +90,7 @@ defmodule BikeBrigade.MixProject do
       {:libcluster, "~> 3.3"},
       {:horde, "~> 0.8.6"},
       {:inflex, "~> 2.0.0"},
+      {:nimble_parsec, "~> 1.0"},
 
       # LiveBook Stuff
       {:kino, "~> 0.4.1"},
@@ -112,10 +113,15 @@ defmodule BikeBrigade.MixProject do
         "setup"
       ],
       setup: [
+
         "deps.get",
+
         "ecto.setup",
+
         "cmd mix ecto.migrate --migrations-path priv/repo/data_migrations",
+
         "cmd npm install --prefix assets"
+
       ],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],

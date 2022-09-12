@@ -8,6 +8,7 @@ defmodule BikeBrigadeWeb.CampaignLive.FormComponent do
   alias BikeBrigade.GSheetsImporter
 
   alias BikeBrigadeWeb.Components.LocationForm
+  alias BikeBrigadeWeb.Components.LiveLocation
 
   defmodule CampaignForm do
     use BikeBrigade.Schema
@@ -37,7 +38,7 @@ defmodule BikeBrigadeWeb.CampaignLive.FormComponent do
         :rider_spreadsheet_layout,
         :program_id
       ])
-      |> cast_assoc(:location, with: &Location.geocoding_changeset/2)
+      |> cast_assoc(:location)
       |> validate_required([:delivery_date, :start_time, :end_time, :location, :program_id])
     end
 
