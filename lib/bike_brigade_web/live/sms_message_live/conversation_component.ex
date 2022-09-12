@@ -81,7 +81,6 @@ defmodule BikeBrigadeWeb.SmsMessageLive.ConversationComponent do
         # TODO do some guards on content type here
         {:ok, MediaStorage.upload_file!(path, content_type)}
       end)
-      |> IO.inspect()
 
     {:noreply, send_sms_message(socket, Map.put(sms_message_params, "media", media))}
   end

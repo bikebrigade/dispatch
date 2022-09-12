@@ -21,8 +21,6 @@ defmodule BikeBrigade.MailchimpApiTest do
   end
 
   test "`get_list(list_id, opted_in)` returns members created since `opted_in`" do
-    now = DateTime.utc_now() |> DateTime.to_iso8601()
-
     ten_minutes_later =
       DateTime.utc_now()
       |> DateTime.add(60 * 60 * 10)

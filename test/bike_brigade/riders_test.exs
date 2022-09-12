@@ -1,4 +1,4 @@
-defmodule BikeBrigade.AccountsTest do
+defmodule BikeBrigade.RidersTest do
   use BikeBrigade.DataCase
 
   alias BikeBrigade.Riders
