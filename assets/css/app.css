@@ -126,4 +126,20 @@
   .tribute-container .menu-highlighted {
     font-weight: bold;
   }
+
+  /* Add webkit safety to height utils */
+  :root {
+    --app-height: 100vh;
+  }
+  .h-screen-safe {
+    height: var(--app-height);
+  }
+
+  .max-h-screen-safe {
+    max-height: var(--app-height);
+  }
+
+  .min-h-screen-safe {
+    min-height: var(--app-height);
+  }
 }

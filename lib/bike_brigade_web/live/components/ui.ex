@@ -183,7 +183,7 @@ defmodule BikeBrigadeWeb.Components.UI do
       role="dialog"
       aria-modal="true"
     >
-      <div class="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+      <div class="flex items-end justify-center min-h-screen-safe px-4 pt-4 pb-20 text-center sm:block sm:p-0">
         <!--
           Background overlay, show/hide based on modal state.
 
