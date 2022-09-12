@@ -56,7 +56,7 @@ defmodule BikeBrigadeWeb.CampaignLive.MapComponent do
         >
         </leaflet-marker>
       <% end %>
-      <%= for {_id, rider} <- @riders_list do %>
+      <%= for {_id, rider} <- @riders_list, !is_nil(rider.location) do %>
         <.live_component
           module={RiderMarkerComponent}
           id={rider.id}

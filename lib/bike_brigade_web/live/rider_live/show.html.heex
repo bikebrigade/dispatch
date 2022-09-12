@@ -37,7 +37,7 @@
     </div>
     <div class="">
       <h1 class="mb-4 text-3xl font-medium leading-none sm:text-4xl">
-        <%= @rider.name %> <small class="text-sm"><%= @rider.pronouns %></small>
+        <%= @rider.name %> <small class="text-sm"><%= pronouns(@rider) %></small>
       </h1>
 
       <p class="text-sm !leading-relaxed xl:text-base">
@@ -64,21 +64,21 @@
             aria-label="Marker"
             class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 sm:mr-.5"
           />
-          <%= @rider.location.address %>
+          <%= address(@rider.location) %>
         </span>
         <span class="block xl:inline">
           <Heroicons.Mini.device_phone_mobile
             aria-label="Phone"
             class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 xl:ml-1 sm:mr-.5"
           />
-          <%= @rider.phone %>
+          <%= phone(@rider) %>
         </span>
         <span class="block xl:inline">
           <Heroicons.Mini.envelope
             aria-label="Mail"
             class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 xl:ml-1 sm:mr-.5"
           />
-          <%= link(@rider.email, to: "mailto:#{@rider.email}", class: "link") %>
+          <%= link(email(@rider), to: "mailto:#{email(@rider)}", class: "link") %>
         </span>
       </p>
       <p class="text-sm !leading-relaxed xl:text-base">
@@ -162,7 +162,7 @@
       Location
     </h2>
     <div class="p-1 my-5 bg-white rounded-lg shadow">
-      <C.map coords={@rider.location.coords} class="w-full h-32 sm:h-40" />
+      <C.map coords={coords(@rider.location)} class="w-full h-32 sm:h-40" />
     </div>
   </div>
 </div>
