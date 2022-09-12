@@ -1,4 +1,4 @@
-defmodule BikeBrigadeWeb.RiderLiveTest do
+defmodule BikeBrigadeWeb.ItineraryLiveTest do
   use BikeBrigadeWeb.ConnCase
 
   alias BikeBrigade.Delivery
@@ -82,7 +82,7 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
         })
 
       # Create a task assigned to rider
-      {:ok, task} =
+      {:ok, _task} =
         Delivery.create_task_for_campaign(campaign, %{
           dropoff_name: Faker.Person.first_name(),
           dropoff_location: Toronto.random_location(),

@@ -32,7 +32,7 @@ defmodule BikeBrigadeWeb.OpportunityLiveTest do
     end
 
     test "can add new opportunity", %{conn: conn} do
-      {:ok, view, html} = live(conn, Routes.opportunity_index_path(conn, :index))
+      {:ok, view, _html} = live(conn, Routes.opportunity_index_path(conn, :index))
 
       view
       |> element("a", "New")

@@ -2,7 +2,6 @@ defmodule BikeBrigade.AccountsTest do
   use BikeBrigade.DataCase
 
   alias BikeBrigade.Accounts
-  alias BikeBrigade.Riders
 
   describe "users" do
     alias BikeBrigade.Accounts.User

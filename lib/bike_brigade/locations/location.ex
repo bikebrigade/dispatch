@@ -5,6 +5,9 @@ defmodule BikeBrigade.Locations.Location do
   alias BikeBrigade.Geocoder
   alias BikeBrigade.Locations.LocationNeighborhood
 
+  alias BikeBrigade.Riders.Rider
+  alias BikeBrigade.Delivery.{Campaign, Opportunity, Task}
+
   @fields [:coords, :address, :city, :postal, :province, :country, :unit, :buzzer]
   @user_provided_fields [:address, :unit, :buzzer]
 
@@ -20,6 +23,12 @@ defmodule BikeBrigade.Locations.Location do
 
     has_one :location_neighborhood, LocationNeighborhood
     has_one :neighborhood, through: [:location_neighborhood, :neighborhood]
+
+    has_one :rider, Rider, on_delete: :nilify_all
+    has_one :campaign, Campaign, on_delete: :nilify_all
+    has_one :task_dropoff, Task, foreign_key: :dropoff_location_id, on_delete: :nilify_all
+    has_one :task_pickup, Task, foreign_key: :pickup_location_id, on_delete: :nilify_all
+    has_one :opportunity, Opportunity, on_delete: :nilify_all
 
     timestamps()
   end

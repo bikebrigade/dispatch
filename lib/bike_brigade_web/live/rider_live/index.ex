@@ -622,7 +622,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
                 search_type={:word_boundary}
               />
             <% end %>
-            <span class="text-xs lowercase ">(<%= rider.pronouns %>)</span>
+            <span class="text-xs lowercase ">(<%= pronouns(rider) %>)</span>
             <.show_phone_if_filtered phone={rider.phone} filters={@rider_search.filters} />
           </:td>
           <:td let={rider}>

@@ -267,7 +267,7 @@ defmodule BikeBrigade.Delivery do
       Repo.all(
         from cr in CampaignRider,
           join: r in assoc(cr, :rider),
-          join: l in assoc(r, :location),
+          left_join: l in assoc(r, :location),
           where: cr.campaign_id == ^campaign.id,
           order_by: r.name,
           select: r,

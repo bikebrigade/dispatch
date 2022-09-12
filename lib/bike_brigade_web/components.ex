@@ -265,8 +265,8 @@ defmodule BikeBrigadeWeb.Components do
     assigns = assign_new(assigns, :class, fn -> "" end)
 
     ~H"""
-    <%= if @coords != %Geo.Point{} do %>
-      <div class={@class}>
+    <div class={@class}>
+      <%= if @coords != %Geo.Point{} do %>
         <leaflet-map
           phx-hook="LeafletMap"
           id={"location-map-#{inspect(@coords.coordinates)}"}
@@ -285,8 +285,10 @@ defmodule BikeBrigadeWeb.Components do
           >
           </leaflet-marker>
         </leaflet-map>
-      </div>
-    <% end %>
+      <% else %>
+        <div class="p-2">Location Unknown</div>
+      <% end %>
+    </div>
     """
   end
 
