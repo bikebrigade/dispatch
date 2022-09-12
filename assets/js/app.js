@@ -511,14 +511,19 @@ topbar.config({
   },
   shadowColor: "rgba(0, 0, 0, .3)"
 })
+
 window.addEventListener("phx:page-loading-start", () => {
   clearTimeout(progressTimeout);
-  progressTimeout = setTimeout(topbar.show, 100)
+  progressTimeout = setTimeout(topbar.show, 100);
 })
 window.addEventListener("phx:page-loading-stop", () => {
   clearTimeout(progressTimeout);
   topbar.hide()
 })
+
+const setAppHeight = () => document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
+window.addEventListener("resize", setAppHeight);
+setAppHeight();
 
 // connect if there are any LiveViews on the page
 liveSocket.connect()
