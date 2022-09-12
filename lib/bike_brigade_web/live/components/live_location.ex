@@ -36,12 +36,14 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
 
   @impl Phoenix.LiveComponent
   def update(%{as: as, location: location} = assigns, socket) do
+    location = if is_nil(location), do: %Location{}, else: location
     changeset = Location.changeset(location)
     form = Phoenix.HTML.FormData.to_form(changeset, as: as)
 
     {:ok,
      socket
      |> assign(assigns)
+     |> assign(:location, location)
      |> assign_new(:form, fn -> form end)}
   end
 
