@@ -103,7 +103,7 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
                 phx-target={@myself}
                 class="block text-sm text-gray-400 bg-white rounded-md font-base hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
-                <Heroicons.Outline.x class="w-5 h-5" />
+                <Heroicons.Solid.x_mark class="w-5 h-5" />
               </a>
             </:x>
           </.show>
@@ -118,7 +118,7 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
           phx-debounce="50"
           name="search"
           autocomplete="off"
-          placeholder="Type to search for riders by name"
+          placeholder="Type to search for riders by name or phone number"
           class="block w-full px-3 py-2 placeholder-gray-400 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           form="select-form"
         />
@@ -156,20 +156,20 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
           <img class="w-12 h-12 rounded-full" src={gravatar(@rider.email)} alt="" />
         </div>
         <div class="ml-2">
-          <div class="text-sm font-medium leading-5 text-indigo-600">
+          <div class="text-sm font-medium leading-5 text-indigo-700">
             <span><%= @rider.name %></span>
             <span class="ml-1 text-xs font-normal text-gray-500">
               <%= @rider.pronouns %>
             </span>
           </div>
-          <div class="flex items-center mt-2 text-xs leading-5 text-gray-500">
-            <Heroicons.Solid.phone class="flex-shrink-0 w-4 h-4 mr-1 text-gray-400" />
+          <div class="flex items-center mt-2 text-xs leading-5 text-gray-700">
+            <Heroicons.Mini.device_phone_mobile class="flex-shrink-0 w-4 h-4 mr-1 text-gray-500" />
             <span class="truncate">
               <%= @rider.phone %>
             </span>
           </div>
-          <div class="flex items-center mt-2 text-xs text-gray-500">
-            <Heroicons.Solid.mail class="flex-shrink-0 w-4 h-4 mr-1 text-gray-400" />
+          <div class="flex items-center mt-2 text-xs text-gray-700">
+            <Heroicons.Mini.envelope class="flex-shrink-0 w-4 h-4 mr-1 text-gray-500" />
             <span class="truncate"><%= @rider.email %></span>
           </div>
         </div>

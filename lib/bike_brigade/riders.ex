@@ -8,7 +8,7 @@ defmodule BikeBrigade.Riders do
   alias BikeBrigade.LocalizedDateTime
 
   alias BikeBrigade.Riders.{Rider, Tag}
-  alias BikeBrigade.Delivery.Campaign
+  alias BikeBrigade.Delivery.{Campaign, CampaignRider}
 
   alias BikeBrigade.EctoPhoneNumber
 
@@ -141,6 +141,27 @@ defmodule BikeBrigade.Riders do
         where: ^where,
         preload: [:program],
         select: {c, count(t)}
+
+    Repo.all(query)
+  end
+
+  def get_itinerary(rider_id, date) do
+    start_of_day = LocalizedDateTime.new!(date, ~T[00:00:00])
+    end_of_day = LocalizedDateTime.new!(date, ~T[23:59:59])
+
+    query =
+      from cr in CampaignRider,
+        join: c in assoc(cr, :campaign),
+        join: r in assoc(cr, :rider),
+        left_join: t in assoc(c, :tasks),
+        on: t.assigned_rider_id == r.id,
+        order_by: [asc: c.delivery_start],
+        where:
+          cr.rider_id == ^rider_id and c.delivery_start >= ^start_of_day and
+            c.delivery_end <= ^end_of_day,
+        preload: [
+          campaign: {c, [:program, :location, tasks: {t, [:dropoff_location, task_items: :item]}]}
+        ]
 
     Repo.all(query)
   end

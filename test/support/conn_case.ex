@@ -19,12 +19,15 @@ defmodule BikeBrigadeWeb.ConnCase do
 
   use ExUnit.CaseTemplate
 
+  alias BikeBrigade.Accounts
+
   using do
     quote do
       # Import conveniences for testing with connections
       import Plug.Conn
       import Phoenix.ConnTest
       import BikeBrigadeWeb.ConnCase
+      import BikeBrigade.Fixtures
 
       alias BikeBrigadeWeb.Router.Helpers, as: Routes
 
@@ -43,10 +46,19 @@ defmodule BikeBrigadeWeb.ConnCase do
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
 
+  # TODO: login_as_dispatcher
   def login(%{conn: conn}) do
     user = fixture(:user, %{is_dispatcher: true})
 
-    %{conn: login_user(conn, user)}
+    %{user: user, conn: login_user(conn, user)}
+  end
+
+  def login_as_rider(%{conn: conn}) do
+    rider = fixture(:rider)
+
+    {:ok, user} = Accounts.create_user_for_rider(rider)
+
+    %{conn: login_user(conn, user), user: user, rider: rider}
   end
 
   def create_program(%{}) do
@@ -71,7 +83,7 @@ defmodule BikeBrigadeWeb.ConnCase do
     %{opportunity: opportunity, program: program}
   end
 
-  defp login_user(conn, user) do
+  def login_user(conn, user) do
     conn
     |> Phoenix.ConnTest.init_test_session(%{})
     |> BikeBrigadeWeb.Authentication.do_login(user)

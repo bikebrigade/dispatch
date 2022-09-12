@@ -5,7 +5,7 @@ defmodule BikeBrigade.GoogleMaps do
 
   def embed_map_url(%Location{} = location) do
     location
-    |> String.Chars.to_string()
+    |> print_address()
     |> embed_map_url()
   end
 
@@ -15,7 +15,7 @@ defmodule BikeBrigade.GoogleMaps do
 
   def open_map_url(%Location{} = location) do
     location
-    |> String.Chars.to_string()
+    |> print_address()
     |> open_map_url()
   end
 
@@ -37,8 +37,8 @@ defmodule BikeBrigade.GoogleMaps do
 
   def map_query(origin, addresses) do
     # Origin or addresses can be Locations or Strings
-    origin = String.Chars.to_string(origin)
-    addresses = Enum.map(addresses, &String.Chars.to_string/1)
+    origin = print_address(origin)
+    addresses = Enum.map(addresses, &print_address/1)
 
     {destination, waypoints} = List.pop_at(addresses, -1)
 
@@ -50,5 +50,13 @@ defmodule BikeBrigade.GoogleMaps do
       end
 
     URI.encode_query(query)
+  end
+
+  defp print_address(address) when is_binary(address) do
+    address
+  end
+
+  defp print_address(%Location{address: address, postal: postal}) do
+    "#{address} #{postal}"
   end
 end

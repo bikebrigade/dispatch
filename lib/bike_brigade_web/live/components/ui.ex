@@ -183,7 +183,7 @@ defmodule BikeBrigadeWeb.Components.UI do
       role="dialog"
       aria-modal="true"
     >
-      <div class="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+      <div class="flex items-end justify-center min-h-screen-safe px-4 pt-4 pb-20 text-center sm:block sm:p-0">
         <!--
           Background overlay, show/hide based on modal state.
 
@@ -214,7 +214,7 @@ defmodule BikeBrigadeWeb.Components.UI do
                 class="block text-gray-400 bg-white rounded-md hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
                 <span class="sr-only">Close</span>
-                <Heroicons.Outline.x class="w-6 h-6" />
+                <Heroicons.Solid.x_mark class="w-6 h-6" />
               </button>
             </div>
           <% end %>
