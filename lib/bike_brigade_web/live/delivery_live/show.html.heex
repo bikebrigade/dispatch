@@ -48,7 +48,7 @@
     </div>
     <div class="relative flex justify-center">
       <span class="px-2 text-gray-500 bg-gray-50">
-        <Heroicons.Outline.star class="w-5 h-5 text-gray-500" />
+        <Heroicons.star class="w-5 h-5 text-gray-500" />
       </span>
     </div>
   </div>
@@ -59,7 +59,7 @@
         aria-hidden="true"
       >
         <div class="flex items-center justify-center flex-shrink-0 w-8 h-8 bg-green-700 rounded-full ring-8 ring-white">
-          <Heroicons.Mini.clipboard_document_check class="w-5 h-5 text-white" />
+          <Heroicons.clipboard_document_check mini class="w-5 h-5 text-white" />
         </div>
         <div class="w-full pl-1 border-l border-gray-200 sm:flex-nowrap">
           <div class="flex flex-col space-y-.5">
@@ -74,13 +74,13 @@
                   size={:small}
                   color={:green}
                 >
-                  <Heroicons.Mini.map class="w-5 h-5 mr-1 -ml-0.5" />
+                  <Heroicons.map mini class="w-5 h-5 mr-1 -ml-0.5" />
                   Map
                 </C.button>
               </div>
             </div>
             <div class="inline-flex flex-shrink-0 leading-normal">
-              <Heroicons.Mini.clock
+              <Heroicons.clock mini
                 aria-label="Pickup Time"
                 class="w-4 h-4 mt-1 mr-1 text-gray-500"
               />
@@ -88,7 +88,7 @@
             </div>
             <C.location location={@campaign.location} />
             <div class="inline-flex leading-normal">
-              <Heroicons.Mini.shopping_bag class="flex-shrink-0 w-4 h-4 mt-1 mr-1 text-gray-500 " />
+              <Heroicons.shopping_bag mini class="flex-shrink-0 w-4 h-4 mt-1 mr-1 text-gray-500 " />
               <%= humanized_task_count(@rider.assigned_tasks) %>
             </div>
           </div>
@@ -107,12 +107,12 @@
             phx-hook="Alpine"
             class="relative mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-7"
           >
-            <div :class="{ 'max-h-20': collapsed }" class="overflow-hidden whitespace-pre-wrap">
+            <div x-bind:class="{ 'max-h-20': collapsed }" class="overflow-hidden whitespace-pre-wrap">
               <%= render_raw(@campaign.details) %>
             </div>
             <div
               x-show="overflows"
-              :class="{'absolute inset-x-0 bottom-0': collapsed }"
+              x-bind:class="{'absolute inset-x-0 bottom-0': collapsed }"
               class="flex justify-around p-1.5 bg-white bg-opacity-90"
             >
               <button
@@ -134,7 +134,7 @@
         </div>
         <div class="relative flex justify-center">
           <span class="px-2 text-gray-500 bg-gray-50">
-            <Heroicons.Outline.chevron_down class="w-5 h-5 text-gray-500" />
+            <Heroicons.chevron_down class="w-5 h-5 text-gray-500" />
           </span>
         </div>
       </div>
@@ -161,11 +161,11 @@
                       aria-label={"Text Delivery #{i}"}
                       size={:small}
                     >
-                      <Heroicons.Mini.chat_bubble_bottom_center_text class="w-5 h-5 mr-1 -ml-0.5" />
+                      <Heroicons.chat_bubble_bottom_center_text mini class="w-5 h-5 mr-1 -ml-0.5" />
                       Text
                     </C.button>
                     <C.button href={tel_url(task)} aria-label={"Call Delivery #{i}"} size={:small}>
-                      <Heroicons.Mini.phone_arrow_up_right class="w-5 h-5 mr-1 -ml-0.5" />
+                      <Heroicons.phone_arrow_up_right mini class="w-5 h-5 mr-1 -ml-0.5" />
                       Call
                     </C.button>
                   <% end %>
@@ -175,13 +175,13 @@
                     aria-label={"Map Delivery #{i}"}
                     size={:small}
                   >
-                    <Heroicons.Mini.map class="w-5 h-5 mr-1 -ml-0.5" />
+                    <Heroicons.map mini class="w-5 h-5 mr-1 -ml-0.5" />
                     Map
                   </C.button>
                 </div>
               </div>
               <div class="inline-flex flex-shrink-0 leading-normal">
-                <Heroicons.Mini.user
+                <Heroicons.user mini
                   aria-label="Dropoff Name"
                   class="w-4 h-4 mt-1 mr-1 text-gray-500"
                 />
@@ -189,7 +189,7 @@
               </div>
               <C.location location={task.dropoff_location} />
               <div class="inline-flex flex-shrink-0 leading-normal">
-                <Heroicons.Mini.device_phone_mobile
+                <Heroicons.device_phone_mobile mini
                   aria-label="Dropoff Phone"
                   class="w-4 h-4 mt-1 mr-1 text-gray-500"
                 />
@@ -200,7 +200,7 @@
                 <% end %>
               </div>
               <div class="inline-flex leading-normal">
-                <Heroicons.Mini.shopping_bag class="flex-shrink-0 w-4 h-4 mt-1 mr-1 text-gray-500 " />
+                <Heroicons.shopping_bag mini class="flex-shrink-0 w-4 h-4 mt-1 mr-1 text-gray-500 " />
                 <%= CampaignHelpers.request_type(task) %>
               </div>
             </div>
@@ -219,7 +219,7 @@
               phx-hook="Alpine"
               class="relative mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-7"
             >
-              <div :class="{ 'max-h-24': collapsed }" class="overflow-hidden">
+              <div x-bind:class="{ 'max-h-24': collapsed }" class="overflow-hidden">
                 <%= if is_nil(task.rider_notes) or task.rider_notes=="" do %>
                   N/A
                 <% else %>
@@ -228,7 +228,7 @@
               </div>
               <div
                 x-show="overflows"
-                :class="{'absolute inset-x-0 bottom-0': collapsed }"
+                x-bind:class="{'absolute inset-x-0 bottom-0': collapsed }"
                 class="flex justify-around p-1.5 bg-white bg-opacity-90"
               >
                 <button
@@ -250,14 +250,14 @@
       </div>
       <div class="relative flex justify-center">
         <span class="px-2 text-gray-500 bg-gray-50">
-          <Heroicons.Outline.chevron_double_down class="w-5 h-5 text-gray-500" />
+          <Heroicons.chevron_double_down class="w-5 h-5 text-gray-500" />
         </span>
       </div>
     </div>
     <div class="w-full overflow-hidden bg-white shadow-md sm:mt-2 sm:rounded-lg">
       <div class="flex items-start space-x-1 p-2.5 bg-white border-b border-gray-200 sm:p-4">
         <div class="flex items-center justify-center flex-shrink-0 w-8 h-8 bg-green-700 rounded-full ring-8 ring-white">
-          <Heroicons.Mini.star class="w-5 h-5 text-white" />
+          <Heroicons.star mini class="w-5 h-5 text-white" />
         </div>
         <div class="w-full pl-1 border-l border-gray-200 sm:flex-nowrap">
           <div class="flex flex-row items-center justify-between">
@@ -266,7 +266,7 @@
             </h2>
             <div class="flex flex-wrap items-start justify-end flex-shrink ml-auto">
               <C.button href={sms_done_url(@campaign, @rider)} class="ml-auto" color={:green}>
-                <Heroicons.Mini.chat_bubble_left_right class="w-5 h-5 mr-1 -ml-0.5" />
+                <Heroicons.chat_bubble_left_right mini class="w-5 h-5 mr-1 -ml-0.5" />
                 I'm done!
               </C.button>
             </div>
@@ -283,7 +283,7 @@
       </div>
       <div class="relative flex justify-center">
         <span class="px-2 text-gray-500 bg-gray-50">
-          <Heroicons.Mini.map class="w-5 h-5 text-gray-500" />
+          <Heroicons.map mini class="w-5 h-5 text-gray-500" />
         </span>
       </div>
     </div>

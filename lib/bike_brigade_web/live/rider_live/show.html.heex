@@ -42,14 +42,14 @@
 
       <p class="text-sm !leading-relaxed xl:text-base">
         <span class="block xl:inline">
-          <Heroicons.Mini.calendar
+          <Heroicons.calendar mini
             aria-label="Calendar"
             class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 sm:mr-.5"
           />
           <span>Signed up on: <%= format_date(@rider.signed_up_on) %></span>
         </span>
         <span class="block xl:inline">
-          <Heroicons.Mini.fire
+          <Heroicons.fire mini
             aria-label="Fire"
             class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 xl:ml-1 sm:mr-.5"
           />
@@ -60,21 +60,21 @@
       </p>
       <p class="text-sm !leading-relaxed xl:text-base">
         <span class="">
-          <Heroicons.Mini.map_pin
+          <Heroicons.map_pin mini
             aria-label="Marker"
             class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 sm:mr-.5"
           />
           <%= address(@rider.location) %>
         </span>
         <span class="block xl:inline">
-          <Heroicons.Mini.device_phone_mobile
+          <Heroicons.device_phone_mobile mini
             aria-label="Phone"
             class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 xl:ml-1 sm:mr-.5"
           />
           <%= phone(@rider) %>
         </span>
         <span class="block xl:inline">
-          <Heroicons.Mini.envelope
+          <Heroicons.envelope mini
             aria-label="Mail"
             class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 xl:ml-1 sm:mr-.5"
           />
@@ -83,7 +83,7 @@
       </p>
       <p class="text-sm !leading-relaxed xl:text-base">
         <span class="">
-          <Heroicons.Mini.briefcase
+          <Heroicons.briefcase mini
             aria-label="Briefcase"
             class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 sm:mr-.5"
           />
@@ -94,14 +94,14 @@
         </span>
         <%= if @rider.text_based_itinerary do %>
           <span class="">
-            <Heroicons.Mini.signal_slash
+            <Heroicons.signal_slash mini
               aria-label="Status Offline"
               class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 sm:mr-.5"
             /> Text-only delivery instructions
           </span>
         <% end %>
         <span class="block xl:inline">
-          <Heroicons.Mini.tag
+          <Heroicons.tag mini
             aria-label="Tag"
             class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 xl:ml-2 sm:mr-.5"
           />
@@ -184,7 +184,7 @@
               phx-value-period="3"
               class="relative items-center hidden px-2 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 md:inline-flex rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
             >
-              <Heroicons.Solid.chevron_left class="w-5 h-5" />
+              <Heroicons.chevron_left solid class="w-5 h-5" />
             </button>
             <button
               type="button"
@@ -192,7 +192,7 @@
               phx-value-period="2"
               class="relative inline-flex items-center px-2 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 md:hidden rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
             >
-              <Heroicons.Solid.chevron_left class="w-5 h-5" />
+              <Heroicons.chevron_left solid class="w-5 h-5" />
             </button>
             <button
               type="button"
@@ -200,7 +200,7 @@
               phx-value-period="3"
               class="relative items-center hidden px-2 py-1 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 md:inline-flex rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
             >
-              <Heroicons.Solid.chevron_right class="w-5 h-5" />
+              <Heroicons.chevron_right solid class="w-5 h-5" />
             </button>
             <button
               type="button"
@@ -208,7 +208,7 @@
               phx-value-period="2"
               class="relative inline-flex items-center px-2 py-1 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 md:hidden rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
             >
-              <Heroicons.Solid.chevron_right class="w-5 h-5" />
+              <Heroicons.chevron_right solid class="w-5 h-5" />
             </button>
           </span>
         </div>

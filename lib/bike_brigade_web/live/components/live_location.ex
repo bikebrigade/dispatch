@@ -124,7 +124,7 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
             class={"#{if !@open, do: "hidden"} ml-1 edit-mode"}
             phx-click={JS.push("close", target: @myself)}
           >
-            <Heroicons.Solid.chevron_down class="w-5 h-5" />
+            <Heroicons.chevron_down solid class="w-5 h-5" />
           </button>
         </div>
         <div class={"#{if !@open, do: "hidden"} my-1 edit-mode"}>

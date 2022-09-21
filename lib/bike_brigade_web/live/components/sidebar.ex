@@ -15,7 +15,7 @@ defmodule BikeBrigadeWeb.Components.Sidebar do
             to={Routes.program_index_path(@socket, :index)}
           >
             <:icon let={class}>
-              <Heroicons.Outline.inbox_stack class={class} />
+              <Heroicons.inbox_stack class={class} />
             </:icon>
             Programs
           </.sidebar_link>
@@ -24,7 +24,7 @@ defmodule BikeBrigadeWeb.Components.Sidebar do
             to={Routes.campaign_index_path(@socket, :index)}
           >
             <:icon let={class}>
-              <Heroicons.Outline.inbox class={class} />
+              <Heroicons.inbox class={class} />
             </:icon>
             Campaigns
           </.sidebar_link>
@@ -33,7 +33,7 @@ defmodule BikeBrigadeWeb.Components.Sidebar do
             to={Routes.opportunity_index_path(@socket, :index)}
           >
             <:icon let={class}>
-              <Heroicons.Outline.clipboard_document_check class={class} />
+              <Heroicons.clipboard_document_check class={class} />
             </:icon>
             Opportunities
           </.sidebar_link>
@@ -42,7 +42,7 @@ defmodule BikeBrigadeWeb.Components.Sidebar do
             to={Routes.rider_index_path(@socket, :index)}
           >
             <:icon let={class}>
-              <Heroicons.Outline.user_group class={class} />
+              <Heroicons.user_group class={class} />
             </:icon>
             Riders
           </.sidebar_link>
@@ -51,7 +51,7 @@ defmodule BikeBrigadeWeb.Components.Sidebar do
             to={Routes.stats_dashboard_path(@socket, :show)}
           >
             <:icon let={class}>
-              <Heroicons.Outline.chart_bar class={class} />
+              <Heroicons.chart_bar class={class} />
             </:icon>
             Stats
           </.sidebar_link>
@@ -60,7 +60,7 @@ defmodule BikeBrigadeWeb.Components.Sidebar do
             to={Routes.user_index_path(@socket, :index)}
           >
             <:icon let={class}>
-              <Heroicons.Outline.users class={class} />
+              <Heroicons.users class={class} />
             </:icon>
             Users
           </.sidebar_link>
@@ -69,7 +69,7 @@ defmodule BikeBrigadeWeb.Components.Sidebar do
             to={Routes.sms_message_index_path(@socket, :index)}
           >
             <:icon let={class}>
-              <Heroicons.Outline.chat_bubble_oval_left_ellipsis class={class} />
+              <Heroicons.chat_bubble_oval_left_ellipsis class={class} />
             </:icon>
             Messages
           </.sidebar_link>
@@ -80,7 +80,7 @@ defmodule BikeBrigadeWeb.Components.Sidebar do
         to={Routes.rider_show_path(@socket, :profile)}
       >
         <:icon let={class}>
-          <Heroicons.Outline.user_circle class={class} />
+          <Heroicons.user_circle class={class} />
         </:icon>
         My Profile
       </.sidebar_link>
@@ -90,7 +90,7 @@ defmodule BikeBrigadeWeb.Components.Sidebar do
         method={:post}
       >
         <:icon let={class}>
-          <Heroicons.Solid.arrow_left_on_rectangle class={class} />
+          <Heroicons.arrow_left_on_rectangle solid class={class} />
         </:icon>
         Log out
       </.sidebar_link>

@@ -10,8 +10,8 @@ defmodule BikeBrigadeWeb.LiveHooks.Authentication do
 
       {:cont,
        socket
-       |> assign_new(:current_user, fn -> user end)
-       |> assign_new(:page_title, fn -> nil end)}
+       |> Phoenix.Component.assign_new(:current_user, fn -> user end)
+       |> Phoenix.Component.assign_new(:page_title, fn -> nil end)}
     else
       {:halt,
        socket
@@ -33,8 +33,8 @@ defmodule BikeBrigadeWeb.LiveHooks.Authentication do
 
         {:cont,
          socket
-         |> assign_new(:current_user, fn -> user end)
-         |> assign_new(:page_title, fn -> nil end)}
+         |> Phoenix.Component.assign_new(:current_user, fn -> user end)
+         |> Phoenix.Component.assign_new(:page_title, fn -> nil end)}
 
       _ ->
         {:halt,

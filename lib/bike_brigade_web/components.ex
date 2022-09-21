@@ -1,5 +1,5 @@
 defmodule BikeBrigadeWeb.Components do
-  use BikeBrigadeWeb, :phoenix_component
+  use BikeBrigadeWeb, :component
 
   use Phoenix.HTML
 
@@ -211,7 +211,7 @@ defmodule BikeBrigadeWeb.Components do
       <div class="p-4 rounded-md bg-green-50">
         <div class="flex">
           <div class="flex-shrink-0">
-            <Heroicons.Mini.check_circle class="w-5 h-5 text-green-400" />
+            <Heroicons.check_circle mini class="w-5 h-5 text-green-400" />
           </div>
           <div class="ml-3">
             <p class="text-sm font-medium leading-5 text-green-800">
@@ -225,7 +225,7 @@ defmodule BikeBrigadeWeb.Components do
                 phx-value-key="info"
                 class="inline-flex rounded-md p-1.5 text-green-500 hover:bg-green-100 focus:outline-none focus:bg-green-100 transition ease-in-out duration-150"
               >
-                <Heroicons.Mini.x_mark class="w-5 h-5" />
+                <Heroicons.x_mark mini class="w-5 h-5" />
               </button>
             </div>
           </div>
@@ -237,7 +237,7 @@ defmodule BikeBrigadeWeb.Components do
       <div class="p-4 rounded-md bg-red-50">
         <div class="flex">
           <div class="flex-shrink-0">
-            <Heroicons.Mini.x_circle class="w-5 h-5 text-red-400" />
+            <Heroicons.x_circle mini class="w-5 h-5 text-red-400" />
           </div>
           <div class="ml-3">
             <p class="text-sm font-medium leading-5 text-red-800">
@@ -251,7 +251,7 @@ defmodule BikeBrigadeWeb.Components do
                 phx-value-key="error"
                 class="inline-flex rounded-md p-1.5 text-red-500 hover:bg-red-100 focus:outline-none focus:bg-red-100 transition ease-in-out duration-150"
               >
-                <Heroicons.Mini.x_mark class="w-5 h-5" />
+                <Heroicons.x_mark mini class="w-5 h-5" />
               </button>
             </div>
           </div>
@@ -366,9 +366,9 @@ defmodule BikeBrigadeWeb.Components do
     ~H"""
     <button type="button" phx-value-field={@current_field} phx-value-order={@next} {@attrs}>
       <%= if @order == :asc do %>
-        <Heroicons.Mini.bars_arrow_up class={@icon_class} />
+        <Heroicons.bars_arrow_up mini class={@icon_class} />
       <% else %>
-        <Heroicons.Mini.bars_arrow_down class={@icon_class} />
+        <Heroicons.bars_arrow_down mini class={@icon_class} />
       <% end %>
     </button>
     """
@@ -377,7 +377,7 @@ defmodule BikeBrigadeWeb.Components do
   def location(assigns) do
     ~H"""
     <div class="inline-flex flex-shrink-0 leading-normal">
-      <Heroicons.Mini.map_pin aria_label="Location" class="w-4 h-4 mt-1 mr-1 text-gray-500" />
+      <Heroicons.map_pin mini aria_label="Location" class="w-4 h-4 mt-1 mr-1 text-gray-500" />
       <div class="grid grid-cols-2 gap-y-0 gap-x-1">
         <div class="col-span-2"><%= @location.address %></div>
         <%= if @location.unit do %>

@@ -95,13 +95,13 @@
 <div class="flex flex-col h-full">
   <div class="flex flex-row flex-wrap items-center md:flex-nowrap">
     <C.button patch_to={Routes.campaign_show_path(@socket, :messaging, @campaign.id)} class="mr-3">
-      <Heroicons.Mini.chat_bubble_left_right class="w-5 h-5 mr-2 -ml-1" />
+      <Heroicons.chat_bubble_left_right mini class="w-5 h-5 mr-2 -ml-1" />
       Messaging
     </C.button>
     <div class="relative inline-block dropdown">
       <C.button class="my-3 mr-3">
         <span class="mr-1">Print</span>
-        <Heroicons.Solid.chevron_down class="w-4 h-4" />
+        <Heroicons.chevron_down solid class="w-4 h-4" />
       </C.button>
       <ul class="absolute z-10 hidden pt-1 text-gray-700 dropdown-menu">
         <li>
@@ -122,7 +122,7 @@
     <div class="relative inline-block dropdown">
       <C.button class="my-3 mr-3">
         <span class="mr-1">Download</span>
-        <Heroicons.Solid.chevron_down class="w-4 h-4" />
+        <Heroicons.chevron_down solid class="w-4 h-4" />
       </C.button>
       <ul class="absolute z-10 hidden pt-1 text-gray-700 dropdown-menu">
         <li>

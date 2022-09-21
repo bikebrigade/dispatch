@@ -20,7 +20,7 @@
         aria_label: "Previous Day",
         class: "relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
 do %>
-        <Heroicons.Solid.chevron_left class="w-5 h-5" />
+        <Heroicons.chevron_left solid class="w-5 h-5" />
       <% end %>
       <%= live_patch to: Routes.itinerary_index_path(@socket, :index, date: LocalizedDateTime.today),
         class: "relative items-center hidden px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 sm:inline-flex hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
@@ -32,7 +32,7 @@ do %>
         aria_label: "Next Day",
         class: "relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
 do %>
-        <Heroicons.Solid.chevron_right class="w-5 h-5" />
+        <Heroicons.chevron_right solid class="w-5 h-5" />
       <% end %>
     </span>
   </div>
@@ -62,7 +62,7 @@ do %>
               <div class="mt-2 sm:flex sm:justify-between">
                 <div class="sm:flex">
                   <p class="flex items-center text-sm text-gray-500">
-                    <Heroicons.Outline.clock
+                    <Heroicons.clock
                       aria-label="Pickup Time"
                       class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
                     />
@@ -74,7 +74,7 @@ do %>
               <div class="mt-2 sm:flex sm:justify-between">
                 <div class="sm:flex">
                   <p class="flex items-center text-sm text-gray-500">
-                    <Heroicons.Outline.shopping_bag
+                    <Heroicons.shopping_bag
                       aria-label="Location"
                       class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
                     />

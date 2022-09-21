@@ -15,17 +15,17 @@ defmodule BikeBrigadeWeb.StatsLive.NavComponent do
     <div class="border-b border-gray-200">
       <nav class="flex -mb-px space-x-4" aria-label="Tabs">
         <%= live_redirect to: Routes.stats_dashboard_path(@socket, :show), class: @class.(:dashboard) do %>
-          <Heroicons.Mini.chart_pie class={@svg_class.(:dashboard)} />
+          <Heroicons.chart_pie mini class={@svg_class.(:dashboard)} />
           <span>Dashboard</span>
         <% end %>
 
         <%= live_redirect to: Routes.stats_leaderboard_path(@socket, :show), class: @class.(:leaderboard) do %>
-          <Heroicons.Mini.user_group class={@svg_class.(:leaderboard)} />
+          <Heroicons.user_group mini class={@svg_class.(:leaderboard)} />
           <span>Leaderboard</span>
         <% end %>
 
         <a href="/analytics" target="_blank" class={@class.(:journal)}>
-          <Heroicons.Mini.presentation_chart_line class={@svg_class.(:journal)} />
+          <Heroicons.presentation_chart_line mini class={@svg_class.(:journal)} />
           <span class="mr-1">Analytics Dashboard</span>
           <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-yellow-100 text-yellow-800">
             Beta

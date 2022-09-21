@@ -1,5 +1,5 @@
 defmodule BikeBrigadeWeb.Components.LocationForm do
-  use BikeBrigadeWeb, :phoenix_component
+  use BikeBrigadeWeb, :component
 
   def component(assigns) do
     ~H"""

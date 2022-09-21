@@ -2,7 +2,6 @@ defmodule BikeBrigadeWeb.Components.UserSelectionComponent do
   use BikeBrigadeWeb, :live_component
 
   alias BikeBrigade.Accounts
-  Phoenix.LiveView.Helpers
 
   @impl Phoenix.LiveComponent
   def mount(socket) do

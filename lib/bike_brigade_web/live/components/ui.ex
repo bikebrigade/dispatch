@@ -214,7 +214,7 @@ defmodule BikeBrigadeWeb.Components.UI do
                 class="block text-gray-400 bg-white rounded-md hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
                 <span class="sr-only">Close</span>
-                <Heroicons.Solid.x_mark class="w-6 h-6" />
+                <Heroicons.x_mark solid class="w-6 h-6" />
               </button>
             </div>
           <% end %>

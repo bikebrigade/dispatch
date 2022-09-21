@@ -103,7 +103,7 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
                 phx-target={@myself}
                 class="block text-sm text-gray-400 bg-white rounded-md font-base hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
-                <Heroicons.Solid.x_mark class="w-5 h-5" />
+                <Heroicons.x_mark solid class="w-5 h-5" />
               </a>
             </:x>
           </.show>
@@ -163,13 +163,13 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
             </span>
           </div>
           <div class="flex items-center mt-2 text-xs leading-5 text-gray-700">
-            <Heroicons.Mini.device_phone_mobile class="flex-shrink-0 w-4 h-4 mr-1 text-gray-500" />
+            <Heroicons.device_phone_mobile mini class="flex-shrink-0 w-4 h-4 mr-1 text-gray-500" />
             <span class="truncate">
               <%= @rider.phone %>
             </span>
           </div>
           <div class="flex items-center mt-2 text-xs text-gray-700">
-            <Heroicons.Mini.envelope class="flex-shrink-0 w-4 h-4 mr-1 text-gray-500" />
+            <Heroicons.envelope mini class="flex-shrink-0 w-4 h-4 mr-1 text-gray-500" />
             <span class="truncate"><%= @rider.email %></span>
           </div>
         </div>

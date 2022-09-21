@@ -37,7 +37,7 @@
                 </span>
               </div>
               <div class="inline-flex items-center text-sm text-gray-500 flex-shrink-1">
-                <Heroicons.Mini.device_phone_mobile class="w-4 h-4" />
+                <Heroicons.device_phone_mobile mini class="w-4 h-4" />
                 <span class="pii"><%= @rider.phone %></span>
               </div>
             </div>
@@ -105,10 +105,10 @@
                       <div class="mt-0.5 flex justify-end text-xs">
                         Saved in Drive:
                         <a href={m.gdrive_folder_url} target="_blank" class="ml-1 link">
-                          <Heroicons.Solid.folder_open class="w-4 h-4" />
+                          <Heroicons.folder_open solid class="w-4 h-4" />
                         </a>
                         <a href={m.gdrive_url} target="_blank" class="ml-1 link">
-                          <Heroicons.Solid.document_arrow_down class="w-4 h-4" />
+                          <Heroicons.document_arrow_down solid class="w-4 h-4" />
                         </a>
                       </div>
                     <% end %>
@@ -141,23 +141,23 @@
                     <%= case message.twilio_status do %>
                       <% "queued" -> %>
                         <C.tooltip tooltip="Queued">
-                          <Heroicons.Mini.ellipsis_horizontal class="w-4 h-4" />
+                          <Heroicons.ellipsis_horizontal mini class="w-4 h-4" />
                         </C.tooltip>
                       <% "sent" -> %>
                         <C.tooltip tooltip="Sent">
-                          <Heroicons.Mini.arrow_right_circle class="w-4 h-4" />
+                          <Heroicons.arrow_right_circle mini class="w-4 h-4" />
                         </C.tooltip>
                       <% "delivered" -> %>
                         <C.tooltip tooltip="Delivered">
-                          <Heroicons.Mini.check_circle class="w-4 h-4" />
+                          <Heroicons.check_circle mini class="w-4 h-4" />
                         </C.tooltip>🙂
                       <% "undelivered" -> %>
                         <C.tooltip tooltip="Undelivered">
-                          <Heroicons.Mini.exclamation_circle class="w-4 h-4 text-red-600" />
+                          <Heroicons.exclamation_circle mini class="w-4 h-4 text-red-600" />
                         </C.tooltip>
                       <% "failed" -> %>
                         <C.tooltip tooltip="Failed">
-                          <Heroicons.Mini.exclamation_circle class="w-4 h-4 text-red-600" />
+                          <Heroicons.exclamation_circle mini class="w-4 h-4 text-red-600" />
                         </C.tooltip>
                       <% _ -> %>
                     <% end %>

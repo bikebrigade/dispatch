@@ -59,14 +59,14 @@
                   <%= opportunity.program.name %>
                 </h2>
                 <div class="flex items-center text-sm text-gray-300">
-                  <Heroicons.Outline.clock
+                  <Heroicons.clock
                     aria-label="Pickup Time"
                     class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
                   />
                   <%= time_interval(opportunity.delivery_start, opportunity.delivery_end) %>
                 </div>
                 <div class="flex items-center text-sm text-gray-300">
-                  <Heroicons.Outline.map_pin class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
+                  <Heroicons.map_pin class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
                   <%= if !opportunity.hide_address do %>
                     <div class="flex flex-col sm:flex-row">
                       <%= link to: GoogleMaps.open_map_url(opportunity.location), target: "_blank", class: "underline hover:text-gray-300 mr-1" do %>
@@ -84,7 +84,7 @@
                 </div>
                 <%= if opportunity.program.campaign_blurb  do %>
                   <div class="flex items-start text-sm text-gray-300">
-                    <Heroicons.Outline.information_circle
+                    <Heroicons.information_circle
                       aria-label="Pickup Time"
                       class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
                     />
@@ -93,7 +93,7 @@
                 <% end %>
                 <%= if Enum.filter(opportunity.program.items, fn item -> not item.hidden end) != []  do %>
                   <div class="flex items-start text-sm text-gray-300">
-                    <Heroicons.Outline.shopping_bag
+                    <Heroicons.shopping_bag
                       aria-label="Pickup Time"
                       class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
                     />
