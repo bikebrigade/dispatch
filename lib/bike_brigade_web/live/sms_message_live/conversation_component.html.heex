@@ -129,7 +129,6 @@
                         <C.tooltip tooltip="Delivered">
                           <Heroicons.check_circle mini class="w-4 h-4" />
                         </C.tooltip>
-                        🙂
                       <% "undelivered" -> %>
                         <C.tooltip tooltip="Undelivered">
                           <Heroicons.exclamation_circle mini class="w-4 h-4 text-red-600" />
@@ -160,7 +159,6 @@
           id="conversation-form"
           phx-change="validate"
           phx-submit="send"
-          ,
           phx-target={@myself}
           autocomplete="off"
         >
