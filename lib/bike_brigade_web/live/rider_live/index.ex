@@ -607,28 +607,28 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
               />
             </div>
           </:th>
-          <:td let={rider} class="text-center" padding="px-3">
+          <:td :let={rider} class="text-center" padding="px-3">
             <%= checkbox(:selected, "#{rider.id}",
               form: "selected",
               value: MapSet.member?(@selected, rider.id),
               class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
             ) %>
           </:td>
-          <:td let={rider} padding="px-3">
-            <%= live_redirect to: Routes.rider_show_path(@socket, :show, rider), class: "link" do %>
+          <:td :let={rider} padding="px-3">
+            <.link navigate={Routes.rider_show_path(@socket, :show, rider)} class="link">
               <.bold_search
                 string={rider.name}
                 search={get_filter(@rider_search.filters, :name)}
                 search_type={:word_boundary}
               />
-            <% end %>
+            </.link>
             <span class="text-xs lowercase ">(<%= pronouns(rider) %>)</span>
             <.show_phone_if_filtered phone={rider.phone} filters={@rider_search.filters} />
           </:td>
-          <:td let={rider}>
+          <:td :let={rider}>
             <%= Locations.neighborhood(rider.location) %>
           </:td>
-          <:td let={rider}>
+          <:td :let={rider}>
             <ul class="flex">
               <%= for tag <- rider.tags do %>
                 <li class="before:content-[','] first:before:content-['']">
@@ -643,7 +643,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
               <% end %>
             </ul>
           </:td>
-          <:td let={rider}>
+          <:td :let={rider}>
             <button type="button" phx-click={add_filter(:capacity, rider.capacity)} } class="link">
               <%= if get_filter(@rider_search.filters, :capacity, rider.capacity) do %>
                 <span class="font-bold"><%= rider.capacity %></span>
@@ -652,7 +652,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
               <% end %>
             </button>
           </:td>
-          <:td let={rider}>
+          <:td :let={rider}>
             <%= if rider.latest_campaign do %>
               <%= rider.latest_campaign.delivery_start
               |> LocalizedDateTime.to_date()
@@ -822,7 +822,8 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
             "my-0.5 inline-flex items-center px-2.5 py-1.5 rounded-md text-md font-medium #{color(type)}"
           }>
             <span class="text-700 mr-0.5 font-base"><%= type %>:</span><%= search %>
-            <Heroicons.x_circle mini
+            <Heroicons.x_circle
+              mini
               class="w-5 h-5 ml-1 cursor-pointer"
               phx-click="remove-filter"
               phx-value-index={i}

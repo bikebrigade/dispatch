@@ -1,7 +1,7 @@
 <div>
   <C.flash_component flash={@flash} />
   <.form
-    let={c}
+    :let={c}
     for={@changeset}
     id="program-form"
     phx-target={@myself}
@@ -142,28 +142,29 @@
               </C.button>
             </:th>
 
-
-            <:td let={item}>
+            <:td :let={item}>
               <%= item.name %>
             </:td>
-            <:td let={item}>
+            <:td :let={item}>
               <%= item.description %>
             </:td>
-            <:td let={item}>
+            <:td :let={item}>
               <%= item.category %>
             </:td>
-            <:td let={item}>
+            <:td :let={item}>
               <%= if item.hidden do %>
                 <div class="flex justify-center">
                   <Heroicons.eye_slash class="flex-shrink-0 w-6 h-6 mx-1 text-gray-600" />
                 </div>
               <% end %>
             </:td>
-            <:td class="text-right" let={item}>
-              <%= live_patch("Edit",
-                to: Routes.program_index_path(@socket, :edit_item, @program.id, item.id),
-                class: "text-indigo-600 hover:text-indigo-900"
-              ) %>
+            <:td class="text-right" :let={item}>
+              <.link
+                patch={Routes.program_index_path(@socket, :edit_item, @program.id, item.id)}
+                class="link"
+              >
+                Edit
+              </.link>
             </:td>
           </UI.table>
         </div>

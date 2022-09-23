@@ -1,6 +1,6 @@
 <div>
   <.form
-    let={f}
+    :let={f}
     for={@changeset}
     id="task_form"
     phx-target={@myself}
@@ -11,8 +11,7 @@
 
     <%= if @campaign.program.items == [] do %>
       <div class="mt-2">
-        You'll have to set up the kinds of items that we delivery for
-        <%= @campaign.program.name %> (Meals, Foodshare Boxes, etc) before you can add a task.
+        You'll have to set up the kinds of items that we delivery for <%= @campaign.program.name %> (Meals, Foodshare Boxes, etc) before you can add a task.
         <div class="mt-1">
           <C.button
             size={:small}
@@ -89,10 +88,12 @@
           </div>
           <%= error_tag(g, :item) %>
         <% end %>
-        <%= live_redirect("Set up program's delivery items",
-          to: Routes.program_index_path(@socket, :edit, @campaign.program.id),
-          class: "text-xs link"
-        ) %>
+        <.link
+          navigate={Routes.program_index_path(@socket, :edit, @campaign.program.id)}
+          class="text-xs link"
+        >
+          Set up program's delivery items
+        </.link>
       </div>
 
       <div class="mt-2">

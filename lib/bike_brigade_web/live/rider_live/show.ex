@@ -135,10 +135,10 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
   defp latest_campaign_info(assigns) do
     if assigns.rider.latest_campaign do
       ~H"""
-      <%= link(@rider.latest_campaign.program.name,
-        to: Routes.campaign_show_path(@socket, :show, @rider.latest_campaign),
-        class: "link"
-      ) %> on <%= format_date(@rider.latest_campaign.delivery_start) %>
+      <.link navigate={Routes.campaign_show_path(@socket, :show, @rider.latest_campaign)} class="link">
+        <%= @rider.latest_campaign.program.name %>
+      </.link>
+      on <%= format_date(@rider.latest_campaign.delivery_start) %>
       """
     else
       ~H"Nothing (yet!)"

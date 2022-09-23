@@ -25,7 +25,7 @@
       New
     </C.button>
   </:th>
-  <:td let={user}>
+  <:td :let={user}>
     <div class="flex items-center">
       <div class="flex-shrink-0 w-10 h-10">
         <img class="w-10 h-10 rounded-full" src={gravatar(user.email)} alt="" />
@@ -36,10 +36,10 @@
       </div>
     </div>
   </:td>
-  <:td let={user}>
+  <:td :let={user}>
     <%= user.phone %>
   </:td>
-  <:td class="text-right" let={user}>
+  <:td :let={user} class="text-right">
     <%= if user.is_dispatcher do %>
       <C.tooltip tooltip="Dispatcher" class="w-40">
         🧑‍🔧
@@ -49,17 +49,19 @@
       <C.tooltip tooltip="Rider" class="w-40">🚴</C.tooltip>
     <% end %>
   </:td>
-  <:td class="text-right" let={user}>
-    <%= live_patch("Edit",
-      to: Routes.user_index_path(@socket, :edit, user),
-      class: "pl-2 text-indigo-600 hover:text-indigo-900"
-    ) %>
-    <%= link("Delete",
-      to: "#",
-      phx_click: "delete",
-      phx_value_id: user.id,
-      data: [confirm: "Are you sure?"],
-      class: "pl-2 text-indigo-600 hover:text-indigo-900"
-    ) %>
+  <:td :let={user} class="text-right">
+    <.link
+      patch={Routes.user_index_path(@socket, :edit, user)}
+      class="pl-2 link"
+    >
+      Edit
+    </.link>
+    <.link
+      phx-click={JS.push("delete", value: %{id: user.id})}
+      data-confirm="Are you sure?"
+      class="pl-2 link"
+    >
+      Delete
+    </.link>
   </:td>
 </UI.table>

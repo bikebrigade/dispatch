@@ -1,7 +1,7 @@
 <div>
   <C.flash_component flash={@flash} />
   <.form
-    let={f}
+    :let={f}
     for={@changeset}
     id="opportunity-form"
     phx-target={@myself}
@@ -20,10 +20,9 @@
         ) %>
       </div>
       <%= error_tag(f, :program_id) %>
-      <%= live_redirect("Create New Program",
-        to: Routes.program_index_path(@socket, :new),
-        class: "text-xs link"
-      ) %>
+      <.link navigate={Routes.program_index_path(@socket, :new)} class="text-xs link">
+        Create New Program
+      </.link>
     </div>
 
     <div class="flex my-2 space-x-2">

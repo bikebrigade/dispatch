@@ -13,7 +13,7 @@
 
 <%= if @live_action in [:new_campaign] do %>
   <UI.modal show id={:new_campaign} return_to={Routes.program_show_path(@socket, :show, @program)}>
-  <:title>New Campaign</:title>
+    <:title>New Campaign</:title>
     <.live_component
       module={BikeBrigadeWeb.CampaignLive.FormComponent}
       id={"campaign-#{@campaign.id || :new}"}
@@ -40,7 +40,7 @@
       New Campaign
     </C.button>
   </:th>
-  <:td let={campaign}>
+  <:td :let={campaign}>
     <div class="flex items-center space-x-1">
       <C.date
         date={campaign_date(campaign)}
@@ -48,26 +48,25 @@
       />
     </div>
   </:td>
-  <:td let={campaign}>
+  <:td :let={campaign}>
     <div class="w-24 truncate"><%= pickup_window(campaign) %></div>
   </:td>
-  <:td let={campaign}>
+  <:td :let={campaign}>
     <%= campaign.stats.signed_up_rider_count %>
   </:td>
-  <:td let={campaign}>
+  <:td :let={campaign}>
     <%= campaign.stats.task_count %>
   </:td>
-  <:td let={campaign} class="text-right">
-    <%= live_redirect("Edit",
-      to: Routes.campaign_index_path(@socket, :edit, campaign),
-      class: "text-indigo-600 hover:text-indigo-900"
-    ) %>
-    <%= link("Delete",
-      to: "#",
-      phx_click: "delete",
-      phx_value_id: campaign.id,
-      data: [confirm: "Are you sure?"],
-      class: "pl-2 text-indigo-600 hover:text-indigo-900"
-    ) %>
+  <:td :let={campaign} class="text-right">
+    <.link navigate={Routes.campaign_index_path(@socket, :edit, campaign)} class="link">
+      Edit
+    </.link>
+    <.link
+      phx-click={JS.push("delete", value: %{id: campaign.id})}
+      data-confirm="Are you sure?"
+      class="pl-2 link"
+    >
+      Delete
+    </.link>
   </:td>
 </UI.table>

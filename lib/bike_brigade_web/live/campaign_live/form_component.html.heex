@@ -1,7 +1,7 @@
 <div>
   <C.flash_component flash={@flash} />
   <.form
-    let={f}
+    :let={f}
     for={@changeset}
     id="user-form"
     phx-target={@myself}
@@ -65,13 +65,18 @@
         ) %>
       </div>
       <%= error_tag(f, :program_id) %>
-      <%= live_redirect("Create New Program",
-        to: Routes.program_index_path(@socket, :new),
-        class: "text-xs link"
-      ) %>
+      <.link navigate={Routes.program_index_path(@socket, :new)} class="text-xs link">
+        Create New Program
+      </.link>
     </div>
 
-    <.live_component module={LiveLocation} id="location-form" as={input_name(f, :location)} location={@campaign.location} label="Pickup Location" />
+    <.live_component
+      module={LiveLocation}
+      id="location-form"
+      as={input_name(f, :location)}
+      location={@campaign.location}
+      label="Pickup Location"
+    />
 
     <div class="my-2">
       <%= label f, :task_spreadsheet_url, class: "block text-sm font-medium leading-5 text-gray-700" do %>

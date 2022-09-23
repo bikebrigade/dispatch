@@ -21,8 +21,10 @@
         phx-value-action="publish"
         }
       >
-        <Heroicons.check_circle mini class="flex-shrink-0 w-6 h-6 mx-1 text-green-400 justify-self-end" />
-        Publish Selected
+        <Heroicons.check_circle
+          mini
+          class="flex-shrink-0 w-6 h-6 mx-1 text-green-400 justify-self-end"
+        /> Publish Selected
       </C.button>
       <C.button
         size={:xsmall}
@@ -128,9 +130,12 @@
                 ) %>
               </td>
               <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
-                <%= live_redirect to: Routes.program_show_path(@socket, :show, opportunity.program), class: "link" do %>
+                <.link
+                  navigate={Routes.program_show_path(@socket, :show, opportunity.program)}
+                  class="link"
+                >
                   <%= opportunity.program.name %>
-                <% end %>
+                </.link>
               </td>
               <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
                 <C.date date={opportunity.delivery_start} />

@@ -14,23 +14,22 @@ defmodule BikeBrigadeWeb.StatsLive.NavComponent do
     ~H"""
     <div class="border-b border-gray-200">
       <nav class="flex -mb-px space-x-4" aria-label="Tabs">
-        <%= live_redirect to: Routes.stats_dashboard_path(@socket, :show), class: @class.(:dashboard) do %>
+        <.link navigate={Routes.stats_dashboard_path(@socket, :show)} class={@class.(:dashboard)}>
           <Heroicons.chart_pie mini class={@svg_class.(:dashboard)} />
           <span>Dashboard</span>
-        <% end %>
-
-        <%= live_redirect to: Routes.stats_leaderboard_path(@socket, :show), class: @class.(:leaderboard) do %>
+        </.link>
+        <.link navigate={Routes.stats_leaderboard_path(@socket, :show)} class={@class.(:leaderboard)}>
           <Heroicons.user_group mini class={@svg_class.(:leaderboard)} />
           <span>Leaderboard</span>
-        <% end %>
+        </.link>
 
-        <a href="/analytics" target="_blank" class={@class.(:journal)}>
+        <.link href="/analytics" target="_blank" class={@class.(:journal)}>
           <Heroicons.presentation_chart_line mini class={@svg_class.(:journal)} />
           <span class="mr-1">Analytics Dashboard</span>
           <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-yellow-100 text-yellow-800">
             Beta
           </span>
-        </a>
+        </.link>
       </nav>
     </div>
     """

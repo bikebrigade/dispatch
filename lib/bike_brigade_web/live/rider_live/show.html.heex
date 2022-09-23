@@ -78,7 +78,7 @@
             aria-label="Mail"
             class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 xl:ml-1 sm:mr-.5"
           />
-          <%= link(email(@rider), to: "mailto:#{email(@rider)}", class: "link") %>
+          <.link href={"mailto:#{email(@rider)}"} class="link"> <%= email(@rider) %></.link>
         </span>
       </p>
       <p class="text-sm !leading-relaxed xl:text-base">
@@ -87,10 +87,9 @@
             aria-label="Briefcase"
             class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 sm:mr-.5"
           />
-          <%= live_redirect(@rider.capacity,
-            to: Routes.rider_index_path(@socket, :index, %{filters: ["capacity:#{@rider.capacity}"]}),
-            class: "link"
-          ) %>
+          <.link navigate={Routes.rider_index_path(@socket, :index, %{filters: ["capacity:#{@rider.capacity}"]})} class="link">
+            <%= @rider.capacity %>
+          </.link>
         </span>
         <%= if @rider.text_based_itinerary do %>
           <span class="">
@@ -111,10 +110,9 @@
             <span class="inline-flex">
               <%= for tag <- @rider.tags do %>
                 <span class="before:content-[','] first:before:content-['']">
-                  <%= live_redirect(tag.name,
-                    to: Routes.rider_index_path(@socket, :index,%{filters: ["capacity:#{@rider.capacity}"]}),
-                    class: "link"
-                  ) %>
+                  <.link navigate={Routes.rider_index_path(@socket, :index, %{filters: ["capacity:#{@rider.capacity}"]})} class="link">
+                    <%= tag.name %>
+                  </.link>
                 </span>
               <% end %>
             </span>
@@ -225,10 +223,9 @@
                   <div class="mb-3">
                     <span class="text-sm text-gray-500"><%= pickup_window(campaign) %></span>
                     <p class="font-bold leading-snug">
-                      <%= live_redirect(campaign.program.name,
-                        to: Routes.campaign_show_path(@socket, :show, campaign),
-                        class: "link"
-                      ) %>
+                    <.link navigate={ Routes.campaign_show_path(@socket, :show, campaign) } class="link">
+                      <%= campaign.program.name %>
+                    </.link>
                     </p>
                     <p class="text-gray-900">
                       <%= task_count %> <%= Inflex.inflect("delivery", task_count) %>

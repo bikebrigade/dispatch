@@ -1,10 +1,15 @@
 defmodule BikeBrigadeWeb.Components do
-  use BikeBrigadeWeb, :component
-
-  use Phoenix.HTML
+  use Phoenix.Component
 
   alias BikeBrigade.LocalizedDateTime
   alias BikeBrigadeWeb.Components.Icons
+
+
+  # TODO get rid of livehelpers?
+  defdelegate lat(loc), to: BikeBrigadeWeb.LiveHelpers
+  defdelegate lng(loc), to: BikeBrigadeWeb.LiveHelpers
+
+  # ---- OLD ---
 
   def date(assigns) do
     date =

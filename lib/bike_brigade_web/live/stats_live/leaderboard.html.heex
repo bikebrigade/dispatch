@@ -1,7 +1,7 @@
 <.live_component id={:nav} module={NavComponent} tab={:leaderboard} />
 <div class="flex flex-col mt-8">
   <.form
-    let={f}
+    :let={f}
     for={Options.changeset(@options)}
     phx-submit="update-options"
     phx-change="update-options"
@@ -21,7 +21,7 @@
             class="relative z-0 inline-flex rounded-md shadow-sm"
           >
             <label
-             x-bind:class="{'bg-gray-200': period === 'all_time', 'bg-white': period != 'all_time'}"
+              x-bind:class="{'bg-gray-200': period === 'all_time', 'bg-white': period != 'all_time'}"
               class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 cursor-pointer rounded-l-md hover:bg-gray-200 focus-within:z-10 focus-within:outline-none focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500"
             >
               <%= radio_button(f, :period, :all_time, class: "sr-only", x_model: "period") %>
@@ -70,38 +70,36 @@
     <UI.table rows={@stats}>
       <:th>
         <div class="inline-flex align-top">
-          Name
-          <.sort_icon field={:rider_name} options={@options} />
+          Name <.sort_icon field={:rider_name} options={@options} />
         </div>
       </:th>
       <:th>
         <div class="inline-flex align-baseline">
-          Campaigns
-          <.sort_icon field={:campaigns} options={@options} />
+          Campaigns <.sort_icon field={:campaigns} options={@options} />
         </div>
       </:th>
       <:th>
         <div class="inline-flex">
-          Deliveries
-          <.sort_icon field={:deliveries} options={@options} />
+          Deliveries <.sort_icon field={:deliveries} options={@options} />
         </div>
       </:th>
       <:th>
         <div class="inline-flex">
-          Distance
-          <.sort_icon field={:distance} options={@options} />
+          Distance <.sort_icon field={:distance} options={@options} />
         </div>
       </:th>
-      <:td let={{rider, _campaigns, _tasks, _distance}}>
-        <%= live_redirect rider.name, to: Routes.rider_show_path(@socket, :show, rider), class: "link" %>
+      <:td :let={{rider, _campaigns, _tasks, _distance}}>
+        <.link navigate={Routes.rider_show_path(@socket, :show, rider)} class="link">
+          <%= rider.name %>
+        </.link>
       </:td>
-      <:td let={{_rider, campaigns, _tasks, _distance}}>
+      <:td :let={{_rider, campaigns, _tasks, _distance}}>
         <%= campaigns %>
       </:td>
-      <:td let={{_rider, _campaigns, tasks, _distance}}>
+      <:td :let={{_rider, _campaigns, tasks, _distance}}>
         <%= tasks %>
       </:td>
-      <:td let={{_rider, _campaigns, _tasks, distance}}>
+      <:td :let={{_rider, _campaigns, _tasks, distance}}>
         <%= round_distance(distance) %> km
       </:td>
     </UI.table>

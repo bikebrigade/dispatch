@@ -5,8 +5,10 @@
 >
   <div class="w-full py-3 text-center mb-14">
     <h1 class="font-serif text-4xl font-medium ">
-      <%= Calendar.strftime(@start_date, "%b %-d") %> -
-      <%= Calendar.strftime(@end_date, "%b %-d, %Y") %>
+      <%= Calendar.strftime(@start_date, "%b %-d") %> - <%= Calendar.strftime(
+        @end_date,
+        "%b %-d, %Y"
+      ) %>
     </h1>
   </div>
   <%= if @show_buttons do %>
@@ -69,9 +71,13 @@
                   <Heroicons.map_pin class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
                   <%= if !opportunity.hide_address do %>
                     <div class="flex flex-col sm:flex-row">
-                      <%= link to: GoogleMaps.open_map_url(opportunity.location), target: "_blank", class: "underline hover:text-gray-300 mr-1" do %>
+                      <.link
+                        href={GoogleMaps.open_map_url(opportunity.location)}
+                        target="_blank"
+                        class="mr-1 underline hover:text-gray-300"
+                      >
                         <%= opportunity.location.address %>
-                      <% end %>
+                      </.link>
                       <div class="font-medium">
                         (<%= Locations.neighborhood(opportunity.location) %>)
                       </div>
@@ -101,8 +107,8 @@
                       You'll be delivering:
                       <%= for item when not item.hidden <- opportunity.program.items do %>
                         <p class="text-sm text-gray-300">
-                          <span class="font-bold"><%= item.name %></span> -
-                          <%= item.description %>
+                          <span class="font-bold"><%= item.name %></span>
+                          - <%= item.description %>
                         </p>
                       <% end %>
                     </div>

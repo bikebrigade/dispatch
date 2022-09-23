@@ -7,19 +7,9 @@
   <div class="flex-grow-0 px-4 py-5 bg-white border-b border-gray-200 sm:px-6 sm:rounded-t-lg">
     <div class="flex flex-row items-center justify-between -mt-2 -ml-4">
       <div class="ml-4 sm:hidden">
-        <%= live_patch to: Routes.sms_message_index_path(@socket, :index) do %>
-          <svg
-            class="w-6 h-6 text-indigo-600"
-            fill="none"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path d="M15 19l-7-7 7-7"></path>
-          </svg>
-        <% end %>
+        <.link patch={Routes.sms_message_index_path(@socket, :index)}>
+          <Heroicons.chevron_left class="w-6 h-6 text-indigo-600" />
+        </.link>
       </div>
       <div class="h-10 mt-2 ml-4">
         <h3 class="text-lg font-medium leading-6 text-gray-900">
@@ -27,10 +17,9 @@
             <div class="flex flex-col">
               <div class="pii">
                 <span>
-                  <%= live_redirect(@rider.name,
-                    to: Routes.rider_show_path(@socket, :show, @rider),
-                    class: "link"
-                  ) %>
+                  <.link navigate={Routes.rider_show_path(@socket, :show, @rider)} class="link">
+                    <%= @rider.name %>
+                  </.link>
                 </span>
                 <span class="ml-1 text-sm text-gray-500">
                   (<%= if @rider.pronouns, do: @rider.pronouns, else: "pronouns unknown" %>)
@@ -46,22 +35,11 @@
           <% end %>
         </h3>
       </div>
-      <%= live_patch to: Routes.sms_message_index_path(@socket, :tasks, @rider.id) do %>
+      <.link patch={Routes.sms_message_index_path(@socket, :tasks, @rider.id)}>
         <div class="inline-flex text-indigo-600 sm:hidden">
-          <svg
-            class="inline w-6 h-6"
-            fill="none"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
-            </path>
-          </svg>
+          <Heroicons.clipboard_document_list class="inline w-6 h-6" />
         </div>
-      <% end %>
+      </.link>
     </div>
   </div>
 
@@ -150,7 +128,8 @@
                       <% "delivered" -> %>
                         <C.tooltip tooltip="Delivered">
                           <Heroicons.check_circle mini class="w-4 h-4" />
-                        </C.tooltip>🙂
+                        </C.tooltip>
+                        🙂
                       <% "undelivered" -> %>
                         <C.tooltip tooltip="Undelivered">
                           <Heroicons.exclamation_circle mini class="w-4 h-4 text-red-600" />
@@ -176,7 +155,7 @@
     >
       <div class="w-full">
         <.form
-          let={f}
+          :let={f}
           for={@changeset}
           id="conversation-form"
           phx-change="validate"

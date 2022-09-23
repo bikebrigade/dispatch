@@ -23,11 +23,12 @@
           <div class="flex-shrink-0 mt-2 ml-4">
             <div class="flex items-center">
               <span class="inline-flex ml-3 rounded-md shadow-sm">
-                <%= live_patch("New",
-                  to: Routes.sms_message_index_path(@socket, :new),
-                  class:
-                    "inline-flex items-center px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:ring-indigo active:bg-indigo-700"
-                ) %>
+                <.link
+                  patch={Routes.sms_message_index_path(@socket, :new)}
+                  class="inline-flex items-center px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:ring-indigo active:bg-indigo-700"
+                >
+                  New
+                </.link>
               </span>
             </div>
           </div>
@@ -41,8 +42,10 @@
       >
         <%= for {rider, last_message} <- @conversations do %>
           <li id={"conversation-list-item:#{rider.id}"}>
-            <%= live_patch to: Routes.sms_message_index_path(@socket, :show, rider.id),
-                         class: "block transition duration-150 ease-in-out hover:bg-gray-200 focus:outline-none" do %>
+            <.link
+              patch={Routes.sms_message_index_path(@socket, :show, rider.id)}
+              class="block transition duration-150 ease-in-out hover:bg-gray-200 focus:outline-none"
+            >
               <div class="flex items-center px-2 py-2">
                 <div class="flex items-center flex-1 min-w-0">
                   <div class="flex-shrink-0 hidden mr-4 lg:block">
@@ -69,7 +72,7 @@
                   </div>
                 </div>
               </div>
-            <% end %>
+            </.link>
           </li>
         <% end %>
       </ul>
@@ -88,19 +91,9 @@
       <div class="flex-grow-0 px-4 py-5 mb-2 bg-white border-b border-gray-200 sm:hidden">
         <div class="flex flex-row items-center -mt-2 -ml-4">
           <div class="ml-4">
-            <%= live_patch to: Routes.sms_message_index_path(@socket, :show, @selected_rider.id) do %>
-              <svg
-                class="w-6 h-6 text-indigo-600"
-                fill="none"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path d="M15 19l-7-7 7-7"></path>
-              </svg>
-            <% end %>
+            <.link patch={Routes.sms_message_index_path(@socket, :show, @selected_rider.id)}>
+              <Heroicons.chevron_left solid class="w-6 h-6 text-indigo-600" />
+            </.link>
           </div>
           <div class="h-10 mt-2 ml-4">
             <h3 class="text-lg font-medium leading-6 text-gray-900">
@@ -135,21 +128,7 @@
             type="button"
             class="inline-flex items-center p-1 ml-2 text-indigo-700 bg-indigo-100 border border-transparent rounded-full shadow-sm hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
-            <svg
-              class="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-              >
-              </path>
-            </svg>
+            <Heroicons.clipboard class="w-5 h-5" />
           </button>
         </div>
 

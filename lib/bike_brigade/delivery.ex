@@ -12,6 +12,8 @@ defmodule BikeBrigade.Delivery do
 
   import BikeBrigade.Utils, only: [task_count: 1, humanized_task_count: 1]
 
+  import BikeBrigade.Riders.Helpers, only: [first_name: 1]
+
   @doc """
   Returns the list of tasks.
 
@@ -484,7 +486,7 @@ defmodule BikeBrigade.Delivery do
       )
 
     assigns = %{
-      rider_name: rider.name |> String.split(" ") |> List.first(),
+      rider_name: first_name(rider),
       pickup_address: campaign.location,
       task_details: task_details,
       directions: directions,
