@@ -4,7 +4,7 @@
 >
   <div class="w-full">
     <.form
-      let={f}
+      :let={f}
       for={@changeset}
       id="sms_message-form"
       phx-change="validate"
@@ -56,7 +56,7 @@
         >
           🙂
         </C.button>
-        <%= live_file_input(@uploads.media, class: "sr-only") %>
+        <.live_file_input upload={@uploads.media} class="sr-only" />
         <label
           for={@uploads.media.ref}
           class="inline-flex items-center px-1.5 py-1.5 text-xs font-medium text-gray-700 bg-white border border-transparent border-gray-300 rounded shadow-sm cursor-pointer hover:bg-gray-50 focus:ring-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2"
@@ -70,26 +70,24 @@
       <%= error_tag(f, :body) %>
       <%= error_tag(f, :other_error) %>
       <div class="grid grid-cols-3 gap-4">
-        <%= for entry <- @uploads.media.entries do %>
-          <figure>
-            <%= live_img_preview(entry, class: "w-32") %>
-            <figcaption class="flex">
-              <div class="mr-1"><%= entry.client_name %></div>
-              <button
-                type="button"
-                phx-click="cancel-upload"
-                phx-value-ref={entry.ref}
-                phx-target={@myself}
-                aria-label="cancel"
-              >
-                &times;
-              </button>
-            </figcaption>
-          </figure>
-          <%= for err <- upload_errors(@uploads.media, entry) do %>
-            <p class="alert alert-danger"><%= error_to_string(err) %></p>
-          <% end %>
-        <% end %>
+        <figure :for={entry <- @uploads.media.entries}>
+          <.live_img_preview entry={entry} class="w-32" />
+          <figcaption class="flex">
+            <div class="mr-1"><%= entry.client_name %></div>
+            <button
+              type="button"
+              phx-click="cancel-upload"
+              phx-value-ref={entry.ref}
+              phx-target={@myself}
+              aria-label="cancel"
+            >
+              &times;
+            </button>
+          </figcaption>
+          <p :for={err <- upload_errors(@uploads.media, entry)} class="text-sm text-red-600">
+            <%= error_to_string(err) %>
+          </p>
+        </figure>
       </div>
     </.form>
   </div>
