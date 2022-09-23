@@ -50,10 +50,7 @@
     <% end %>
   </:td>
   <:td :let={user} class="text-right">
-    <.link
-      patch={Routes.user_index_path(@socket, :edit, user)}
-      class="pl-2 link"
-    >
+    <.link patch={Routes.user_index_path(@socket, :edit, user)} class="pl-2 link">
       Edit
     </.link>
     <.link

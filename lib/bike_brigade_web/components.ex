@@ -9,6 +9,8 @@ defmodule BikeBrigadeWeb.Components do
   defdelegate lat(loc), to: BikeBrigadeWeb.LiveHelpers
   defdelegate lng(loc), to: BikeBrigadeWeb.LiveHelpers
 
+
+
   # ---- OLD ---
 
   def date(assigns) do
