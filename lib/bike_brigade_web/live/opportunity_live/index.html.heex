@@ -13,7 +13,7 @@
 <div class="flex flex-col py-4">
   <%= if Enum.count(@selected) != 0 do %>
     <div class="my-2">
-      <C.button
+      <.button
         size={:xsmall}
         color={:white}
         phx_click="update-selected"
@@ -25,8 +25,8 @@
           mini
           class="flex-shrink-0 w-6 h-6 mx-1 text-green-400 justify-self-end"
         /> Publish Selected
-      </C.button>
-      <C.button
+      </.button>
+      <.button
         size={:xsmall}
         color={:white}
         phx_click="update-selected"
@@ -35,7 +35,7 @@
       >
         <Heroicons.x_circle mini class="flex-shrink-0 w-6 h-6 mx-1 text-red-400 justify-self-end" />
         Unpublish Selected
-      </C.button>
+      </.button>
     </div>
   <% end %>
   <div class="py-2 -my-2 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
@@ -113,9 +113,9 @@
               </div>
             </th>
             <th class="w-40 px-6 py-4 text-right border-b border-gray-200 bg-gray-50">
-              <C.button patch_to={Routes.opportunity_index_path(@socket, :new)} size={:small} }>
+              <.button patch={Routes.opportunity_index_path(@socket, :new)} size={:small} }>
                 New
-              </C.button>
+              </.button>
             </th>
           </tr>
         </thead>
@@ -163,14 +163,14 @@
                 <.check_mark value={opportunity.published} />
               </td>
               <td class="px-6 py-4 space-x-1 space-y-1 text-right border-b border-gray-200">
-                <C.button
-                  patch_to={Routes.opportunity_index_path(@socket, :edit, opportunity)}
+                <.button
+                  patch={Routes.opportunity_index_path(@socket, :edit, opportunity)}
                   size={:xsmall}
                   color={:white}
                 >
                   Edit
-                </C.button>
-                <C.button
+                </.button>
+                <.button
                   phx-click="delete"
                   phx-value-id={opportunity.id}
                   data-confirm="Are you sure?"
@@ -178,7 +178,7 @@
                   color={:lightred}
                 >
                   Delete
-                </C.button>
+                </.button>
               </td>
             </tr>
           <% end %>

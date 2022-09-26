@@ -94,14 +94,14 @@
 <% end %>
 <div class="flex flex-col h-full">
   <div class="flex flex-row flex-wrap items-center md:flex-nowrap">
-    <C.button patch_to={Routes.campaign_show_path(@socket, :messaging, @campaign.id)} class="mr-3">
+    <.button patch={Routes.campaign_show_path(@socket, :messaging, @campaign.id)} class="mr-3">
       <Heroicons.chat_bubble_left_right mini class="w-5 h-5 mr-2 -ml-1" /> Messaging
-    </C.button>
+    </.button>
     <div class="relative inline-block dropdown">
-      <C.button class="my-3 mr-3">
+      <.button class="my-3 mr-3">
         <span class="mr-1">Print</span>
         <Heroicons.chevron_down solid class="w-4 h-4" />
-      </C.button>
+      </.button>
       <ul class="absolute z-10 hidden pt-1 text-gray-700 dropdown-menu">
         <li>
           <.link
@@ -123,10 +123,10 @@
     </div>
 
     <div class="relative inline-block dropdown">
-      <C.button class="my-3 mr-3">
+      <.button class="my-3 mr-3">
         <span class="mr-1">Download</span>
         <Heroicons.chevron_down solid class="w-4 h-4" />
-      </C.button>
+      </.button>
       <ul class="absolute z-10 hidden pt-1 text-gray-700 dropdown-menu">
         <li>
           <.link
@@ -150,16 +150,16 @@
     </div>
     <div class="flex w-full md:justify-end">
       <div class="flex space-x-1">
-        <C.button
+        <.button
           phx-click={UI.show_modal(:edit)}
           color={:white}
-          patch_to={Routes.campaign_show_path(@socket, :edit, @campaign.id)}
+          patch={Routes.campaign_show_path(@socket, :edit, @campaign.id)}
         >
           Edit
-        </C.button>
-        <C.button patch_to={Routes.campaign_show_path(@socket, :bulk_message, @campaign.id)}>
+        </.button>
+        <.button patch={Routes.campaign_show_path(@socket, :bulk_message, @campaign.id)}>
           Bulk Message
-        </C.button>
+        </.button>
       </div>
     </div>
   </div>

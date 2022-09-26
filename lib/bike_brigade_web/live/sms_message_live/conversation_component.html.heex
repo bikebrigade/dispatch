@@ -169,7 +169,7 @@
                 "w-full h-9 px-3 py-1.5 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
             ) %>
             <.live_file_input upload={@uploads.media} class="sr-only" />
-            <C.button
+            <.button
               id="emoji-button"
               phx-hook="EmojiButtonHook"
               data-input-id={input_id(f, :body)}
@@ -179,16 +179,16 @@
               class="py-1 text-lg"
             >
               🙂
-            </C.button>
+            </.button>
             <label
               for={@uploads.media.ref}
               class="inline-flex items-center px-1.5 py-1.5 text-xs font-medium text-gray-700 bg-white border border-transparent border-gray-300 rounded shadow-sm cursor-pointer hover:bg-gray-50 focus:ring-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2"
             >
               <C.Icons.tailwindui_upload_photo class="w-6 h-6" aria-hidden="true" />
             </label>
-            <C.button type="submit" data-confirm={@confirm_send} phx-disable-with="Sending...">
+            <.button type="submit" data-confirm={@confirm_send} phx-disable-with="Sending...">
               Send
-            </C.button>
+            </.button>
           </div>
           <%= error_tag(f, :body) %>
           <%= error_tag(f, :other_error) %>

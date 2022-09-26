@@ -24,9 +24,9 @@
     Category
   </:th>
   <:th padding="px-3 py-3" uppercase={false}>
-    <C.button patch_to={Routes.item_index_path(@socket, :new)}>
+    <.button patch={Routes.item_index_path(@socket, :new)}>
       New Item
-    </C.button>
+    </.button>
   </:th>
   <:td :let={item}>
     <%= item.program && item.program.name %>

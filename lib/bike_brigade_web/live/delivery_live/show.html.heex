@@ -17,9 +17,9 @@
       </div>
       <div class="flex-shrink-0">
         <div class="flex justify-end flex-1">
-          <C.button href={"sms:#{BikeBrigade.Messaging.inbound_number(@rider)}"}>
+          <.button href={"sms:#{BikeBrigade.Messaging.inbound_number(@rider)}"}>
             Contact Bike Brigade
-          </C.button>
+          </.button>
         </div>
       </div>
     </div>
@@ -68,7 +68,7 @@
                 Pick up
               </h2>
               <div class="flex flex-wrap items-start justify-end flex-shrink ml-auto">
-                <C.button
+                <.button
                   href={open_map_url(@campaign)}
                   aria-label="Map Pickup"
                   size={:small}
@@ -76,7 +76,7 @@
                 >
                   <Heroicons.map mini class="w-5 h-5 mr-1 -ml-0.5" />
                   Map
-                </C.button>
+                </.button>
               </div>
             </div>
             <div class="inline-flex flex-shrink-0 leading-normal">
@@ -156,20 +156,20 @@
                 </h2>
                 <div class="flex items-start justify-end flex-shrink space-x-1">
                   <%= if task.dropoff_phone do %>
-                    <C.button
+                    <.button
                       href={sms_url(@campaign, @rider, task)}
                       aria-label={"Text Delivery #{i}"}
                       size={:small}
                     >
                       <Heroicons.chat_bubble_bottom_center_text mini class="w-5 h-5 mr-1 -ml-0.5" />
                       Text
-                    </C.button>
-                    <C.button href={tel_url(task)} aria-label={"Call Delivery #{i}"} size={:small}>
+                    </.button>
+                    <.button href={tel_url(task)} aria-label={"Call Delivery #{i}"} size={:small}>
                       <Heroicons.phone_arrow_up_right mini class="w-5 h-5 mr-1 -ml-0.5" />
                       Call
-                    </C.button>
+                    </.button>
                   <% end %>
-                  <C.button
+                  <.button
                     href={open_map_url(task)}
                     target="_blank"
                     aria-label={"Map Delivery #{i}"}
@@ -177,7 +177,7 @@
                   >
                     <Heroicons.map mini class="w-5 h-5 mr-1 -ml-0.5" />
                     Map
-                  </C.button>
+                  </.button>
                 </div>
               </div>
               <div class="inline-flex flex-shrink-0 leading-normal">
@@ -265,10 +265,10 @@
               Tell us you're done.
             </h2>
             <div class="flex flex-wrap items-start justify-end flex-shrink ml-auto">
-              <C.button href={sms_done_url(@campaign, @rider)} class="ml-auto" color={:green}>
+              <.button href={sms_done_url(@campaign, @rider)} exta_class="ml-auto" color={:green}>
                 <Heroicons.chat_bubble_left_right mini class="w-5 h-5 mr-1 -ml-0.5" />
                 I'm done!
-              </C.button>
+              </.button>
             </div>
           </div>
           <div class="mt-1">
@@ -293,9 +293,9 @@
           Full Route Map
         </h2>
         <div class="flex justify-end flex-1 pb-1 my-4 mr-3">
-          <C.button href={directions_url(assigns)} font-medium text-white>
+          <.button href={directions_url(assigns)} font-medium text-white>
             Open in Google Maps
-          </C.button>
+          </.button>
         </div>
       </div>
       <div class="p-3 sm:p-4">

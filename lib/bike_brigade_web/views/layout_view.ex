@@ -103,7 +103,6 @@ defmodule BikeBrigadeWeb.LayoutView do
   attr :navigate, :string, default: nil
   attr :href, :string, default: nil
   attr :selected, :boolean
-  attr :icon2, :atom
   attr :rest, :global
 
   slot(:inner_block, required: true)

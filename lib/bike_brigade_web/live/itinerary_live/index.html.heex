@@ -60,12 +60,12 @@
                 </.link>
               </div>
               <div class="flex-shrink-0 space-y-1 md:space-y-0 md:space-x-2 md:flex">
-                <C.button
-                  redirect_to={Routes.delivery_show_path(@socket, :show, cr.token)}
+                <.button
+                  navigate={Routes.delivery_show_path(@socket, :show, cr.token)}
                   size={:medium}
                 >
                   Details
-                </C.button>
+                </.button>
               </div>
             </div>
             <div class="mt-2 sm:flex sm:justify-between">

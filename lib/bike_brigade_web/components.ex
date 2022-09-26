@@ -4,12 +4,108 @@ defmodule BikeBrigadeWeb.Components do
   alias BikeBrigade.LocalizedDateTime
   alias BikeBrigadeWeb.Components.Icons
 
-
   # TODO get rid of livehelpers?
-  defdelegate lat(loc), to: BikeBrigadeWeb.LiveHelpers
-  defdelegate lng(loc), to: BikeBrigadeWeb.LiveHelpers
+  import BikeBrigadeWeb.LiveHelpers, only: [lat: 1, lng: 1]
 
+  attr :href, :string
+  attr :patch, :string
+  attr :navigate, :string
 
+  attr :size, :atom,
+    default: :medium,
+    values: [:xxsmall, :xsmall, :small, :medium, :large, :xlarge]
+
+  attr :color, :atom,
+    default: :primary,
+    values: [:primary, :secondary, :white, :red, :lightred, :clear, :green]
+
+  attr :class, :string, default: ""
+  attr :rest, :global
+  slot(:inner_block, required: true)
+
+  def button(%{href: to} = assigns) when is_binary(to) do
+    assigns = assign(assigns, :class, button_class(assigns))
+
+    ~H"""
+    <.link href={@href} class={@class} {@rest}>
+      <%= render_slot(@inner_block) %>
+    </.link>
+    """
+  end
+
+  def button(%{patch: to} = assigns) when is_binary(to) do
+    assigns = assign(assigns, :class, button_class(assigns))
+
+    ~H"""
+    <.link patch={@patch} class={@class} {@rest}>
+      <%= render_slot(@inner_block) %>
+    </.link>
+    """
+  end
+
+  def button(%{navigate: to} = assigns) when is_binary(to) do
+    assigns = assign(assigns, :class, button_class(assigns))
+
+    ~H"""
+    <.link navigate={@navigate} class={@class} {@rest}>
+      <%= render_slot(@inner_block) %>
+    </.link>
+    """
+  end
+
+  def button(assigns) do
+    assigns = assign(assigns, :class, button_class(assigns))
+
+    ~H"""
+    <button class={@class} {@rest}>
+      <%= render_slot(@inner_block) %>
+    </button>
+    """
+  end
+
+  defp button_class(%{size: size, color: color, class: extra_class}) do
+    base_class =
+      "inline-flex text-center items-center border border-transparent font-medium rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+
+    size_class =
+      case size do
+        :xxsmall -> "p-0"
+        :xsmall -> "px-2.5 py-1.5 text-xs"
+        :small -> "px-3 py-2 text-sm leading-4"
+        :medium -> "px-4 py-2 text-sm"
+        :large -> "px-4 py-2 text-base"
+        :xlarge -> "px-6 py-3 text-base"
+      end
+
+    color_class =
+      case color do
+        :primary ->
+          "text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500 disabled:hover:cursor-not-allowed"
+
+        :secondary ->
+          "text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:ring-indigo-500"
+
+        :white ->
+          "border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-indigo-500"
+
+        :green ->
+          "text-white bg-green-700 focus:ring-green-600 hover:bg-green-800"
+
+        :red ->
+          "text-white bg-red-600 hover:bg-red-700 focus:ring-red-500"
+
+        :lightred ->
+          "text-red-700 bg-red-100 hover:bg-red-200 focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+
+        :clear ->
+          "text-gray-400 bg-white hover:text-gray-500  focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+
+        :black ->
+          "border-gray-300 text-white bg-black hover:bg-white hover:text-black"
+      end
+
+    base_class <> " " <> size_class <> " " <> color_class <> " " <> extra_class
+  end
 
   # ---- OLD ---
 
@@ -62,111 +158,6 @@ defmodule BikeBrigadeWeb.Components do
       <% end %>
     </time>
     """
-  end
-
-  def button(%{patch_to: patch_to} = assigns) do
-    assigns =
-      assigns
-      |> assign_new(:patch_replace, fn -> false end)
-
-    ~H"""
-    <%= live_patch to: patch_to, replace: @patch_replace, class: button_class(assigns) do %>
-      <%= render_slot(@inner_block) %>
-    <% end %>
-    """
-  end
-
-  def button(%{redirect_to: redirect_to} = assigns) do
-    assigns =
-      assigns
-      |> assign_new(:patch_replace, fn -> false end)
-
-    ~H"""
-    <%= live_redirect to: redirect_to, replace: @patch_replace, class: button_class(assigns) do %>
-      <%= render_slot(@inner_block) %>
-    <% end %>
-    """
-  end
-
-  def button(%{href: _href} = assigns) do
-    assigns =
-      assigns
-      |> assign(:class, button_class(assigns))
-      |> assign(:attrs, assigns_to_attributes(assigns, [:size, :color]))
-
-    ~H"""
-    <a href={@href} class={@class} {@attrs}>
-      <%= render_slot(@inner_block) %>
-    </a>
-    """
-  end
-
-  def button(assigns) do
-    assigns =
-      assigns
-      |> assign(:class, button_class(assigns))
-      |> assign_new(:type, fn -> "button" end)
-      |> assign(:attrs, assigns_to_attributes(assigns, [:size, :color]))
-
-    ~H"""
-    <button class={@class} type={@type} {@attrs}>
-      <%= render_slot(@inner_block) %>
-    </button>
-    """
-  end
-
-  defp button_class(assigns) do
-    size = assigns[:size] || :medium
-    color = assigns[:color] || :primary
-
-    base_class =
-      "inline-flex text-center items-center border border-transparent font-medium rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
-
-    base_class =
-      if assigns[:class] do
-        assigns[:class] <> " " <> base_class
-      else
-        base_class
-      end
-
-    size_class =
-      case size do
-        :xxsmall -> "p-0"
-        :xsmall -> "px-2.5 py-1.5 text-xs"
-        :small -> "px-3 py-2 text-sm leading-4"
-        :medium -> "px-4 py-2 text-sm"
-        :large -> "px-4 py-2 text-base"
-        :xlarge -> "px-6 py-3 text-base"
-      end
-
-    color_class =
-      case color do
-        :primary ->
-          "text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500 disabled:hover:cursor-not-allowed"
-
-        :secondary ->
-          "text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:ring-indigo-500"
-
-        :white ->
-          "border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-indigo-500"
-
-        :green ->
-          "text-white bg-green-700 focus:ring-green-600 hover:bg-green-800"
-
-        :red ->
-          "text-white bg-red-600 hover:bg-red-700 focus:ring-red-500"
-
-        :lightred ->
-          "text-red-700 bg-red-100 hover:bg-red-200 focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-
-        :clear ->
-          "text-gray-400 bg-white hover:text-gray-500  focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-
-        :black ->
-          "border-gray-300 text-white bg-black hover:bg-white hover:text-black"
-      end
-
-    base_class <> " " <> size_class <> " " <> color_class
   end
 
   def filter_button(assigns) do

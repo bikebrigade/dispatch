@@ -93,9 +93,9 @@ defmodule BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent do
           </div>
         </div>
         <div class="flex justify-end mt-2">
-          <C.button type="submit" phx-disable-with="Saving...">
+          <.button type="submit" phx-disable-with="Saving...">
             Duplicate
-          </C.button>
+          </.button>
         </div>
       </.form>
     </div>

@@ -16,7 +16,7 @@
     </div>
     <%= if @selected_rider do %>
       <div class="flex items-end w-1/2">
-        <C.button
+        <.button
           href={
             Routes.delivery_show_path(
               @socket,
@@ -27,7 +27,7 @@
           target="_blank"
         >
           Preview in app
-        </C.button>
+        </.button>
       </div>
     <% end %>
   </div>
@@ -45,7 +45,7 @@
         <div class="flex items-end justify-between">
           <%= label f, :body, class: "block text-sm font-medium leading-5 text-gray-700" do %>
             Text Message
-            <C.button
+            <.button
               id="emoji-button"
               phx-hook="EmojiButtonHook"
               data-input-id={input_id(f, :instructions_template_body)}
@@ -55,7 +55,7 @@
               class="px-0.5"
             >
               🙂
-            </C.button>
+            </.button>
           <% end %>
           <.message_length_indicator length={@message_length} />
         </div>
@@ -92,7 +92,7 @@
       <div class="w-1/2">
         <%= label f, :details, class: "block text-sm font-medium leading-5 text-gray-700" do %>
           App Details
-          <C.button
+          <.button
             id="emoji-button2"
             phx-hook="EmojiButtonHook"
             data-input-id={input_id(f, :details)}
@@ -102,7 +102,7 @@
             class="px-0.5"
           >
           🙂
-          </C.button>
+          </.button>
         <% end %>
         <div class="mt-1 rounded-md shadow-sm">
           <%= textarea(f, :details,
@@ -148,9 +148,9 @@
                   </div>
                 </div>
                 <div class="flex flex-wrap items-start justify-end flex-shrink ml-auto">
-                  <C.button href={open_map_url(@campaign)} color={:green} size={:small}>
+                  <.button href={open_map_url(@campaign)} color={:green} size={:small}>
                     <Heroicons.map mini class="w-4 h-4 mr-2 -ml-1" /> Map
-                  </C.button>
+                  </.button>
                 </div>
               </div>
             </div>
@@ -234,7 +234,7 @@
           </div>
         </div>
         <div class="flex justify-end w-1/2 space-x-2">
-          <C.button
+          <.button
             x-show="!scheduling"
             type="button"
             @click="scheduling = true"
@@ -247,8 +247,8 @@
               <% _ -> %>
                 Schedule
             <% end %>
-          </C.button>
-          <C.button
+          </.button>
+          <.button
             x-show="!scheduling"
             phx-click="send"
             phx-disable-with="Sending..."
@@ -256,11 +256,11 @@
             data-confirm="Are you sure?"
           >
             Send Now
-          </C.button>
-          <C.button type="submit" @click="scheduling = false" color={:secondary} class="ml-3">
+          </.button>
+          <.button type="submit" @click="scheduling = false" color={:secondary} class="ml-3">
             Save
-          </C.button>
-          <C.button
+          </.button>
+          <.button
             x-show="scheduling"
             type="button"
             @click="scheduling = false"
@@ -270,7 +270,7 @@
             class="ml-3"
           >
             Delete Schedule
-          </C.button>
+          </.button>
         </div>
       </div>
     <% end %>

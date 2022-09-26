@@ -19,16 +19,16 @@
 <div class="flex-wrap justify-between mt-5 sm:flex sm:flex-nowrap">
   <div class="mb-5 text-right sm:order-last">
     <%= if @live_action in [:profile, :edit_profile] do %>
-      <C.button redirect_to={Routes.rider_show_path(@socket, :edit_profile)} color={:white}>
+      <.button navigate={Routes.rider_show_path(@socket, :edit_profile)} color={:white}>
         Edit
-      </C.button>
+      </.button>
     <% else %>
-      <C.button redirect_to={Routes.rider_show_path(@socket, :edit, @rider.id)} color={:white}>
+      <.button navigate={Routes.rider_show_path(@socket, :edit, @rider.id)} color={:white}>
         Edit
-      </C.button>
-      <C.button redirect_to={Routes.sms_message_index_path(@socket, :show, @rider.id)}>
+      </.button>
+      <.button navigate={Routes.sms_message_index_path(@socket, :show, @rider.id)}>
         Message
-      </C.button>
+      </.button>
     <% end %>
   </div>
   <div class="text-sm sm:flex">

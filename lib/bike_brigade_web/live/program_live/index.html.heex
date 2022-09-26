@@ -42,9 +42,9 @@
     Lead
   </:th>
   <:th class="flex justify-end" padding="px-3 py-3" uppercase={false}>
-    <C.button patch_to={Routes.program_index_path(@socket, :new)} %>
+    <.button patch={Routes.program_index_path(@socket, :new)} %>
       New Program
-    </C.button>
+    </.button>
   </:th>
   <:td :let={program}>
     <.link navigate={Routes.program_show_path(@socket, :show, program)} class="pl-2 link">

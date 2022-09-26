@@ -73,9 +73,9 @@
       </.link>
     </span>
   </div>
-  <C.button patch_to={Routes.campaign_index_path(@socket, :new)} class="ml-2" %>
+  <.button patch={Routes.campaign_index_path(@socket, :new)} class="ml-2" %>
     New Campaign
-  </C.button>
+  </.button>
 </nav>
 <%= if @campaigns != [] do %>
   <%= for {date, campaigns} <- @campaigns do %>
@@ -97,21 +97,21 @@
                   </.link>
                 </div>
                 <div class="flex-shrink-0 space-y-1 md:space-y-0 md:space-x-2 md:flex">
-                  <C.button
+                  <.button
                     size={:xsmall}
                     color={:white}
-                    patch_to={Routes.campaign_index_path(@socket, :edit, c)}
+                    patch={Routes.campaign_index_path(@socket, :edit, c)}
                   >
                     Edit
-                  </C.button>
-                  <C.button
-                    patch_to={Routes.campaign_index_path(@socket, :duplicate, c)}
+                  </.button>
+                  <.button
+                    patch={Routes.campaign_index_path(@socket, :duplicate, c)}
                     size={:xsmall}
                     color={:white}
                   >
                     Duplicate
-                  </C.button>
-                  <C.button
+                  </.button>
+                  <.button
                     size={:xsmall}
                     color={:lightred}
                     phx-click="delete"
@@ -119,7 +119,7 @@
                     data-confirm="Are you sure?"
                   >
                     Delete
-                  </C.button>
+                  </.button>
                 </div>
               </div>
               <div class="mt-2 sm:flex sm:justify-between">

@@ -93,7 +93,7 @@
               ) %>
             </div>
             <div class="justify-center ml-auto">
-              <C.button
+              <.button
                 color={:clear}
                 size={:xxsmall}
                 phx-click="remove-schedule"
@@ -103,15 +103,15 @@
               >
                 <span class="sr-only">Close</span>
                 <Heroicons.x_mark solid class="w-6 h-6" />
-              </C.button>
+              </.button>
             </div>
           </div>
           <%= error_tag(s, :duration) %>
         <% end %>
         <div class="flex justify-end mt-2">
-          <C.button phx-click="add-schedule" phx-target={@myself} type="button" size={:xsmall}>
+          <.button phx-click="add-schedule" phx-target={@myself} type="button" size={:xsmall}>
             Add Schedule
-          </C.button>
+          </.button>
         </div>
       </div>
 
@@ -134,12 +134,12 @@
               Hidden
             </:th>
             <:th class="flex justify-end w-32" padding="px-3 py-3" uppercase={false}>
-              <C.button
+              <.button
                 size={:xsmall}
-                patch_to={Routes.program_index_path(@socket, :new_item, @program.id)}
+                patch={Routes.program_index_path(@socket, :new_item, @program.id)}
               >
                 New Item
-              </C.button>
+              </.button>
             </:th>
 
             <:td :let={item}>
@@ -260,9 +260,9 @@
         </div>
       </div>
       <div class="flex justify-end">
-        <C.button type="submit" phx-disable-with="Saving...">
+        <.button type="submit" phx-disable-with="Saving...">
           Save
-        </C.button>
+        </.button>
       </div>
     <% end %>
   </.form>

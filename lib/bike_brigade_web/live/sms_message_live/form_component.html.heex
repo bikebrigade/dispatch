@@ -44,7 +44,7 @@
       </div>
 
       <div class="flex justify-end mt-6 space-x-2">
-        <C.button
+        <.button
           class=""
           id="emoji-button2"
           phx-hook="EmojiButtonHook"
@@ -55,7 +55,7 @@
           class="py-1 text-lg"
         >
           🙂
-        </C.button>
+        </.button>
         <.live_file_input upload={@uploads.media} class="sr-only" />
         <label
           for={@uploads.media.ref}
@@ -63,9 +63,9 @@
         >
           <C.Icons.tailwindui_upload_photo class="w-6 h-6" aria-hidden="true" />
         </label>
-        <C.button type="submit" data-confirm={@confirm_send} phx-disable-with="Sending...">
+        <.button type="submit" data-confirm={@confirm_send} phx-disable-with="Sending...">
           Send
-        </C.button>
+        </.button>
       </div>
       <%= error_tag(f, :body) %>
       <%= error_tag(f, :other_error) %>

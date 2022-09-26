@@ -28,7 +28,7 @@
   <h1 class="text-lg font-medium leading-6 text-gray-900">
     <%= @program.name %>
   </h1>
-  <C.button patch_to={Routes.program_show_path(@socket, :edit, @program)}>Edit</C.button>
+  <.button patch={Routes.program_show_path(@socket, :edit, @program)}>Edit</.button>
 </div>
 <UI.table class="min-w-full table-fixed" rows={@program.campaigns}>
   <:th>Date</:th>
@@ -36,9 +36,9 @@
   <:th>Riders</:th>
   <:th>Deliveries</:th>
   <:th class="flex justify-end" padding="px-3 py-3" uppercase={false}>
-    <C.button redirect_to={Routes.program_show_path(@socket, :new_campaign, @program)}>
+    <.button navigate={Routes.program_show_path(@socket, :new_campaign, @program)}>
       New Campaign
-    </C.button>
+    </.button>
   </:th>
   <:td :let={campaign}>
     <div class="flex items-center space-x-1">

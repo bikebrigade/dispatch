@@ -89,7 +89,8 @@ defmodule BikeBrigadeWeb do
       # Use all HTML functionality (forms, tags, etc)
       use Phoenix.HTML
 
-      import Phoenix.Component
+      import BikeBrigadeWeb.Components
+      # TODO remove this?
       import BikeBrigadeWeb.LiveHelpers
 
       # Import basic rendering functionality (render, render_layout, etc)

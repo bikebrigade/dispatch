@@ -1,14 +1,14 @@
 <div class="flex flex-col max-h-full">
   <div class="flex flex-col flex-wrap items-baseline flex-grow space-y-1 xl:flex-row xl:space-x-1">
-    <C.button phx-click="auto-assign" size={:small} class="space-x-1">
+    <.button phx-click="auto-assign" size={:small} class="space-x-1">
       <p>Auto Assign</p>
       <C.tooltip tooltip="This will assign the remaining tasks" class="w-40">
         <Heroicons.exclamation_circle mini class="w-4 h-4" />
       </C.tooltip>
-    </C.button>
-    <C.button patch_to={Routes.campaign_show_path(@socket, :add_rider, @campaign)} size={:small}>
+    </.button>
+    <.button patch={Routes.campaign_show_path(@socket, :add_rider, @campaign)} size={:small}>
       Add Rider
-    </C.button>
+    </.button>
   </div>
   <div class="my-2 ml-2">
     <h3 class="text-lg font-medium leading-6 text-gray-900">
@@ -114,36 +114,36 @@
             <% end %>
             <div class="flex flex-row mt-5 space-x-1">
               <%= if @resent do %>
-                <C.button
+                <.button
                   phx-click="resend-message"
                   phx-value-rider-id={rider.id}
                   size={:xsmall}
                   disabled
                 >
                   Sent!
-                </C.button>
+                </.button>
               <% else %>
-                <C.button phx-click="resend-message" phx-value-rider-id={rider.id} size={:xsmall}>
+                <.button phx-click="resend-message" phx-value-rider-id={rider.id} size={:xsmall}>
                   Resend
-                </C.button>
+                </.button>
               <% end %>
-              <C.button
-                redirect_to={Routes.sms_message_index_path(@socket, :show, rider.id)}
+              <.button
+                navigate={Routes.sms_message_index_path(@socket, :show, rider.id)}
                 color={:secondary}
                 size={:xsmall}
               >
                 Message
-              </C.button>
+              </.button>
             </div>
             <div class="mt-1">
-              <C.button
+              <.button
                 phx-click="remove-rider"
                 phx-value-rider-id={rider.id}
                 color={:red}
                 size={:xsmall}
               >
                 Remove
-              </C.button>
+              </.button>
             </div>
           </div>
         <% end %>

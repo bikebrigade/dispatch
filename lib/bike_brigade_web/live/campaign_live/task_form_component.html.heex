@@ -13,12 +13,12 @@
       <div class="mt-2">
         You'll have to set up the kinds of items that we delivery for <%= @campaign.program.name %> (Meals, Foodshare Boxes, etc) before you can add a task.
         <div class="mt-1">
-          <C.button
+          <.button
             size={:small}
-            redirect_to={Routes.program_index_path(@socket, :edit, @campaign.program)}
+            navigate={Routes.program_index_path(@socket, :edit, @campaign.program)}
           >
             Set up delivery items
-          </C.button>
+          </.button>
         </div>
       </div>
     <% else %>
@@ -111,9 +111,9 @@
         <%= error_tag(f, :rider_notes) %>
       </div>
       <div class="flex justify-end mt-6">
-        <C.button type="submit" phx-disable-with="Saving...">
+        <.button type="submit" phx-disable-with="Saving...">
           Save
-        </C.button>
+        </.button>
       </div>
     <% end %>
   </.form>

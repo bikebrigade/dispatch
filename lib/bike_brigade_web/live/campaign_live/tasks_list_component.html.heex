@@ -1,8 +1,8 @@
 <div class="flex flex-col max-h-full">
   <div class="flex flex-row flex-wrap items-baseline flex-grow space-y-1">
-    <C.button patch_to={Routes.campaign_show_path(@socket, :new_task, @campaign)} size={:small}>
+    <.button patch={Routes.campaign_show_path(@socket, :new_task, @campaign)} size={:small}>
       Add Task
-    </C.button>
+    </.button>
   </div>
   <div class="my-2 ml-2">
     <h3 class="text-lg font-medium leading-6 text-gray-900">
@@ -112,7 +112,7 @@
                   >
                     <%= task.assigned_rider.name %>
                   </a>
-                  <C.button
+                  <.button
                     phx-click="unassign-task"
                     phx-value-task-id={@selected_task.id}
                     color={:secondary}
@@ -120,10 +120,10 @@
                     class=""
                   >
                     Unassign
-                  </C.button>
+                  </.button>
                 <% @selected_rider != nil -> %>
                   <div class="mx-1 text-sm leading-5">
-                    <C.button
+                    <.button
                       phx-click="assign-task"
                       phx-value-task-id={@selected_task.id}
                       phx-value-rider-id={@selected_rider.id}
@@ -131,7 +131,7 @@
                       class=""
                     >
                       Assign to <%= @selected_rider.name %>
-                    </C.button>
+                    </.button>
                   </div>
                 <% true -> %>
                   <div class="mx-1 text-sm leading-5 text-gray-500">None</div>
@@ -153,21 +153,21 @@
             </form>
             <div class="pt-5">
               <div class="flex justify-end space-x-1.5">
-                <C.button
-                  patch_to={Routes.campaign_show_path(@socket, :edit_task, @campaign, task)}
+                <.button
+                  patch={Routes.campaign_show_path(@socket, :edit_task, @campaign, task)}
                   color={:white}
                   size={:xsmall}
                 >
                   Edit
-                </C.button>
-                <C.button
+                </.button>
+                <.button
                   phx-click="delete-task"
                   phx-value-task-id={task.id}
                   color={:red}
                   size={:xsmall}
                 >
                   Delete
-                </C.button>
+                </.button>
               </div>
             </div>
           </div>
