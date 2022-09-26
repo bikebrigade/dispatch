@@ -142,11 +142,12 @@
             <div class="flex flex-wrap p-3 -mx-2">
               <%= for delivery_status <- ~W(pending picked_up completed failed) do %>
                 <div class="p-1">
-                  <a
-                    href="#"
-                    phx-click="change-delivery-status"
-                    phx-value-task-id={task.id}
-                    phx-value-delivery-status={delivery_status}
+                  <.link
+                    phx-click={
+                      JS.push("change_delivery_status",
+                        value: %{task_id: task.id, delivery_status: delivery_status}
+                      )
+                    }
                   >
                     <div class={
                       "px-1.5 py-0.5 rounded-full border-solid border-2 border-gray-400 bg-opacity-50 text-gray-800 justify-center hover:border-gray-600 #{if task.delivery_status == String.to_atom(delivery_status), do: "bg-gray-400"}"
@@ -155,14 +156,13 @@
                         <%= delivery_status %>
                       </div>
                     </div>
-                  </a>
+                  </.link>
                 </div>
               <% end %>
             </div>
             <div>
               <textarea
-                phx-blur="update-notes"
-                phx-value-task-id={task.id}
+                phx-blur={JS.push("update_notes", value: %{task_id: task.id})}
                 placeholder="Notes"
                 class="w-full p-2 m-1 text-gray-700 bg-transparent border border-gray-800"
               >

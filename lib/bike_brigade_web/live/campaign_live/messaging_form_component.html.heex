@@ -32,7 +32,7 @@
     <% end %>
   </div>
   <.form
-    let={f}
+    :let={f}
     for={@changeset}
     id="campaign_message-form"
     phx-target={@myself}
@@ -101,7 +101,7 @@
             size={:xxsmall}
             class="px-0.5"
           >
-          🙂
+            🙂
           </.button>
         <% end %>
         <div class="mt-1 rounded-md shadow-sm">
@@ -129,21 +129,26 @@
                     Pick up
                   </h3>
                   <div class="inline-flex flex-shrink-0 leading-normal">
-                    <Heroicons.clock mini
+                    <Heroicons.clock
+                      mini
                       aria-label="Pickup Time"
                       class="w-4 h-4 mt-1 mr-1 text-gray-500"
                     />
                     <%= CampaignHelpers.pickup_window(@campaign, @selected_rider) %>
                   </div>
                   <div class="inline-flex flex-shrink-0 leading-normal">
-                    <Heroicons.map_pin mini
+                    <Heroicons.map_pin
+                      mini
                       aria-label="Pickup Address"
                       class="w-4 h-4 mt-1 mr-1 text-gray-500"
                     />
                     <%= @campaign.location.address %>
                   </div>
                   <div class="inline-flex leading-normal">
-                    <Heroicons.shopping_bag mini class="flex-shrink-0 w-4 h-4 mt-1 mr-1 text-gray-500 " />
+                    <Heroicons.shopping_bag
+                      mini
+                      class="flex-shrink-0 w-4 h-4 mt-1 mr-1 text-gray-500 "
+                    />
                     <%= humanized_task_count(@selected_rider.assigned_tasks) %>
                   </div>
                 </div>
@@ -250,9 +255,8 @@
           </.button>
           <.button
             x-show="!scheduling"
-            phx-click="send"
+            phx-click={JS.push("send", target: @myself)}
             phx-disable-with="Sending..."
-            phx-target={@myself}
             data-confirm="Are you sure?"
           >
             Send Now
@@ -262,10 +266,9 @@
           </.button>
           <.button
             x-show="scheduling"
+            phx-click={JS.push("delete-schedule", target: @myself)}
             type="button"
             @click="scheduling = false"
-            phx-click="delete-schedule"
-            phx-target={@myself}
             color={:red}
             class="ml-3"
           >

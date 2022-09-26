@@ -232,8 +232,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
      |> assign(:show_suggestions, true)}
   end
 
-  def handle_event("remove-filter", %{"index" => i}, socket) do
-    i = String.to_integer(i)
+  def handle_event("remove_filter", %{"index" => i}, socket) do
     filters = List.delete_at(socket.assigns.rider_search.filters, i)
 
     {:noreply,
@@ -318,7 +317,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
      |> fetch_results()}
   end
 
-  def handle_event("set-mode", %{"mode" => mode}, socket) do
+  def handle_event("set_mode", %{"mode" => mode}, socket) do
     {:noreply,
      socket
      |> assign(:all_locations, [])
@@ -500,8 +499,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
         </div>
         <div class="inline-flex rounded-md shadow-sm">
           <button
-            phx-click="set-mode"
-            phx-value-mode="list"
+            phx-click={JS.push("set_mode", value: %{mode: :list})}
             type="button"
             class={
               "#{if @mode == :list, do: "bg-gray-300", else: "bg-white"} relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-l-md hover:bg-gray-200 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
@@ -510,8 +508,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
             <Heroicons.table_cells mini class="w-5 h-5 mr-1" /> List
           </button>
           <button
-            phx-click="set-mode"
-            phx-value-mode="map"
+            phx-click={JS.push("set_mode", value: %{mode: :map})}
             type="button"
             class={
               "#{if @mode == :map, do: "bg-gray-300", else: "bg-white"} relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 border border-gray-300 rounded-r-md hover:bg-gray-200 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
@@ -825,8 +822,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
             <Heroicons.x_circle
               mini
               class="w-5 h-5 ml-1 cursor-pointer"
-              phx-click="remove-filter"
-              phx-value-index={i}
+              phx-click={JS.push("remove_filter", value: %{index: i})}
             />
           </div>
         <% end %>

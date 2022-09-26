@@ -178,32 +178,28 @@
           <span class="relative z-0 inline-flex rounded-md shadow-sm">
             <button
               type="button"
-              phx-click="prev-schedule"
-              phx-value-period="3"
+              phx-click={JS.push("prev_schedule", value: %{period: 3})}
               class="relative items-center hidden px-2 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 md:inline-flex rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
             >
               <Heroicons.chevron_left solid class="w-5 h-5" />
             </button>
             <button
               type="button"
-              phx-click="prev-schedule"
-              phx-value-period="2"
+              phx-click={JS.push("prev_schedule", value: %{period: 2})}
               class="relative inline-flex items-center px-2 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 md:hidden rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
             >
               <Heroicons.chevron_left solid class="w-5 h-5" />
             </button>
             <button
               type="button"
-              phx-click="next-schedule"
-              phx-value-period="3"
+              phx-click={JS.push("next_schedule", value: %{period: 3})}
               class="relative items-center hidden px-2 py-1 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 md:inline-flex rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
             >
               <Heroicons.chevron_right solid class="w-5 h-5" />
             </button>
             <button
               type="button"
-              phx-click="next-schedule"
-              phx-value-period="2"
+              phx-click={JS.push("next_schedule", value: %{period: 2})}
               class="relative inline-flex items-center px-2 py-1 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 md:hidden rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
             >
               <Heroicons.chevron_right solid class="w-5 h-5" />

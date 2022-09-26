@@ -24,15 +24,13 @@
   <div class="p-2 border-b">
     <div class="flex flex-row flex-wrap gap-1">
       <C.filter_button
-        phx-click="filter-riders"
-        phx-value-capacity="all"
+        phx-click={JS.push("filter_riders", value: %{capacity: :all})}
         selected={@riders_query[:capacity] == "all"}
       >
         All
       </C.filter_button>
       <C.filter_button
-        phx-click="filter-riders"
-        phx-value-capacity="available"
+        phx-click={JS.push("filter_riders", value: %{capacity: :available})}
         selected={@riders_query[:capacity] == "available"}
       >
         Available
@@ -50,10 +48,8 @@
   <ul class="flex-1 overflow-y-auto scrolling-touch" id="riders-list" phx-hook="RidersList">
     <%= for {_id, rider} <- @riders_list do %>
       <li id={"riders-list:#{rider.id}"}>
-        <a
-          phx-click="select-rider"
-          phx-value-id={rider.id}
-          href="#"
+        <.link
+          phx-click={JS.push("select_rider", value: %{id: rider.id})}
           class={
             "block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50#{if selected?(@selected_rider, rider), do: " bg-gray-100"}"
           }
@@ -85,7 +81,7 @@
               </.with_tooltip>
             <% end %>
           </div>
-        </a>
+        </.link>
         <%= if selected?(@selected_rider, rider) do %>
           <div class="p-2 mx-1 rounded-b shadow-inner bg-gray-50">
             <div class="flex flex-row my-2">
@@ -106,14 +102,17 @@
               <%= for task <- rider.assigned_tasks do %>
                 <div class="flex flex-row my-2">
                   <Heroicons.map_pin mini class="flex-shrink-0 w-4 h-4 text-gray-500" />
-                  <a href="#" phx-click="select-task" phx-value-id={task.id} class="flex flex-col">
+                  <.link
+                    phx-click={JS.push("select_task", value: %{id: task.id})}
+                    class="flex flex-col"
+                  >
                     <div class="mx-1 text-sm leading-5 text-indigo-600">
                       <span class="pii"><%= task.dropoff_location %></span>
                     </div>
                     <div class="mx-1 text-xs font-medium leading-5">
                       <span class="pii"><%= task.dropoff_name %></span>
                     </div>
-                  </a>
+                  </.link>
                 </div>
               <% end %>
             <% else %>
@@ -122,15 +121,17 @@
             <div class="flex flex-row mt-5 space-x-1">
               <%= if @resent do %>
                 <.button
-                  phx-click="resend-message"
-                  phx-value-rider-id={rider.id}
+                  phx-click={JS.push("resend_message", value: %{rider_id: rider.id})}
                   size={:xsmall}
                   disabled
                 >
                   Sent!
                 </.button>
               <% else %>
-                <.button phx-click="resend-message" phx-value-rider-id={rider.id} size={:xsmall}>
+                <.button
+                  phx-click={JS.push("resend_message", value: %{rider_id: rider.id})}
+                  size={:xsmall}
+                >
                   Resend
                 </.button>
               <% end %>
@@ -144,8 +145,7 @@
             </div>
             <div class="mt-1">
               <.button
-                phx-click="remove-rider"
-                phx-value-rider-id={rider.id}
+                phx-click={JS.push("remove_rider", value: %{rider_id: rider.id})}
                 color={:red}
                 size={:xsmall}
               >

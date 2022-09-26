@@ -45,13 +45,13 @@ defmodule BikeBrigadeWeb.CampaignLive.TaskFormComponent do
   end
 
   @impl Phoenix.LiveComponent
-  def handle_event("remove-item", %{"index" => index}, socket) do
+  def handle_event("remove_item", %{"index" => index}, socket) do
     changeset = socket.assigns.changeset
 
     task_items =
       changeset
       |> Ecto.Changeset.get_field(:task_items)
-      |> List.delete_at(String.to_integer(index))
+      |> List.delete_at(index)
 
     changeset =
       changeset

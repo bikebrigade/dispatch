@@ -59,8 +59,7 @@ defmodule BikeBrigadeWeb.Components.UserSelectionComponent do
       <%= if @selected_user do %>
         <a
           href="#"
-          phx-click="unselect"
-          phx-target={@myself}
+          phx-click={JS.push("unselect", target: @myself)}
           class="block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
         >
           <div class="flex items-center px-4 py-4 sm:px-6">
@@ -105,11 +104,8 @@ defmodule BikeBrigadeWeb.Components.UserSelectionComponent do
         <ul id="user-selection-list" class="overflow-y-auto max-h-64">
           <%= for user <- @users do %>
             <li id={"user-selection:#{user.id}"}>
-              <a
-                href="#"
-                phx-click="select"
-                phx-value-id={user.id}
-                phx-target={@myself}
+              <.link
+                phx-click={JS.push("select", value: %{id: user.id}, target: @myself)}
                 class="block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
               >
                 <div class="flex items-center px-4 py-4 sm:px-6">
@@ -139,7 +135,7 @@ defmodule BikeBrigadeWeb.Components.UserSelectionComponent do
                     </div>
                   </div>
                 </div>
-              </a>
+              </.link>
             </li>
           <% end %>
         </ul>

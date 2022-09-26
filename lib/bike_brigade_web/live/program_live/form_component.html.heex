@@ -96,9 +96,7 @@
               <.button
                 color={:clear}
                 size={:xxsmall}
-                phx-click="remove-schedule"
-                phx-value-index={i}
-                phx-target={@myself}
+                phx-click={JS.push("remove_schedule", value: %{index: i}, target: @myself)}
                 type="button"
               >
                 <span class="sr-only">Close</span>
@@ -109,7 +107,11 @@
           <%= error_tag(s, :duration) %>
         <% end %>
         <div class="flex justify-end mt-2">
-          <.button phx-click="add-schedule" phx-target={@myself} type="button" size={:xsmall}>
+          <.button
+            phx-click={JS.push("add_schedule", target: @myself)}
+            type="button"
+            size={:xsmall}
+          >
             Add Schedule
           </.button>
         </div>
@@ -158,7 +160,7 @@
                 </div>
               <% end %>
             </:td>
-            <:td class="text-right" :let={item}>
+            <:td :let={item} class="text-right">
               <.link
                 patch={Routes.program_index_path(@socket, :edit_item, @program.id, item.id)}
                 class="link"

@@ -55,9 +55,9 @@
       <div class="my-2">
         <%= label f, :schedules, class: "block text-sm font-medium leading-5 text-gray-700" do %>
           Deliver
-          <a href="#" phx-click="add-item" phx-target={@myself} class="text-xs font-normal link">
+          <.link phx-click={JS.push("add-item", target: @myself)} class="text-xs font-normal link">
             (Delivering multiple kinds of items?)
-          </a>
+          </.link>
         <% end %>
         <%= for {g, i} <- Enum.with_index(inputs_for f, :task_items) do %>
           <%= hidden_inputs_for(g) %>
@@ -74,9 +74,7 @@
             <%= if i > 0 do %>
               <div class="justify-center ml-auto">
                 <button
-                  phx-click="remove-item"
-                  phx-value-index={i}
-                  phx-target={@myself}
+                  phx-click={JS.push("remove_item", value: %{index: i}, target: @myself)}
                   type="button"
                   class="block text-gray-400 bg-white rounded-md hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >

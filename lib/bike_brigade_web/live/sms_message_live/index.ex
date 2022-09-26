@@ -68,8 +68,8 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
 
   @impl true
   def handle_event(
-        "change-delivery-status",
-        %{"task-id" => task_id, "delivery-status" => delivery_status},
+        "change_delivery_status",
+        %{"task_id" => task_id, "delivery_status" => delivery_status},
         socket
       ) do
     # TODO some error handling
@@ -82,7 +82,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
   end
 
   @impl true
-  def handle_event("update-notes", %{"task-id" => task_id, "value" => notes}, socket) do
+  def handle_event("update_notes", %{"task_id" => task_id, "value" => notes}, socket) do
     # TODO some error handling
     task = Delivery.get_task(task_id)
 

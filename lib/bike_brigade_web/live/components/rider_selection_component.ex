@@ -96,15 +96,12 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
         <%= for {id, rider} <- @selected_riders do %>
           <.show rider={rider}>
             <:x>
-              <a
-                href="#"
-                phx-click="unselect"
-                phx-value-id={id}
-                phx-target={@myself}
+              <.link
+                phx-click={JS.push("unselect", value: %{id: rider.id}, target: @myself)}
                 class="block text-sm text-gray-400 bg-white rounded-md font-base hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
                 <Heroicons.x_mark solid class="w-5 h-5" />
-              </a>
+              </.link>
             </:x>
           </.show>
           <input type="hidden" name={@input_name} value={id} />
@@ -126,15 +123,12 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
           <ul id="rider-selection-list" class="overflow-y-auto max-h-64" phx-hook="RiderSelectionList">
             <%= for rider <- @riders do %>
               <li id={"rider-selection:#{rider.id}"}>
-                <a
-                  href="#"
-                  phx-click="select"
-                  phx-value-id={rider.id}
-                  phx-target={@myself}
+                <.link
+                  phx-click={JS.push("select", value: %{id: rider.id}, target: @myself)}
                   class="block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
                 >
                   <.show rider={rider} />
-                </a>
+                </.link>
               </li>
             <% end %>
           </ul>

@@ -114,8 +114,7 @@
                   <.button
                     size={:xsmall}
                     color={:lightred}
-                    phx-click="delete"
-                    phx-value-id={c.id}
+                    phx-click={JS.push("delete", value: %{id: c.id})}
                     data-confirm="Are you sure?"
                   >
                     Delete

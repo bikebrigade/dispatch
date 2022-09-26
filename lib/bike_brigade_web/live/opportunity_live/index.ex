@@ -3,6 +3,7 @@ defmodule BikeBrigadeWeb.OpportunityLive.Index do
 
   alias BikeBrigade.Delivery
   alias BikeBrigade.Delivery.{Opportunity}
+  alias BikeBrigade.LocalizedDateTime
 
   @impl Phoenix.LiveView
   def mount(_params, _session, socket) do
@@ -94,7 +95,7 @@ defmodule BikeBrigadeWeb.OpportunityLive.Index do
     {:noreply, assign(socket, :selected, selected)}
   end
 
-  def handle_event("update-selected", %{"action" => action}, socket) do
+  def handle_event("update_selected", %{"action" => action}, socket) do
     %{selected: selected} = socket.assigns
 
     update =

@@ -24,7 +24,7 @@ defmodule BikeBrigadeWeb.StatsLive.Dashboard do
   end
 
   @impl Phoenix.LiveView
-  def handle_event("select-period", %{"period" => period}, socket)
+  def handle_event("select_period", %{"period" => period}, socket)
       when period in ~w(day week month) do
     {:noreply,
      socket

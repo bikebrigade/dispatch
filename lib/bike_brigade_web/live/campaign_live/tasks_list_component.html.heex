@@ -9,29 +9,25 @@
       Tasks
     </h3>
     <div class="text-base font-medium leading-6 text-gray-800">
-      <%= Map.values(@tasks) |> Enum.count(&task_assigned?/1) %> / <%= Enum.count(@tasks) %>
-      assigned
+      <%= Map.values(@tasks) |> Enum.count(&task_assigned?/1) %> / <%= Enum.count(@tasks) %> assigned
     </div>
   </div>
   <div class="p-2 border-b">
     <div class="flex flex-row flex-wrap gap-1">
       <C.filter_button
-        phx-click="filter-tasks"
-        phx-value-assignment="all"
+        phx-click={JS.push("filter_tasks", value: %{assignment: "all"})}
         selected={@tasks_query[:assignment] == "all"}
       >
         All
       </C.filter_button>
       <C.filter_button
-        phx-click="filter-tasks"
-        phx-value-assignment="unassigned"
+        phx-click={JS.push("filter_tasks", value: %{assignment: "unassigned"})}
         selected={@tasks_query[:assignment] == "unassigned"}
       >
         Unassigned
       </C.filter_button>
       <C.filter_button
-        phx-click="filter-tasks"
-        phx-value-assignment="assigned"
+        phx-click={JS.push("filter_tasks", value: %{assignment: "assigned"})}
         selected={@tasks_query[:assignment] == "assigned"}
       >
         Assigned
@@ -49,10 +45,8 @@
   <ul class="flex-1 overflow-y-auto scrolling-touch" id="tasks-list" phx-hook="TasksList">
     <%= for {_id, task} <- @tasks_list do %>
       <li id={"tasks-list:#{task.id}"}>
-        <a
-          phx-click="select-task"
-          phx-value-id={task.id}
-          href="#"
+        <.link
+          phx-click={JS.push("select_task", value: %{id: task.id})}
           class={
             "block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50 #{if selected?(@selected_task, task), do: "bg-gray-100", else: ""}"
           }
@@ -79,7 +73,7 @@
               </div>
             </div>
           </div>
-        </a>
+        </.link>
         <%= if selected?(@selected_task, task) do %>
           <div class="p-2 mx-1 rounded-b shadow-inner bg-gray-50">
             <div class="flex flex-row my-2">
@@ -104,17 +98,14 @@
               <C.Icons.maki_bicycle_15 class="flex-shrink-0 w-4 h-4 text-gray-500" />
               <%= cond do %>
                 <% task.assigned_rider != nil -> %>
-                  <a
-                    href="#"
-                    phx-click="select-rider"
-                    phx-value-id={task.assigned_rider.id}
+                  <.link
+                    phx-click={JS.push("select_rider", value: %{id: task.assigned_rider.id})}
                     class="mx-1 text-sm leading-5 text-indigo-600"
                   >
                     <%= task.assigned_rider.name %>
-                  </a>
+                  </.link>
                   <.button
-                    phx-click="unassign-task"
-                    phx-value-task-id={@selected_task.id}
+                    phx-click={JS.push("unassign_task", value: %{task_id: @selected_task.id})}
                     color={:secondary}
                     size={:xsmall}
                     class=""
@@ -124,9 +115,11 @@
                 <% @selected_rider != nil -> %>
                   <div class="mx-1 text-sm leading-5">
                     <.button
-                      phx-click="assign-task"
-                      phx-value-task-id={@selected_task.id}
-                      phx-value-rider-id={@selected_rider.id}
+                      phx-click={
+                        JS.push("assign_task",
+                          value: %{task_id: @selected_task.id, rider_id: @selected_rider.id}
+                        )
+                      }
                       size={:xsmall}
                       class=""
                     >
@@ -161,8 +154,7 @@
                   Edit
                 </.button>
                 <.button
-                  phx-click="delete-task"
-                  phx-value-task-id={task.id}
+                  phx-click={JS.push("delete_task", value: %{task_id: task.id})}
                   color={:red}
                   size={:xsmall}
                 >
