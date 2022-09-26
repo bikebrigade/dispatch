@@ -96,9 +96,10 @@
               </div>
               <div class="px-1 my-0.5 flex justify-between">
                 <div class="text-xs font-bold">
-                  <C.tooltip tooltip={"Twilio SID: #{message.twilio_sid}"}>
+                  <.with_tooltip>
                     <%= datetime(message.sent_at) %>
-                  </C.tooltip>
+                    <:tooltip>Twilio SID: <%= message.twilio_sid %></:tooltip>
+                  </.with_tooltip>
                 </div>
                 <div class="flex flex-row space-x-1">
                   <%= cond do %>
@@ -118,25 +119,30 @@
                   <div class="text-xs text-gray-600">
                     <%= case message.twilio_status do %>
                       <% "queued" -> %>
-                        <C.tooltip tooltip="Queued">
+                        <.with_tooltip>
                           <Heroicons.ellipsis_horizontal mini class="w-4 h-4" />
-                        </C.tooltip>
+                          <:tooltip>Queued</:tooltip>
+                        </.with_tooltip>
                       <% "sent" -> %>
-                        <C.tooltip tooltip="Sent">
+                        <.with_tooltip>
                           <Heroicons.arrow_right_circle mini class="w-4 h-4" />
-                        </C.tooltip>
+                          <:tooltip>Sent</:tooltip>
+                        </.with_tooltip>
                       <% "delivered" -> %>
-                        <C.tooltip tooltip="Delivered">
+                        <.with_tooltip>
                           <Heroicons.check_circle mini class="w-4 h-4" />
-                        </C.tooltip>
+                          <:tooltip>Delivered</:tooltip>
+                        </.with_tooltip>
                       <% "undelivered" -> %>
-                        <C.tooltip tooltip="Undelivered">
+                        <.with_tooltip>
                           <Heroicons.exclamation_circle mini class="w-4 h-4 text-red-600" />
-                        </C.tooltip>
+                          <:tooltip>Undelivered</:tooltip>
+                        </.with_tooltip>
                       <% "failed" -> %>
-                        <C.tooltip tooltip="Failed">
+                        <.with_tooltip>
                           <Heroicons.exclamation_circle mini class="w-4 h-4 text-red-600" />
-                        </C.tooltip>
+                          <:tooltip>Failed</:tooltip>
+                        </.with_tooltip>
                       <% _ -> %>
                     <% end %>
                   </div>

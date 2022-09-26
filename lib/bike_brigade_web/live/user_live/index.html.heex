@@ -41,12 +41,16 @@
   </:td>
   <:td :let={user} class="text-right">
     <%= if user.is_dispatcher do %>
-      <C.tooltip tooltip="Dispatcher" class="w-40">
+      <.with_tooltip>
         🧑‍🔧
-      </C.tooltip>
+        <:tooltip>Dispatcher</:tooltip>
+      </.with_tooltip>
     <% end %>
     <%= if user.rider_id  do %>
-      <C.tooltip tooltip="Rider" class="w-40">🚴</C.tooltip>
+      <.with_tooltip>
+        🚴
+        <:tooltip>Rider</:tooltip>
+      </.with_tooltip>
     <% end %>
   </:td>
   <:td :let={user} class="text-right">

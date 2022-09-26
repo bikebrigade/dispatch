@@ -147,6 +147,22 @@ defmodule BikeBrigadeWeb.Components do
     """
   end
 
+  slot :tooltip, required: true
+  def with_tooltip(assigns) do
+    ~H"""
+    <div class="relative flex flex-col items-center has-tooltip">
+      <%= render_slot(@inner_block) %>
+      <div class={"absolute bottom-0 flex-col items-center mb-6 tooltip"}>
+        <span class="relative z-10 p-2 text-xs leading-none text-white whitespace-no-wrap bg-black rounded-sm shadow-lg">
+          <%= render_slot(@tooltip) %>
+        </span>
+        <div class="w-3 h-3 -mt-2 transform rotate-45 bg-black"></div>
+      </div>
+    </div>
+    """
+  end
+
+
   # ---- OLD ---
 
   def filter_button(assigns) do
@@ -171,24 +187,6 @@ defmodule BikeBrigadeWeb.Components do
         <%= render_slot(@inner_block) %>
       </div>
     </button>
-    """
-  end
-
-  def tooltip(assigns) do
-    assigns =
-      assigns
-      |> assign_new(:class, fn -> "" end)
-
-    ~H"""
-    <div class="relative flex flex-col items-center has-tooltip">
-      <%= render_slot(@inner_block) %>
-      <div class={"absolute bottom-0 flex-col items-center mb-6 tooltip #{@class}"}>
-        <span class="relative z-10 p-2 text-xs leading-none text-white whitespace-no-wrap bg-black rounded-sm shadow-lg">
-          <%= @tooltip %>
-        </span>
-        <div class="w-3 h-3 -mt-2 transform rotate-45 bg-black"></div>
-      </div>
-    </div>
     """
   end
 

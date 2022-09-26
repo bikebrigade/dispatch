@@ -2,9 +2,12 @@
   <div class="flex flex-col flex-wrap items-baseline flex-grow space-y-1 xl:flex-row xl:space-x-1">
     <.button phx-click="auto-assign" size={:small} class="space-x-1">
       <p>Auto Assign</p>
-      <C.tooltip tooltip="This will assign the remaining tasks" class="w-40">
+      <.with_tooltip>
         <Heroicons.exclamation_circle mini class="w-4 h-4" />
-      </C.tooltip>
+        <:tooltip>
+          <div class="w-32">This will assign the remaining tasks</div>
+        </:tooltip>
+      </.with_tooltip>
     </.button>
     <.button patch={Routes.campaign_show_path(@socket, :add_rider, @campaign)} size={:small}>
       Add Rider
@@ -15,8 +18,7 @@
       Riders
     </h3>
     <div class="text-base font-medium leading-6 text-gray-800">
-      <%= Map.values(@riders) |> Enum.count(&rider_available?/1) %> / <%= Enum.count(@riders) %>
-      available
+      <%= Map.values(@riders) |> Enum.count(&rider_available?/1) %> / <%= Enum.count(@riders) %> available
     </div>
   </div>
   <div class="p-2 border-b">
@@ -64,18 +66,23 @@
               </span>
             </div>
             <%= if rider.task_enter_building do %>
-              <Heroicons.building_office mini class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end" />
+              <Heroicons.building_office
+                mini
+                class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end"
+              />
             <% end %>
             <%= if has_notes?(rider) do %>
               <Heroicons.pencil_square mini class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500" />
             <% end %>
             <%= if rider.text_based_itinerary do %>
-              <C.tooltip
-                tooltip="This rider will receive an extra message with text-only delivery instructions"
-                class="w-40"
-              >
+              <.with_tooltip>
                 <Heroicons.signal_slash mini class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500" />
-              </C.tooltip>
+                <:tooltip>
+                  <div class="w-40">
+                    This rider will receive an extra message with text-only delivery instructions
+                  </div>
+                </:tooltip>
+              </.with_tooltip>
             <% end %>
           </div>
         </a>
