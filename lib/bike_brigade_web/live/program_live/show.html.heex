@@ -42,9 +42,9 @@
   </:th>
   <:td :let={campaign}>
     <div class="flex items-center space-x-1">
-      <C.date
+      <.date
         date={campaign_date(campaign)}
-        link_to={Routes.campaign_show_path(@socket, :show, campaign)}
+        navigate={Routes.campaign_show_path(@socket, :show, campaign)}
       />
     </div>
   </:td>

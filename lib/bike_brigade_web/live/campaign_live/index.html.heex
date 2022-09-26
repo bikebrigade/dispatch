@@ -73,7 +73,7 @@
       </.link>
     </span>
   </div>
-  <.button patch={Routes.campaign_index_path(@socket, :new)} class="ml-2" %>
+  <.button patch={Routes.campaign_index_path(@socket, :new)} extra_class="ml-2" %>
     New Campaign
   </.button>
 </nav>
@@ -81,7 +81,7 @@
   <%= for {date, campaigns} <- @campaigns do %>
     <div class="flex w-full bg-white shadow sm:my-1 sm:rounded-md">
       <div class="w-32 py-4 pl-4">
-        <C.date date={date} />
+        <.date date={date} />
       </div>
       <ul role="list" class="w-full divide-y divide-gray-200">
         <%= for c <- campaigns do %>

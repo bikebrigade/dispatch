@@ -65,7 +65,7 @@
         navigate={Routes.campaign_show_path(@socket, :show, latest_campaign)}
         class="inline-flex hover:bg-indigo-100"
       >
-        <C.date date={latest_campaign.delivery_start} />
+        <.date date={campaign_date(latest_campaign)} />
       </.link>
     <% end %>
   </:td>

@@ -6,6 +6,8 @@ defmodule BikeBrigadeWeb.ProgramLive.Index do
 
   alias BikeBrigadeWeb.ProgramLive.ProgramForm
 
+  import BikeBrigadeWeb.CampaignHelpers, only: [campaign_date: 1]
+
   @impl true
   def mount(_params, _session, socket) do
     {:ok,

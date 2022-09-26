@@ -107,33 +107,20 @@ defmodule BikeBrigadeWeb.Components do
     base_class <> " " <> size_class <> " " <> color_class <> " " <> extra_class
   end
 
-  # ---- OLD ---
+  attr :date, Date, required: true
+  attr :navigate, :string
 
-  def date(assigns) do
-    date =
-      case assigns.date do
-        %Date{} = date -> date
-        %DateTime{} = datetime -> LocalizedDateTime.to_date(datetime)
-      end
-
-    assigns =
-      assigns
-      |> assign(:date, date)
-      |> assign(:today, LocalizedDateTime.today())
-      |> assign_new(:link_to, fn -> nil end)
-
+  def date(%{navigate: to} = assigns) when is_binary(to) do
     ~H"""
-    <%= if @link_to do %>
-      <%= live_patch to: @link_to, class: "hover:bg-gray-50" do %>
-        <.date_inner {assigns} />
-      <% end %>
-    <% else %>
-      <.date_inner {assigns} />
-    <% end %>
+    <.link navigate={@navigate} class="hover:bg-gray-50">
+      <.date date={@date} />
+    </.link>
     """
   end
 
-  def date_inner(assigns) do
+  def date(assigns) do
+    assigns = assign(assigns, :today, LocalizedDateTime.today())
+
     ~H"""
     <time
       datetime={@date}
@@ -159,6 +146,8 @@ defmodule BikeBrigadeWeb.Components do
     </time>
     """
   end
+
+  # ---- OLD ---
 
   def filter_button(assigns) do
     base_class =
