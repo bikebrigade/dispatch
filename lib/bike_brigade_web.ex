@@ -17,6 +17,8 @@ defmodule BikeBrigadeWeb do
   and import those modules here.
   """
 
+  def static_paths, do: ~w(assets fonts images favicon.ico robots.txt)
+
   def controller do
     quote do
       use Phoenix.Controller, namespace: BikeBrigadeWeb
@@ -24,6 +26,8 @@ defmodule BikeBrigadeWeb do
       import Plug.Conn
       import BikeBrigadeWeb.Gettext
       alias BikeBrigadeWeb.Router.Helpers, as: Routes
+
+      unquote(verified_routes())
     end
   end
 
@@ -36,7 +40,8 @@ defmodule BikeBrigadeWeb do
       use Phoenix.Component
 
       # Import convenience functions from controllers
-      import Phoenix.Controller, only: [get_csrf_token: 0, get_flash: 1, get_flash: 2, view_module: 1]
+      import Phoenix.Controller,
+        only: [get_csrf_token: 0, get_flash: 1, get_flash: 2, view_module: 1]
 
       # Include shared imports and aliases for views
       unquote(view_helpers())
@@ -84,6 +89,15 @@ defmodule BikeBrigadeWeb do
     end
   end
 
+  def verified_routes do
+    quote do
+      use Phoenix.VerifiedRoutes,
+        endpoint: BikeBrigadeWeb.Endpoint,
+        router: BikeBrigadeWeb.Router,
+        statics: BikeBrigadeWeb.static_paths()
+    end
+  end
+
   defp view_helpers do
     quote do
       # Use all HTML functionality (forms, tags, etc)
@@ -106,6 +120,8 @@ defmodule BikeBrigadeWeb do
       # Alias in components
       alias BikeBrigadeWeb.Components, as: C
       alias BikeBrigadeWeb.Components.UI
+
+      unquote(verified_routes())
     end
   end
 

@@ -65,7 +65,7 @@
         ) %>
       </div>
       <%= error_tag(f, :program_id) %>
-      <.link navigate={Routes.program_index_path(@socket, :new)} class="text-xs link">
+      <.link navigate={~p"/programs/new"} class="text-xs link">
         Create New Program
       </.link>
     </div>

@@ -73,7 +73,7 @@
       </.link>
     </span>
   </div>
-  <.button patch={Routes.campaign_index_path(@socket, :new)} extra_class="ml-2" %>
+  <.button patch={~p"/campaigns/new"} class="ml-2">
     New Campaign
   </.button>
 </nav>
