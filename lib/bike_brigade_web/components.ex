@@ -13,10 +13,6 @@ defmodule BikeBrigadeWeb.Components do
             when is_map_key(rest, :href) or is_map_key(rest, :patch) or
                    is_map_key(rest, :navigate) or is_map_key(rest, :"phx-click")
 
-  attr :href, :string
-  attr :patch, :string
-  attr :navigate, :string
-
   attr :type, :string
 
   attr :size, :atom,
@@ -28,7 +24,7 @@ defmodule BikeBrigadeWeb.Components do
     values: [:primary, :secondary, :white, :red, :lightred, :clear, :green]
 
   attr :class, :string, default: ""
-  attr :rest, :global, include: [:href, :patch, :navigate]
+  attr :rest, :global, include: ~w(href patch navigate)
   slot(:inner_block, required: true)
 
   def button(%{type: type} = assigns) when is_binary(type) do
@@ -96,7 +92,7 @@ defmodule BikeBrigadeWeb.Components do
   end
 
   attr :date, Date, required: true
-  attr :rest, :global, include: [:href, :patch, :navigate]
+  attr :rest, :global, include: ~w(href patch navigate)
 
   def date(%{rest: rest} = assigns) when is_clickable(rest) do
     ~H"""
@@ -151,8 +147,6 @@ defmodule BikeBrigadeWeb.Components do
     </div>
     """
   end
-
-
   # ---- OLD ---
 
   def filter_button(assigns) do
