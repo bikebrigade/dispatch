@@ -45,7 +45,7 @@ defmodule BikeBrigade.MixProject do
       {:ecto_sql, "~> 3.7"},
       {:ecto_psql_extras, "~> 0.7.4"},
       {:postgrex, ">= 0.0.0"},
-      {:phoenix_live_view, "~> 0.18.0"},
+      {:phoenix_live_view, git: "https://github.com/phoenixframework/phoenix_live_view", override: true},
       {:floki, ">= 0.0.0", only: :test},
       {:phoenix_html, "~> 3.1"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
@@ -113,15 +113,10 @@ defmodule BikeBrigade.MixProject do
         "setup"
       ],
       setup: [
-
         "deps.get",
-
         "ecto.setup",
-
         "cmd mix ecto.migrate --migrations-path priv/repo/data_migrations",
-
         "cmd npm install --prefix assets"
-
       ],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
