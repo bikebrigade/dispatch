@@ -2,8 +2,7 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
   use BikeBrigadeWeb, :live_component
 
   alias BikeBrigade.Riders
-  alias BikeBrigade.Riders.RiderSearch
-  alias BikeBrigade.Riders.RiderSearch.Filter
+  alias BikeBrigade.Riders.{Rider, RiderSearch, RiderSearch.Filter}
 
   @impl Phoenix.LiveComponent
   def mount(socket) do
@@ -52,16 +51,12 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
   end
 
   def handle_event("unselect", %{"id" => id}, socket) do
-    id = String.to_integer(id)
-
     {:noreply,
      socket
      |> update(:selected_riders, &Map.delete(&1, id))}
   end
 
   def handle_event("select", %{"id" => id}, socket) do
-    id = String.to_integer(id)
-
     {:noreply,
      socket
      |> update(:selected_riders, &Map.put_new_lazy(&1, id, fn -> Riders.get_rider!(id) end))
@@ -94,16 +89,10 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
     <div id="rider-select">
       <div class="grid grid-cols-2 overflow-y-auto max-h-64">
         <%= for {id, rider} <- @selected_riders do %>
-          <.rider rider={rider}>
-            <:x>
-              <.link
-                phx-click={JS.push("unselect", value: %{id: rider.id}, target: @myself)}
-                class="block text-sm text-gray-400 bg-white rounded-md font-base hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                <Heroicons.x_mark solid class="w-5 h-5" />
-              </.link>
-            </:x>
-          </.rider>
+          <.rider
+            rider={rider}
+            on_unselect={JS.push("unselect", value: %{id: rider.id}, target: @myself)}
+          />
           <input type="hidden" name={@input_name} value={id} />
         <% end %>
       </div>
@@ -127,7 +116,7 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
                   phx-click={JS.push("select", value: %{id: rider.id}, target: @myself)}
                   class="block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
                 >
-                  <.show rider={rider} />
+                  <.rider rider={rider} />
                 </.link>
               </li>
             <% end %>
@@ -137,6 +126,9 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
     </div>
     """
   end
+
+  attr :rider, Rider, required: true
+  attr :on_unselect, JS, default: nil
 
   defp rider(assigns) do
     assigns =
@@ -168,7 +160,13 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
           </div>
         </div>
       </div>
-      <%= render_slot(@x) %>
+      <.link
+        :if={@on_unselect}
+        phx-click={@on_unselect}
+        class="block text-sm text-gray-400 bg-white rounded-md font-base hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+      >
+        <Heroicons.x_mark solid class="w-5 h-5" />
+      </.link>
     </div>
     """
   end
