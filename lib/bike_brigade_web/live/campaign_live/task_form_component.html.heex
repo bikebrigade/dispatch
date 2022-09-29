@@ -15,7 +15,7 @@
         <div class="mt-1">
           <.button
             size={:small}
-            navigate={Routes.program_index_path(@socket, :edit, @campaign.program)}
+            navigate={~p"/programs/#{@campaign.program}/edit"}
           >
             Set up delivery items
           </.button>
@@ -87,7 +87,7 @@
           <%= error_tag(g, :item) %>
         <% end %>
         <.link
-          navigate={Routes.program_index_path(@socket, :edit, @campaign.program.id)}
+          navigate={~p"/programs/#{@campaign.program.id}/edit"}
           class="text-xs link"
         >
           Set up program's delivery items

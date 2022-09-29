@@ -1,10 +1,10 @@
 <C.flash_component flash={@flash} />
 <div class="px-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
-  <div class="flex flex-col justify-center min-h-screen-safe py-12 bg-gray-50 sm:px-6 lg:px-8">
+  <div class="flex flex-col justify-center py-12 min-h-screen-safe bg-gray-50 sm:px-6 lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
       <img
         class="w-auto mx-auto h-28"
-        src={Routes.static_path(@socket, "/images/bike-brigade-black.svg")}
+        src={~p"/static/images/bike-brigade-black.svg"}
         alt="Toronto Bike Brigade"
       />
       <h2 class="mt-6 text-3xl font-extrabold leading-9 text-center text-gray-900 lg:text-4xl">
@@ -77,7 +77,7 @@
           <.form
             let={f}
             for={@changeset}
-            action={Routes.authentication_path(@socket, :login)}
+            action={~p"/login"}
             id="login-form2"
           >
             <%= hidden_input(f, :phone) %>

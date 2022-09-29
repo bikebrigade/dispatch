@@ -19,14 +19,14 @@
 <div class="flex-wrap justify-between mt-5 sm:flex sm:flex-nowrap">
   <div class="mb-5 text-right sm:order-last">
     <%= if @live_action in [:profile, :edit_profile] do %>
-      <.button navigate={Routes.rider_show_path(@socket, :edit_profile)} color={:white}>
+      <.button navigate={~p"/profile/edit"} color={:white}>
         Edit
       </.button>
     <% else %>
-      <.button navigate={Routes.rider_show_path(@socket, :edit, @rider.id)} color={:white}>
+      <.button navigate={~p"/riders/#{@rider}/show/edit"} color={:white}>
         Edit
       </.button>
-      <.button navigate={Routes.sms_message_index_path(@socket, :show, @rider.id)}>
+      <.button navigate={~p"/messages/#{@rider}"}>
         Message
       </.button>
     <% end %>
@@ -87,7 +87,7 @@
             aria-label="Briefcase"
             class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 sm:mr-.5"
           />
-          <.link navigate={Routes.rider_index_path(@socket, :index, %{filters: ["capacity:#{@rider.capacity}"]})} class="link">
+          <.link navigate={~p"/riders?#{%{filters: ["capacity:#{@rider.capacity}"]}}"} class="link">
             <%= @rider.capacity %>
           </.link>
         </span>
@@ -110,7 +110,7 @@
             <span class="inline-flex">
               <%= for tag <- @rider.tags do %>
                 <span class="before:content-[','] first:before:content-['']">
-                  <.link navigate={Routes.rider_index_path(@socket, :index, %{filters: ["capacity:#{@rider.capacity}"]})} class="link">
+                  <.link navigate={~p"/riders?#{%{filters: ["tag:#{tag.name}"]}}"} class="link">
                     <%= tag.name %>
                   </.link>
                 </span>
@@ -219,7 +219,7 @@
                   <div class="mb-3">
                     <span class="text-sm text-gray-500"><%= pickup_window(campaign) %></span>
                     <p class="font-bold leading-snug">
-                    <.link navigate={ Routes.campaign_show_path(@socket, :show, campaign) } class="link">
+                    <.link navigate={ ~p"/campaigns/#{campaign}" } class="link">
                       <%= campaign.program.name %>
                     </.link>
                     </p>

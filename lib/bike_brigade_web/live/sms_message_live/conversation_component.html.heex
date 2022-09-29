@@ -7,7 +7,7 @@
   <div class="flex-grow-0 px-4 py-5 bg-white border-b border-gray-200 sm:px-6 sm:rounded-t-lg">
     <div class="flex flex-row items-center justify-between -mt-2 -ml-4">
       <div class="ml-4 sm:hidden">
-        <.link patch={Routes.sms_message_index_path(@socket, :index)}>
+        <.link patch={~p"/messages"}>
           <Heroicons.chevron_left class="w-6 h-6 text-indigo-600" />
         </.link>
       </div>
@@ -17,7 +17,7 @@
             <div class="flex flex-col">
               <div class="pii">
                 <span>
-                  <.link navigate={Routes.rider_show_path(@socket, :show, @rider)} class="link">
+                  <.link navigate={~p"/riders/#{@rider}"} class="link">
                     <%= @rider.name %>
                   </.link>
                 </span>
@@ -35,7 +35,7 @@
           <% end %>
         </h3>
       </div>
-      <.link patch={Routes.sms_message_index_path(@socket, :tasks, @rider.id)}>
+      <.link patch={~p"/messages/#{@rider}/tasks"}>
         <div class="inline-flex text-indigo-600 sm:hidden">
           <Heroicons.clipboard_document_list class="inline w-6 h-6" />
         </div>
@@ -105,7 +105,7 @@
                   <%= cond do %>
                     <% message.campaign_id -> %>
                       <a
-                        href={Routes.campaign_show_path(@socket, :show, message.campaign_id)}
+                        href={~p"/campaigns/#{message.campaign_id}"}
                         class="text-xs font-semibold link"
                       >
                         <%= Messaging.campaign_name(message) %>

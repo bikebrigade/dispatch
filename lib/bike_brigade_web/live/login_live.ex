@@ -69,7 +69,7 @@ defmodule BikeBrigadeWeb.LoginLive do
         {:noreply,
          socket
          |> put_flash(:error, err)
-         |> push_patch(to: Routes.login_path(socket, :index))}
+         |> push_patch(to: ~p"/login")}
     end
   end
 end

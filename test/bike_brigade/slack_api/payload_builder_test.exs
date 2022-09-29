@@ -5,6 +5,9 @@ defmodule BikeBrigade.SlackApi.PayloadBuilderTest do
   alias BikeBrigadeWeb.Router.Helpers, as: Routes
   alias BikeBrigadeWeb.Endpoint
 
+  use Phoenix.VerifiedRoutes, endpoint: BikeBrigadeWeb.Endpoint, router: BikeBrigadeWeb.Router
+
+
   describe "When an SMS message from a rider is provided" do
     test "The payload is formatted with a reply button linking to the message" do
       channel_id = "123"
@@ -15,7 +18,7 @@ defmodule BikeBrigade.SlackApi.PayloadBuilderTest do
 
       %{"blocks" => [%{"accessory" => reply_button}]} = Jason.decode!(payload)
       assert reply_button["type"] == "button"
-      assert reply_button["url"] == Routes.sms_message_index_url(Endpoint, :show, rider)
+      assert reply_button["url"] == url(~p"/messages/#{rider}")
       assert reply_button["text"]["text"] == "Reply"
     end
   end
@@ -48,7 +51,9 @@ defmodule BikeBrigade.SlackApi.PayloadBuilderTest do
     body = Jason.decode!(payload)
     block = body["blocks"] |> List.first()
 
-    url = Routes.rider_show_url(Endpoint, :show, rider)
+    import Phoenix.VerifiedRoutes
+
+    url = url(~p"/riders/#{rider.id}")
 
     assert block["text"]["text"] ==
              "<#{url}|*Alice Example*>: three is &lt; five &amp; five is &gt; three"

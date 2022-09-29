@@ -21,7 +21,7 @@ defmodule BikeBrigadeWeb.Components do
 
   attr :color, :atom,
     default: :primary,
-    values: [:primary, :secondary, :white, :red, :lightred, :clear, :green]
+    values: [:primary, :secondary, :white, :green, :red, :lightred, :clear, :black]
 
   attr :class, :string, default: ""
   attr :rest, :global, include: ~w(href patch navigate)

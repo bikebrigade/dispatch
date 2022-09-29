@@ -89,7 +89,7 @@
         </div>
       </:th>
       <:td :let={{rider, _campaigns, _tasks, _distance}}>
-        <.link navigate={Routes.rider_show_path(@socket, :show, rider)} class="link">
+        <.link navigate={~p"/riders/#{rider}"} class="link">
           <%= rider.name %>
         </.link>
       </:td>

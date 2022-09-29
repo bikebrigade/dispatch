@@ -7,14 +7,14 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
     setup [:create_campaign, :login]
 
     test "lists campaigns for week campaigns", %{conn: conn, program: program} do
-      {:ok, _index_live, html} = live(conn, Routes.campaign_index_path(conn, :index))
+      {:ok, _index_live, html} = live(conn, ~p"/campaigns/")
 
       assert html =~ "Campaigns"
       assert html =~ program.name
     end
 
     test "redirects to show campaign", %{conn: conn, campaign: campaign, program: program} do
-      {:ok, view, _html} = live(conn, Routes.campaign_index_path(conn, :index))
+      {:ok, view, _html} = live(conn, ~p"/campaigns/")
 
       view
       |> element("#campaign-#{campaign.id} a", "#{program.name}")
@@ -28,13 +28,13 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
     setup [:create_campaign, :create_rider, :login]
 
     test "displays campaign", %{conn: conn, campaign: campaign} do
-      {:ok, _show_live, html} = live(conn, Routes.campaign_show_path(conn, :show, campaign))
+      {:ok, _show_live, html} = live(conn, ~p"/campaigns/#{campaign}")
 
       assert html =~ campaign.program.name
     end
 
     test "can add a task", %{conn: conn, campaign: campaign} do
-      {:ok, view, html} = live(conn, Routes.campaign_show_path(conn, :show, campaign))
+      {:ok, view, html} = live(conn, ~p"/campaigns/#{campaign}")
 
       refute html =~ "Recipient Mcgee"
 
@@ -55,7 +55,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
     end
 
     test "can add a rider", %{conn: conn, campaign: campaign, rider: rider} do
-      {:ok, view, html} = live(conn, Routes.campaign_show_path(conn, :show, campaign))
+      {:ok, view, html} = live(conn, ~p"/campaigns/#{campaign}")
 
       refute html =~ rider.name
 
@@ -91,7 +91,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
 
     test "create campaigns", %{conn: conn} do
       #  Process.flag(:trap_exit, true)
-      {:ok, view, html} = live(conn, Routes.campaign_new_path(conn, :new))
+      {:ok, view, html} = live(conn, ~p"/campaigns/new")
 
       assert html =~ "New Campaign"
 

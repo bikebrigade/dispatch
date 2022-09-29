@@ -1,12 +1,12 @@
 <%= if @live_action in [:new, :edit] do %>
-  <UI.slideover show id={:edit} return_to={Routes.opportunity_index_path(@socket, :index)}>
+  <UI.slideover show id={:edit} return_to={~p"/opportunities"}>
     <:title><%= @page_title %></:title>
     <.live_component
       module={BikeBrigadeWeb.OpportunityLive.FormComponent}
       id={@opportunity.id || :edit}
       action={@live_action}
       opportunity={@opportunity}
-      return_to={Routes.opportunity_index_path(@socket, :index)}
+      return_to={~p"/opportunities"}
     />
   </UI.slideover>
 <% end %>
@@ -108,7 +108,7 @@
               </div>
             </th>
             <th class="w-40 px-6 py-4 text-right border-b border-gray-200 bg-gray-50">
-              <.button patch={Routes.opportunity_index_path(@socket, :new)} size={:small} }>
+              <.button patch={~p"/opportunities/new"} size={:small} >
                 New
               </.button>
             </th>
@@ -126,7 +126,7 @@
               </td>
               <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
                 <.link
-                  navigate={Routes.program_show_path(@socket, :show, opportunity.program)}
+                  navigate={~p"/programs/#{opportunity.program}"}
                   class="link"
                 >
                   <%= opportunity.program.name %>
@@ -159,7 +159,7 @@
               </td>
               <td class="px-6 py-4 space-x-1 space-y-1 text-right border-b border-gray-200">
                 <.button
-                  patch={Routes.opportunity_index_path(@socket, :edit, opportunity)}
+                  patch={~p"/opportunities/#{opportunity}/edit"}
                   size={:xsmall}
                   color={:white}
                 >

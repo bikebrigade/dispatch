@@ -17,7 +17,7 @@
       </div>
       <div class="flex-shrink-0">
         <div class="flex justify-end flex-1">
-          <.button href={"sms:#{BikeBrigade.Messaging.inbound_number(@rider)}"}>
+          <.button href={{:sms, "#{BikeBrigade.Messaging.inbound_number(@rider)}"}}>
             Contact Bike Brigade
           </.button>
         </div>

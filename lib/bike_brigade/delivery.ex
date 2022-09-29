@@ -14,6 +14,9 @@ defmodule BikeBrigade.Delivery do
 
   import BikeBrigade.Riders.Helpers, only: [first_name: 1]
 
+  # TODO this is for the details url. maybe move to a web/ module?
+  use Phoenix.VerifiedRoutes, endpoint: BikeBrigadeWeb.Endpoint, router: BikeBrigadeWeb.Router
+
   @doc """
   Returns the list of tasks.
 
@@ -478,12 +481,7 @@ defmodule BikeBrigade.Delivery do
 
     directions = "https://www.google.com/maps/dir/?#{map_query}"
 
-    delivery_details_url =
-      BikeBrigadeWeb.Router.Helpers.delivery_show_url(
-        BikeBrigadeWeb.Endpoint,
-        :show,
-        rider.delivery_url_token
-      )
+    delivery_details_url = url(~p"/app/#{rider.delivery_url_token}")
 
     assigns = %{
       rider_name: first_name(rider),

@@ -58,7 +58,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.FormComponent do
 
     {:noreply,
      socket
-     |> push_redirect(to: Routes.sms_message_index_path(socket, :show, rider_id))}
+     |> push_redirect(to: ~p"/messages/#{rider_id}")}
   end
 
   @impl Phoenix.LiveComponent

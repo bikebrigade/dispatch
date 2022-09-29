@@ -79,7 +79,7 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
     |> assign(:page, :profile)
     |> assign(
       :return_to,
-      Routes.rider_show_path(socket, :profile)
+      ~p"/profile"
     )
     |> assign_rider(socket.assigns.current_user.rider_id)
   end
@@ -93,7 +93,7 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
     socket
     |> assign(
       :return_to,
-      Routes.rider_show_path(socket, :show, id)
+      ~p"/riders/#{id}"
     )
     |> assign_rider(id)
   end
@@ -133,7 +133,7 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
   defp latest_campaign_info(assigns) do
     if assigns.rider.latest_campaign do
       ~H"""
-      <.link navigate={Routes.campaign_show_path(@socket, :show, @rider.latest_campaign)} class="link">
+      <.link navigate={~p"/campaigns/#{@rider.latest_campaign}"} class="link">
         <%= @rider.latest_campaign.program.name %>
       </.link>
       on <%= format_date(@rider.latest_campaign.delivery_start) %>

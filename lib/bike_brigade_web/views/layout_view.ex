@@ -14,7 +14,7 @@ defmodule BikeBrigadeWeb.LayoutView do
       <div :if={@is_dispatcher} class="pb-2 mb-2 border-b border-gray-200 border-dashed">
         <.sidebar_link
           selected={@current_page == :programs}
-          navigate={Routes.program_index_path(@socket, :index)}
+          navigate={~p"/programs"}
         >
           <:icon>
             <Heroicons.inbox_stack />
@@ -23,7 +23,7 @@ defmodule BikeBrigadeWeb.LayoutView do
         </.sidebar_link>
         <.sidebar_link
           selected={@current_page == :campaigns}
-          navigate={Routes.campaign_index_path(@socket, :index)}
+          navigate={~p"/campaigns"}
         >
           <:icon>
             <Heroicons.inbox />
@@ -32,7 +32,7 @@ defmodule BikeBrigadeWeb.LayoutView do
         </.sidebar_link>
         <.sidebar_link
           selected={@current_page == :opportunities}
-          navigate={Routes.opportunity_index_path(@socket, :index)}
+          navigate={~p"/opportunities"}
         >
           <:icon>
             <Heroicons.clipboard_document_check />
@@ -41,7 +41,7 @@ defmodule BikeBrigadeWeb.LayoutView do
         </.sidebar_link>
         <.sidebar_link
           selected={@current_page == :riders}
-          navigate={Routes.rider_index_path(@socket, :index)}
+          navigate={~p"/riders"}
         >
           <:icon>
             <Heroicons.user_group />
@@ -50,7 +50,7 @@ defmodule BikeBrigadeWeb.LayoutView do
         </.sidebar_link>
         <.sidebar_link
           selected={@current_page == :stats}
-          navigate={Routes.stats_dashboard_path(@socket, :show)}
+          navigate={~p"/stats"}
         >
           <:icon>
             <Heroicons.chart_bar />
@@ -59,7 +59,7 @@ defmodule BikeBrigadeWeb.LayoutView do
         </.sidebar_link>
         <.sidebar_link
           selected={@current_page == :users}
-          navigate={Routes.user_index_path(@socket, :index)}
+          navigate={~p"/users"}
         >
           <:icon>
             <Heroicons.users />
@@ -68,7 +68,7 @@ defmodule BikeBrigadeWeb.LayoutView do
         </.sidebar_link>
         <.sidebar_link
           selected={@current_page == :messages}
-          navigate={Routes.sms_message_index_path(@socket, :index)}
+          navigate={~p"/messages"}
         >
           <:icon>
             <Heroicons.chat_bubble_oval_left_ellipsis />
@@ -79,7 +79,7 @@ defmodule BikeBrigadeWeb.LayoutView do
 
       <.sidebar_link
         selected={@current_page == :profile}
-        navigate={Routes.rider_show_path(@socket, :profile)}
+        navigate={~p"/profile"}
       >
         <:icon>
           <Heroicons.user_circle />
@@ -88,7 +88,7 @@ defmodule BikeBrigadeWeb.LayoutView do
       </.sidebar_link>
       <.sidebar_link
         selected={@current_page == :logout}
-        href={Routes.authentication_path(@socket, :logout)}
+        href={~p"/logout"}
         method="post"
       >
         <:icon>
@@ -100,7 +100,7 @@ defmodule BikeBrigadeWeb.LayoutView do
     """
   end
   attr :selected, :boolean
-  attr :rest, :global, include: [:href, :patch, :navigate]
+  attr :rest, :global, include: ~w(href patch navigate method)
 
   slot(:inner_block, required: true)
   slot(:icon, required: true)

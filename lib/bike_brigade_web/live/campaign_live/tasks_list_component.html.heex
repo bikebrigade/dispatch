@@ -1,6 +1,6 @@
 <div class="flex flex-col max-h-full">
   <div class="flex flex-row flex-wrap items-baseline flex-grow space-y-1">
-    <.button patch={Routes.campaign_show_path(@socket, :new_task, @campaign)} size={:small}>
+    <.button patch={~p"/campaigns/#{@campaign}/tasks/new"} size={:small}>
       Add Task
     </.button>
   </div>
@@ -147,7 +147,7 @@
             <div class="pt-5">
               <div class="flex justify-end space-x-1.5">
                 <.button
-                  patch={Routes.campaign_show_path(@socket, :edit_task, @campaign, task)}
+                  patch={~p"/campaigns/#{@campaign}/tasks/#{task}/edit"}
                   color={:white}
                   size={:xsmall}
                 >

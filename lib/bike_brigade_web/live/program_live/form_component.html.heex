@@ -138,7 +138,7 @@
             <:th class="flex justify-end w-32" padding="px-3 py-3" uppercase={false}>
               <.button
                 size={:xsmall}
-                patch={Routes.program_index_path(@socket, :new_item, @program.id)}
+                patch={~p"/programs/#{@program}/items/new"}
               >
                 New Item
               </.button>
@@ -162,7 +162,7 @@
             </:td>
             <:td :let={item} class="text-right">
               <.link
-                patch={Routes.program_index_path(@socket, :edit_item, @program.id, item.id)}
+                patch={~p"/programs/#{@program}/items/#{item}/edit"}
                 class="link"
               >
                 Edit

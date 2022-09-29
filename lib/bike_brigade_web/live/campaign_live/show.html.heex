@@ -1,6 +1,6 @@
 <%= case @live_action do %>
   <% :edit -> %>
-    <UI.modal show id={:edit} return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}>
+    <UI.modal show id={:edit} return_to={~p"/campaigns/#{@campaign}"}>
       <:title><%= @page_title %></:title>
       <.live_component
         module={BikeBrigadeWeb.CampaignLive.FormComponent}
@@ -8,15 +8,11 @@
         title={@page_title}
         action={@live_action}
         campaign={@campaign}
-        return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}
+        return_to={~p"/campaigns/#{@campaign}"}
       />
     </UI.modal>
   <% :add_rider -> %>
-    <UI.modal
-      show
-      id={:add_rider}
-      return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}
-    >
+    <UI.modal show id={:add_rider} return_to={~p"/campaigns/#{@campaign}"}>
       <:title>Add Rider</:title>
       <.live_component
         module={BikeBrigadeWeb.CampaignLive.AddRiderFormComponent}
@@ -24,15 +20,11 @@
         title={@page_title}
         action={@live_action}
         campaign={@campaign}
-        return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}
+        return_to={~p"/campaigns/#{@campaign}"}
       />
     </UI.modal>
   <% :new_task -> %>
-    <UI.modal
-      show
-      id={:new_task}
-      return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}
-    >
+    <UI.modal show id={:new_task} return_to={~p"/campaigns/#{@campaign}"}>
       <:title>Add Task</:title>
       <.live_component
         module={BikeBrigadeWeb.CampaignLive.TaskFormComponent}
@@ -40,15 +32,11 @@
         campaign={@campaign}
         task={@form_task}
         action={:new}
-        return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}
+        return_to={~p"/campaigns/#{@campaign}"}
       />
     </UI.modal>
   <% :edit_task -> %>
-    <UI.modal
-      show
-      id={:new_task}
-      return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}
-    >
+    <UI.modal show id={:new_task} return_to={~p"/campaigns/#{@campaign}"}>
       <:title>Edit Task</:title>
       <.live_component
         module={BikeBrigadeWeb.CampaignLive.TaskFormComponent}
@@ -56,15 +44,11 @@
         campaign={@campaign}
         task={@form_task}
         action={:edit}
-        return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}
+        return_to={~p"/campaigns/#{@campaign}"}
       />
     </UI.modal>
   <% :messaging -> %>
-    <UI.slideover
-      id={:messaging}
-      return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}
-      wide
-    >
+    <UI.slideover id={:messaging} return_to={~p"/campaigns/#{@campaign}"} wide>
       <:title>
         Campaign Messaging
       </:title>
@@ -73,15 +57,11 @@
         id={@campaign.id}
         campaign={@campaign}
         riders={@riders}
-        return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}
+        return_to={~p"/campaigns/#{@campaign}"}
       />
     </UI.slideover>
   <% :bulk_message -> %>
-    <UI.modal
-      id={:bulk_message}
-      show
-      return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}
-    >
+    <UI.modal id={:bulk_message} show return_to={~p"/campaigns/#{@campaign}"}>
       <:title>Bulk Message</:title>
       <.live_component
         module={BikeBrigadeWeb.SmsMessageLive.FormComponent}
@@ -94,7 +74,7 @@
 <% end %>
 <div class="flex flex-col h-full">
   <div class="flex flex-row flex-wrap items-center md:flex-nowrap">
-    <.button patch={Routes.campaign_show_path(@socket, :messaging, @campaign.id)} class="mr-3">
+    <.button patch={~p"/campaigns/#{@campaign}/messaging"} class="mr-3">
       <Heroicons.chat_bubble_left_right mini class="w-5 h-5 mr-2 -ml-1" /> Messaging
     </.button>
     <div class="relative inline-block dropdown">
@@ -105,7 +85,7 @@
       <ul class="absolute z-10 hidden pt-1 text-gray-700 dropdown-menu">
         <li>
           <.link
-            href={Routes.printable_campaign_assignments_path(@socket, :index, @campaign.id)}
+            href={~p"/campaigns/#{@campaign}/printable/assignments"}
             class="block py-2 bg-gray-200 rounded-t hover:bg-gray-400 px-14 whitespace-nowrap"
           >
             Assignments
@@ -113,7 +93,7 @@
         </li>
         <li>
           <.link
-            href={Routes.printable_safety_check_path(@socket, :index, @campaign.id)}
+            href={~p"/campaigns/#{@campaign}/printable/safety_check"}
             class="block py-2 bg-gray-200 rounded-t hover:bg-gray-400 px-14 whitespace-nowrap"
           >
             Safety Check Tracker
@@ -130,7 +110,7 @@
       <ul class="absolute z-10 hidden pt-1 text-gray-700 dropdown-menu">
         <li>
           <.link
-            href={Routes.campaign_path(@socket, :download_assignments, @campaign.id)}
+            href={~p"/campaigns/#{@campaign}/download_assignments"}
             download
             class="block py-2 bg-gray-200 rounded-t hover:bg-gray-400 px-14 whitespace-nowrap"
           >
@@ -139,7 +119,7 @@
         </li>
         <li>
           <.link
-            href={Routes.campaign_path(@socket, :download_results, @campaign.id)}
+            href={~p"/campaigns/#{@campaign}/download_results"}
             download
             class="block py-2 bg-gray-200 rounded-t hover:bg-gray-400 px-14 whitespace-nowrap"
           >
@@ -153,11 +133,11 @@
         <.button
           phx-click={UI.show_modal(:edit)}
           color={:white}
-          patch={Routes.campaign_show_path(@socket, :edit, @campaign.id)}
+          patch={~p"/campaigns/#{@campaign}/show/edit"}
         >
           Edit
         </.button>
-        <.button patch={Routes.campaign_show_path(@socket, :bulk_message, @campaign.id)}>
+        <.button patch={~p"/campaigns/#{@campaign}/bulk_message"}>
           Bulk Message
         </.button>
       </div>

@@ -12,7 +12,7 @@ defmodule BikeBrigadeWeb.ItineraryLiveTest do
     setup [:login]
 
     test "Displays error when user has no rider", %{conn: conn} do
-      {:ok, _index_live, html} = live(conn, Routes.itinerary_index_path(conn, :index))
+      {:ok, _index_live, html} = live(conn, ~p"/itinerary")
 
       assert html =~ "Itinerary"
       assert html =~ "User is not associated with a rider!"
@@ -23,14 +23,14 @@ defmodule BikeBrigadeWeb.ItineraryLiveTest do
     setup [:create_campaign, :login_as_rider]
 
     test "doesn't show an error", %{conn: conn} do
-      {:ok, _index_live, html} = live(conn, Routes.itinerary_index_path(conn, :index))
+      {:ok, _index_live, html} = live(conn, ~p"/itinerary")
 
       assert html =~ "Itinerary"
       refute html =~ "User is not associated with a rider!"
     end
 
     test "shows days without campaigns", %{conn: conn} do
-      {:ok, _index_live, html} = live(conn, Routes.itinerary_index_path(conn, :index))
+      {:ok, _index_live, html} = live(conn, ~p"/itinerary")
 
       assert html =~ "Itinerary"
       assert html =~ Calendar.strftime(LocalizedDateTime.today(), "%A %B %-d, %Y")
@@ -38,7 +38,7 @@ defmodule BikeBrigadeWeb.ItineraryLiveTest do
     end
 
     test "can go to previous day", %{conn: conn} do
-      {:ok, view, html} = live(conn, Routes.itinerary_index_path(conn, :index))
+      {:ok, view, html} = live(conn, ~p"/itinerary")
 
       assert html =~ "Itinerary"
 
@@ -53,7 +53,7 @@ defmodule BikeBrigadeWeb.ItineraryLiveTest do
     end
 
     test "can go to next day", %{conn: conn} do
-      {:ok, view, html} = live(conn, Routes.itinerary_index_path(conn, :index))
+      {:ok, view, html} = live(conn, ~p"/itinerary")
 
       assert html =~ "Itinerary"
 
@@ -90,7 +90,7 @@ defmodule BikeBrigadeWeb.ItineraryLiveTest do
           assigned_rider_id: rider.id
         })
 
-      {:ok, view, html} = live(conn, Routes.itinerary_index_path(conn, :index))
+      {:ok, view, html} = live(conn, ~p"/itinerary")
 
       assert html =~ program.name
       assert html =~ "1 #{hd(program.items).name}"

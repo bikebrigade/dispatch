@@ -452,7 +452,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     ~H"""
     <div>
       <%= if @live_action == :message do %>
-        <UI.modal id={:bulk_message} show return_to={Routes.rider_index_path(@socket, :index)}>
+        <UI.modal id={:bulk_message} show return_to={~p"/riders"}>
           <:title>Bulk Message</:title>
           <.live_component
             module={BikeBrigadeWeb.SmsMessageLive.FormComponent}
@@ -517,7 +517,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
             Map <Heroicons.map mini class="w-5 h-5 ml-1" />
           </button>
         </div>
-        <.button patch={Routes.rider_index_path(@socket, :message)}>
+        <.button patch={~p"/riders/message"}>
           Bulk Message
           <%= if MapSet.size(@selected) > 0 do %>
             (<%= MapSet.size(@selected) %>)
@@ -612,7 +612,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
             ) %>
           </:td>
           <:td :let={rider} padding="px-3">
-            <.link navigate={Routes.rider_show_path(@socket, :show, rider)} class="link">
+            <.link navigate={~p"/riders/#{rider}"} class="link">
               <.bold_search
                 string={rider.name}
                 search={get_filter(@rider_search.filters, :name)}

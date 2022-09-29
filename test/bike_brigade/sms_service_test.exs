@@ -1,10 +1,9 @@
 defmodule BikeBrigade.SmsServiceTest do
   use BikeBrigade.DataCase, async: false
+  use Phoenix.VerifiedRoutes, endpoint: BikeBrigadeWeb.Endpoint, router: BikeBrigadeWeb.Router
 
   alias BikeBrigade.SmsService
   alias BikeBrigade.SmsService.FakeSmsService
-  alias BikeBrigadeWeb.Router.Helpers, as: Routes
-  alias BikeBrigadeWeb.Endpoint
   alias BikeBrigade.Utils
 
   test "It sends an sms with the configured adapter" do
@@ -30,7 +29,7 @@ defmodule BikeBrigade.SmsServiceTest do
     assert message |> Keyword.fetch!(:to) == sms.to
     assert message |> Keyword.fetch!(:mediaUrl) == []
 
-    callback_url = Routes.twilio_url(Endpoint, :status_callback)
+    callback_url = url(~p"/webhooks/twilio/status_callback")
     assert message |> Keyword.fetch!(:statusCallback) == callback_url
   end
 

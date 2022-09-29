@@ -1231,8 +1231,8 @@
                         id="block-609e515c6033fb5afb74"
                       >
                         <div class="sqs-block-content">
-                          <.iframe src={Routes.calendar_index_url(@conn, :index)} />
-                          <.script origin={Routes.url(@conn)} />
+                          <.iframe src={url(~p"/embed/calendar")} />
+                          <.script origin={url(~p"/")} />
                         </div>
                       </div>
                     </div>

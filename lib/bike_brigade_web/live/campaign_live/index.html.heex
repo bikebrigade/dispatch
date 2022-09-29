@@ -2,7 +2,7 @@
   <UI.modal
     show
     id={:edit}
-    return_to={Routes.campaign_index_path(@socket, :index, current_week: @current_week)}
+    return_to={~p"/campaigns?current_week=#{@current_week}"}
   >
     <:title><%= Atom.to_string(@live_action) |> String.capitalize() %> Campaign</:title>
     <.live_component
@@ -10,7 +10,7 @@
       id={"campaign-#{@campaign.id || :new}"}
       action={@live_action}
       campaign={@campaign}
-      return_to={Routes.campaign_index_path(@socket, :index, current_week: @current_week)}
+      return_to={~p"/campaigns?current_week=#{@current_week}"}
     />
   </UI.modal>
 <% end %>
@@ -18,7 +18,7 @@
   <UI.modal
     show
     id={:duplicate}
-    return_to={Routes.campaign_index_path(@socket, :index, current_week: @current_week)}
+    return_to={~p"/campaigns?current_week=#{@current_week}"}
   >
     <:title>Duplicate campaign</:title>
     <.live_component
@@ -26,7 +26,7 @@
       id={:duplicate}
       action={@live_action}
       campaign={@campaign}
-      return_to={Routes.campaign_index_path(@socket, :index, current_week: @current_week)}
+      return_to={~p"/campaigns?current_week=#{@current_week}"}
     />
   </UI.modal>
 <% end %>
@@ -46,18 +46,14 @@
     <span class="relative z-0 inline-flex rounded-md shadow-sm">
       <.link
         patch={
-          Routes.campaign_index_path(@socket, :index, current_week: Date.add(@current_week, -7))
+          ~p"/campaigns?current_week=#{Date.add(@current_week, -7)}"
         }
         class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
       >
         <Heroicons.chevron_left solid class="w-5 h-5" />
       </.link>
       <.link
-        patch={
-          Routes.campaign_index_path(@socket, :index,
-            current_week: Date.beginning_of_week(LocalizedDateTime.today())
-          )
-        }
+        patch={~p"/campaigns?current_week=#{Date.beginning_of_week(LocalizedDateTime.today())}"}
         class="relative items-center hidden px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 sm:inline-flex hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
       >
         Today
@@ -65,7 +61,7 @@
 
       <.link
         patch={
-          Routes.campaign_index_path(@socket, :index, current_week: Date.add(@current_week, 7))
+          ~p"/campaigns?current_week=#{Date.add(@current_week, 7)}"
         }
         class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
       >
@@ -90,7 +86,7 @@
               <div class="items-center justify-between md:flex">
                 <div class="flex items-center mb-2 space-x-1">
                   <.link
-                    navigate={Routes.campaign_show_path(@socket, :show, c)}
+                    navigate={~p"/campaigns/#{c}"}
                     class="text-sm font-medium link"
                   >
                     <%= name(c) %>
@@ -100,12 +96,12 @@
                   <.button
                     size={:xsmall}
                     color={:white}
-                    patch={Routes.campaign_index_path(@socket, :edit, c)}
+                    patch={~p"/campaigns/#{c}/edit"}
                   >
                     Edit
                   </.button>
                   <.button
-                    patch={Routes.campaign_index_path(@socket, :duplicate, c)}
+                    patch={~p"/campaigns/#{c}/duplicate"}
                     size={:xsmall}
                     color={:white}
                   >

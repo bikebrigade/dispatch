@@ -165,20 +165,23 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
       end_date: end_date
     } = options
 
-    case period do
-      :all_time ->
-        Routes.export_stats_path(BikeBrigadeWeb.Endpoint, :leaderboard,
-          sort_by: options.sort_by,
-          sort_order: options.sort_order
-        )
+    params =
+      case period do
+        :all_time ->
+          %{
+            sort_by: options.sort_by,
+            sort_order: options.sort_order
+          }
 
-      :select ->
-        Routes.export_stats_path(BikeBrigadeWeb.Endpoint, :leaderboard,
-          sort_by: sort_by,
-          sort_order: sort_order,
-          start_date: start_date,
-          end_date: end_date
-        )
-    end
+        :select ->
+          %{
+            sort_by: sort_by,
+            sort_order: sort_order,
+            start_date: start_date,
+            end_date: end_date
+          }
+      end
+
+    ~p"/stats/leaderboard/download?#{params}"
   end
 end

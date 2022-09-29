@@ -7,10 +7,10 @@
     <meta property="og:title" content="Bike Brigade Dispatch" />
     <meta name="csrf-token" content={get_csrf_token()} />
     <.live_title suffix=" ·  Bike Brigade Dispatch"><%= assigns[:page_title] || "" %></.live_title>
-    <link rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")} />
+    <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
-    <link rel="icon" href={favicon_path(@conn)} />
-    <script defer type="text/javascript" src={Routes.static_path(@conn, "/assets/app.js")}>
+    <link rel="icon" href={if BikeBrigade.Utils.dev?(), do: ~p"/static/favicon_dev.png", else:  ~p"/static/favicon.png"} />
+    <script defer type="text/javascript" src={~p"/assets/app.js"}>
     </script>
   </head>
 

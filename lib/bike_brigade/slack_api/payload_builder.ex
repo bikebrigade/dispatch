@@ -1,11 +1,10 @@
 defmodule BikeBrigade.SlackApi.PayloadBuilder do
   alias BikeBrigade.Messaging.SmsMessage
-  alias BikeBrigadeWeb.Router.Helpers, as: Routes
-  alias BikeBrigadeWeb.Endpoint
+  use Phoenix.VerifiedRoutes, endpoint: BikeBrigadeWeb.Endpoint, router: BikeBrigadeWeb.Router
 
   def build(channel_id, %SmsMessage{rider: rider} = message) do
     text =
-      "<#{Routes.rider_show_url(Endpoint, :show, rider.id)}|*#{rider.name}*>: #{filter_mrkdwn(message.body)}"
+      "<#{url(~p"/riders/#{rider}")}|*#{rider.name}*>: #{filter_mrkdwn(message.body)}"
 
     %{
       channel: channel_id,
@@ -23,7 +22,7 @@ defmodule BikeBrigade.SlackApi.PayloadBuilder do
               text: "Reply",
               emoji: true
             },
-            url: Routes.sms_message_index_url(Endpoint, :show, rider.id)
+            url: url(~p"/messages/#{rider}")
           }
         }
         | for m <- message.media do

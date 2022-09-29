@@ -17,13 +17,7 @@
     <%= if @selected_rider do %>
       <div class="flex items-end w-1/2">
         <.button
-          href={
-            Routes.delivery_show_path(
-              @socket,
-              :show,
-              Delivery.campaign_rider_token(@campaign, @selected_rider)
-            )
-          }
+          href={~p"/app/delivery/#{Delivery.campaign_rider_token(@campaign, @selected_rider)}"}
           target="_blank"
         >
           Preview in app

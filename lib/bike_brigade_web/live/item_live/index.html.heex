@@ -1,12 +1,12 @@
 <%= if @live_action in [:new, :edit] do %>
-  <UI.modal show id={:item} return_to={Routes.campaign_index_path(@socket, :index)}>
+  <UI.modal show id={:item} return_to={~p"/campaigns"}>
     <:title><%= @page_title %></:title>
     <.live_component
       module={BikeBrigadeWeb.BikeBrigadeWeb.ItemLive.FormComponent}
       id={@item.id || :new}
       action={@live_action}
       item={@item}
-      return_to={Routes.item_index_path(@socket, :index)}
+      return_to={~p"/items"}
     />
   </UI.modal>
 <% end %>
@@ -24,7 +24,7 @@
     Category
   </:th>
   <:th padding="px-3 py-3" uppercase={false}>
-    <.button patch={Routes.item_index_path(@socket, :new)}>
+    <.button patch={~p"/items/new"}>
       New Item
     </.button>
   </:th>
@@ -42,7 +42,7 @@
   </:td>
   <:td :let={item}>
     <.link
-      patch={Routes.item_index_path(@socket, :edit, item)}
+      patch={~p"/items/#{item}/edit"}
       class="pl-2 link"
     >
       Edit

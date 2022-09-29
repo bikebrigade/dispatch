@@ -20,7 +20,7 @@
         ) %>
       </div>
       <%= error_tag(f, :program_id) %>
-      <.link navigate={Routes.program_index_path(@socket, :new)} class="text-xs link">
+      <.link navigate={~p"/programs/new"} class="text-xs link">
         Create New Program
       </.link>
     </div>
@@ -124,7 +124,7 @@
     <%= if @opportunity.program_id do %>
       <div class="mt-6">
         <a
-          href={Routes.program_index_path(@socket, :edit, @opportunity.program_id)}
+          href={~p"/programs/#{@opportunity.program_id}/edit"}
           class="text-sm link"
         >
           Edit Program to change lead

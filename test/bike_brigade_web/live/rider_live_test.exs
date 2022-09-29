@@ -7,14 +7,14 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
     setup [:create_rider, :login]
 
     test "lists all riders", %{conn: conn, rider: rider} do
-      {:ok, _index_live, html} = live(conn, Routes.rider_index_path(conn, :index))
+      {:ok, _index_live, html} = live(conn, ~p"/riders")
 
       assert html =~ "Riders"
       assert html =~ rider.name
     end
 
     test "bulk message with no riders selected", %{conn: conn, rider: rider} do
-      {:ok, view, _html} = live(conn, Routes.rider_index_path(conn, :index))
+      {:ok, view, _html} = live(conn, ~p"/riders")
 
       view
       |> element(" a", "Bulk Message")
@@ -26,7 +26,7 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
     end
 
     test "bulk message with rider selected", %{conn: conn, rider: rider} do
-      {:ok, view, _html} = live(conn, Routes.rider_index_path(conn, :index))
+      {:ok, view, _html} = live(conn, ~p"/riders")
 
       view
       |> form("#selected")
@@ -42,7 +42,7 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
     end
 
     test "show rider", %{conn: conn, rider: rider} do
-      {:ok, view, _html} = live(conn, Routes.rider_index_path(conn, :index))
+      {:ok, view, _html} = live(conn, ~p"/riders")
 
       view
       |> element("#riders a", rider.name)
@@ -56,14 +56,14 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
     setup [:create_rider, :login]
 
     test "shows rider", %{conn: conn, rider: rider} do
-      {:ok, _view, html} = live(conn, Routes.rider_show_path(conn, :show, rider))
+      {:ok, _view, html} = live(conn, ~p"/riders/#{rider}")
 
       assert html =~ rider.name
       assert html =~ rider.location.address
     end
 
     test "edit rider", %{conn: conn, rider: rider} do
-      {:ok, view, _html} = live(conn, Routes.rider_show_path(conn, :edit, rider))
+      {:ok, view, _html} = live(conn, ~p"/riders/#{rider}/show/edit")
 
       view
       |> element("form#rider-form")

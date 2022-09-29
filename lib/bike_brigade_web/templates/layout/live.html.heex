@@ -61,7 +61,7 @@
           <div class="flex items-center flex-shrink-0 px-4">
             <img
               class="w-auto h-8"
-              src={Routes.static_path(@socket, "/images/logo-black.png")}
+              src={~p"/static/images/logo-black.png"}
               alt="Toronto Bike Brigade"
             />
             <h1 class="ml-2 font-semibold">Toronto Bike Brigade</h1>
@@ -110,7 +110,7 @@
         <div class="flex items-center flex-shrink-0 px-4">
           <img
             class="w-auto h-8"
-            src={Routes.static_path(@socket, "/images/logo-black.png")}
+            src={~p"/static/images/logo-black.png"}
             alt="Toronto Bike Brigade"
           />
           <h1 class="ml-2 font-semibold">Toronto Bike Brigade</h1>
@@ -125,7 +125,7 @@
       </div>
       <div class="flex flex-shrink-0 p-4 border-t border-gray-200">
         <.link
-          navigate={Routes.rider_show_path(@socket, :profile)}
+          navigate={"~p/profile"}
           class="flex-shrink-0 block w-full group"
         >
           <div class="flex items-center">

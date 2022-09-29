@@ -13,14 +13,14 @@ defmodule BikeBrigadeWeb.OpportunityLiveTest do
       opportunity: opportunity,
       program: program
     } do
-      {:ok, _index_live, html} = live(conn, Routes.opportunity_index_path(conn, :index))
+      {:ok, _index_live, html} = live(conn, ~p"/opportunities")
       assert html =~ "Opportunities"
       assert html =~ program.name
       assert html =~ opportunity.signup_link
     end
 
     test "redirects to show opportunity", %{conn: conn, program: program} do
-      {:ok, view, _html} = live(conn, Routes.opportunity_index_path(conn, :index))
+      {:ok, view, _html} = live(conn, ~p"/opportunities")
 
       # Select a program
 
@@ -32,7 +32,7 @@ defmodule BikeBrigadeWeb.OpportunityLiveTest do
     end
 
     test "can add new opportunity", %{conn: conn} do
-      {:ok, view, _html} = live(conn, Routes.opportunity_index_path(conn, :index))
+      {:ok, view, _html} = live(conn, ~p"/opportunities")
 
       view
       |> element("a", "New")

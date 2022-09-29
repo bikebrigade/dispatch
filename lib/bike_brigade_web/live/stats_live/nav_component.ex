@@ -14,11 +14,11 @@ defmodule BikeBrigadeWeb.StatsLive.NavComponent do
     ~H"""
     <div class="border-b border-gray-200">
       <nav class="flex -mb-px space-x-4" aria-label="Tabs">
-        <.link navigate={Routes.stats_dashboard_path(@socket, :show)} class={@class.(:dashboard)}>
+        <.link navigate={~p"/stats"} class={@class.(:dashboard)}>
           <Heroicons.chart_pie mini class={@svg_class.(:dashboard)} />
           <span>Dashboard</span>
         </.link>
-        <.link navigate={Routes.stats_leaderboard_path(@socket, :show)} class={@class.(:leaderboard)}>
+        <.link navigate={~p"/stats/leaderboard"} class={@class.(:leaderboard)}>
           <Heroicons.user_group mini class={@svg_class.(:leaderboard)} />
           <span>Leaderboard</span>
         </.link>

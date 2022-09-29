@@ -1,5 +1,5 @@
 <%= if @live_action == :new do %>
-  <UI.modal show id={:new_message} return_to={Routes.sms_message_index_path(@socket, :index)}>
+  <UI.modal show id={:new_message} return_to={~p"/messages"}>
     <:title><%= @page_title %></:title>
     <.live_component
       module={BikeBrigadeWeb.SmsMessageLive.FormComponent}
@@ -24,7 +24,7 @@
             <div class="flex items-center">
               <span class="inline-flex ml-3 rounded-md shadow-sm">
                 <.link
-                  patch={Routes.sms_message_index_path(@socket, :new)}
+                  patch={~p"/messages/new"}
                   class="inline-flex items-center px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:ring-indigo active:bg-indigo-700"
                 >
                   New
@@ -43,7 +43,7 @@
         <%= for {rider, last_message} <- @conversations do %>
           <li id={"conversation-list-item:#{rider.id}"}>
             <.link
-              patch={Routes.sms_message_index_path(@socket, :show, rider.id)}
+              patch={~p"/messages/#{rider}"}
               class="block transition duration-150 ease-in-out hover:bg-gray-200 focus:outline-none"
             >
               <div class="flex items-center px-2 py-2">
@@ -91,7 +91,7 @@
       <div class="flex-grow-0 px-4 py-5 mb-2 bg-white border-b border-gray-200 sm:hidden">
         <div class="flex flex-row items-center -mt-2 -ml-4">
           <div class="ml-4">
-            <.link patch={Routes.sms_message_index_path(@socket, :show, @selected_rider.id)}>
+            <.link patch={~p"/messages/#{@selected_rider}"}>
               <Heroicons.chevron_left solid class="w-6 h-6 text-indigo-600" />
             </.link>
           </div>
@@ -104,7 +104,7 @@
       </div>
       <%= for campaign <- @latest_campaign_tasks do %>
         <a
-          href={Routes.campaign_show_path(@socket, :show, campaign)}
+          href={~p"/campaigns/#{campaign}"}
           class="text-lg font-medium leading-6 text-indigo-600 hover:text-indigo-500"
         >
           <%= campaign_name(campaign) %>
@@ -116,7 +116,7 @@
         </p>
         <div class="flex items-center my-1">
           <a
-            href={Routes.delivery_show_path(@socket, :show, campaign.delivery_url_token)}
+            href={~p"/app/delivery/#{campaign.delivery_url_token}"}
             class="font-medium text-indigo-600 hover:text-indigo-500"
             target="_blank"
           >

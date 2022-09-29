@@ -1,18 +1,18 @@
 <%= if @live_action in [:new, :edit] do %>
-  <UI.modal show id={:edit} return_to={Routes.program_index_path(@socket, :index)}>
+  <UI.modal show id={:edit} return_to={~p"/programs"}>
     <:title><%= Atom.to_string(@live_action) |> String.capitalize() %> Program</:title>
     <.live_component
       module={BikeBrigadeWeb.ProgramLive.FormComponent}
       id={@program.id || :new}
       action={@live_action}
       program={@program}
-      return_to={Routes.program_index_path(@socket, :index)}
+      return_to={~p"/programs"}
     />
   </UI.modal>
 <% end %>
 
 <%= if @live_action in [:new_item, :edit_item] do %>
-  <UI.modal show id={:edit_item} return_to={Routes.program_index_path(@socket, :edit, @program)}>
+  <UI.modal show id={:edit_item} return_to={~p"/programs/#{@program}/edit"}>
     <:title>Edit Item</:title>
     <.live_component
       module={BikeBrigadeWeb.ProgramLive.ItemFormComponent}
@@ -20,7 +20,7 @@
       action={@live_action}
       program={@program}
       item={@item}
-      return_to={Routes.program_index_path(@socket, :index)}
+      return_to={~p"/programs"}
     />
   </UI.modal>
 <% end %>
@@ -42,12 +42,12 @@
     Lead
   </:th>
   <:th class="flex justify-end" padding="px-3 py-3" uppercase={false}>
-    <.button patch={Routes.program_index_path(@socket, :new)} %>
+    <.button patch={~p"/programs/new"} %>
       New Program
     </.button>
   </:th>
   <:td :let={program}>
-    <.link navigate={Routes.program_show_path(@socket, :show, program)} class="pl-2 link">
+    <.link navigate={~p"/programs/#{program}"} class="pl-2 link">
       <%= program.name %>
     </.link>
     <%= if !program.active do %>
@@ -62,7 +62,7 @@
   <:td :let={program}>
     <%= if latest_campaign = program.latest_campaign do %>
       <.link
-        navigate={Routes.campaign_show_path(@socket, :show, latest_campaign)}
+        navigate={~p"/campaigns/#{latest_campaign}"}
         class="inline-flex hover:bg-indigo-100"
       >
         <.date date={campaign_date(latest_campaign)} />
@@ -83,7 +83,7 @@
   </:td>
   <:td :let={program} class="px-4 py-3 text-right">
     <.link
-      patch={Routes.program_index_path(@socket, :edit, program)}
+      patch={~p"/programs/#{program}/edit"}
       class="link"
     >
       Edit
