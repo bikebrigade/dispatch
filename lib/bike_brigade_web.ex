@@ -25,7 +25,6 @@ defmodule BikeBrigadeWeb do
 
       import Plug.Conn
       import BikeBrigadeWeb.Gettext
-      alias BikeBrigadeWeb.Router.Helpers, as: Routes
 
       unquote(verified_routes())
     end
@@ -112,7 +111,6 @@ defmodule BikeBrigadeWeb do
 
       import BikeBrigadeWeb.ErrorHelpers
       import BikeBrigadeWeb.Gettext
-      alias BikeBrigadeWeb.Router.Helpers, as: Routes
 
       # Alias in JS
       alias Phoenix.LiveView.JS

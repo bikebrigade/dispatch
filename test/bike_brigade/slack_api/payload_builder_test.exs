@@ -2,8 +2,6 @@ defmodule BikeBrigade.SlackApi.PayloadBuilderTest do
   use BikeBrigade.DataCase, async: true
 
   alias BikeBrigade.SlackApi.PayloadBuilder
-  alias BikeBrigadeWeb.Router.Helpers, as: Routes
-  alias BikeBrigadeWeb.Endpoint
 
   use Phoenix.VerifiedRoutes, endpoint: BikeBrigadeWeb.Endpoint, router: BikeBrigadeWeb.Router
 
