@@ -99,11 +99,8 @@ defmodule BikeBrigadeWeb.LayoutView do
     </div>
     """
   end
-
-  attr :navigate, :string, default: nil
-  attr :href, :string, default: nil
   attr :selected, :boolean
-  attr :rest, :global
+  attr :rest, :global, include: [:href, :patch, :navigate]
 
   slot(:inner_block, required: true)
   slot(:icon, required: true)
@@ -111,8 +108,6 @@ defmodule BikeBrigadeWeb.LayoutView do
   defp sidebar_link(%{selected: true} = assigns) do
     ~H"""
     <.link
-      navigate={@navigate}
-      href={@href}
       class="flex items-center px-2 py-2 mb-1 text-base font-medium leading-6 text-gray-900 transition duration-150 ease-in-out bg-gray-100 rounded-md group focus:outline-none focus:bg-gray-200"
       {@rest}
     >
@@ -127,8 +122,6 @@ defmodule BikeBrigadeWeb.LayoutView do
   defp sidebar_link(%{selected: false} = assigns) do
     ~H"""
     <.link
-      navigate={@navigate}
-      href={@href}
       class="flex items-center px-2 py-2 mb-1 text-base font-medium leading-6 text-gray-600 transition duration-150 ease-in-out rounded-md group hover:text-gray-900 hover:bg-gray-50 focus:outline-none focus:text-gray-900 focus:bg-gray-100"
       {@rest}
     >

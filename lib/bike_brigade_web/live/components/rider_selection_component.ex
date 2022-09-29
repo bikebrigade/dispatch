@@ -94,7 +94,7 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
     <div id="rider-select">
       <div class="grid grid-cols-2 overflow-y-auto max-h-64">
         <%= for {id, rider} <- @selected_riders do %>
-          <.show rider={rider}>
+          <.rider rider={rider}>
             <:x>
               <.link
                 phx-click={JS.push("unselect", value: %{id: rider.id}, target: @myself)}
@@ -103,7 +103,7 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
                 <Heroicons.x_mark solid class="w-5 h-5" />
               </.link>
             </:x>
-          </.show>
+          </.rider>
           <input type="hidden" name={@input_name} value={id} />
         <% end %>
       </div>
@@ -138,7 +138,7 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
     """
   end
 
-  defp show(assigns) do
+  defp rider(assigns) do
     assigns =
       assigns
       |> assign_new(:x, fn -> [] end)

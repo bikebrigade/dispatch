@@ -1,15 +1,23 @@
 defmodule BikeBrigadeWeb.Components do
   use Phoenix.Component
 
+  alias Phoenix.LiveView.JS
+
   alias BikeBrigade.LocalizedDateTime
   alias BikeBrigadeWeb.Components.Icons
 
   # TODO get rid of livehelpers?
   import BikeBrigadeWeb.LiveHelpers, only: [lat: 1, lng: 1]
 
+  defguardp is_clickable(rest)
+            when is_map_key(rest, :href) or is_map_key(rest, :patch) or
+                   is_map_key(rest, :navigate) or is_map_key(rest, :"phx-click")
+
   attr :href, :string
   attr :patch, :string
   attr :navigate, :string
+
+  attr :type, :string
 
   attr :size, :atom,
     default: :medium,
@@ -20,36 +28,16 @@ defmodule BikeBrigadeWeb.Components do
     values: [:primary, :secondary, :white, :red, :lightred, :clear, :green]
 
   attr :class, :string, default: ""
-  attr :rest, :global
+  attr :rest, :global, include: [:href, :patch, :navigate]
   slot(:inner_block, required: true)
 
-  def button(%{href: to} = assigns) when is_binary(to) do
+  def button(%{type: type} = assigns) when is_binary(type) do
     assigns = assign(assigns, :class, button_class(assigns))
 
     ~H"""
-    <.link href={@href} class={@class} {@rest}>
+    <button type={@type} class={@class} {@rest}>
       <%= render_slot(@inner_block) %>
-    </.link>
-    """
-  end
-
-  def button(%{patch: to} = assigns) when is_binary(to) do
-    assigns = assign(assigns, :class, button_class(assigns))
-
-    ~H"""
-    <.link patch={@patch} class={@class} {@rest}>
-      <%= render_slot(@inner_block) %>
-    </.link>
-    """
-  end
-
-  def button(%{navigate: to} = assigns) when is_binary(to) do
-    assigns = assign(assigns, :class, button_class(assigns))
-
-    ~H"""
-    <.link navigate={@navigate} class={@class} {@rest}>
-      <%= render_slot(@inner_block) %>
-    </.link>
+    </button>
     """
   end
 
@@ -57,9 +45,9 @@ defmodule BikeBrigadeWeb.Components do
     assigns = assign(assigns, :class, button_class(assigns))
 
     ~H"""
-    <button class={@class} {@rest}>
+    <.link class={@class} {@rest}>
       <%= render_slot(@inner_block) %>
-    </button>
+    </.link>
     """
   end
 
@@ -108,11 +96,11 @@ defmodule BikeBrigadeWeb.Components do
   end
 
   attr :date, Date, required: true
-  attr :navigate, :string
+  attr :rest, :global, include: [:href, :patch, :navigate]
 
-  def date(%{navigate: to} = assigns) when is_binary(to) do
+  def date(%{rest: rest} = assigns) when is_clickable(rest) do
     ~H"""
-    <.link navigate={@navigate} class="hover:bg-gray-50">
+    <.link class="hover:bg-gray-50" {@rest}>
       <.date date={@date} />
     </.link>
     """
@@ -125,6 +113,7 @@ defmodule BikeBrigadeWeb.Components do
     <time
       datetime={@date}
       class="inline-flex items-center p-1 text-center border border-gray-400 rounded"
+      {@rest}
     >
       <span class="mr-1 text-sm font-semibold text-gray-500">
         <%= Calendar.strftime(@date, "%a") %>
@@ -148,11 +137,12 @@ defmodule BikeBrigadeWeb.Components do
   end
 
   slot :tooltip, required: true
+
   def with_tooltip(assigns) do
     ~H"""
     <div class="relative flex flex-col items-center has-tooltip">
       <%= render_slot(@inner_block) %>
-      <div class={"absolute bottom-0 flex-col items-center mb-6 tooltip"}>
+      <div class="absolute bottom-0 flex-col items-center mb-6 tooltip">
         <span class="relative z-10 p-2 text-xs leading-none text-white whitespace-no-wrap bg-black rounded-sm shadow-lg">
           <%= render_slot(@tooltip) %>
         </span>
