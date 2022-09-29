@@ -7,7 +7,7 @@ defmodule BikeBrigade.MixProject do
       version: "0.1.0",
       elixir: "~> 1.7",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: [:phoenix] ++ Mix.compilers(),
+      compilers: Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps()
@@ -45,7 +45,8 @@ defmodule BikeBrigade.MixProject do
       {:ecto_sql, "~> 3.7"},
       {:ecto_psql_extras, "~> 0.7.4"},
       {:postgrex, ">= 0.0.0"},
-      {:phoenix_live_view, git: "https://github.com/phoenixframework/phoenix_live_view", override: true},
+      {:phoenix_live_view,
+       git: "https://github.com/phoenixframework/phoenix_live_view", override: true},
       {:floki, ">= 0.0.0", only: :test},
       {:phoenix_html, "~> 3.1"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
