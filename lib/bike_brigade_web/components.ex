@@ -24,7 +24,7 @@ defmodule BikeBrigadeWeb.Components do
     values: [:primary, :secondary, :white, :green, :red, :lightred, :clear, :black]
 
   attr :class, :string, default: ""
-  attr :rest, :global, include: ~w(href patch navigate)
+  attr :rest, :global, include: ~w(href patch navigate disabled)
   slot(:inner_block, required: true)
 
   def button(%{type: type} = assigns) when is_binary(type) do
