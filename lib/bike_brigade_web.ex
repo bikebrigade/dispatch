@@ -47,7 +47,7 @@ defmodule BikeBrigadeWeb do
     end
   end
 
-  def live_view(opts \\ [layout: {BikeBrigadeWeb.LayoutView, "live.html"}]) do
+  def live_view(opts \\ [layout: {BikeBrigadeWeb.LayoutView, "app.html"}]) do
     quote do
       use Phoenix.LiveView, unquote(opts)
 
