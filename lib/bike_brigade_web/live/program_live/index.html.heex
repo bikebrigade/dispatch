@@ -42,7 +42,7 @@
     Lead
   </:th>
   <:th class="flex justify-end" padding="px-3 py-3" uppercase={false}>
-    <.button patch={~p"/programs/new"} %>
+    <.button patch={~p"/programs/new"}>
       New Program
     </.button>
   </:th>
@@ -61,10 +61,7 @@
   </:td>
   <:td :let={program}>
     <%= if latest_campaign = program.latest_campaign do %>
-      <.link
-        navigate={~p"/campaigns/#{latest_campaign}"}
-        class="inline-flex hover:bg-indigo-100"
-      >
+      <.link navigate={~p"/campaigns/#{latest_campaign}"} class="inline-flex hover:bg-indigo-100">
         <.date date={campaign_date(latest_campaign)} />
       </.link>
     <% end %>
@@ -82,10 +79,7 @@
     <%= if program.lead, do: program.lead.name, else: "N/A" %>
   </:td>
   <:td :let={program} class="px-4 py-3 text-right">
-    <.link
-      patch={~p"/programs/#{program}/edit"}
-      class="link"
-    >
+    <.link patch={~p"/programs/#{program}/edit"} class="link">
       Edit
     </.link>
   </:td>

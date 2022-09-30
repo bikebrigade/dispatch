@@ -3,15 +3,20 @@ defmodule BikeBrigadeWeb.Components.UI do
   use Phoenix.HTML
   alias Phoenix.LiveView.JS
 
+  attr :id, :string, required: true
+  attr :wide, :boolean, default: false
+  attr :return_to, :string, required: true
+  slot :title
+
   def slideover(assigns) do
-    width_css = if assigns[:wide], do: "max-w-4xl", else: "max-w-2xl"
-    opts = assigns_to_attributes(assigns, [:width])
+    class =
+      if assigns[:wide],
+        do: "w-screen max-w-4xl slideover-panel",
+        else: "w-screen max-w-2xl slideover-panel"
 
     assigns =
       assigns
-      |> assign(:width_css, width_css)
-      |> assign_new(:title, fn -> nil end)
-      |> assign(:opts, opts)
+      |> assign(:class, class)
 
     ~H"""
     <div
@@ -49,11 +54,7 @@ defmodule BikeBrigadeWeb.Components.UI do
               From: "translate-x-0"
               To: "translate-x-full"
           -->
-          <div
-            class={"w-screen #{width_css} slideover-panel"}
-            phx-window-keydown={hide_slideover(@id)}
-            phx-key="escape"
-          >
+          <div class={@class} phx-window-keydown={hide_slideover(@id)} phx-key="escape">
             <div class="flex flex-col h-full py-6 overflow-y-scroll bg-white shadow-xl">
               <div class="px-4 sm:px-6">
                 <div class="flex items-start justify-between">
@@ -183,7 +184,7 @@ defmodule BikeBrigadeWeb.Components.UI do
       role="dialog"
       aria-modal="true"
     >
-      <div class="flex items-end justify-center min-h-screen-safe px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+      <div class="flex items-end justify-center px-4 pt-4 pb-20 text-center min-h-screen-safe sm:block sm:p-0">
         <!--
           Background overlay, show/hide based on modal state.
 

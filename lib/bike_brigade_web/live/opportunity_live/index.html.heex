@@ -1,5 +1,5 @@
 <%= if @live_action in [:new, :edit] do %>
-  <UI.slideover show id={:edit} return_to={~p"/opportunities"}>
+  <UI.slideover id="edit" return_to={~p"/opportunities"}>
     <:title><%= @page_title %></:title>
     <.live_component
       module={BikeBrigadeWeb.OpportunityLive.FormComponent}

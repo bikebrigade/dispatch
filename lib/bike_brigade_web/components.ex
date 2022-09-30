@@ -1,8 +1,6 @@
 defmodule BikeBrigadeWeb.Components do
   use Phoenix.Component
 
-  alias Phoenix.LiveView.JS
-
   alias BikeBrigade.LocalizedDateTime
   alias BikeBrigadeWeb.Components.Icons
 
@@ -147,6 +145,7 @@ defmodule BikeBrigadeWeb.Components do
     </div>
     """
   end
+
   # ---- OLD ---
 
   def filter_button(assigns) do

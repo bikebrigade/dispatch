@@ -185,7 +185,7 @@
       <div class="px-2 py-3 bg-white border-b border-gray-200 sm:rounded-t-lg">
         <div class="absolute top-0 right-0 pt-4 pr-4 sm:block">
           <button
-            @click="open = false"
+            x-on:click="open = false"
             type="button"
             class="block text-gray-400 bg-white rounded-md hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
@@ -209,7 +209,7 @@
 
     <button
       x-show="!open"
-      @click="open = true"
+      x-on:click="open = true"
       type="button"
       class="inline-flex items-center content-end p-3 text-gray-700 bg-white border border-gray-300 rounded-full shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
     >

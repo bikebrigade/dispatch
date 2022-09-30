@@ -179,7 +179,7 @@
                   >
                     <button
                       x-text="collapsed ? 'Show More...' : 'Show Less'"
-                      @click="collapsed = !collapsed"
+                      x-on:click="collapsed = !collapsed"
                       type="button"
                       class="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
@@ -236,7 +236,7 @@
           <.button
             x-show="!scheduling"
             type="button"
-            @click="scheduling = true"
+            x-on:click="scheduling = true"
             class="ml-3"
             color={:green}
           >
@@ -255,14 +255,14 @@
           >
             Send Now
           </.button>
-          <.button type="submit" @click="scheduling = false" color={:secondary} class="ml-3">
+          <.button type="submit" x-on:click="scheduling = false" color={:secondary} class="ml-3">
             Save
           </.button>
           <.button
             x-show="scheduling"
             phx-click={JS.push("delete-schedule", target: @myself)}
             type="button"
-            @click="scheduling = false"
+            x-on:click="scheduling = false"
             color={:red}
             class="ml-3"
           >

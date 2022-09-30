@@ -1,5 +1,5 @@
 <%= if @live_action in [:edit, :edit_profile] do %>
-  <UI.slideover show id={:edit} return_to={@return_to}>
+  <UI.slideover id="edit" return_to={@return_to}>
     <:title>
       <%= if @live_action == :edit do %>
         Edit Rider
