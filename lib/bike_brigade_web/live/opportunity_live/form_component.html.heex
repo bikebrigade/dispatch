@@ -1,5 +1,6 @@
 <div>
-  <C.flash_component flash={@flash} />
+  <.flash kind={:info} title="Success!" flash={@flash} />
+  <.flash kind={:error} title="Error!" flash={@flash} />
   <.form
     :let={f}
     for={@changeset}
@@ -123,10 +124,7 @@
 
     <%= if @opportunity.program_id do %>
       <div class="mt-6">
-        <a
-          href={~p"/programs/#{@opportunity.program_id}/edit"}
-          class="text-sm link"
-        >
+        <a href={~p"/programs/#{@opportunity.program_id}/edit"} class="text-sm link">
           Edit Program to change lead
         </a>
       </div>

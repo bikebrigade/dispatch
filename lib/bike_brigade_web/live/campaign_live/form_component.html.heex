@@ -1,5 +1,6 @@
 <div>
-  <C.flash_component flash={@flash} />
+  <.flash kind={:info} title="Success!" flash={@flash} />
+  <.flash kind={:error} title="Error!" flash={@flash} />
   <.form
     :let={f}
     for={@changeset}

@@ -9,9 +9,10 @@ defmodule BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent do
   def render(assigns) do
     ~H"""
     <div>
-      <C.flash_component flash={@flash} />
+      <.flash kind={:info} title="Success!" flash={@flash} />
+      <.flash kind={:error} title="Error!" flash={@flash} />
       <.form
-        let={f}
+        :let={f}
         for={:duplicate_form}
         id="duplicate-campaign-form"
         phx-target={@myself}

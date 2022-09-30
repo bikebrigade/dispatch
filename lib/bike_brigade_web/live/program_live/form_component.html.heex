@@ -1,5 +1,6 @@
 <div>
-  <C.flash_component flash={@flash} />
+  <.flash kind={:info} title="Success!" flash={@flash} />
+  <.flash kind={:error} title="Error!" flash={@flash} />
   <.form
     :let={c}
     for={@changeset}
@@ -136,10 +137,7 @@
               Hidden
             </:th>
             <:th class="flex justify-end w-32" padding="px-3 py-3" uppercase={false}>
-              <.button
-                size={:xsmall}
-                patch={~p"/programs/#{@program}/items/new"}
-              >
+              <.button size={:xsmall} patch={~p"/programs/#{@program}/items/new"}>
                 New Item
               </.button>
             </:th>
@@ -161,10 +159,7 @@
               <% end %>
             </:td>
             <:td :let={item} class="text-right">
-              <.link
-                patch={~p"/programs/#{@program}/items/#{item}/edit"}
-                class="link"
-              >
+              <.link patch={~p"/programs/#{@program}/items/#{item}/edit"} class="link">
                 Edit
               </.link>
             </:td>

@@ -227,62 +227,6 @@ defmodule BikeBrigadeWeb.Components do
 
   # --- OLD ---
 
-  def flash_component(assigns) do
-    ~H"""
-    <%= if live_flash(@flash, :info) do %>
-      <div class="p-4 rounded-md bg-green-50">
-        <div class="flex">
-          <div class="flex-shrink-0">
-            <Heroicons.check_circle mini class="w-5 h-5 text-green-400" />
-          </div>
-          <div class="ml-3">
-            <p class="text-sm font-medium leading-5 text-green-800">
-              <%= live_flash(@flash, :info) %>
-            </p>
-          </div>
-          <div class="pl-3 ml-auto">
-            <div class="-mx-1.5 -my-1.5">
-              <button
-                phx-click="lv:clear-flash"
-                phx-value-key="info"
-                class="inline-flex rounded-md p-1.5 text-green-500 hover:bg-green-100 focus:outline-none focus:bg-green-100 transition ease-in-out duration-150"
-              >
-                <Heroicons.x_mark mini class="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    <% end %>
-
-    <%= if live_flash(@flash, :error) do %>
-      <div class="p-4 rounded-md bg-red-50">
-        <div class="flex">
-          <div class="flex-shrink-0">
-            <Heroicons.x_circle mini class="w-5 h-5 text-red-400" />
-          </div>
-          <div class="ml-3">
-            <p class="text-sm font-medium leading-5 text-red-800">
-              <%= live_flash(@flash, :error) %>
-            </p>
-          </div>
-          <div class="pl-3 ml-auto">
-            <div class="-mx-1.5 -my-1.5">
-              <button
-                phx-click="lv:clear-flash"
-                phx-value-key="error"
-                class="inline-flex rounded-md p-1.5 text-red-500 hover:bg-red-100 focus:outline-none focus:bg-red-100 transition ease-in-out duration-150"
-              >
-                <Heroicons.x_mark mini class="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    <% end %>
-    """
-  end
-
   # TODO finish the LeafletNext refactor so we can get rid of this
   def map(assigns) do
     assigns = assign_new(assigns, :class, fn -> "" end)
