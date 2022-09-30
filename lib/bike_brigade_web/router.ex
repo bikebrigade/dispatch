@@ -1,7 +1,7 @@
 defmodule BikeBrigadeWeb.Router do
   use BikeBrigadeWeb, :router
 
-  import BikeBrigade.Utils, only: [get_config: 1, dev?: 0]
+  import BikeBrigade.Utils, only: [dev?: 0]
 
   require Logger
 
@@ -54,7 +54,7 @@ defmodule BikeBrigadeWeb.Router do
     pipe_through [:sessions, :fetch_live_flash, :require_dispatcher]
 
     forward "/", ReverseProxyPlug,
-      upstream: get_config(:analytics_upstream),
+      upstream: Application.compile_env(:bike_brigade, __MODULE__)[:analytics_upstream],
       preserve_host_header: true,
       error_callback: &__MODULE__.log_reverse_proxy_error/1
 

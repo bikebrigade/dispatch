@@ -3,7 +3,6 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
 
   alias Phoenix.LiveView.JS
   alias BikeBrigade.Locations.Location
-  alias BikeBrigade.Geocoder
 
   import Ecto.Changeset
 

@@ -265,7 +265,7 @@
               Tell us you're done.
             </h2>
             <div class="flex flex-wrap items-start justify-end flex-shrink ml-auto">
-              <.button href={sms_done_url(@campaign, @rider)} exta_class="ml-auto" color={:green}>
+              <.button href={sms_done_url(@campaign, @rider)} class="ml-auto" color={:green}>
                 <Heroicons.chat_bubble_left_right mini class="w-5 h-5 mr-1 -ml-0.5" />
                 I'm done!
               </.button>
@@ -293,7 +293,7 @@
           Full Route Map
         </h2>
         <div class="flex justify-end flex-1 pb-1 my-4 mr-3">
-          <.button href={directions_url(assigns)} font-medium text-white>
+          <.button href={directions_url(assigns)} class="font-medium text-white">
             Open in Google Maps
           </.button>
         </div>

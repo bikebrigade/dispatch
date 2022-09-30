@@ -7,7 +7,6 @@ defmodule BikeBrigadeWeb.CampaignLive.FormComponent do
   alias BikeBrigade.Delivery.{Campaign, Program}
   alias BikeBrigade.GSheetsImporter
 
-  alias BikeBrigadeWeb.Components.LocationForm
   alias BikeBrigadeWeb.Components.LiveLocation
 
   defmodule CampaignForm do

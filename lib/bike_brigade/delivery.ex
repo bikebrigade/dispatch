@@ -481,7 +481,7 @@ defmodule BikeBrigade.Delivery do
 
     directions = "https://www.google.com/maps/dir/?#{map_query}"
 
-    delivery_details_url = url(~p"/app/#{rider.delivery_url_token}")
+    delivery_details_url = url(~p"/app/delivery/#{rider.delivery_url_token}")
 
     assigns = %{
       rider_name: first_name(rider),

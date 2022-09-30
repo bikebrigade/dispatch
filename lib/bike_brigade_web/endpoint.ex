@@ -1,7 +1,7 @@
 defmodule BikeBrigadeWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :bike_brigade
 
-  if sandbox = Application.get_env(:bike_brigade, :sandbox) do
+  if sandbox = Application.compile_env(:bike_brigade, :sandbox) do
     plug Phoenix.Ecto.SQL.Sandbox, sandbox: sandbox
   end
 
@@ -30,8 +30,7 @@ defmodule BikeBrigadeWeb.Endpoint do
     at: "/static",
     from: :bike_brigade,
     gzip: false,
-    only: ~w(assets fonts images robots.txt),
-    only_matching: ~w(favicon)
+    only: BikeBrigadeWeb.static_paths()
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.

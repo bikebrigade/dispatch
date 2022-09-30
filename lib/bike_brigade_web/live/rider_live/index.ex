@@ -847,16 +847,14 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   end
 
   defp show_phone_if_filtered(assigns) do
-    if phone_filter = get_filter(assigns.filters, :phone) do
-      ~H"""
-      <div class="flex">
-        <Heroicons.device_phone_mobile mini class="w-4 h-4" />
-        <.bold_search string={@phone} search={phone_filter} />
-      </div>
-      """
-    else
-      ~H""
-    end
+    assigns = assign(assigns, :phone_filter, get_filter(assigns.filters, :phone))
+
+    ~H"""
+    <div :if={@phone_flter} class="flex">
+      <Heroicons.device_phone_mobile mini class="w-4 h-4" />
+      <.bold_search string={@phone} search={@phone_filter} />
+    </div>
+    """
   end
 
   defp bold_search(assigns) do
