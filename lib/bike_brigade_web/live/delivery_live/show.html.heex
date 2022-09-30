@@ -86,7 +86,7 @@
               />
               <%= CampaignHelpers.pickup_window(@campaign, @rider) %>
             </div>
-            <C.location location={@campaign.location} />
+            <.location location={@campaign.location} />
             <div class="inline-flex leading-normal">
               <Heroicons.shopping_bag mini class="flex-shrink-0 w-4 h-4 mt-1 mr-1 text-gray-500 " />
               <%= humanized_task_count(@rider.assigned_tasks) %>
@@ -187,7 +187,7 @@
                 />
                 <%= task.dropoff_name %>
               </div>
-              <C.location location={task.dropoff_location} />
+              <.location location={task.dropoff_location} />
               <div class="inline-flex flex-shrink-0 leading-normal">
                 <Heroicons.device_phone_mobile mini
                   aria-label="Dropoff Phone"

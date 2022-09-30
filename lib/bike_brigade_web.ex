@@ -116,7 +116,7 @@ defmodule BikeBrigadeWeb do
       alias Phoenix.LiveView.JS
 
       # Alias in components
-      alias BikeBrigadeWeb.Components, as: C
+      alias BikeBrigadeWeb.Components.Icons
       alias BikeBrigadeWeb.Components.UI
 
       unquote(verified_routes())

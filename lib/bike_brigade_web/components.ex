@@ -5,6 +5,8 @@ defmodule BikeBrigadeWeb.Components do
   alias BikeBrigade.LocalizedDateTime
   alias BikeBrigadeWeb.Components.Icons
 
+  alias BikeBrigade.Locations.Location
+
   # TODO get rid of livehelpers?
   import BikeBrigadeWeb.LiveHelpers, only: [lat: 1, lng: 1]
 
@@ -186,6 +188,24 @@ defmodule BikeBrigadeWeb.Components do
     """
   end
 
+  attr :location, Location
+  def location(assigns) do
+    ~H"""
+    <div class="inline-flex flex-shrink-0 leading-normal">
+      <Heroicons.map_pin mini aria-label="Location" class="w-4 h-4 mt-1 mr-1 text-gray-500" />
+      <div class="grid grid-cols-2 gap-y-0 gap-x-1">
+        <div class="col-span-2"><%= @location.address %></div>
+        <%= if @location.unit do %>
+          <div class="text-sm"><span class="font-bold">Unit:</span> <%= @location.unit %></div>
+        <% end %>
+        <%= if @location.buzzer do %>
+          <div class="text-sm"><span class="font-bold">Buzz:</span> <%= @location.buzzer %></div>
+        <% end %>
+      </div>
+    </div>
+    """
+  end
+
   @doc "Map component using the refactored javascript hook"
   attr :id, :string, required: true
   attr :class, :string, default: "h-full"
@@ -318,23 +338,6 @@ defmodule BikeBrigadeWeb.Components do
       <% else %>
         <div class="p-2">Location Unknown</div>
       <% end %>
-    </div>
-    """
-  end
-
-  def location(assigns) do
-    ~H"""
-    <div class="inline-flex flex-shrink-0 leading-normal">
-      <Heroicons.map_pin mini aria-label="Location" class="w-4 h-4 mt-1 mr-1 text-gray-500" />
-      <div class="grid grid-cols-2 gap-y-0 gap-x-1">
-        <div class="col-span-2"><%= @location.address %></div>
-        <%= if @location.unit do %>
-          <div class="text-sm"><span class="font-bold">Unit:</span> <%= @location.unit %></div>
-        <% end %>
-        <%= if @location.buzzer do %>
-          <div class="text-sm"><span class="font-bold">Buzz:</span> <%= @location.buzzer %></div>
-        <% end %>
-      </div>
     </div>
     """
   end
