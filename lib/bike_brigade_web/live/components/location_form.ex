@@ -52,7 +52,7 @@ defmodule BikeBrigadeWeb.Components.LocationForm do
             </div>
           </div>
         </div>
-        <C.map coords={cast_coords(@for)} class="w-full h-64 mt-2" />
+        <.map_next id="location_map" coords={cast_coords(@for)} initial_markers={[marker(cast_coords(@for))]} class="w-full h-64 mt-2" />
       </div>
     </div>
     """
@@ -70,5 +70,15 @@ defmodule BikeBrigadeWeb.Components.LocationForm do
       %Geo.Point{} = coords -> coords
       json when is_binary(json) -> Jason.decode!(json) |> Geo.JSON.decode!()
     end
+  end
+
+  defp marker(coords) do
+    %{
+      id: "location",
+      lat: lat(coords),
+      lng: lng(coords),
+      icon:  "warehouse",
+      color: "#1c64f2"
+    }
   end
 end

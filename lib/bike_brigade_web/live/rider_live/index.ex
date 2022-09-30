@@ -528,11 +528,10 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
       <%= if @mode == :map do %>
         <div class="min-w-full mt-2 bg-white rounded-lg shadow">
           <div class="p-1 h-[80vh]">
-            <.rider_map
-              rider_locations={@all_locations}
-              selected={@selected}
-              lat={43.653960}
-              lng={-79.425820}
+            <.map_next
+              id="riders-map"
+              initial_markers={rider_markers(@all_locations, @selected)}
+              coords={%Geo.Point{coordinates: {-79.425820, 43.653960}}}
             />
           </div>
           <div
@@ -562,7 +561,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
           <:th padding="px-3">
             <div class="inline-flex">
               Name
-              <C.sort_link
+              <.sort_link
                 phx-click="sort"
                 current_field={:name}
                 default_order={:asc}
@@ -581,7 +580,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
           <:th>
             <div class="inline-flex">
               Capacity
-              <C.sort_link
+              <.sort_link
                 phx-click="sort"
                 current_field={:capacity}
                 default_order={:desc}
@@ -594,7 +593,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
           <:th>
             <div class="inline-flex">
               Last Active
-              <C.sort_link
+              <.sort_link
                 phx-click="sort"
                 current_field={:last_active}
                 default_order={:desc}
@@ -828,21 +827,6 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
         <% end %>
       </div>
     <% end %>
-    """
-  end
-
-  def rider_map(assigns) do
-    ~H"""
-    <div
-      phx-hook="LeafletMapNext"
-      id="task-map"
-      data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
-      data-lat={@lat}
-      data-lng={@lng}
-      phx-update="ignore"
-      class="h-full"
-    >
-    </div>
     """
   end
 

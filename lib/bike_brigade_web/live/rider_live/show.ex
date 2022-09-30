@@ -142,4 +142,14 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
       ~H"Nothing (yet!)"
     end
   end
+
+  defp rider_marker(rider) do
+    %{
+      id: rider.id,
+      lat: lat(rider.location),
+      lng: lng(rider.location),
+      icon:  "bicycle",
+      color: "#1c64f2"
+    }
+  end
 end

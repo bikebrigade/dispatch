@@ -186,6 +186,32 @@ defmodule BikeBrigadeWeb.Components do
     """
   end
 
+  @doc "Map component using the refactored javascript hook"
+  attr :id, :string, required: true
+  attr :class, :string, default: "h-full"
+  attr :initial_markers, :list, default: []
+  attr :coords, Geo.Point, required: true
+  attr :lat, :float
+  attr :lng, :float
+
+  def map_next(assigns) do
+
+    ~H"""
+    <div :if={@coords != %Geo.Point{}} class={@class} >
+      <leaflet-map
+        phx-hook="LeafletMapNext"
+        id={@id}
+        data-lat={lat(@coords)}
+        data-lng={lng(@coords)}
+        data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
+        data-initial_markers={Jason.encode!(@initial_markers)}
+        class="h-full"
+      >
+      </leaflet-map>
+    </div>
+    """
+  end
+
   slot :tooltip, required: true
 
   def with_tooltip(assigns) do
@@ -225,6 +251,43 @@ defmodule BikeBrigadeWeb.Components do
     """
   end
 
+  attr :current_field, :atom, required: true
+
+  attr :default_order, :atom, values: [:asc, :desc], default: :asc
+
+  attr :sort_field, :atom, required: true
+  attr :sort_order, :atom, values: [:asc, :desc], required: true
+
+  attr :rest, :global
+
+  def sort_link(assigns) do
+    selected = assigns.sort_field == assigns.current_field
+
+    assigns =
+      assigns
+      |> assign(
+        :order,
+        if(selected, do: next_sort_order(assigns.sort_order), else: assigns.default_order)
+      )
+      |> assign(:icon_class, [
+        "w-5 h-5 hover:text-gray-700",
+        if(selected, do: "text-gray-500", else: "text-gray-300")
+      ])
+
+    ~H"""
+    <button type="button" phx-value-field={@current_field} phx-value-order={@order} {@rest}>
+      <%= if @order == :asc do %>
+        <Heroicons.bars_arrow_up mini class={@icon_class} />
+      <% else %>
+        <Heroicons.bars_arrow_down mini class={@icon_class} />
+      <% end %>
+    </button>
+    """
+  end
+
+  defp next_sort_order(:asc), do: :desc
+  defp next_sort_order(:desc), do: :asc
+
   # --- OLD ---
 
   # TODO finish the LeafletNext refactor so we can get rid of this
@@ -256,87 +319,6 @@ defmodule BikeBrigadeWeb.Components do
         <div class="p-2">Location Unknown</div>
       <% end %>
     </div>
-    """
-  end
-
-  @doc "Map component using the refactored javascript hook"
-  def map_next(assigns) do
-    assigns =
-      assigns
-      |> assign_new(:class, fn -> "" end)
-      |> assign_new(:initial_markers, fn -> [] end)
-
-    ~H"""
-    <%= if @coords != %Geo.Point{} do %>
-      <div class={@class}>
-        <leaflet-map
-          phx-hook="LeafletMapNext"
-          id={"location-map-#{inspect(@coords.coordinates)}"}
-          data-lat={lat(@coords)}
-          data-lng={lng(@coords)}
-          data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
-          data-initial_markers={@initial_markers}
-          class="h-full"
-        >
-        </leaflet-map>
-      </div>
-    <% end %>
-    """
-  end
-
-  def sort_link(
-        %{
-          current_field: current_field,
-          default_order: default_order,
-          sort_field: sort_field,
-          sort_order: sort_order
-        } = assigns
-      ) do
-    next = fn
-      :desc -> :asc
-      :asc -> :desc
-    end
-
-    assigns =
-      if sort_field == current_field do
-        # This field selected
-        assign(assigns,
-          icon_class: "w-5 h-5 text-gray-500 hover:text-gray-700",
-          order: sort_order,
-          next: next.(sort_order)
-        )
-      else
-        # Another field selected
-        assign(assigns,
-          icon_class: "w-5 h-5 text-gray-300 hover:text-gray-700",
-          order: default_order,
-          next: default_order
-        )
-      end
-
-    assigns =
-      assign(
-        assigns,
-        :attrs,
-        assigns_to_attributes(assigns, [
-          :sort_field,
-          :sort_order,
-          :default_order,
-          :current_field,
-          :order,
-          :icon_class,
-          :next
-        ])
-      )
-
-    ~H"""
-    <button type="button" phx-value-field={@current_field} phx-value-order={@next} {@attrs}>
-      <%= if @order == :asc do %>
-        <Heroicons.bars_arrow_up mini class={@icon_class} />
-      <% else %>
-        <Heroicons.bars_arrow_down mini class={@icon_class} />
-      <% end %>
-    </button>
     """
   end
 

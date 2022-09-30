@@ -42,14 +42,16 @@
 
       <p class="text-sm !leading-relaxed xl:text-base">
         <span class="block xl:inline">
-          <Heroicons.calendar mini
+          <Heroicons.calendar
+            mini
             aria-label="Calendar"
             class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 sm:mr-.5"
           />
           <span>Signed up on: <%= format_date(@rider.signed_up_on) %></span>
         </span>
         <span class="block xl:inline">
-          <Heroicons.fire mini
+          <Heroicons.fire
+            mini
             aria-label="Fire"
             class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 xl:ml-1 sm:mr-.5"
           />
@@ -60,47 +62,56 @@
       </p>
       <p class="text-sm !leading-relaxed xl:text-base">
         <span class="">
-          <Heroicons.map_pin mini
+          <Heroicons.map_pin
+            mini
             aria-label="Marker"
             class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 sm:mr-.5"
           />
           <%= address(@rider.location) %>
         </span>
         <span class="block xl:inline">
-          <Heroicons.device_phone_mobile mini
+          <Heroicons.device_phone_mobile
+            mini
             aria-label="Phone"
             class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 xl:ml-1 sm:mr-.5"
           />
           <%= phone(@rider) %>
         </span>
         <span class="block xl:inline">
-          <Heroicons.envelope mini
+          <Heroicons.envelope
+            mini
             aria-label="Mail"
             class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 xl:ml-1 sm:mr-.5"
           />
-          <.link href={"mailto:#{email(@rider)}"} class="link"> <%= email(@rider) %></.link>
+          <.link href={"mailto:#{email(@rider)}"} class="link"><%= email(@rider) %></.link>
         </span>
       </p>
       <p class="text-sm !leading-relaxed xl:text-base">
         <span class="">
-          <Heroicons.briefcase mini
+          <Heroicons.briefcase
+            mini
             aria-label="Briefcase"
             class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 sm:mr-.5"
           />
-          <.link navigate={~p"/riders?#{%{filters: ["capacity:#{@rider.capacity}"]}}"} class="link">
+          <.link
+            navigate={~p"/riders?#{%{filters: ["capacity:#{@rider.capacity}"]}}"}
+            class="link"
+          >
             <%= @rider.capacity %>
           </.link>
         </span>
         <%= if @rider.text_based_itinerary do %>
           <span class="">
-            <Heroicons.signal_slash mini
+            <Heroicons.signal_slash
+              mini
               aria-label="Status Offline"
               class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 sm:mr-.5"
             /> Text-only delivery instructions
           </span>
         <% end %>
         <span class="block xl:inline">
-          <Heroicons.tag mini
+          <Heroicons.tag
+            mini
             aria-label="Tag"
             class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 xl:ml-2 sm:mr-.5"
           />
@@ -160,7 +171,12 @@
       Location
     </h2>
     <div class="p-1 my-5 bg-white rounded-lg shadow">
-      <C.map coords={coords(@rider.location)} class="w-full h-32 sm:h-40" />
+      <.map_next
+        id="rider-map"
+        coords={coords(@rider.location)}
+        initial_markers={[rider_marker(@rider)]}
+        class="w-full h-32 sm:h-40"
+      />
     </div>
   </div>
 </div>
@@ -219,9 +235,9 @@
                   <div class="mb-3">
                     <span class="text-sm text-gray-500"><%= pickup_window(campaign) %></span>
                     <p class="font-bold leading-snug">
-                    <.link navigate={ ~p"/campaigns/#{campaign}" } class="link">
-                      <%= campaign.program.name %>
-                    </.link>
+                      <.link navigate={~p"/campaigns/#{campaign}"} class="link">
+                        <%= campaign.program.name %>
+                      </.link>
                     </p>
                     <p class="text-gray-900">
                       <%= task_count %> <%= Inflex.inflect("delivery", task_count) %>
