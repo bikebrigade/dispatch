@@ -50,7 +50,7 @@ defmodule BikeBrigade.MixProject do
       {:floki, ">= 0.0.0", only: :test},
       {:phoenix_html, "~> 3.1"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:phoenix_live_dashboard, "~> 0.7.0"},
+      {:phoenix_live_dashboard, git: "https://github.com/phoenixframework/phoenix_live_dashboard"},
       {:reverse_proxy_plug, "~> 2.1.0"},
       {:telemetry_metrics, "~> 0.4"},
       {:telemetry_poller, "~> 1.0.0"},
