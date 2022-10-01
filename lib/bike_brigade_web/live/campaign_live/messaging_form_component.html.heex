@@ -198,7 +198,7 @@
       <div class="flex mt-6" x-data="{ scheduling: false }">
         <div class="flex items-center w-1/2">
           <%= hidden_inputs_for(sm) %>
-          <div id="schedule-picker" x-show="scheduling" class="mt-1 rounded-md shadow-sm">
+          <div class="hidden mt-1 rounded-md shadow-sm show-if-scheduling">
             <%= if dt = Ecto.Changeset.get_field(sm.source, :send_at) do %>
               <%= datetime_local_input(sm, :send_at,
                 id: "hacky-input-1",
@@ -217,10 +217,7 @@
               ) %>
             <% end %>
           </div>
-          <div
-            x-show="!scheduling"
-            class="flex flex-col w-full space-y-0.5 text-sm font-medium text-gray-700"
-          >
+          <div class="flex flex-col w-full space-y-0.5 text-sm font-medium text-gray-700 hide-if-scheduling">
             <%= if @campaign.latest_message do %>
               <div>Last Messaged at <%= datetime(@campaign.latest_message.sent_at) %></div>
             <% end %>
@@ -233,13 +230,7 @@
           </div>
         </div>
         <div class="flex justify-end w-1/2 space-x-2">
-          <.button
-            x-show="!scheduling"
-            type="button"
-            x-on:click="scheduling = true"
-            class="ml-3"
-            color={:green}
-          >
+          <.button phx-click={show_scheduling()} class="ml-3 hide-if-scheduling" color={:green}>
             <%= case input_value(sm, :send_at) do %>
               <% %DateTime{} -> %>
                 Edit schedule
@@ -248,23 +239,19 @@
             <% end %>
           </.button>
           <.button
-            x-show="!scheduling"
             phx-click={JS.push("send", target: @myself)}
             data-confirm="Are you sure?"
-            class=""
+            class="hide-if-scheduling"
           >
             Send Now
           </.button>
-          <.button type="submit" x-on:click="scheduling = false" color={:secondary} class="ml-3">
+          <.button type="submit" phx-click={hide_scheduling()} color={:secondary} class="ml-3">
             Save
           </.button>
           <.button
-            x-show="scheduling"
-            phx-click={JS.push("delete-schedule", target: @myself)}
-            type="button"
-            x-on:click="scheduling = false"
+            phx-click={JS.push("delete-schedule", target: @myself) |> hide_scheduling()}
             color={:red}
-            class="ml-3"
+            class="hidden ml-3 show-if-scheduling"
           >
             Delete Schedule
           </.button>

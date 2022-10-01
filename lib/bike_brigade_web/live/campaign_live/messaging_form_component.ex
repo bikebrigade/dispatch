@@ -94,7 +94,6 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
 
   def handle_event("save", %{"campaign" => campaign_params}, socket) do
     send_at = campaign_params["scheduled_message"]["send_at"]
-    :timer.sleep(1000)
 
     campaign_params =
       if send_at != "" do
@@ -189,10 +188,24 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
       <.with_tooltip>
         <Heroicons.question_mark_circle solid class="w-4 h-4 ml-0.5 " />
         <:tooltip>
-          <div class="w-40">Messages over 1600 characters in length tend to get broken up into multiple texts.</div>
+          <div class="w-40">
+            Messages over 1600 characters in length tend to get broken up into multiple texts.
+          </div>
         </:tooltip>
       </.with_tooltip>
     </div>
     """
+  end
+
+  defp show_scheduling(js \\ %JS{}) do
+    js
+    |> JS.show(to: ".show-if-scheduling", display: "flex")
+    |> JS.hide(to: ".hide-if-scheduling")
+  end
+
+  defp hide_scheduling(js \\ %JS{}) do
+    js
+    |> JS.hide(to: ".show-if-scheduling")
+    |> JS.show(to: ".hide-if-scheduling", display: "flex")
   end
 end
