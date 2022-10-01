@@ -1,4 +1,6 @@
 <div>
+  <.flash kind={:info} title="Success!" flash={@flash} />
+  <.flash kind={:error} title="Error!" flash={@flash} />
   <.form
     :let={f}
     for={@changeset}
@@ -7,16 +9,11 @@
     phx-change="validate"
     phx-submit="save"
   >
-    <C.flash_component flash={@flash} />
-
     <%= if @campaign.program.items == [] do %>
       <div class="mt-2">
         You'll have to set up the kinds of items that we delivery for <%= @campaign.program.name %> (Meals, Foodshare Boxes, etc) before you can add a task.
         <div class="mt-1">
-          <.button
-            size={:small}
-            navigate={~p"/programs/#{@campaign.program}/edit"}
-          >
+          <.button size={:small} navigate={~p"/programs/#{@campaign.program}/edit"}>
             Set up delivery items
           </.button>
         </div>
@@ -86,10 +83,7 @@
           </div>
           <%= error_tag(g, :item) %>
         <% end %>
-        <.link
-          navigate={~p"/programs/#{@campaign.program.id}/edit"}
-          class="text-xs link"
-        >
+        <.link navigate={~p"/programs/#{@campaign.program.id}/edit"} class="text-xs link">
           Set up program's delivery items
         </.link>
       </div>
