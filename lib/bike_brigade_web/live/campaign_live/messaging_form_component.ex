@@ -94,6 +94,7 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
 
   def handle_event("save", %{"campaign" => campaign_params}, socket) do
     send_at = campaign_params["scheduled_message"]["send_at"]
+    :timer.sleep(1000)
 
     campaign_params =
       if send_at != "" do

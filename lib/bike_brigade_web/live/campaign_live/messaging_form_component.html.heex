@@ -250,8 +250,8 @@
           <.button
             x-show="!scheduling"
             phx-click={JS.push("send", target: @myself)}
-            phx-disable-with="Sending..."
             data-confirm="Are you sure?"
+            class=""
           >
             Send Now
           </.button>

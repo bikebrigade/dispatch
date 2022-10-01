@@ -73,17 +73,23 @@ defmodule BikeBrigadeWeb.Components do
   attr :rest, :global, include: ~w(href patch navigate disabled)
   slot(:inner_block, required: true)
 
+  @button_base_classes [
+    "inline-flex text-center items-center border border-transparent",
+    "font-medium rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2",
+    "disabled:hover:cursor-not-allowed disabled:opacity-25"
+  ]
+
+  # TODO I have a button in messaging form component with
+  # phx-submit-loading:opacity-25 phx-submit-loading:hover:cursor-not-allowed phx-submit-loading:pointer-events-none
+  # Add this as an option (disable-if-loading) if we need it again
+
   def button(%{type: type} = assigns) when is_binary(type) do
+    assigns = assign(assigns, :button_base_classes, @button_base_classes)
+
     ~H"""
     <button
       type={@type}
-      class={[
-        "inline-flex text-center items-center border border-transparent",
-        "font-medium rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2",
-        button_size(@size),
-        button_color(@color),
-        @class
-      ]}
+      class={@button_base_classes ++ [button_size(@size), button_color(@color), @class]}
       {@rest}
     >
       <%= render_slot(@inner_block) %>
@@ -92,17 +98,10 @@ defmodule BikeBrigadeWeb.Components do
   end
 
   def button(assigns) do
+    assigns = assign(assigns, :button_base_classes, @button_base_classes)
+
     ~H"""
-    <.link
-      class={[
-        "inline-flex text-center items-center border border-transparent",
-        "font-medium rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2",
-        button_size(@size),
-        button_color(@color),
-        @class
-      ]}
-      {@rest}
-    >
+    <.link class={@button_base_classes ++ [button_size(@size), button_color(@color), @class]} {@rest}>
       <%= render_slot(@inner_block) %>
     </.link>
     """
@@ -122,7 +121,7 @@ defmodule BikeBrigadeWeb.Components do
   defp button_color(color) do
     case color do
       :primary ->
-        "text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500 disabled:hover:cursor-not-allowed"
+        "text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500"
 
       :secondary ->
         "text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:ring-indigo-500"
@@ -189,6 +188,7 @@ defmodule BikeBrigadeWeb.Components do
   end
 
   attr :location, Location
+
   def location(assigns) do
     ~H"""
     <div class="inline-flex flex-shrink-0 leading-normal">
@@ -215,9 +215,8 @@ defmodule BikeBrigadeWeb.Components do
   attr :lng, :float
 
   def map_next(assigns) do
-
     ~H"""
-    <div :if={@coords != %Geo.Point{}} class={@class} >
+    <div :if={@coords != %Geo.Point{}} class={@class}>
       <leaflet-map
         phx-hook="LeafletMapNext"
         id={@id}
