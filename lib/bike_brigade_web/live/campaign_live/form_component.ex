@@ -122,7 +122,7 @@ defmodule BikeBrigadeWeb.CampaignLive.FormComponent do
       {:noreply,
        socket
        |> put_flash(:info, "Campaign updated successfully")
-       |> push_redirect(to: socket.assigns.return_to)}
+       |> push_navigate(to: socket.assigns.navigate)}
     else
       _ -> {:noreply, assign(socket, :changeset, socket.assigns.changeset)}
     end
@@ -140,7 +140,7 @@ defmodule BikeBrigadeWeb.CampaignLive.FormComponent do
       {:noreply,
        socket
        |> put_flash(:info, "Campaign created successfully")
-       |> push_redirect(to: socket.assigns.return_to)}
+       |> push_navigate(to: socket.assigns.navigate)}
     else
       {:error, changeset} -> {:noreply, assign(socket, :changeset, changeset)}
     end

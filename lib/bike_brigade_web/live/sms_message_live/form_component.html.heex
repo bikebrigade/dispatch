@@ -1,8 +1,7 @@
-<div
-  class="flex-grow-0 px-6 py-5 bg-white border-t border-gray-200 sm:rounded-b-lg"
-  phx-drop-target={@uploads.media.ref}
->
-  <div class="w-full">
+<div phx-drop-target={@uploads.media.ref}>
+  <.header><%= @title %></.header>
+
+  <div class="mt-2">
     <.form
       :let={f}
       for={@changeset}
@@ -18,7 +17,7 @@
         <% end %>
         <div class="mt-1 rounded-md shadow-sm">
           <.live_component
-            module={C.RiderSelectionComponent}
+            module={RiderSelectionComponent}
             id={:select_rider}
             input_name="rider_ids[]"
             multi={true}

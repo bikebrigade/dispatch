@@ -1,6 +1,7 @@
 <div>
   <.flash kind={:info} title="Success!" flash={@flash} />
   <.flash kind={:error} title="Error!" flash={@flash} />
+  <.header><%= @title %></.header>
   <.form
     :let={c}
     for={@changeset}
@@ -216,7 +217,7 @@
         <% end %>
         <div class="mt-1 rounded-md shadow-sm">
           <.live_component
-            module={C.UserSelectionComponent}
+            module={UserSelectionComponent}
             id={:select_user}
             selected_user_id={@program.lead_id}
             input_name={input_name(f, :lead_id)}

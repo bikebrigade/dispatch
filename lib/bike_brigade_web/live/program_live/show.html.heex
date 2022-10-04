@@ -1,29 +1,3 @@
-<%= if @live_action in [:edit] do %>
-  <UI.modal show id={:edit} return_to={~p"/programs/#{@program}"}>
-    <:title>Edit Program</:title>
-    <.live_component
-      module={BikeBrigadeWeb.ProgramLive.FormComponent}
-      id={@program.id}
-      action={@live_action}
-      program={@program}
-      return_to={~p"/programs/#{@program}"}
-    />
-  </UI.modal>
-<% end %>
-
-<%= if @live_action in [:new_campaign] do %>
-  <UI.modal show id={:new_campaign} return_to={~p"/programs/#{@program}"}>
-    <:title>New Campaign</:title>
-    <.live_component
-      module={BikeBrigadeWeb.CampaignLive.FormComponent}
-      id={"campaign-#{@campaign.id || :new}"}
-      action={@live_action}
-      campaign={@campaign}
-      return_to={~p"/programs/#{@program}"}
-    />
-  </UI.modal>
-<% end %>
-
 <div class="flex items-center justify-between mb-4">
   <h1 class="text-lg font-medium leading-6 text-gray-900">
     <%= @program.name %>
@@ -42,10 +16,7 @@
   </:th>
   <:td :let={campaign}>
     <div class="flex items-center space-x-1">
-      <.date
-        date={campaign_date(campaign)}
-        navigate={~p"/campaigns/#{campaign}"}
-      />
+      <.date date={campaign_date(campaign)} navigate={~p"/campaigns/#{campaign}"} />
     </div>
   </:td>
   <:td :let={campaign}>
@@ -70,3 +41,36 @@
     </.link>
   </:td>
 </UI.table>
+
+<.modal
+  :if={@live_action == :edit}
+  id="program-modal"
+  show
+  on_cancel={JS.navigate(~p"/programs/#{@program}")}
+>
+  <.live_component
+    module={BikeBrigadeWeb.ProgramLive.FormComponent}
+    id={@program.id}
+    title={@page_title}
+    action={@live_action}
+    program={@program}
+    navigate={~p"/programs/#{@program}"}
+  />
+</.modal>
+
+<.modal
+  :if={@live_action == :new_campaign}
+  id="program-modal"
+  show
+  on_cancel={JS.navigate(~p"/programs/#{@program}")}
+>
+  <:title>New Campaign</:title>
+  <.live_component
+    module={BikeBrigadeWeb.CampaignLive.FormComponent}
+    id={:new}
+    action={@live_action}
+    title={@page_title}
+    campaign={@campaign}
+    navigate={~p"/programs/#{@program}"}
+  />
+</.modal>

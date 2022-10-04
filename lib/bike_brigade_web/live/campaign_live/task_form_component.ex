@@ -87,7 +87,7 @@ defmodule BikeBrigadeWeb.CampaignLive.TaskFormComponent do
       {:ok, _task} ->
         {:noreply,
          socket
-         |> push_redirect(to: socket.assigns.return_to)}
+         |> push_navigate(to: socket.assigns.navigate)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, :changeset, changeset)}
@@ -101,7 +101,7 @@ defmodule BikeBrigadeWeb.CampaignLive.TaskFormComponent do
       {:ok, _task} ->
         {:noreply,
          socket
-         |> push_redirect(to: socket.assigns.return_to)}
+         |> push_navigate(to: socket.assigns.navigate)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, :changeset, changeset)}

@@ -1,15 +1,3 @@
-<%= if @live_action in [:new, :edit] do %>
-  <UI.modal show id={:edit} return_to={~p"/users"}>
-    <:title><%= Atom.to_string(@live_action) |> String.capitalize() %> Dispatcher</:title>
-    <.live_component
-      module={BikeBrigadeWeb.UserLive.FormComponent}
-      id={@user.id || :new}
-      action={@live_action}
-      user={@user}
-      return_to={~p"/users"}
-    />
-  </UI.modal>
-<% end %>
 <UI.table rows={@users}>
   <:th>
     Name
@@ -66,3 +54,19 @@
     </.link>
   </:td>
 </UI.table>
+
+<.modal
+  :if={@live_action in [:new, :edit]}
+  id="user-modal"
+  show
+  on_cancel={JS.navigate(~p"/users")}
+>
+  <.live_component
+    module={BikeBrigadeWeb.UserLive.FormComponent}
+    id={@user.id || :new}
+    action={@live_action}
+    title={@page_title}
+    user={@user}
+    navigate={~p"/users"}
+  />
+</.modal>

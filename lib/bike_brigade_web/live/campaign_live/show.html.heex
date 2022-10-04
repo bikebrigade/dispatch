@@ -1,77 +1,3 @@
-<%= case @live_action do %>
-  <% :edit -> %>
-    <UI.modal show id={:edit} return_to={~p"/campaigns/#{@campaign}"}>
-      <:title><%= @page_title %></:title>
-      <.live_component
-        module={BikeBrigadeWeb.CampaignLive.FormComponent}
-        id={@campaign.id}
-        title={@page_title}
-        action={@live_action}
-        campaign={@campaign}
-        return_to={~p"/campaigns/#{@campaign}"}
-      />
-    </UI.modal>
-  <% :add_rider -> %>
-    <UI.modal show id={:add_rider} return_to={~p"/campaigns/#{@campaign}"}>
-      <:title>Add Rider</:title>
-      <.live_component
-        module={BikeBrigadeWeb.CampaignLive.AddRiderFormComponent}
-        id={@campaign.id}
-        title={@page_title}
-        action={@live_action}
-        campaign={@campaign}
-        return_to={~p"/campaigns/#{@campaign}"}
-      />
-    </UI.modal>
-  <% :new_task -> %>
-    <UI.modal show id={:new_task} return_to={~p"/campaigns/#{@campaign}"}>
-      <:title>Add Task</:title>
-      <.live_component
-        module={BikeBrigadeWeb.CampaignLive.TaskFormComponent}
-        id={@campaign.id}
-        campaign={@campaign}
-        task={@form_task}
-        action={:new}
-        return_to={~p"/campaigns/#{@campaign}"}
-      />
-    </UI.modal>
-  <% :edit_task -> %>
-    <UI.modal show id={:new_task} return_to={~p"/campaigns/#{@campaign}"}>
-      <:title>Edit Task</:title>
-      <.live_component
-        module={BikeBrigadeWeb.CampaignLive.TaskFormComponent}
-        id={@campaign.id}
-        campaign={@campaign}
-        task={@form_task}
-        action={:edit}
-        return_to={~p"/campaigns/#{@campaign}"}
-      />
-    </UI.modal>
-  <% :messaging -> %>
-    <UI.slideover id="messaging" return_to={~p"/campaigns/#{@campaign}"} wide>
-      <:title>
-        Campaign Messaging
-      </:title>
-      <.live_component
-        module={BikeBrigadeWeb.CampaignLive.MessagingFormComponent}
-        id={@campaign.id}
-        campaign={@campaign}
-        riders={@riders}
-        return_to={~p"/campaigns/#{@campaign}"}
-      />
-    </UI.slideover>
-  <% :bulk_message -> %>
-    <UI.modal id={:bulk_message} show return_to={~p"/campaigns/#{@campaign}"}>
-      <:title>Bulk Message</:title>
-      <.live_component
-        module={BikeBrigadeWeb.SmsMessageLive.FormComponent}
-        id={:bulk_message}
-        initial_riders={Map.values(@riders)}
-        current_user={@current_user}
-      />
-    </UI.modal>
-  <% _ -> %>
-<% end %>
 <div class="flex flex-col h-full">
   <div class="flex flex-row flex-wrap items-center md:flex-nowrap">
     <.button patch={~p"/campaigns/#{@campaign}/messaging"} class="mr-3">
@@ -190,3 +116,103 @@
     </div>
   </div>
 </div>
+
+<.modal
+  :if={@live_action == :edit}
+  id="campaign-modal"
+  show
+  on_cancel={JS.navigate(~p"/campaigns/#{@campaign}")}
+>
+  <.live_component
+    module={BikeBrigadeWeb.CampaignLive.FormComponent}
+    id={@campaign.id}
+    title={@page_title}
+    action={@live_action}
+    campaign={@campaign}
+    navigate={~p"/campaigns/#{@campaign}"}
+  />
+</.modal>
+
+<.modal
+  :if={@live_action == :add_rider}
+  id="campaign-modal"
+  show
+  on_cancel={JS.navigate(~p"/campaigns/#{@campaign}")}
+>
+  <.live_component
+    module={BikeBrigadeWeb.CampaignLive.AddRiderFormComponent}
+    id={@campaign.id}
+    title={@page_title}
+    action={@live_action}
+    campaign={@campaign}
+    navigate={~p"/campaigns/#{@campaign}"}
+  />
+</.modal>
+
+<.modal
+  :if={@live_action == :new_task}
+  id="campaign-modal"
+  show
+  on_cancel={JS.navigate(~p"/campaigns/#{@campaign}")}
+>
+  <.live_component
+    module={BikeBrigadeWeb.CampaignLive.TaskFormComponent}
+    id={@campaign.id}
+    title={@page_title}
+    action={:new}
+    campaign={@campaign}
+    task={@form_task}
+    navigate={~p"/campaigns/#{@campaign}"}
+  />
+</.modal>
+
+<.modal
+  :if={@live_action == :edit_task}
+  id="campaign-modal"
+  show
+  on_cancel={JS.navigate(~p"/campaigns/#{@campaign}")}
+>
+  <.live_component
+    module={BikeBrigadeWeb.CampaignLive.TaskFormComponent}
+    id={@campaign.id}
+    title={@page_title}
+    action={:edit}
+    campaign={@campaign}
+    task={@form_task}
+    navigate={~p"/campaigns/#{@campaign}"}
+  />
+</.modal>
+
+<.modal
+  :if={@live_action == :bulk_message}
+  id="campaign-modal"
+  show
+  on_cancel={JS.navigate(~p"/campaigns/#{@campaign}")}
+>
+  <.live_component
+    module={BikeBrigadeWeb.SmsMessageLive.FormComponent}
+    id={:bulk_message}
+    title={@page_title}
+    initial_riders={Map.values(@riders)}
+    current_user={@current_user}
+    navigate={~p"/campaigns/#{@campaign}"}
+  />
+</.modal>
+
+<UI.slideover
+  :if={@live_action == :messaging}
+  id="messaging"
+  return_to={~p"/campaigns/#{@campaign}"}
+  wide
+>
+  <:title>
+    Campaign Messaging
+  </:title>
+  <.live_component
+    module={BikeBrigadeWeb.CampaignLive.MessagingFormComponent}
+    id={@campaign.id}
+    campaign={@campaign}
+    riders={@riders}
+    return_to={~p"/campaigns/#{@campaign}"}
+  />
+</UI.slideover>

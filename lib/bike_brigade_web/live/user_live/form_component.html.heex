@@ -1,6 +1,7 @@
 <div>
+  <.header><%= @title %></.header>
   <.form
-    let={f}
+    :let={f}
     for={@changeset}
     id="user-form"
     phx-target={@myself}
@@ -57,7 +58,7 @@
       <% end %>
       <div class="mt-1 rounded-md shadow-sm">
         <.live_component
-          module={C.RiderSelectionComponent}
+          module={RiderSelectionComponent}
           id={:select_rider}
           input_name={input_name(f, :rider_id)}
           selected_rider={@user.rider}

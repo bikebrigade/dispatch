@@ -1,30 +1,3 @@
-<%= if @live_action in [:new, :edit] do %>
-  <UI.modal show id={:edit} return_to={~p"/programs"}>
-    <:title><%= Atom.to_string(@live_action) |> String.capitalize() %> Program</:title>
-    <.live_component
-      module={BikeBrigadeWeb.ProgramLive.FormComponent}
-      id={@program.id || :new}
-      action={@live_action}
-      program={@program}
-      return_to={~p"/programs"}
-    />
-  </UI.modal>
-<% end %>
-
-<%= if @live_action in [:new_item, :edit_item] do %>
-  <UI.modal show id={:edit_item} return_to={~p"/programs/#{@program}/edit"}>
-    <:title>Edit Item</:title>
-    <.live_component
-      module={BikeBrigadeWeb.ProgramLive.ItemFormComponent}
-      id={@item.id || :new}
-      action={@live_action}
-      program={@program}
-      item={@item}
-      return_to={~p"/programs"}
-    />
-  </UI.modal>
-<% end %>
-
 <UI.table rows={@programs}>
   <:th>
     Name
@@ -84,3 +57,36 @@
     </.link>
   </:td>
 </UI.table>
+
+<.modal
+  :if={@live_action in [:new, :edit]}
+  id="program-modal"
+  show
+  on_cancel={JS.navigate(~p"/programs")}
+>
+  <.live_component
+    module={BikeBrigadeWeb.ProgramLive.FormComponent}
+    id={@program.id || :new}
+    title={@page_title}
+    action={@live_action}
+    program={@program}
+    navigate={~p"/programs"}
+  />
+</.modal>
+
+<.modal
+  :if={@live_action in [:new_item, :edit_item]}
+  id="program-modal"
+  show
+  on_cancel={JS.navigate(~p"/programs/#{@program}/edit")}
+>
+  <.live_component
+    module={BikeBrigadeWeb.ProgramLive.ItemFormComponent}
+    id={@item.id || :new}
+    action={@live_action}
+    title={@page_title}
+    program={@program}
+    item={@item}
+    navigate={~p"/programs/#{@program}/edit"}
+  />
+</.modal>

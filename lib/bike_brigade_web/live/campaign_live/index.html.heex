@@ -1,35 +1,35 @@
-<%= if @live_action in [:new, :edit] do %>
-  <UI.modal
-    show
-    id={:edit}
-    return_to={~p"/campaigns?current_week=#{@current_week}"}
-  >
-    <:title><%= Atom.to_string(@live_action) |> String.capitalize() %> Campaign</:title>
-    <.live_component
-      module={BikeBrigadeWeb.CampaignLive.FormComponent}
-      id={"campaign-#{@campaign.id || :new}"}
-      action={@live_action}
-      campaign={@campaign}
-      return_to={~p"/campaigns?current_week=#{@current_week}"}
-    />
-  </UI.modal>
-<% end %>
-<%= if @live_action == :duplicate do %>
-  <UI.modal
-    show
+<.modal
+  :if={@live_action in [:new, :edit]}
+  id="campaign-modal"
+  show
+  on_cancel={JS.navigate(~p"/campaigns?current_week=#{@current_week}")}
+>
+  <.live_component
+    module={BikeBrigadeWeb.CampaignLive.FormComponent}
+    id={@campaign.id || :new}
+    title={@page_title}
+    action={@live_action}
+    campaign={@campaign}
+    navigate={~p"/campaigns?current_week=#{@current_week}"}
+  />
+</.modal>
+
+<.modal
+  :if={@live_action == :duplicate}
+  id="campaign-modal"
+  show
+  on_cancel={JS.navigate(~p"/campaigns?current_week=#{@current_week}")}
+>
+  <.live_component
+    module={BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent}
     id={:duplicate}
-    return_to={~p"/campaigns?current_week=#{@current_week}"}
-  >
-    <:title>Duplicate campaign</:title>
-    <.live_component
-      module={BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent}
-      id={:duplicate}
-      action={@live_action}
-      campaign={@campaign}
-      return_to={~p"/campaigns?current_week=#{@current_week}"}
-    />
-  </UI.modal>
-<% end %>
+      title={@page_title}
+    action={@live_action}
+    campaign={@campaign}
+    navigate={~p"/campaigns?current_week=#{@current_week}"}
+  />
+</.modal>
+
 <nav
   class="flex items-center justify-between px-4 py-3 mb-1 border-b-2 border-gray-200"
   aria-label="Pagination"
@@ -45,9 +45,7 @@
   <div class="flex justify-between flex-1 sm:justify-end">
     <span class="relative z-0 inline-flex rounded-md shadow-sm">
       <.link
-        patch={
-          ~p"/campaigns?current_week=#{Date.add(@current_week, -7)}"
-        }
+        patch={~p"/campaigns?current_week=#{Date.add(@current_week, -7)}"}
         class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
       >
         <Heroicons.chevron_left solid class="w-5 h-5" />
@@ -60,9 +58,7 @@
       </.link>
 
       <.link
-        patch={
-          ~p"/campaigns?current_week=#{Date.add(@current_week, 7)}"
-        }
+        patch={~p"/campaigns?current_week=#{Date.add(@current_week, 7)}"}
         class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
       >
         <Heroicons.chevron_right solid class="w-5 h-5" />
@@ -85,26 +81,15 @@
             <div class="px-4 py-4">
               <div class="items-center justify-between md:flex">
                 <div class="flex items-center mb-2 space-x-1">
-                  <.link
-                    navigate={~p"/campaigns/#{c}"}
-                    class="text-sm font-medium link"
-                  >
+                  <.link navigate={~p"/campaigns/#{c}"} class="text-sm font-medium link">
                     <%= name(c) %>
                   </.link>
                 </div>
                 <div class="flex-shrink-0 space-y-1 md:space-y-0 md:space-x-2 md:flex">
-                  <.button
-                    size={:xsmall}
-                    color={:white}
-                    patch={~p"/campaigns/#{c}/edit"}
-                  >
+                  <.button size={:xsmall} color={:white} patch={~p"/campaigns/#{c}/edit"}>
                     Edit
                   </.button>
-                  <.button
-                    patch={~p"/campaigns/#{c}/duplicate"}
-                    size={:xsmall}
-                    color={:white}
-                  >
+                  <.button patch={~p"/campaigns/#{c}/duplicate"} size={:xsmall} color={:white}>
                     Duplicate
                   </.button>
                   <.button

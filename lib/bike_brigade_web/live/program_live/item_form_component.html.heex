@@ -1,6 +1,7 @@
 <div>
+  <.header><%= @title %></.header>
   <.form
-    let={f}
+    :let={f}
     for={@changeset}
     id="item-form"
     phx-target={@myself}

@@ -70,7 +70,7 @@ defmodule BikeBrigadeWeb.ProgramLive.FormComponent do
       {:noreply,
        socket
        |> put_flash(:info, "Program updated successfully")
-       |> push_redirect(to: socket.assigns.return_to)}
+       |> push_navigate(to: socket.assigns.navigate)}
     else
       {:error, %Ecto.Changeset{} = changeset} ->
         # TODO this trick is worthy of a blogpost
@@ -89,7 +89,7 @@ defmodule BikeBrigadeWeb.ProgramLive.FormComponent do
       {:noreply,
        socket
        |> put_flash(:info, "Program created successfully")
-       |> push_redirect(to: socket.assigns.return_to)}
+       |> push_navigate(to: socket.assigns.navigate)}
     else
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, changeset: changeset |> Map.put(:action, :insert))}

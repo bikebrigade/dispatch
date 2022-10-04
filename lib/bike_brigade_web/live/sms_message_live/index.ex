@@ -154,6 +154,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
 
   defp apply_action(socket, :new, _params) do
     socket
+    |> assign(:page_title, "Message Riders")
   end
 
   defp apply_action(socket, :show, %{"id" => id}) do

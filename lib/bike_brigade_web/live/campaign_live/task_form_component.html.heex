@@ -1,6 +1,7 @@
 <div>
   <.flash kind={:info} title="Success!" flash={@flash} />
   <.flash kind={:error} title="Error!" flash={@flash} />
+  <.header><%= @title %></.header>
   <.form
     :let={f}
     for={@changeset}

@@ -11,6 +11,7 @@ defmodule BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent do
     <div>
       <.flash kind={:info} title="Success!" flash={@flash} />
       <.flash kind={:error} title="Error!" flash={@flash} />
+      <.header><%= @title %></.header>
       <.form
         :let={f}
         for={:duplicate_form}
@@ -130,7 +131,7 @@ defmodule BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent do
     {:noreply,
      socket
      |> put_flash(:info, "Campaign duplicated successfully")
-     |> push_redirect(to: socket.assigns.return_to)}
+     |> push_navigate(to: socket.assigns.navigate)}
   end
 
   defp create_new_campaign(old_campaign, date_time_form_params) do

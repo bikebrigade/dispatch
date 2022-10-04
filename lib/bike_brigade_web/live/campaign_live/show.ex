@@ -85,6 +85,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
 
   defp apply_action(socket, :new_task, _) do
     socket
+    |> assign(:page_title, "New Task")
     |> assign(:form_task, %Task{})
   end
 
@@ -92,7 +93,18 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
     task = Delivery.get_task(task_id)
 
     socket
+    |> assign(:page_title, "Edit Task")
     |> assign(:form_task, task)
+  end
+
+  defp apply_action(socket, :add_rider, _) do
+    socket
+    |> assign(:page_title, "Add Rider")
+  end
+
+  defp apply_action(socket, :bulk_message, _) do
+    socket
+    |> assign(:page_title, "Message Riders for Campaign")
   end
 
   defp apply_action(socket, _, _), do: socket
