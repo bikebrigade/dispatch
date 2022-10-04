@@ -14,24 +14,24 @@
   </div>
   <div class="p-2 border-b">
     <div class="flex flex-row flex-wrap gap-1">
-      <filter_button
+      <.filter_button
         phx-click={JS.push("filter_tasks", value: %{assignment: "all"})}
         selected={@tasks_query[:assignment] == "all"}
       >
         All
-      </filter_button>
-      <filter_button
+      </.filter_button>
+      <.filter_button
         phx-click={JS.push("filter_tasks", value: %{assignment: "unassigned"})}
         selected={@tasks_query[:assignment] == "unassigned"}
       >
         Unassigned
-      </filter_button>
-      <filter_button
+      </.filter_button>
+      <.filter_button
         phx-click={JS.push("filter_tasks", value: %{assignment: "assigned"})}
         selected={@tasks_query[:assignment] == "assigned"}
       >
         Assigned
-      </filter_button>
+      </.filter_button>
     </div>
     <input
       type="text"

@@ -60,11 +60,11 @@
     <%= program.campaign_count %>
   </:td>
   <:td :let={program}>
-    <%= if latest_campaign = program.latest_campaign do %>
-      <.link navigate={~p"/campaigns/#{latest_campaign}"} class="inline-flex hover:bg-indigo-100">
-        <.date date={campaign_date(latest_campaign)} />
-      </.link>
-    <% end %>
+    <.date
+      :if={program.latest_campaign}
+      navigate={~p"/campaigns/#{program.latest_campaign}"}
+      date={campaign_date(program.latest_campaign)}
+    />
   </:td>
   <:td :let={program}>
     <%= if program.schedules != [] do %>

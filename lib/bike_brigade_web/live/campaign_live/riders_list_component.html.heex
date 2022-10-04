@@ -23,18 +23,18 @@
   </div>
   <div class="p-2 border-b">
     <div class="flex flex-row flex-wrap gap-1">
-      <filter_button
+      <.filter_button
         phx-click={JS.push("filter_riders", value: %{capacity: :all})}
         selected={@riders_query[:capacity] == "all"}
       >
         All
-      </filter_button>
-      <filter_button
+      </.filter_button>
+      <.filter_button
         phx-click={JS.push("filter_riders", value: %{capacity: :available})}
         selected={@riders_query[:capacity] == "available"}
       >
         Available
-      </filter_button>
+      </.filter_button>
     </div>
     <input
       type="text"

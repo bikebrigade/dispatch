@@ -15,50 +15,13 @@ defmodule BikeBrigadeWeb.Components do
                    is_map_key(rest, :navigate) or is_map_key(rest, :"phx-click")
 
   @doc """
-  Renders flash notices.
+  Renders button
 
   ## Examples
 
-      <.flash kind={:info} flash={@flash} />
-      <.flash kind={:info} phx-mounted={show("#flash")}>Welcome Back!</.flash>
+      <.button patch={~p"/campaigns/new"} class="ml-2">
+      <.button type="submit" phx-click={hide_scheduling()} color={:secondary} class="ml-3">
   """
-  attr :id, :string, default: "flash", doc: "the optional id of flash container"
-  attr :flash, :map, default: %{}, doc: "the map of flash messages to display"
-  attr :title, :string, default: nil
-  attr :rest, :global
-  attr :kind, :atom, doc: "one of :info, :error used for styling and flash lookup"
-  attr :autoshow, :boolean, default: true, doc: "wether to auto show the flash on mount"
-  attr :close, :boolean, default: true, doc: "whether the flash can be closed"
-
-  slot :inner_block, doc: "the optional inner block that renders the flash message"
-
-  def flash(assigns) do
-    ~H"""
-    <div
-      :if={msg = render_slot(@inner_block) || Phoenix.Flash.get(@flash, @kind)}
-      id={@id}
-      phx-mounted={@autoshow && show("##{@id}")}
-      phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide("#flash")}
-      class={[
-        "fixed hidden top-2 right-2 w-96 z-50 rounded-lg p-3 shadow-md shadow-zinc-900/5 ring-1",
-        @kind == :info && "bg-emerald-50 text-emerald-800 ring-emerald-500 fill-cyan-900",
-        @kind == :error && "bg-rose-50 p-3 text-rose-900 shadow-md ring-rose-500 fill-rose-900"
-      ]}
-      {@rest}
-    >
-      <button :if={@close} type="button" class="absolute p-2 group top-2 right-1" aria-label="Close">
-        <Heroicons.x_mark solid class="w-5 h-5 stroke-current opacity-40 group-hover:opacity-70" />
-      </button>
-      <p :if={@title} class="flex items-center gap-1.5 text-[0.8125rem] font-semibold leading-6">
-        <Heroicons.information_circle :if={@kind == :info} mini class="w-4 h-4" />
-        <Heroicons.exclamation_circle :if={@kind == :error} mini class="w-4 h-4" />
-        <%= @title %>
-      </p>
-      <p class="mt-2 text-[0.8125rem] leading-5"><%= msg %></p>
-    </div>
-    """
-  end
-
   attr :type, :string
 
   attr :size, :atom,
@@ -146,26 +109,39 @@ defmodule BikeBrigadeWeb.Components do
     end
   end
 
+  @doc ~S"""
+  Renders date.
+
+  ## Examples
+
+      <.date date={@date} />
+      <.date date={@date} navigate={~p"/campaigns/#{@campaign}"}/>
+
+  """
   attr :date, Date, required: true
   attr :rest, :global, include: ~w(href patch navigate)
 
   def date(%{rest: rest} = assigns) when is_clickable(rest) do
     ~H"""
-    <.link class="hover:bg-gray-50" {@rest}>
-      <.date date={@date} />
+    <.link class="inline-flex border border-gray-400 rounded hover:bg-indigo-50" {@rest}>
+      <.date_inner date={@date} />
     </.link>
     """
   end
 
   def date(assigns) do
+    ~H"""
+    <div class="inline-flex border border-gray-400 rounded" {@rest}>
+      <.date_inner date={@date} />
+    </div>
+    """
+  end
+
+  defp date_inner(assigns) do
     assigns = assign(assigns, :today, LocalizedDateTime.today())
 
     ~H"""
-    <time
-      datetime={@date}
-      class="inline-flex items-center p-1 text-center border border-gray-400 rounded"
-      {@rest}
-    >
+    <time datetime={@date} class="inline-flex items-center p-1 text-center">
       <span class="mr-1 text-sm font-semibold text-gray-500">
         <%= Calendar.strftime(@date, "%a") %>
       </span>
@@ -187,65 +163,60 @@ defmodule BikeBrigadeWeb.Components do
     """
   end
 
-  attr :location, Location
+  @doc """
+  Renders flash notices.
 
-  def location(assigns) do
+  ## Examples
+
+      <.flash kind={:info} flash={@flash} />
+      <.flash kind={:info} phx-mounted={show("#flash")}>Welcome Back!</.flash>
+  """
+  attr :id, :string, default: "flash", doc: "the optional id of flash container"
+  attr :flash, :map, default: %{}, doc: "the map of flash messages to display"
+  attr :title, :string, default: nil
+  attr :rest, :global
+  attr :kind, :atom, doc: "one of :info, :error used for styling and flash lookup"
+  attr :autoshow, :boolean, default: true, doc: "wether to auto show the flash on mount"
+  attr :close, :boolean, default: true, doc: "whether the flash can be closed"
+
+  slot :inner_block, doc: "the optional inner block that renders the flash message"
+
+  def flash(assigns) do
     ~H"""
-    <div class="inline-flex flex-shrink-0 leading-normal">
-      <Heroicons.map_pin mini aria-label="Location" class="w-4 h-4 mt-1 mr-1 text-gray-500" />
-      <div class="grid grid-cols-2 gap-y-0 gap-x-1">
-        <div class="col-span-2"><%= @location.address %></div>
-        <%= if @location.unit do %>
-          <div class="text-sm"><span class="font-bold">Unit:</span> <%= @location.unit %></div>
-        <% end %>
-        <%= if @location.buzzer do %>
-          <div class="text-sm"><span class="font-bold">Buzz:</span> <%= @location.buzzer %></div>
-        <% end %>
-      </div>
+    <div
+      :if={msg = render_slot(@inner_block) || Phoenix.Flash.get(@flash, @kind)}
+      id={@id}
+      phx-mounted={@autoshow && show("##{@id}")}
+      phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide("#flash")}
+      class={[
+        "fixed hidden top-2 right-2 w-96 z-50 rounded-lg p-3 shadow-md shadow-zinc-900/5 ring-1",
+        @kind == :info && "bg-emerald-50 text-emerald-800 ring-emerald-500 fill-cyan-900",
+        @kind == :error && "bg-rose-50 p-3 text-rose-900 shadow-md ring-rose-500 fill-rose-900"
+      ]}
+      {@rest}
+    >
+      <button :if={@close} type="button" class="absolute p-2 group top-2 right-1" aria-label="Close">
+        <Heroicons.x_mark solid class="w-5 h-5 stroke-current opacity-40 group-hover:opacity-70" />
+      </button>
+      <p :if={@title} class="flex items-center gap-1.5 text-[0.8125rem] font-semibold leading-6">
+        <Heroicons.information_circle :if={@kind == :info} mini class="w-4 h-4" />
+        <Heroicons.exclamation_circle :if={@kind == :error} mini class="w-4 h-4" />
+        <%= @title %>
+      </p>
+      <p class="mt-2 text-[0.8125rem] leading-5"><%= msg %></p>
     </div>
     """
   end
 
-  @doc "Map component using the refactored javascript hook"
-  attr :id, :string, required: true
-  attr :class, :string, default: "h-full"
-  attr :initial_markers, :list, default: []
-  attr :coords, Geo.Point, required: true
-  attr :lat, :float
-  attr :lng, :float
+  @doc """
+  Renders a button for filtering
 
-  def map_next(assigns) do
-    ~H"""
-    <div :if={@coords != %Geo.Point{}} class={@class}>
-      <leaflet-map
-        phx-hook="LeafletMapNext"
-        id={@id}
-        data-lat={lat(@coords)}
-        data-lng={lng(@coords)}
-        data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
-        data-initial_markers={Jason.encode!(@initial_markers)}
-        class="h-full"
+  ## Examples
+      <.filter_button
+        phx-click={JS.push("filter_riders", value: %{capacity: :all})}
+        selected={@riders_query[:capacity] == "all"}
       >
-      </leaflet-map>
-    </div>
-    """
-  end
-
-  slot :tooltip, required: true
-
-  def with_tooltip(assigns) do
-    ~H"""
-    <div class="relative flex flex-col items-center has-tooltip">
-      <%= render_slot(@inner_block) %>
-      <div class="absolute bottom-0 flex-col items-center mb-6 tooltip">
-        <span class="relative z-10 p-2 text-xs leading-none text-white whitespace-no-wrap bg-black rounded-sm shadow-lg">
-          <%= render_slot(@tooltip) %>
-        </span>
-        <div class="w-3 h-3 -mt-2 transform rotate-45 bg-black"></div>
-      </div>
-    </div>
-    """
-  end
+  """
 
   attr :selected, :boolean, default: false
   attr :class, :string, default: nil
@@ -270,13 +241,87 @@ defmodule BikeBrigadeWeb.Components do
     """
   end
 
+  @doc """
+  Renders a location
+
+  ## Examples
+
+      <.location location={@location} />
+  """
+
+  attr :location, Location
+
+  def location(assigns) do
+    ~H"""
+    <div class="inline-flex flex-shrink-0 leading-normal">
+      <Heroicons.map_pin mini aria-label="Location" class="w-4 h-4 mt-1 mr-1 text-gray-500" />
+      <div class="grid grid-cols-2 gap-y-0 gap-x-1">
+        <div class="col-span-2"><%= @location.address %></div>
+        <%= if @location.unit do %>
+          <div class="text-sm"><span class="font-bold">Unit:</span> <%= @location.unit %></div>
+        <% end %>
+        <%= if @location.buzzer do %>
+          <div class="text-sm"><span class="font-bold">Buzz:</span> <%= @location.buzzer %></div>
+        <% end %>
+      </div>
+    </div>
+    """
+  end
+
+  @doc """
+
+  Renders a map.
+
+  ## Examples
+
+      <.map_next
+        id="rider-map"
+        coords={coords(@rider.location)}
+        initial_markers={[rider_marker(@rider)]}
+        class="w-full h-32 sm:h-40"
+      />
+  """
+  attr :id, :string, required: true
+  attr :class, :string, default: "h-full"
+  attr :initial_markers, :list, default: []
+  attr :coords, Geo.Point, required: true
+  attr :lat, :float
+  attr :lng, :float
+
+  def map_next(assigns) do
+    ~H"""
+    <div :if={@coords != %Geo.Point{}} class={@class}>
+      <leaflet-map
+        phx-hook="LeafletMapNext"
+        id={@id}
+        data-lat={lat(@coords)}
+        data-lng={lng(@coords)}
+        data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
+        data-initial_markers={Jason.encode!(@initial_markers)}
+        class="h-full"
+      >
+      </leaflet-map>
+    </div>
+    """
+  end
+
+  @doc """
+  Renders a link used for sorting (with the correct icon)
+
+  ## Examples
+      <.sort_link
+        phx-click="sort"
+        current_field={:program_lead}
+        default_order={:asc}
+        sort_field={@sort_field}
+        sort_order={@sort_order}
+        class="pl-2"
+      />
+  """
   attr :current_field, :atom, required: true
-
   attr :default_order, :atom, values: [:asc, :desc], default: :asc
-
   attr :sort_field, :atom, required: true
   attr :sort_order, :atom, values: [:asc, :desc], required: true
-
   attr :rest, :global
 
   def sort_link(assigns) do
@@ -306,6 +351,35 @@ defmodule BikeBrigadeWeb.Components do
 
   defp next_sort_order(:asc), do: :desc
   defp next_sort_order(:desc), do: :asc
+
+  @doc """
+  Wraps the content with a hoverable tooltip.
+
+  ## Examples
+      <.with_tooltip>
+        <Heroicons.question_mark_circle solid class="w-4 h-4 ml-0.5 " />
+        <:tooltip>
+          <div class="w-40">
+            Messages over 1600 characters in length tend to get broken up into multiple texts.
+          </div>
+        </:tooltip>
+      </.with_tooltip>
+  """
+  slot :tooltip, required: true
+
+  def with_tooltip(assigns) do
+    ~H"""
+    <div class="relative flex flex-col items-center has-tooltip">
+      <%= render_slot(@inner_block) %>
+      <div class="absolute bottom-0 flex-col items-center mb-6 tooltip">
+        <span class="relative z-10 p-2 text-xs leading-none text-white whitespace-no-wrap bg-black rounded-sm shadow-lg">
+          <%= render_slot(@tooltip) %>
+        </span>
+        <div class="w-3 h-3 -mt-2 transform rotate-45 bg-black"></div>
+      </div>
+    </div>
+    """
+  end
 
   # --- OLD ---
 
