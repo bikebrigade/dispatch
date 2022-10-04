@@ -235,7 +235,7 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
             id={"#{@id}-map"}
             coords={@location.coords}
             class="w-full h-64 mt-2"
-            initial_markers={encode_marker(@location)}
+            initial_markers={[encode_marker(@location)]}
           />
         </div>
       </div>
@@ -244,16 +244,13 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
   end
 
   defp encode_marker(location) do
-    [
-      %{
-        id: location.id,
-        lat: lat(location),
-        lng: lng(location),
-        icon: "warehouse",
-        color: "#1c64f2"
-      }
-    ]
-    |> Jason.encode!()
+    %{
+      id: location.id,
+      lat: lat(location),
+      lng: lng(location),
+      icon: "warehouse",
+      color: "#1c64f2"
+    }
   end
 
   defp location_input_value(location) do
