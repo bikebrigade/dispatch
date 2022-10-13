@@ -151,14 +151,10 @@ defmodule BikeBrigadeWeb.Components do
       <span class="text-sm font-semibold">
         <%= Calendar.strftime(@date, "%b") %>
       </span>
-      <%= if @date == @today do %>
-        <Icons.circle class="w-2 h-2 ml-1 text-indigo-400" />
-      <% end %>
-      <%= if @date.year != @today.year do %>
-        <span class="ml-1 text-sm font-semibold">
-          <%= Calendar.strftime(@date, "%y") %>
-        </span>
-      <% end %>
+      <Icons.circle :if={@date == @today} class="w-2 h-2 ml-1 text-indigo-400" />
+      <span :if={@date.year != @today.year} class="ml-1 text-sm font-semibold">
+        <%= Calendar.strftime(@date, "%y") %>
+      </span>
     </time>
     """
   end
@@ -281,12 +277,12 @@ defmodule BikeBrigadeWeb.Components do
       <Heroicons.map_pin mini aria-label="Location" class="w-4 h-4 mt-1 mr-1 text-gray-500" />
       <div class="grid grid-cols-2 gap-y-0 gap-x-1">
         <div class="col-span-2"><%= @location.address %></div>
-        <%= if @location.unit do %>
-          <div class="text-sm"><span class="font-bold">Unit:</span> <%= @location.unit %></div>
-        <% end %>
-        <%= if @location.buzzer do %>
-          <div class="text-sm"><span class="font-bold">Buzz:</span> <%= @location.buzzer %></div>
-        <% end %>
+        <div :if={@location.unit} class="text-sm">
+          <span class="font-bold">Unit:</span> <%= @location.unit %>
+        </div>
+        <div :if={@location.buzzer} class="text-sm">
+          <span class="font-bold">Buzz:</span> <%= @location.buzzer %>
+        </div>
       </div>
     </div>
     """
@@ -563,7 +559,6 @@ defmodule BikeBrigadeWeb.Components do
   attr :rest, :global
 
   def sort_link(assigns) do
-    IO.inspect(assigns)
     selected = assigns.sort_field == assigns.current_field
 
     assigns =
@@ -628,28 +623,26 @@ defmodule BikeBrigadeWeb.Components do
 
     ~H"""
     <div class={@class}>
-      <%= if @coords != %Geo.Point{} do %>
-        <leaflet-map
-          phx-hook="LeafletMap"
-          id={"location-map-#{inspect(@coords.coordinates)}"}
+      <leaflet-map
+        :if={@coords != %Geo.Point{}}
+        phx-hook="LeafletMap"
+        id={"location-map-#{inspect(@coords.coordinates)}"}
+        data-lat={lat(@coords)}
+        data-lng={lng(@coords)}
+        data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
+        class="h-full"
+      >
+        <leaflet-marker
+          phx-hook="LeafletMarker"
+          id={"location-marker-#{inspect(@coords.coordinates)}"}
           data-lat={lat(@coords)}
           data-lng={lng(@coords)}
-          data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
-          class="h-full"
+          data-icon="warehouse"
+          data-color="#1c64f2"
         >
-          <leaflet-marker
-            phx-hook="LeafletMarker"
-            id={"location-marker-#{inspect(@coords.coordinates)}"}
-            data-lat={lat(@coords)}
-            data-lng={lng(@coords)}
-            data-icon="warehouse"
-            data-color="#1c64f2"
-          >
-          </leaflet-marker>
-        </leaflet-map>
-      <% else %>
-        <div class="p-2">Location Unknown</div>
-      <% end %>
+        </leaflet-marker>
+      </leaflet-map>
+      <div :if={@coords == %Geo.Point{}} class="p-2">Location Unknown</div>
     </div>
     """
   end
