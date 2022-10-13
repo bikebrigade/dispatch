@@ -2,8 +2,9 @@ defmodule BikeBrigadeWeb.Components do
   use Phoenix.Component
   alias Phoenix.LiveView.JS
 
+  alias BikeBrigade.Riders.Rider
   alias BikeBrigade.LocalizedDateTime
-  alias BikeBrigadeWeb.Components.Icons
+  alias BikeBrigadeWeb.Components.{Icons, RiderSelectionComponent}
 
   alias BikeBrigade.Locations.Location
 
@@ -262,6 +263,195 @@ defmodule BikeBrigadeWeb.Components do
   end
 
   @doc """
+  Renders an input with label and error messages.
+  A `%Phoenix.HTML.Form{}` and field name may be passed to the input
+  to build input names and error messages, or all the attributes and
+  errors may be passed explicitly.
+  ## Examples
+      <.input field={{f, :email}} type="email" />
+      <.input name="my-input" errors={["oh no!"]} />
+  """
+  attr :id, :any
+  attr :name, :any
+  attr :label, :string, default: nil
+  attr :help_text, :string, default: nil
+
+  attr :type, :string,
+    default: "text",
+    values: ~w(checkbox color date datetime-local email file hidden month number password
+               range radio search select tel text time url week)
+
+  attr :value, :any
+  attr :field, :any, doc: "a %Phoenix.HTML.Form{}/field name tuple, for example: {f, :email}"
+  attr :errors, :list, default: []
+  attr :rest, :global, include: ~w(autocomplete checked disabled form max maxlength min minlength
+                                   multiple pattern placeholder readonly required size step)
+  slot :inner_block
+
+  slot :option, doc: "the slot for select input options" do
+    attr :value, :any
+  end
+
+  def input(%{field: {f, field}} = assigns) do
+    assigns
+    |> assign(field: nil)
+    |> assign_new(:name, fn -> Phoenix.HTML.Form.input_name(f, field) end)
+    |> assign_new(:id, fn -> Phoenix.HTML.Form.input_id(f, field) end)
+    |> assign_new(:value, fn -> Phoenix.HTML.Form.input_value(f, field) end)
+    |> assign_new(:errors, fn -> translate_errors(f.errors || [], field) end)
+    |> input()
+  end
+
+  def input(%{type: "checkbox"} = assigns) do
+    ~H"""
+    <div phx-feedback-for={@name} class="relative flex items-start">
+      <div class="flex items-center h-5">
+        <input
+          type="checkbox"
+          id={@id || @name}
+          name={@name}
+          class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+        />
+      </div>
+      <div class="ml-3 text-sm">
+        <.label for={@id}><%= @label %></.label>
+        <p if={@help_text} id="comments-description" class="text-gray-500">
+          <%= @help_text %>
+        </p>
+      </div>
+    </div>
+    """
+  end
+
+  def input(%{type: "select"} = assigns) do
+    ~H"""
+    <div phx-feedback-for={@name}>
+      <.label for={@id}><%= @label %></.label>
+      <select
+        id={@id}
+        name={@name}
+        class="block w-full px-3 py-2 mt-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-zinc-500 focus:border-zinc-500 sm:text-sm"
+        {@rest}
+      >
+        <option :for={opt <- @option} {assigns_to_attributes(opt)}><%= render_slot(opt) %></option>
+      </select>
+      <.error :for={msg <- @errors} message={msg} />
+    </div>
+    """
+  end
+
+  def input(%{type: "textarea"} = assigns) do
+    ~H"""
+    <div phx-feedback-for={@name}>
+      <.label for={@id}><%= @label %></.label>
+      <textarea
+        id={@id || @name}
+        name={@name}
+        class={[
+          input_border(@errors),
+          "mt-2 block min-h-[6rem] w-full rounded-lg border-zinc-300 py-[calc(theme(spacing.2)-1px)] px-[calc(theme(spacing.3)-1px)]",
+          "text-zinc-900 focus:border-zinc-400 focus:outline-none focus:ring-4 focus:ring-zinc-800/5 sm:text-sm sm:leading-6",
+          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400 phx-no-feedback:focus:ring-zinc-800/5"
+        ]}
+        {@rest}
+      ><%= @value %></textarea>
+      <.error :for={msg <- @errors} message={msg} />
+    </div>
+    """
+  end
+
+  def input(assigns) do
+    ~H"""
+    <div phx-feedback-for={@name}>
+      <.label for={@id}><%= @label %></.label>
+      <input
+        type={@type}
+        name={@name}
+        id={@id || @name}
+        value={@value}
+        class={[
+          input_border(@errors),
+          "mt-1 block w-full rounded-md border-gray-300 shadow-sm py-[calc(theme(spacing.2)-1px)] px-[calc(theme(spacing.3)-1px)]",
+          "text-gray-900 focus:outline-none sm:text-sm sm:leading-6",
+          "phx-no-feedback:border-gray-300 phx-no-feedback:focus:border-indigo-500 phx-no-feedback:focus:ring-indigo-500"
+        ]}
+        {@rest}
+      />
+      <p :if={@help_text} class="mt-2 text-sm text-gray-500">
+        <%= @help_text %>
+      </p>
+      <.error :for={msg <- @errors} message={msg} />
+    </div>
+    """
+  end
+
+  attr :id, :any
+  attr :name, :any
+  attr :field, :any, doc: "a %Phoenix.HTML.Form{}/field name tuple, for example: {f, :email}"
+  attr :selected_rider, Rider, default: nil
+  attr :label, :string, default: nil
+  attr :help_text, :string, default: nil
+  attr :rest, :global, include: ~w(multi)
+
+  def rider_select(%{field: {f, field}} = assigns) do
+    assigns =
+      assigns
+      |> assign_new(:name, fn -> Phoenix.HTML.Form.input_name(f, field) end)
+      |> assign_new(:id, fn -> Phoenix.HTML.Form.input_id(f, field) end)
+
+    ~H"""
+    <div phx-feedback-for={@name}>
+      <.label for={@id}><%= @label %></.label>
+
+      <.live_component
+        module={RiderSelectionComponent}
+        id={@id}
+        input_name={@name}
+        selected_rider={@selected_rider}
+        {@rest}
+      />
+      <p :if={@help_text} class="mt-2 text-sm text-gray-500">
+        <%= @help_text %>
+      </p>
+    </div>
+    """
+  end
+
+  defp input_border([] = _errors),
+    do: "border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+
+  defp input_border([_ | _] = _errors),
+    do: "border-red-300 focus:border-red-500 focus:ring-red-500"
+
+  @doc """
+  Renders a label.
+  """
+  attr :for, :string, default: nil
+  slot :inner_block, required: true
+
+  def label(assigns) do
+    ~H"""
+    <label for={@for} class="block text-sm font-medium text-gray-700">
+      <%= render_slot(@inner_block) %>
+    </label>
+    """
+  end
+
+  @doc """
+  Generates a generic error message.
+  """
+  attr :message, :string, required: true
+
+  def error(assigns) do
+    ~H"""
+    <p class="flex gap-3 mt-3 text-sm leading-6 phx-no-feedback:hidden text-rose-600">
+      <Heroicons.exclamation_circle mini class="mt-0.5 h-5 w-5 flex-none fill-rose-500" />
+      <%= @message %>
+    </p>
+    """
+  end
+
+  @doc """
   Renders a location
 
   ## Examples
@@ -418,6 +608,40 @@ defmodule BikeBrigadeWeb.Components do
         </div>
       </div>
     </div>
+    """
+  end
+
+  @doc """
+  Renders a simple form.
+  ## Examples
+      <.simple_form :let={f} for={:user} phx-change="validate" phx-submit="save">
+        <.input field={{f, :email}} label="Email"/>
+        <.input field={{f, :username}} label="Username" />
+        <:actions>
+          <.button>Save</.button>
+        </:actions>
+      </.simple_form>
+  """
+  attr :for, :any, default: nil, doc: "the datastructure for the form"
+  attr :as, :any, default: nil, doc: "the server side parameter to collect all input under"
+
+  attr :rest, :global,
+    include: ~w(autocomplete name rel action enctype method novalidate target),
+    doc: "the arbitrary HTML attributes to apply to the form tag"
+
+  slot :inner_block, required: true
+  slot :actions, doc: "the slot for form actions, such as a submit button"
+
+  def simple_form(assigns) do
+    ~H"""
+    <.form :let={f} for={@for} as={@as} {@rest}>
+      <div class="mt-10 space-y-8 bg-white">
+        <%= render_slot(@inner_block, f) %>
+        <div :for={action <- @actions} class="flex items-center justify-end gap-6 mt-2">
+          <%= render_slot(action, f) %>
+        </div>
+      </div>
+    </.form>
     """
   end
 
@@ -719,5 +943,23 @@ defmodule BikeBrigadeWeb.Components do
     )
     |> JS.hide(to: "##{id}", transition: {"block", "block", "hidden"})
     |> JS.pop_focus()
+  end
+
+  @doc """
+  Translates an error message.
+  """
+  def translate_error({msg, opts}) do
+    # Because the error messages we show in our forms and APIs
+    # are defined inside Ecto, we need to translate them dynamically.
+    Enum.reduce(opts, msg, fn {key, value}, acc ->
+      String.replace(acc, "%{#{key}}", fn _ -> to_string(value) end)
+    end)
+  end
+
+  @doc """
+  Translates the errors for a field from a keyword list of errors.
+  """
+  def translate_errors(errors, field) when is_list(errors) do
+    for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
   end
 end
