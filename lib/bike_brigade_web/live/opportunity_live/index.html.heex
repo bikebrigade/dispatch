@@ -1,15 +1,3 @@
-<%= if @live_action in [:new, :edit] do %>
-  <UI.slideover id="edit" return_to={~p"/opportunities"}>
-    <:title><%= @page_title %></:title>
-    <.live_component
-      module={BikeBrigadeWeb.OpportunityLive.FormComponent}
-      id={@opportunity.id || :edit}
-      action={@live_action}
-      opportunity={@opportunity}
-      return_to={~p"/opportunities"}
-    />
-  </UI.slideover>
-<% end %>
 <div class="flex flex-col py-4">
   <%= if Enum.count(@selected) != 0 do %>
     <div class="my-2">
@@ -108,7 +96,7 @@
               </div>
             </th>
             <th class="w-40 px-6 py-4 text-right border-b border-gray-200 bg-gray-50">
-              <.button patch={~p"/opportunities/new"} size={:small} >
+              <.button patch={~p"/opportunities/new"} size={:small}>
                 New
               </.button>
             </th>
@@ -125,10 +113,7 @@
                 ) %>
               </td>
               <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
-                <.link
-                  navigate={~p"/programs/#{opportunity.program}"}
-                  class="link"
-                >
+                <.link navigate={~p"/programs/#{opportunity.program}"} class="link">
                   <%= opportunity.program.name %>
                 </.link>
               </td>
@@ -181,3 +166,21 @@
     </div>
   </div>
 </div>
+
+<.slideover
+  :if={@live_action in [:new, :edit]}
+  id="edit"
+  show
+  on_cancel={JS.patch(~p"/opportunities")}
+>
+  <:title><%= @page_title %></:title>
+  <.live_component
+    module={BikeBrigadeWeb.OpportunityLive.FormComponent}
+    id={@opportunity.id || :edit}
+    action={@live_action}
+    opportunity={@opportunity}
+    navigate={~p"/opportunities"}
+  />
+  <:confirm form="opportunity-form" type="submit" phx-disable-with="Saving...">Save</:confirm>
+  <:cancel>Cancel</:cancel>
+</.slideover>

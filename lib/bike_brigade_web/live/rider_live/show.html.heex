@@ -1,21 +1,3 @@
-<%= if @live_action in [:edit, :edit_profile] do %>
-  <UI.slideover id="edit" return_to={@return_to}>
-    <:title>
-      <%= if @live_action == :edit do %>
-        Edit Rider
-      <% else %>
-        Edit Profile
-      <% end %>
-    </:title>
-    <.live_component
-      module={BikeBrigadeWeb.RiderLive.FormComponent}
-      id={@rider.id}
-      action={@live_action}
-      rider={@rider}
-      return_to={@return_to}
-    />
-  </UI.slideover>
-<% end %>
 <div class="flex-wrap justify-between mt-5 sm:flex sm:flex-nowrap">
   <div class="mb-5 text-right sm:order-last">
     <%= if @live_action in [:profile, :edit_profile] do %>
@@ -293,3 +275,23 @@
     </div>
   </div>
 </div>
+
+<.slideover
+  :if={@live_action in [:edit, :edit_profile]}
+  id="edit"
+  show
+  on_cancel={JS.patch(if @live_action == :edit, do: ~p"/riders/#{@rider}", else: ~p"/profile")}
+>
+  <:title>
+    <%= if @live_action == :edit, do: "Edit Rider", else: "Edit Profile" %>
+  </:title>
+  <.live_component
+    module={BikeBrigadeWeb.RiderLive.FormComponent}
+    id={@rider.id}
+    action={@live_action}
+    rider={@rider}
+    navigate={if @live_action == :edit, do: ~p"/riders/#{@rider}", else: ~p"/profile"}
+  />
+  <:confirm form="rider-form" type="submit" phx-disable-with="Saving...">Save</:confirm>
+  <:cancel>Cancel</:cancel>
+</.slideover>

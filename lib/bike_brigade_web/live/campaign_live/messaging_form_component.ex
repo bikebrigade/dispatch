@@ -132,7 +132,7 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
      socket
      |> assign(campaign: campaign)
      |> put_flash(:info, "Successfully sent messages!")
-     |> push_redirect(to: ~p"/campaigns/#{campaign}")}
+     |> push_navigate(to: socket.assigns.navigate)}
   end
 
   def handle_event("delete-schedule", _, socket) do

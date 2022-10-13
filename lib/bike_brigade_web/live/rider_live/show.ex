@@ -77,10 +77,6 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
     socket
     |> assign(:page_title, "Edit Profile")
     |> assign(:page, :profile)
-    |> assign(
-      :return_to,
-      ~p"/profile"
-    )
     |> assign_rider(socket.assigns.current_user.rider_id)
   end
 
@@ -91,10 +87,6 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
 
   defp apply_action(socket, :edit, %{"id" => id}) do
     socket
-    |> assign(
-      :return_to,
-      ~p"/riders/#{id}"
-    )
     |> assign_rider(id)
   end
 

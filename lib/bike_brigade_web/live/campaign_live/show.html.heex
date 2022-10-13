@@ -199,11 +199,12 @@
   />
 </.modal>
 
-<UI.slideover
+<.slideover
   :if={@live_action == :messaging}
   id="messaging"
-  return_to={~p"/campaigns/#{@campaign}"}
+  show
   wide
+  on_cancel={JS.patch(~p"/campaigns/#{@campaign}")}
 >
   <:title>
     Campaign Messaging
@@ -213,6 +214,6 @@
     id={@campaign.id}
     campaign={@campaign}
     riders={@riders}
-    return_to={~p"/campaigns/#{@campaign}"}
+    navigate={~p"/campaigns/#{@campaign}"}
   />
-</UI.slideover>
+</.slideover>

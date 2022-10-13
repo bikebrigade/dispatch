@@ -34,7 +34,7 @@ defmodule BikeBrigadeWeb.Components do
 
   attr :class, :string, default: nil
   attr :rest, :global, include: ~w(href patch navigate disabled)
-  slot(:inner_block, required: true)
+  slot :inner_block, required: true
 
   @button_base_classes [
     "inline-flex text-center items-center border border-transparent",
@@ -426,6 +426,124 @@ defmodule BikeBrigadeWeb.Components do
   end
 
   @doc """
+    Renders a slideover.
+  """
+
+  attr :id, :string, required: true
+  attr :show, :boolean, default: false
+  attr :wide, :boolean, default: false
+  attr :on_cancel, JS, default: %JS{}
+  attr :on_confirm, JS, default: %JS{}
+
+  slot :inner_block, required: true
+  slot :title
+  slot :subtitle
+
+  slot :confirm do
+    attr :form, :string
+  end
+
+  slot :cancel
+
+  def slideover(assigns) do
+    ~H"""
+    <div
+      id={@id}
+      phx-mounted={@show && show_slideover(@id)}
+      class="relative z-10 hidden"
+      aria-labelledby={"#{@id}-title"}
+      role="dialog"
+      aria-modal="true"
+    >
+      <!-- Background backdrop, show/hide based on slide-over state. -->
+      <div id={"#{@id}-bg"} class="fixed inset-0"></div>
+
+      <div class="fixed inset-0 overflow-hidden">
+        <div class="absolute inset-0 overflow-hidden">
+          <div class="fixed inset-y-0 right-0 flex max-w-full pl-10 pointer-events-none sm:pl-16">
+            <!--
+              Slide-over panel, show/hide based on slide-over state.
+
+              Entering: "transform transition ease-in-out duration-500 sm:duration-700"
+                From: "translate-x-full"
+                To: "translate-x-0"
+              Leaving: "transform transition ease-in-out duration-500 sm:duration-700"
+                From: "translate-x-0"
+                To: "translate-x-full"
+            -->
+            <div class={[
+              "w-screen pointer-events-auto",
+              if(@wide, do: "max-w-4xl", else: "max-w-2xl")
+            ]}>
+              <.focus_wrap
+                id={"#{@id}-container"}
+                phx-mounted={@show && show_slideover(@id)}
+                phx-window-keydown={hide_slideover(@on_cancel, @id)}
+                phx-key="escape"
+                phx-click-away={hide_slideover(@on_cancel, @id)}
+                class="flex flex-col h-full overflow-y-scroll bg-white shadow-xl"
+              >
+                <div class="flex-1">
+                  <!-- Header -->
+                  <div class="px-4 py-6 bg-gray-50 sm:px-6">
+                    <div class="flex items-start justify-between space-x-3">
+                      <header :if={@title != []} class="space-y-1">
+                        <h1 class="text-lg font-medium text-gray-900" id={"#{@id}-title"}>
+                          <%= render_slot(@title) %>
+                        </h1>
+                        <p :if={@subtitle != []} class="text-sm text-gray-500">
+                          <%= render_slot(@subtitle) %>
+                        </p>
+                      </header>
+                      <div class="flex items-center h-7">
+                        <button
+                          phx-click={hide_slideover(@on_cancel, @id)}
+                          type="button"
+                          class="text-gray-400 hover:text-gray-500"
+                        >
+                          <span class="sr-only">Close panel</span>
+                          <!-- Heroicon name: outline/x-mark -->
+                          <Heroicons.x_mark mini class="w-6 h-6" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="p-4 sm:p-6">
+                    <%= render_slot(@inner_block) %>
+                  </div>
+                </div>
+                <!-- Action buttons -->
+                <div
+                  :if={@confirm != [] or @cancel != []}
+                  class="flex-shrink-0 px-4 py-5 border-t border-gray-200 sm:px-6"
+                >
+                  <div class="flex justify-end space-x-3">
+                    <.button
+                      :for={cancel <- @cancel}
+                      phx-click={hide_slideover(@on_cancel, @id)}
+                      color={:white}
+                    >
+                      <%= render_slot(cancel) %>
+                    </.button>
+                    <.button
+                      :for={confirm <- @confirm}
+                      id={"#{@id}-confirm"}
+                      {Map.take(confirm, [:form, :type, :"phx-disable-with"])}
+                    >
+                      <%= render_slot(confirm) %>
+                    </.button>
+                  </div>
+                </div>
+              </.focus_wrap>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    """
+  end
+
+  @doc """
   Renders a link used for sorting (with the correct icon)
 
   ## Examples
@@ -445,6 +563,7 @@ defmodule BikeBrigadeWeb.Components do
   attr :rest, :global
 
   def sort_link(assigns) do
+    IO.inspect(assigns)
     selected = assigns.sort_field == assigns.current_field
 
     assigns =
@@ -576,6 +695,35 @@ defmodule BikeBrigadeWeb.Components do
       transition: {"transition-all transform ease-in duration-200", "opacity-100", "opacity-0"}
     )
     |> hide("##{id}-container")
+    |> JS.hide(to: "##{id}", transition: {"block", "block", "hidden"})
+    |> JS.pop_focus()
+  end
+
+  def show_slideover(js \\ %JS{}, id) when is_binary(id) do
+    js
+    |> JS.show(to: "##{id}")
+    |> JS.show(to: "##{id}-bg")
+    |> JS.show(
+      to: "##{id}-container",
+      time: 500,
+      transition: {
+        "transform transition ease-in-out duration-500",
+        "translate-x-full",
+        "translate-x-0"
+      }
+    )
+    |> JS.focus_first(to: "##{id}-container")
+  end
+
+  def hide_slideover(js \\ %JS{}, id) do
+    js
+    |> JS.hide(to: "##{id}-bg")
+    |> JS.hide(
+      to: "##{id}-container",
+      time: 500,
+      transition:
+        {"transform transition ease-in-out duration-500", "translate-x-0", "translate-x-full"}
+    )
     |> JS.hide(to: "##{id}", transition: {"block", "block", "hidden"})
     |> JS.pop_focus()
   end
