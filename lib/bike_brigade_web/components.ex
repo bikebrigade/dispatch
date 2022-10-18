@@ -283,7 +283,7 @@ defmodule BikeBrigadeWeb.Components do
 
   attr :value, :any
   attr :field, :any, doc: "a %Phoenix.HTML.Form{}/field name tuple, for example: {f, :email}"
-  attr :errors, :list, default: []
+  attr :errors, :list
   attr :rest, :global, include: ~w(autocomplete checked disabled form max maxlength min minlength
                                    multiple pattern placeholder readonly required size step)
   slot :inner_block
