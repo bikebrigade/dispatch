@@ -207,7 +207,7 @@
   </div>
 <% end %>
 
-<.modal :if={@live_action == :new} id="messaging-modal" show on-cancel={JS.navigate(~p"/messages")}>
+<.modal :if={@live_action == :new} id="messaging-modal" show on_cancel={JS.navigate(~p"/messages")}>
   <.live_component
     module={BikeBrigadeWeb.SmsMessageLive.FormComponent}
     id={:new}
