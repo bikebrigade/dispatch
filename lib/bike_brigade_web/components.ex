@@ -349,12 +349,16 @@ defmodule BikeBrigadeWeb.Components do
         name={@name}
         class={[
           input_border(@errors),
-          "mt-2 block min-h-[6rem] w-full rounded-lg border-zinc-300 py-[calc(theme(spacing.2)-1px)] px-[calc(theme(spacing.3)-1px)]",
-          "text-zinc-900 focus:border-zinc-400 focus:outline-none focus:ring-4 focus:ring-zinc-800/5 sm:text-sm sm:leading-6",
-          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400 phx-no-feedback:focus:ring-zinc-800/5"
+          "mt-1 block min-h-[6rem] w-full rounded-md border-gray-300 shadow-sm py-[calc(theme(spacing.2)-1px)] px-[calc(theme(spacing.3)-1px)]]",
+          "text-gray-900 focus:outline-none sm:text-sm sm:leading-6",
+          "phx-no-feedback:border-gray-300 phx-no-feedback:focus:border-indigo-500 phx-no-feedback:focus:ring-indigo-500",
+          "disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none"
         ]}
         {@rest}
       ><%= @value %></textarea>
+      <p :if={@help_text} class="mt-2 text-sm text-gray-500">
+        <%= @help_text %>
+      </p>
       <.error :for={msg <- @errors} message={msg} />
     </div>
     """
@@ -373,7 +377,8 @@ defmodule BikeBrigadeWeb.Components do
           input_border(@errors),
           "mt-1 block w-full rounded-md border-gray-300 shadow-sm py-[calc(theme(spacing.2)-1px)] px-[calc(theme(spacing.3)-1px)]",
           "text-gray-900 focus:outline-none sm:text-sm sm:leading-6",
-          "phx-no-feedback:border-gray-300 phx-no-feedback:focus:border-indigo-500 phx-no-feedback:focus:ring-indigo-500"
+          "phx-no-feedback:border-gray-300 phx-no-feedback:focus:border-indigo-500 phx-no-feedback:focus:ring-indigo-500",
+          "disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none"
         ]}
         {@rest}
       />
@@ -635,7 +640,7 @@ defmodule BikeBrigadeWeb.Components do
   def simple_form(assigns) do
     ~H"""
     <.form :let={f} for={@for} as={@as} {@rest}>
-      <div class="mt-10 space-y-8 bg-white">
+      <div class="mt-4 space-y-4 bg-white">
         <%= render_slot(@inner_block, f) %>
         <div :for={action <- @actions} class="flex items-center justify-end gap-6 mt-2">
           <%= render_slot(action, f) %>
