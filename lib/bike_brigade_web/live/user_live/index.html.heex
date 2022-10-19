@@ -1,19 +1,11 @@
-<UI.table rows={@users}>
-  <:th>
-    Name
-  </:th>
-  <:th>
-    Phone
-  </:th>
-  <:th class="text-right">
-    Status
-  </:th>
-  <:th class="flex justify-end" padding="px-3 py-3" uppercase={false}>
-    <.button patch={~p"/users/new"}>
-      New
-    </.button>
-  </:th>
-  <:td :let={user}>
+<.header>
+  Users
+  <:subtitle>
+    All of the users who have access to the Dispatch app. This includes Dispatchers and Riders.
+  </:subtitle>
+</.header>
+<.table id="users" rows={@users}>
+  <:col :let={user} label="Name">
     <div class="flex items-center">
       <div class="flex-shrink-0 w-10 h-10">
         <img class="w-10 h-10 rounded-full" src={gravatar(user.email)} alt="" />
@@ -23,37 +15,37 @@
         <div class="text-sm leading-5 text-gray-500"><%= user.email %></div>
       </div>
     </div>
-  </:td>
-  <:td :let={user}>
+  </:col>
+  <:col :let={user} label="Phone">
     <%= user.phone %>
-  </:td>
-  <:td :let={user} class="text-right">
-    <%= if user.is_dispatcher do %>
-      <.with_tooltip>
+  </:col>
+  <:col :let={user} label="Status">
+    <div class="flex space-x-2">
+      <.with_tooltip :if={user.is_dispatcher}>
         🧑‍🔧
         <:tooltip>Dispatcher</:tooltip>
       </.with_tooltip>
-    <% end %>
-    <%= if user.rider_id  do %>
-      <.with_tooltip>
+      <.with_tooltip :if={user.rider_id}>
         🚴
         <:tooltip>Rider</:tooltip>
       </.with_tooltip>
-    <% end %>
-  </:td>
-  <:td :let={user} class="text-right">
-    <.link patch={~p"/users/#{user}/edit"} class="pl-2 link">
-      Edit
+    </div>
+  </:col>
+  <:action :let={user}>
+    <.link patch={~p"/users/#{user}/edit"} class="link">
+      Edit <span class="sr-only">, <%= user.name %></span>
     </.link>
+  </:action>
+  <:action :let={user}>
     <.link
       phx-click={JS.push("delete", value: %{id: user.id})}
       data-confirm="Are you sure?"
-      class="pl-2 link"
+      class="link"
     >
-      Delete
+      Delete <span class="sr-only">, <%= user.name %></span>
     </.link>
-  </:td>
-</UI.table>
+  </:action>
+</.table>
 
 <.modal
   :if={@live_action in [:new, :edit]}

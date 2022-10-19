@@ -248,16 +248,16 @@ defmodule BikeBrigadeWeb.Components do
 
   def header(assigns) do
     ~H"""
-    <header class={[@actions != [] && "flex items-center justify-between gap-6", @class]}>
-      <div>
-        <h1 class="text-lg font-semibold leading-8 text-zinc-800">
+    <header class={[@actions != [] && "sm:flex sm:items-center", @class]}>
+      <div class="sm:flex-auto">
+        <h1 class="text-xl font-semibold text-gray-900">
           <%= render_slot(@inner_block) %>
         </h1>
-        <p :if={@subtitle != []} class="mt-2 text-sm leading-6 text-zinc-600">
+        <p :if={@subtitle != []} class="mt-2 text-sm text-gray-700">
           <%= render_slot(@subtitle) %>
         </p>
       </div>
-      <div class="flex-none"><%= render_slot(@actions) %></div>
+      <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none"><%= render_slot(@actions) %></div>
     </header>
     """
   end
@@ -814,6 +814,79 @@ defmodule BikeBrigadeWeb.Components do
 
   defp next_sort_order(:asc), do: :desc
   defp next_sort_order(:desc), do: :asc
+
+  @doc ~S"""
+  Renders a table with generic styling.
+
+  ## Examples
+
+      <.table rows={@users}>
+        <:col :let={user} label="id"><%= user.id %></:col>
+        <:col :let={user} label="username"><%= user.username %></:col>
+      </.table>
+  """
+  attr :id, :string, required: true
+  attr :rows, :list, required: true
+
+  slot :col, required: true do
+    attr :label, :string
+  end
+
+  slot :action, doc: "the slot for showing user actions in the last table column"
+
+  def table(assigns) do
+    ~H"""
+    <div id={@id} class="flex flex-col mt-8">
+      <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+        <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
+          <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+            <table class="min-w-full divide-y divide-gray-300">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th
+                    :for={{col, i} <- Enum.with_index(@col)}
+                    scope="col"
+                    class={[
+                      "py-3.5 text-left text-sm font-semibold text-gray-900",
+                      if(i == 0, do: "pl-4 pr-3 sm:pl-6", else: "px-3")
+                    ]}
+                  >
+                    <%= col[:label] %>
+                  </th>
+                  <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                    <span class="sr-only">Actions</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr :for={row <- @rows} id={"#{@id}-#{Phoenix.Param.to_param(row)}"}>
+                  <td
+                    :for={{col, i} <- Enum.with_index(@col)}
+                    class={[
+                      "py-4 text-sm text-gray-500 whitespace-nowrap",
+                      if(i == 0, do: "pl-4 pr-3 sm:pl-6 font-medium", else: "px-3")
+                    ]}
+                  >
+                    <%= render_slot(col, row) %>
+                  </td>
+
+                  <td
+                    :if={@action != []}
+                    class="relative py-4 pl-3 pr-4 text-sm font-medium text-right whitespace-nowrap sm:pr-6"
+                  >
+                    <span :for={action <- @action}>
+                      <%= render_slot(action, row) %>
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    """
+  end
 
   @doc """
   Wraps the content with a hoverable tooltip.
