@@ -853,7 +853,7 @@ defmodule BikeBrigadeWeb.Components do
                   >
                     <%= col[:label] %>
                   </th>
-                  <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                  <th :if={@action != []} scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
                     <span class="sr-only">Actions</span>
                   </th>
                 </tr>
@@ -872,7 +872,7 @@ defmodule BikeBrigadeWeb.Components do
 
                   <td
                     :if={@action != []}
-                    class="relative py-4 pl-3 pr-4 text-sm font-medium text-right whitespace-nowrap sm:pr-6"
+                    class="relative py-4 pl-3 pr-4 space-x-2 text-sm font-medium text-right whitespace-nowrap sm:pr-6"
                   >
                     <span :for={action <- @action}>
                       <%= render_slot(action, row) %>

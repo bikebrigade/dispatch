@@ -1,26 +1,20 @@
-<UI.table rows={@programs}>
-  <:th>
-    Name
-  </:th>
-  <:th>
-    Campaigns
-  </:th>
-  <:th>
-    Latest Campaign
-  </:th>
-  <:th>
-    Schedule
-  </:th>
-  <:th>
-    Lead
-  </:th>
-  <:th class="flex justify-end" padding="px-3 py-3" uppercase={false}>
+<.header>
+  Programs
+  <:subtitle>
+    Programs are collections deliveries we run with a partner. For example <span class="italic">Foodshare</span>, <span class="italic">Community Fridges - Dufferin Grove</span>, and
+    <span class="italic">Community Fridges - This Way Up</span>
+    are examples of Programs.
+  </:subtitle>
+  <:actions>
     <.button patch={~p"/programs/new"}>
       New Program
     </.button>
-  </:th>
-  <:td :let={program}>
-    <.link navigate={~p"/programs/#{program}"} class="pl-2 link">
+  </:actions>
+</.header>
+
+<.table id="programs" rows={@programs}>
+  <:col :let={program} label="Name">
+    <.link navigate={~p"/programs/#{program}"} class="link">
       <%= program.name %>
     </.link>
     <%= if !program.active do %>
@@ -28,35 +22,31 @@
         Inactive
       </span>
     <% end %>
-  </:td>
-  <:td :let={program}>
+  </:col>
+  <:col :let={program} label="Campaigns">
     <%= program.campaign_count %>
-  </:td>
-  <:td :let={program}>
+  </:col>
+  <:col :let={program} label="Latest Campaign">
     <.date
       :if={program.latest_campaign}
       navigate={~p"/campaigns/#{program.latest_campaign}"}
       date={campaign_date(program.latest_campaign)}
     />
-  </:td>
-  <:td :let={program}>
-    <%= if program.schedules != [] do %>
-      <%= for s <- program.schedules do %>
-        <div><%= ProgramForm.Schedule.from_program_schedule(s) %></div>
-      <% end %>
-    <% else %>
-      N/A
-    <% end %>
-  </:td>
-  <:td :let={program}>
-    <%= if program.lead, do: program.lead.name, else: "N/A" %>
-  </:td>
-  <:td :let={program} class="px-4 py-3 text-right">
+  </:col>
+  <:col :let={program} label="Schedule">
+    <div :for={s <- program.schedules}>
+      <%= ProgramForm.Schedule.from_program_schedule(s) %>
+    </div>
+  </:col>
+  <:col :let={program} label="Lead">
+    <span :if={program.lead}><%= program.lead.name %></span>
+  </:col>
+  <:action :let={program}>
     <.link patch={~p"/programs/#{program}/edit"} class="link">
-      Edit
+      Edit <span class="sr-only">, <%= program.name %></span>
     </.link>
-  </:td>
-</UI.table>
+  </:action>
+</.table>
 
 <.modal
   :if={@live_action in [:new, :edit]}
