@@ -23,17 +23,17 @@
       </span>
     <% end %>
   </:col>
-  <:col :let={program} label="Campaigns">
+  <:col :let={program} label="Campaigns" show_at={:large} collapse={}>
     <%= program.campaign_count %>
   </:col>
-  <:col :let={program} label="Latest Campaign">
+  <:col :let={program} label="Latest Campaign" unstack_at={:large}>
     <.date
       :if={program.latest_campaign}
       navigate={~p"/campaigns/#{program.latest_campaign}"}
       date={campaign_date(program.latest_campaign)}
     />
   </:col>
-  <:col :let={program} label="Schedule">
+  <:col :let={program} label="Schedule" unstack_at={:large}>
     <div :for={s <- program.schedules}>
       <%= ProgramForm.Schedule.from_program_schedule(s) %>
     </div>

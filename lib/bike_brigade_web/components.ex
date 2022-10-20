@@ -829,6 +829,8 @@ defmodule BikeBrigadeWeb.Components do
   attr :rows, :list, required: true
 
   slot :col, required: true do
+    attr :show_at, :atom, values: [:small, :medium, :large]
+    attr :unstack_at, :atom, values: [:small, :medium, :large]
     attr :label, :string
   end
 
@@ -848,7 +850,11 @@ defmodule BikeBrigadeWeb.Components do
                     scope="col"
                     class={[
                       "py-3.5 text-left text-sm font-semibold text-gray-900",
-                      if(i == 0, do: "pl-4 pr-3 sm:pl-6", else: "px-3")
+                      if(i == 0, do: "pl-4 pr-3 sm:pl-6", else: "px-3"),
+                      if(col[:show_at], do: "hidden " <> display_at_size(col[:show_at], "table-cell")),
+                      if(col[:unstack_at],
+                        do: "hidden " <> display_at_size(col[:unstack_at], "table-cell")
+                      )
                     ]}
                   >
                     <%= col[:label] %>
@@ -864,10 +870,26 @@ defmodule BikeBrigadeWeb.Components do
                     :for={{col, i} <- Enum.with_index(@col)}
                     class={[
                       "py-4 text-sm text-gray-500 whitespace-nowrap",
-                      if(i == 0, do: "pl-4 pr-3 sm:pl-6 font-medium", else: "px-3")
+                      if(i == 0, do: "pl-4 pr-3 sm:pl-6 font-medium", else: "px-3"),
+                      if(col[:show_at], do: "hidden " <> display_at_size(col[:show_at], "table-cell")),
+                      if(col[:unstack_at],
+                        do: "hidden " <> display_at_size(col[:unstack_at], "table-cell")
+                      )
                     ]}
                   >
                     <%= render_slot(col, row) %>
+                    <dl :if={i == 0} class="">
+                      <div
+                        :for={col <- Enum.drop(@col, 1)}
+                        :if={col[:unstack_at]}
+                        class={display_at_size(col[:unstack_at], "hidden")}
+                      >
+                        <dt class="sr-only">
+                          <%= col[:label] %>
+                        </dt>
+                        <dd class="mt-1 text-gray-700 truncate"><%= render_slot(col, row) %></dd>
+                      </div>
+                    </dl>
                   </td>
 
                   <td
@@ -886,6 +908,15 @@ defmodule BikeBrigadeWeb.Components do
       </div>
     </div>
     """
+  end
+
+  defp display_at_size(size, display_class) do
+    case size do
+      :small -> "sm:#{display_class}"
+      :medium -> "md:#{display_class}"
+      :large -> "lg:#{display_class}"
+      nil -> ""
+    end
   end
 
   @doc """
