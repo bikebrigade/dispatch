@@ -1,5 +1,5 @@
 defmodule BikeBrigadeWeb.CalendarLive.Index do
-  use BikeBrigadeWeb, {:live_view, layout: {BikeBrigadeWeb.LayoutView, "public.live.html"}}
+  use BikeBrigadeWeb, {:live_view, layout: :public}
 
   alias BikeBrigade.Utils
   alias BikeBrigade.Delivery

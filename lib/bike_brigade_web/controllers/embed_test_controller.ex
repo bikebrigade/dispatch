@@ -3,7 +3,6 @@ defmodule BikeBrigadeWeb.EmbedTestController do
 
   def index(conn, _params) do
     conn
-    |> put_root_layout(false)
-    |> render("index.html")
+    |> render("index.html", layout: false)
   end
 end

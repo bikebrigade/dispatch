@@ -64,7 +64,6 @@
           </div>
           <nav class="px-2 mt-5 space-y-1">
             <.sidebar
-              socket={@socket}
               current_page={@page}
               is_dispatcher={@current_user.is_dispatcher}
             />
@@ -109,7 +108,6 @@
         </div>
         <nav class="flex-1 px-2 mt-5 space-y-1 bg-white">
           <.sidebar
-            socket={@socket}
             current_page={@page}
             is_dispatcher={@current_user.is_dispatcher}
           />

@@ -1,4 +1,4 @@
-defmodule BikeBrigadeWeb.Components do
+defmodule BikeBrigadeWeb.CoreComponents do
   use Phoenix.Component
   alias Phoenix.LiveView.JS
 
@@ -284,13 +284,12 @@ defmodule BikeBrigadeWeb.Components do
   attr :value, :any
   attr :field, :any, doc: "a %Phoenix.HTML.Form{}/field name tuple, for example: {f, :email}"
   attr :errors, :list
+  attr :checked, :boolean, doc: "the checked flag for checkbox inputs"
+  attr :prompt, :string, default: nil, doc: "the prompt for select inputs"
+  attr :options, :list, doc: "the options to pass to Phoenix.HTML.Form.options_for_select/2"
   attr :rest, :global, include: ~w(autocomplete checked disabled form max maxlength min minlength
                                    multiple pattern placeholder readonly required size step)
   slot :inner_block
-
-  slot :option, doc: "the slot for select input options" do
-    attr :value, :any
-  end
 
   def input(%{field: {f, field}} = assigns) do
     assigns
@@ -303,14 +302,20 @@ defmodule BikeBrigadeWeb.Components do
   end
 
   def input(%{type: "checkbox"} = assigns) do
+    assigns = assign_new(assigns, :checked, fn -> input_equals?(assigns.value, "true") end)
+
     ~H"""
     <div phx-feedback-for={@name} class="relative flex items-start">
       <div class="flex items-center h-5">
+        <input type="hidden" name={@name} value="false" />
         <input
           type="checkbox"
           id={@id || @name}
           name={@name}
+          value="true"
+          checked={@checked}
           class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+          {@rest}
         />
       </div>
       <div class="ml-3 text-sm">
@@ -333,9 +338,10 @@ defmodule BikeBrigadeWeb.Components do
         class="block w-full px-3 py-2 mt-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-zinc-500 focus:border-zinc-500 sm:text-sm"
         {@rest}
       >
-        <option :for={opt <- @option} {assigns_to_attributes(opt)}><%= render_slot(opt) %></option>
+        <option :if={@prompt}><%= @prompt %></option>
+        <%= Phoenix.HTML.Form.options_for_select(@options, @value) %>
       </select>
-      <.error :for={msg <- @errors} message={msg} />
+      <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
     """
   end
@@ -359,7 +365,7 @@ defmodule BikeBrigadeWeb.Components do
       <p :if={@help_text} class="mt-2 text-sm text-gray-500">
         <%= @help_text %>
       </p>
-      <.error :for={msg <- @errors} message={msg} />
+      <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
     """
   end
@@ -385,7 +391,7 @@ defmodule BikeBrigadeWeb.Components do
       <p :if={@help_text} class="mt-2 text-sm text-gray-500">
         <%= @help_text %>
       </p>
-      <.error :for={msg <- @errors} message={msg} />
+      <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
     """
   end
@@ -445,13 +451,13 @@ defmodule BikeBrigadeWeb.Components do
   @doc """
   Generates a generic error message.
   """
-  attr :message, :string, required: true
+  slot :inner_block, required: true
 
   def error(assigns) do
     ~H"""
     <p class="flex gap-3 mt-3 text-sm leading-6 phx-no-feedback:hidden text-rose-600">
       <Heroicons.exclamation_circle mini class="mt-0.5 h-5 w-5 flex-none fill-rose-500" />
-      <%= @message %>
+      <%= render_slot(@inner_block) %>
     </p>
     """
   end
@@ -828,6 +834,10 @@ defmodule BikeBrigadeWeb.Components do
   attr :id, :string, required: true
   attr :rows, :list, required: true
 
+  attr :checkboxes, :string, default: nil
+  attr :checkbox_checked?, :any
+  attr :checkbox_phx_change, JS, default: %JS{}
+
   slot :col, required: true do
     attr :show_at, :atom, values: [:small, :medium, :large]
     attr :unstack_at, :atom, values: [:small, :medium, :large]
@@ -841,10 +851,32 @@ defmodule BikeBrigadeWeb.Components do
     <div id={@id} class="flex flex-col mt-8">
       <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-          <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+          <div class="relative overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+            <form :if={@checkboxes} id={"#{@id}-form"} phx-change={@checkbox_phx_change}></form>
+            <div class="absolute top-0 flex items-center hidden h-12 space-x-3 left-12 bg-gray-50 sm:left-16">
+              <button
+                type="button"
+                class="inline-flex items-center rounded border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-30"
+              >
+                Bulk edit
+              </button>
+              <button
+                type="button"
+                class="inline-flex items-center rounded border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-30"
+              >
+                Delete all
+              </button>
+            </div>
             <table class="min-w-full divide-y divide-gray-300">
               <thead class="bg-gray-50">
                 <tr>
+                  <th :if={@checkboxes} scope="col" class="relative w-12 px-6 sm:w-16 sm:px-8">
+                    <input
+                      type="checkbox"
+                      form={"#{@id}-form"}
+                      class="absolute w-4 h-4 -mt-2 text-indigo-600 border-gray-300 rounded left-4 top-1/2 focus:ring-indigo-500 sm:left-6"
+                    />
+                  </th>
                   <th
                     :for={{col, i} <- Enum.with_index(@col)}
                     scope="col"
@@ -865,7 +897,32 @@ defmodule BikeBrigadeWeb.Components do
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
-                <tr :for={row <- @rows} id={"#{@id}-#{Phoenix.Param.to_param(row)}"}>
+                <tr
+                  :for={row <- @rows}
+                  id={"#{@id}-#{Phoenix.Param.to_param(row)}"}
+                  class={if @checkboxes && @checkbox_checked?.(row), do: "bg-gray-50"}
+                >
+                  <td :if={@checkboxes} class="relative w-12 px-6 sm:w-16 sm:px-8">
+                    <div
+                      :if={@checkbox_checked?.(row)}
+                      class="absolute inset-y-0 left-0 w-0.5 bg-indigo-600"
+                    />
+                    <input
+                      type="hidden"
+                      name={Phoenix.HTML.Form.input_name(@checkboxes, Phoenix.Param.to_param(row))}
+                      value="false"
+                      form={"#{@id}-form"}
+                    />
+                    <input
+                      type="checkbox"
+                      id={Phoenix.HTML.Form.input_id(@checkboxes, Phoenix.Param.to_param(row))}
+                      name={Phoenix.HTML.Form.input_name(@checkboxes, Phoenix.Param.to_param(row))}
+                      value="true"
+                      checked={@checkbox_checked?.(row)}
+                      form={"#{@id}-form"}
+                      class="absolute w-4 h-4 -mt-2 text-indigo-600 border-gray-300 rounded left-4 top-1/2 focus:ring-indigo-500 sm:left-6"
+                    />
+                  </td>
                   <td
                     :for={{col, i} <- Enum.with_index(@col)}
                     class={[
@@ -1070,5 +1127,9 @@ defmodule BikeBrigadeWeb.Components do
   """
   def translate_errors(errors, field) when is_list(errors) do
     for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
+  end
+
+  defp input_equals?(val1, val2) do
+    Phoenix.HTML.html_escape(val1) == Phoenix.HTML.html_escape(val2)
   end
 end

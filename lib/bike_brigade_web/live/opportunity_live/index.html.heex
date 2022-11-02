@@ -1,3 +1,72 @@
+<.header>
+  Opportunities
+  <:subtitle>
+    Opportunities are displayed on the
+    <.link href="https://www.bikebrigade.ca/deliveries">Bike Brigade Deliveries Calendar</.link>
+  </:subtitle>
+  <:actions>
+    <.button patch={~p"/opportunities/new"}>
+      New Opportunity
+    </.button>
+  </:actions>
+</.header>
+
+<.table
+  id="opportunities"
+  rows={@opportunities}
+  checkboxes="selected"
+  checkbox_phx_change={JS.push("select")}
+  checkbox_checked?={&MapSet.member?(@selected, &1.id)}
+>
+  <:col :let={opportunity} label="Program">
+    <.link navigate={~p"/programs/#{opportunity.program}"} class="link">
+      <%= opportunity.program.name %>
+    </.link>
+  </:col>
+  <:col :let={opportunity} label="Date">
+    <.date date={LocalizedDateTime.to_date(opportunity.delivery_start)} />
+  </:col>
+  <:col :let={opportunity} label="Time" show_at={:large}>
+    <%= time_interval(opportunity.delivery_start, opportunity.delivery_end) %>
+  </:col>
+
+  <:col :let={opportunity} label="Location" unstack_at={:large}>
+    <%= opportunity.location.address %>
+    <span
+      :if={opportunity.hide_address}
+      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"
+    >
+      hidden
+    </span>
+  </:col>
+  <:col :let={opportunity} label="Link" show_at={:large}>
+    <.link href={opportunity.signup_link} class="inline-block link">
+      <Heroicons.link solid aria-label="Link to signup" class="flex-shrink-0 w-5" />
+    </.link>
+  </:col>
+  <:col :let={opportunity} label="Lead" show_at={:large}>
+    <%= program_lead_name(opportunity) %>
+  </:col>
+  <:col :let={opportunity} label="Published">
+    <.check_mark value={opportunity.published} />
+  </:col>
+  <:action :let={opportunity}>
+    <.button patch={~p"/opportunities/#{opportunity}/edit"} size={:xsmall} color={:white}>
+      Edit
+    </.button>
+  </:action>
+  <:action :let={opportunity}>
+    <.button
+      phx-click={JS.push("delete", value: %{id: opportunity.id})}
+      data-confirm="Are you sure?"
+      size={:xsmall}
+      color={:lightred}
+    >
+      Delete
+    </.button>
+  </:action>
+</.table>
+
 <div class="flex flex-col py-4">
   <%= if Enum.count(@selected) != 0 do %>
     <div class="my-2">

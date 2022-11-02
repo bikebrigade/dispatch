@@ -39,7 +39,7 @@ defmodule BikeBrigadeWeb.Router do
     plug :accepts, ["html"]
     plug :sessions
     plug :fetch_live_flash
-    plug :put_root_layout, {BikeBrigadeWeb.LayoutView, :root}
+    plug :put_root_layout, {BikeBrigadeWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
     plug :check_maintenance_mode

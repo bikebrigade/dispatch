@@ -57,7 +57,6 @@
     <div class="flex w-full md:justify-end">
       <div class="flex space-x-1">
         <.button
-          phx-click={UI.show_modal(:edit)}
           color={:white}
           patch={~p"/campaigns/#{@campaign}/show/edit"}
         >

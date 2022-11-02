@@ -1,5 +1,5 @@
 defmodule BikeBrigadeWeb.DeliveryLive.Show do
-  use BikeBrigadeWeb, {:live_view, layout: {BikeBrigadeWeb.LayoutView, "public.live.html"}}
+  use BikeBrigadeWeb, {:live_view, layout: :public}
 
   alias BikeBrigade.Delivery
   alias BikeBrigadeWeb.CampaignHelpers

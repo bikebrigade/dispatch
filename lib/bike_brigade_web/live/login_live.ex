@@ -1,5 +1,5 @@
 defmodule BikeBrigadeWeb.LoginLive do
-  use BikeBrigadeWeb, {:live_view, layout: {BikeBrigadeWeb.LayoutView, "public.live.html"}}
+  use BikeBrigadeWeb, {:live_view, layout: :public}
   use Phoenix.HTML
 
   alias BikeBrigade.AuthenticationMessenger

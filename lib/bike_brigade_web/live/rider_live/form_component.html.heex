@@ -34,11 +34,7 @@
         }
       />
     </div>
-    <.input type="select" field={{f, :capacity}} label="Capacity">
-      <:option value="small">Small</:option>
-      <:option value="medium">Medium</:option>
-      <:option value="large">Large</:option>
-    </.input>
+    <.input type="select" field={{f, :capacity}} label="Capacity" options={[{"Small", :small}, {"Medium", :medium}, {"Large", :large}]} />
 
     <%= for l <- inputs_for(f, :location) do %>
       <LocationForm.component for={l} label="Rider Location" />

@@ -1,75 +1,54 @@
-defmodule BikeBrigadeWeb.LayoutView do
-  use BikeBrigadeWeb, :view
+defmodule BikeBrigadeWeb.Layouts do
+  use BikeBrigadeWeb, :html
+
+  embed_templates "layouts/*"
 
   attr :is_dispatcher, :boolean, default: false
 
   attr :current_page, :atom,
     values: [:programs, :campaigns, :opportunities, :riders, :stats, :users, :messages, :profile]
 
-  attr :socket, Phoenix.Socket
-
   defp sidebar(assigns) do
     ~H"""
     <div>
       <div :if={@is_dispatcher} class="pb-2 mb-2 border-b border-gray-200 border-dashed">
-        <.sidebar_link
-          selected={@current_page == :programs}
-          navigate={~p"/programs"}
-        >
+        <.sidebar_link selected={@current_page == :programs} navigate={~p"/programs"}>
           <:icon>
             <Heroicons.inbox_stack />
           </:icon>
           Programs
         </.sidebar_link>
-        <.sidebar_link
-          selected={@current_page == :campaigns}
-          navigate={~p"/campaigns"}
-        >
+        <.sidebar_link selected={@current_page == :campaigns} navigate={~p"/campaigns"}>
           <:icon>
             <Heroicons.inbox />
           </:icon>
           Campaigns
         </.sidebar_link>
-        <.sidebar_link
-          selected={@current_page == :opportunities}
-          navigate={~p"/opportunities"}
-        >
+        <.sidebar_link selected={@current_page == :opportunities} navigate={~p"/opportunities"}>
           <:icon>
             <Heroicons.clipboard_document_check />
           </:icon>
           Opportunities
         </.sidebar_link>
-        <.sidebar_link
-          selected={@current_page == :riders}
-          navigate={~p"/riders"}
-        >
+        <.sidebar_link selected={@current_page == :riders} navigate={~p"/riders"}>
           <:icon>
             <Heroicons.user_group />
           </:icon>
           Riders
         </.sidebar_link>
-        <.sidebar_link
-          selected={@current_page == :stats}
-          navigate={~p"/stats"}
-        >
+        <.sidebar_link selected={@current_page == :stats} navigate={~p"/stats"}>
           <:icon>
             <Heroicons.chart_bar />
           </:icon>
           Stats
         </.sidebar_link>
-        <.sidebar_link
-          selected={@current_page == :users}
-          navigate={~p"/users"}
-        >
+        <.sidebar_link selected={@current_page == :users} navigate={~p"/users"}>
           <:icon>
             <Heroicons.users />
           </:icon>
           Users
         </.sidebar_link>
-        <.sidebar_link
-          selected={@current_page == :messages}
-          navigate={~p"/messages"}
-        >
+        <.sidebar_link selected={@current_page == :messages} navigate={~p"/messages"}>
           <:icon>
             <Heroicons.chat_bubble_oval_left_ellipsis />
           </:icon>
@@ -77,20 +56,13 @@ defmodule BikeBrigadeWeb.LayoutView do
         </.sidebar_link>
       </div>
 
-      <.sidebar_link
-        selected={@current_page == :profile}
-        navigate={~p"/profile"}
-      >
+      <.sidebar_link selected={@current_page == :profile} navigate={~p"/profile"}>
         <:icon>
           <Heroicons.user_circle />
         </:icon>
         My Profile
       </.sidebar_link>
-      <.sidebar_link
-        selected={@current_page == :logout}
-        href={~p"/logout"}
-        method="post"
-      >
+      <.sidebar_link selected={@current_page == :logout} href={~p"/logout"} method="post">
         <:icon>
           <Heroicons.arrow_left_on_rectangle solid />
         </:icon>
@@ -99,6 +71,7 @@ defmodule BikeBrigadeWeb.LayoutView do
     </div>
     """
   end
+
   attr :selected, :boolean
   attr :rest, :global, include: ~w(href patch navigate method)
 
