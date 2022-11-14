@@ -102,7 +102,7 @@
                 type="button"
               >
                 <span class="sr-only">Close</span>
-                <Heroicons.Outline.x class="w-6 h-6" />
+                <Heroicons.Solid.x_mark class="w-6 h-6" />
               </C.button>
             </div>
           </div>
@@ -130,6 +130,9 @@
             <:th class="w-1/3">
               Category
             </:th>
+            <:th class="w-full">
+              Hidden
+            </:th>
             <:th class="flex justify-end w-32" padding="px-3 py-3" uppercase={false}>
               <C.button
                 size={:xsmall}
@@ -138,6 +141,8 @@
                 New Item
               </C.button>
             </:th>
+
+
             <:td let={item}>
               <%= item.name %>
             </:td>
@@ -146,6 +151,13 @@
             </:td>
             <:td let={item}>
               <%= item.category %>
+            </:td>
+            <:td let={item}>
+              <%= if item.hidden do %>
+                <div class="flex justify-center">
+                  <Heroicons.Outline.eye_slash class="flex-shrink-0 w-6 h-6 mx-1 text-gray-600" />
+                </div>
+              <% end %>
             </:td>
             <:td class="text-right" let={item}>
               <%= live_patch("Edit",

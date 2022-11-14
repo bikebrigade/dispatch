@@ -89,7 +89,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
   describe "New" do
     setup [:create_campaign, :login]
 
-    test "create campaigns", %{conn: conn, campaign: campaign} do
+    test "create campaigns", %{conn: conn} do
       #  Process.flag(:trap_exit, true)
       {:ok, view, html} = live(conn, Routes.campaign_new_path(conn, :new))
 
@@ -108,17 +108,11 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
           }
         ])
 
-      IO.inspect(deliveries.pid)
-      IO.inspect(view.pid)
-      IO.inspect(Phoenix.LiveViewTest.UploadClient.channel_pids(deliveries))
-
       # Process.unlink(deliveries.pid)
       render_upload(deliveries, "deliveries.csv", 100)
       {_, _, proxy_pid} = view.proxy
 
-      IO.inspect(proxy_pid)
-
-      assert_receive {:EXIT, proxy_pid, {:shutdown, :closed}}
+      assert_receive {:EXIT, ^proxy_pid, {:shutdown, :closed}}
       # require IEx; IEx.pry
       # view
       # |> open_browser()
@@ -137,11 +131,8 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
         ])
 
       render_upload(deliveries, "deliveries.csv", 100)
-      require IEx
-      IEx.pry()
       {_, _, proxy_pid} = view.proxy
 
-      IO.inspect(proxy_pid)
       assert_receive {:EXIT, ^proxy_pid, {:shutdown, :closed}}
     end
   end

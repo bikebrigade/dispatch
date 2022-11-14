@@ -2,7 +2,7 @@ defmodule BikeBrigadeWeb.LiveHelpers do
   alias BikeBrigade.Locations.Location
   alias BikeBrigade.LocalizedDateTime
 
-  def gravatar(email) do
+  def gravatar(email) when is_binary(email) do
     hash =
       email
       |> String.trim()
@@ -12,6 +12,8 @@ defmodule BikeBrigadeWeb.LiveHelpers do
 
     "https://www.gravatar.com/avatar/#{hash}?s=150&d=identicon"
   end
+
+  def gravatar(nil), do: gravatar("")
 
   def format_date(datetime), do: format_date(datetime, "%b %-d, %Y")
 
@@ -54,6 +56,33 @@ defmodule BikeBrigadeWeb.LiveHelpers do
   def lng(%Geo.Point{coordinates: {lng, _lat}}), do: lng
   def lng(%Location{coords: coords}), do: lng(coords)
   def lng(_), do: nil
+
+  def address(%Location{} = location) do
+    "#{location}"
+  end
+
+  def address(nil), do: "Unknown"
+
+  def phone(%{} = struct) do
+    Map.get(struct, :phone, "Unknown")
+  end
+
+  def phone(nil), do: "Unknown"
+
+  def email(%{} = struct) do
+    Map.get(struct, :email, "Unknown")
+  end
+
+  def email(nil), do: "Unknown"
+
+  def pronouns(%{} = struct) do
+    Map.get(struct, :phone, "Unknown")
+  end
+
+  def pronouns(nil), do: "Unknown"
+
+  def coords(%Location{coords: coords}), do: coords
+  def coords(nil), do: %Geo.Point{}
 
   @doc """
   Round distance in metres to nearest .1km

@@ -142,17 +142,13 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   @default_rider_search RiderSearch.new(preload: @preloads)
 
   defp apply_action(socket, :index, params) do
-    tag_filters =
-      Map.get(params, "tag", [])
-      |> Enum.map(fn tag -> {:tag, tag} end)
-
-    capacity_filters =
-      Map.get(params, "capacity", [])
-      |> Enum.map(fn tag -> {:capacity, tag} end)
+    filters =
+      Map.get(params, "filters", [])
+      |> Enum.map(&parse_filter/1)
 
     rider_search =
       RiderSearch.new(
-        filters: tag_filters ++ capacity_filters,
+        filters: filters,
         preload: @preloads
       )
 
@@ -494,7 +490,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
                   class="absolute right-1 text-gray-400 rounded-md top-2.5 hover:text-gray-500"
                 >
                   <span class="sr-only">Clear Search</span>
-                  <Heroicons.Outline.x class="w-6 h-6" />
+                  <Heroicons.Mini.x_mark class="w-6 h-6" />
                 </button>
               <% end %>
             </div>
@@ -511,8 +507,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
               "#{if @mode == :list, do: "bg-gray-300", else: "bg-white"} relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-l-md hover:bg-gray-200 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
             }
           >
-            <Heroicons.Outline.table class="w-5 h-5 mr-1" />
-            List
+            <Heroicons.Mini.table_cells class="w-5 h-5 mr-1" /> List
           </button>
           <button
             phx-click="set-mode"
@@ -522,8 +517,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
               "#{if @mode == :map, do: "bg-gray-300", else: "bg-white"} relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 border border-gray-300 rounded-r-md hover:bg-gray-200 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
             }
           >
-            Map
-            <Heroicons.Outline.map class="w-5 h-5 ml-1" />
+            Map <Heroicons.Mini.map class="w-5 h-5 ml-1" />
           </button>
         </div>
         <C.button patch_to={Routes.rider_index_path(@socket, :message)}>
@@ -628,7 +622,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
                 search_type={:word_boundary}
               />
             <% end %>
-            <span class="text-xs lowercase ">(<%= rider.pronouns %>)</span>
+            <span class="text-xs lowercase ">(<%= pronouns(rider) %>)</span>
             <.show_phone_if_filtered phone={rider.phone} filters={@rider_search.filters} />
           </:td>
           <:td let={rider}>
@@ -828,7 +822,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
             "my-0.5 inline-flex items-center px-2.5 py-1.5 rounded-md text-md font-medium #{color(type)}"
           }>
             <span class="text-700 mr-0.5 font-base"><%= type %>:</span><%= search %>
-            <Heroicons.Outline.x_circle
+            <Heroicons.Mini.x_circle
               class="w-5 h-5 ml-1 cursor-pointer"
               phx-click="remove-filter"
               phx-value-index={i}
@@ -859,7 +853,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     if phone_filter = get_filter(assigns.filters, :phone) do
       ~H"""
       <div class="flex">
-        <Heroicons.Outline.phone class="w-4 h-4" />
+        <Heroicons.Mini.device_phone_mobile class="w-4 h-4" />
         <.bold_search string={@phone} search={phone_filter} />
       </div>
       """

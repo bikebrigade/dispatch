@@ -8,7 +8,7 @@ defmodule BikeBrigade.Riders do
   alias BikeBrigade.LocalizedDateTime
 
   alias BikeBrigade.Riders.{Rider, Tag}
-  alias BikeBrigade.Delivery.Campaign
+  alias BikeBrigade.Delivery.{Campaign, CampaignRider}
 
   alias BikeBrigade.EctoPhoneNumber
 
@@ -21,12 +21,17 @@ defmodule BikeBrigade.Riders do
       [%Rider{}, ...]
 
   """
-  def list_riders do
+  def list_riders(opts \\ []) do
     Repo.all(Rider)
+    |> do_preload(opts)
   end
 
+  # todo add opts
   def list_riders_with_tag(tag) do
-    tag = Repo.get_by(Tag, name: tag) |> Repo.preload(:riders)
+    tag =
+      Repo.get_by(Tag, name: tag)
+      |> Repo.preload(:riders)
+
     if tag, do: tag.riders, else: []
   end
 
@@ -58,55 +63,41 @@ defmodule BikeBrigade.Riders do
       ** (Ecto.NoResultsError)
 
   """
-  @default_preload [:location]
-
   def get_rider(id, opts \\ []) do
-    preload = Keyword.get(opts, :preload, @default_preload)
-
     Repo.get(Rider, id)
-    |> Repo.preload(preload)
+    |> do_preload(opts)
   end
 
   def get_rider!(id, opts \\ []) do
-    preload = Keyword.get(opts, :preload, @default_preload)
-
     Repo.get!(Rider, id)
-    |> Repo.preload(preload)
+    |> do_preload(opts)
   end
 
   def get_riders(ids, opts \\ []) do
-    preload = Keyword.get(opts, :preload, @default_preload)
-
-    Repo.all(from r in Rider, where: r.id in ^ids)
-    |> Repo.preload(preload)
+    from(r in Rider, where: r.id in ^ids)
+    |> Repo.all()
+    |> do_preload(opts)
   end
 
   def get_rider_by_email!(email, opts \\ []) do
-    preload = Keyword.get(opts, :preload, @default_preload)
     email = String.downcase(email)
 
-    Rider
-    |> Repo.get_by!(email: email)
-    |> Repo.preload(preload)
+    Repo.get_by!(Rider, email: email)
+    |> do_preload(opts)
   end
 
   def get_rider_by_email(email, opts \\ []) do
-    preload = Keyword.get(opts, :preload, @default_preload)
-
     email = String.downcase(email)
 
-    Rider
-    |> Repo.get_by(email: email)
-    |> Repo.preload(preload)
+    Repo.get_by(Rider, email: email)
+    |> do_preload(opts)
   end
 
   def get_rider_by_phone!(phone, opts \\ []) do
-    preload = Keyword.get(opts, :preload, @default_preload)
-
     case EctoPhoneNumber.Canadian.cast(phone) do
       {:ok, phone} ->
         Repo.get_by!(Rider, phone: phone)
-        |> Repo.preload(preload)
+        |> do_preload(opts)
 
       {:error, err} ->
         raise EctoPhoneNumber.InvalidNumber, message: err
@@ -114,11 +105,13 @@ defmodule BikeBrigade.Riders do
   end
 
   def get_rider_by_phone(phone, opts \\ []) do
-    preload = Keyword.get(opts, :preload, @default_preload)
-
     case BikeBrigade.EctoPhoneNumber.Canadian.cast(phone) do
-      {:ok, phone} -> Repo.get_by(Rider, phone: phone) |> Repo.preload(preload)
-      {:error, _err} -> nil
+      {:ok, phone} ->
+        Repo.get_by(Rider, phone: phone)
+        |> do_preload(opts)
+
+      {:error, _err} ->
+        nil
     end
   end
 
@@ -148,6 +141,27 @@ defmodule BikeBrigade.Riders do
         where: ^where,
         preload: [:program],
         select: {c, count(t)}
+
+    Repo.all(query)
+  end
+
+  def get_itinerary(rider_id, date) do
+    start_of_day = LocalizedDateTime.new!(date, ~T[00:00:00])
+    end_of_day = LocalizedDateTime.new!(date, ~T[23:59:59])
+
+    query =
+      from cr in CampaignRider,
+        join: c in assoc(cr, :campaign),
+        join: r in assoc(cr, :rider),
+        left_join: t in assoc(c, :tasks),
+        on: t.assigned_rider_id == r.id,
+        order_by: [asc: c.delivery_start],
+        where:
+          cr.rider_id == ^rider_id and c.delivery_start >= ^start_of_day and
+            c.delivery_end <= ^end_of_day,
+        preload: [
+          campaign: {c, [:program, :location, tasks: {t, [:dropoff_location, task_items: :item]}]}
+        ]
 
     Repo.all(query)
   end
@@ -210,19 +224,20 @@ defmodule BikeBrigade.Riders do
   end
 
   @doc """
-  Deletes a rider.
+  Removes a rider.
 
-  ## Examples
-
-      iex> delete_rider(rider)
-      {:ok, %Rider{}}
-
-      iex> delete_rider(rider)
-      {:error, %Ecto.Changeset{}}
-
+  Rider rows aren't deleted so we maintain records of campaigns
+  Instead when a rider is removed we soft delete it:
+  - Mark the Rider as removed
+  - Delete all PII
+  - Delete our SMS correspondence with them
   """
-  def delete_rider(%Rider{} = rider) do
-    Repo.delete(rider)
+  def remove_rider(%Rider{} = rider) do
+    rider
+    |> Repo.preload([:location, :messages, :tags, :user])
+    |> Rider.soft_delete_changeset()
+    |> Repo.update()
+    |> broadcast(:rider_updated)
   end
 
   @doc """
@@ -253,5 +268,13 @@ defmodule BikeBrigade.Riders do
   defp broadcast({:ok, struct}, event) do
     Phoenix.PubSub.broadcast(BikeBrigade.PubSub, "riders", {event, struct})
     {:ok, struct}
+  end
+
+  @default_preloads [:location]
+  defp do_preload(results, opts) do
+    preloads = Keyword.get(opts, :preload, @default_preloads)
+
+    results
+    |> Repo.preload(preloads)
   end
 end

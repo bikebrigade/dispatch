@@ -17,17 +17,14 @@ end
 if Delivery.list_programs() == [] do
   for _ <- 1..2 do
     Seeder.program()
-  end
-end
-
-for program <- Delivery.list_programs() do
-  if Delivery.list_items(program.id) == [] do
     # Seed 3 items/program
     for _ <- 1..3 do
       Seeder.item_for_program(program)
     end
   end
+end
 
+for program <- Delivery.list_programs() do
   if Delivery.list_campaigns()
      |> Enum.filter(fn campaign -> campaign.program_id == program.id end) == [] do
     # Seed 1 campaign/program

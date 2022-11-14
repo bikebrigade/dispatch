@@ -97,49 +97,55 @@ Hooks.LeafletMapNext = {
       zIndex = parseInt(this.el.dataset.zindex);
     }
 
+    const addMarker = ({
+      id,
+      lat,
+      lng,
+      icon,
+      color,
+      clickEvent,
+      clickValue,
+      clickTarget,
+      tooltip
+    }) => {
+      const marker = L.marker([lat, lng], {
+        icon: L.MakiMarkers.icon({
+          color: color,
+          icon: icon
+        }),
+        zIndexOffset: zIndex
+      });
+
+      if (clickEvent) {
+        marker.on('click', e => {
+          let payload = clickValue;
+          if (clickTarget) {
+            this.pushEventTo(clickTarget, clickEvent, payload);
+          } else {
+            this.pushEvent(clickEvent, payload);
+          }
+        });
+      }
+
+      if (tooltip) {
+        marker.bindTooltip(tooltip);
+      }
+
+      marker.addTo(this.map);
+      this.markers[id] = marker;
+    };
+
     this.markers = {};
+
+    let initialMarkers = JSON.parse(this.el.dataset.initial_markers);
+    initialMarkers.forEach(addMarker);
+
 
     this.handleEvent("update-markers", ({
       added,
       removed
     }) => {
-      added.forEach(({
-        id,
-        lat,
-        lng,
-        icon,
-        color,
-        clickEvent,
-        clickValue,
-        clickTarget,
-        tooltip
-      }) => {
-        const marker = L.marker([lat, lng], {
-          icon: L.MakiMarkers.icon({
-            color: color,
-            icon: icon
-          }),
-          zIndexOffset: zIndex
-        });
-
-        if (clickEvent) {
-          marker.on('click', e => {
-            let payload = clickValue;
-            if (clickTarget) {
-              this.pushEventTo(clickTarget, clickEvent, payload);
-            } else {
-              this.pushEvent(clickEvent, payload);
-            }
-          });
-        }
-
-        if (tooltip) {
-          marker.bindTooltip(tooltip);
-        }
-
-        marker.addTo(this.map);
-        this.markers[id] = marker;
-      });
+      added.forEach(addMarker);
       removed.forEach(({
         id
       }) => {
@@ -157,6 +163,11 @@ Hooks.LeafletMapNext = {
         color: color,
         icon: icon
       }))
+    });
+
+    this.handleEvent("redraw-map", () => {
+      // TODO: we redraw every map on this event. In the future we may want to scope by id if we have multiple maps on one page
+      this.map.invalidateSize()
     });
   },
 };
@@ -511,14 +522,19 @@ topbar.config({
   },
   shadowColor: "rgba(0, 0, 0, .3)"
 })
+
 window.addEventListener("phx:page-loading-start", () => {
   clearTimeout(progressTimeout);
-  progressTimeout = setTimeout(topbar.show, 100)
+  progressTimeout = setTimeout(topbar.show, 100);
 })
 window.addEventListener("phx:page-loading-stop", () => {
   clearTimeout(progressTimeout);
   topbar.hide()
 })
+
+const setAppHeight = () => document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
+window.addEventListener("resize", setAppHeight);
+setAppHeight();
 
 // connect if there are any LiveViews on the page
 liveSocket.connect()

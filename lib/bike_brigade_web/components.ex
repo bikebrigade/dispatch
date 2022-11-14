@@ -211,13 +211,7 @@ defmodule BikeBrigadeWeb.Components do
       <div class="p-4 rounded-md bg-green-50">
         <div class="flex">
           <div class="flex-shrink-0">
-            <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fill-rule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                clip-rule="evenodd"
-              />
-            </svg>
+            <Heroicons.Mini.check_circle class="w-5 h-5 text-green-400" />
           </div>
           <div class="ml-3">
             <p class="text-sm font-medium leading-5 text-green-800">
@@ -231,13 +225,7 @@ defmodule BikeBrigadeWeb.Components do
                 phx-value-key="info"
                 class="inline-flex rounded-md p-1.5 text-green-500 hover:bg-green-100 focus:outline-none focus:bg-green-100 transition ease-in-out duration-150"
               >
-                <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path
-                    fill-rule="evenodd"
-                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
+                <Heroicons.Mini.x_mark class="w-5 h-5" />
               </button>
             </div>
           </div>
@@ -249,13 +237,7 @@ defmodule BikeBrigadeWeb.Components do
       <div class="p-4 rounded-md bg-red-50">
         <div class="flex">
           <div class="flex-shrink-0">
-            <svg class="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fill-rule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                clip-rule="evenodd"
-              />
-            </svg>
+            <Heroicons.Mini.x_circle class="w-5 h-5 text-red-400" />
           </div>
           <div class="ml-3">
             <p class="text-sm font-medium leading-5 text-red-800">
@@ -269,13 +251,7 @@ defmodule BikeBrigadeWeb.Components do
                 phx-value-key="error"
                 class="inline-flex rounded-md p-1.5 text-red-500 hover:bg-red-100 focus:outline-none focus:bg-red-100 transition ease-in-out duration-150"
               >
-                <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path
-                    fill-rule="evenodd"
-                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
+                <Heroicons.Mini.x_mark class="w-5 h-5" />
               </button>
             </div>
           </div>
@@ -285,12 +261,13 @@ defmodule BikeBrigadeWeb.Components do
     """
   end
 
+  # TODO finish the LeafletNext refactor so we can get rid of this
   def map(assigns) do
     assigns = assign_new(assigns, :class, fn -> "" end)
 
     ~H"""
-    <%= if @coords != %Geo.Point{} do %>
-      <div class={@class}>
+    <div class={@class}>
+      <%= if @coords != %Geo.Point{} do %>
         <leaflet-map
           phx-hook="LeafletMap"
           id={"location-map-#{inspect(@coords.coordinates)}"}
@@ -308,6 +285,33 @@ defmodule BikeBrigadeWeb.Components do
             data-color="#1c64f2"
           >
           </leaflet-marker>
+        </leaflet-map>
+      <% else %>
+        <div class="p-2">Location Unknown</div>
+      <% end %>
+    </div>
+    """
+  end
+
+  @doc "Map component using the refactored javascript hook"
+  def map_next(assigns) do
+    assigns =
+      assigns
+      |> assign_new(:class, fn -> "" end)
+      |> assign_new(:initial_markers, fn -> [] end)
+
+    ~H"""
+    <%= if @coords != %Geo.Point{} do %>
+      <div class={@class}>
+        <leaflet-map
+          phx-hook="LeafletMapNext"
+          id={"location-map-#{inspect(@coords.coordinates)}"}
+          data-lat={lat(@coords)}
+          data-lng={lng(@coords)}
+          data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
+          data-initial_markers={@initial_markers}
+          class="h-full"
+        >
         </leaflet-map>
       </div>
     <% end %>
@@ -361,7 +365,11 @@ defmodule BikeBrigadeWeb.Components do
 
     ~H"""
     <button type="button" phx-value-field={@current_field} phx-value-order={@next} {@attrs}>
-      <Icons.sort order={@order} class={@icon_class} />
+      <%= if @order == :asc do %>
+        <Heroicons.Mini.bars_arrow_up class={@icon_class} />
+      <% else %>
+        <Heroicons.Mini.bars_arrow_down class={@icon_class} />
+      <% end %>
     </button>
     """
   end
@@ -369,10 +377,7 @@ defmodule BikeBrigadeWeb.Components do
   def location(assigns) do
     ~H"""
     <div class="inline-flex flex-shrink-0 leading-normal">
-      <Heroicons.Outline.location_marker
-        aria_label="Location"
-        class="w-4 h-4 mt-1 mr-1 text-gray-800"
-      />
+      <Heroicons.Mini.map_pin aria_label="Location" class="w-4 h-4 mt-1 mr-1 text-gray-500" />
       <div class="grid grid-cols-2 gap-y-0 gap-x-1">
         <div class="col-span-2"><%= @location.address %></div>
         <%= if @location.unit do %>

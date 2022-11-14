@@ -1,9 +1,7 @@
 <div
   x-data="{ sidebarOpen: false }"
   @keydown.window.escape="sidebarOpen = false"
-  class="flex max-h-screen bg-gray-50"
-  style="max-height: -webkit-fill-available;"
->
+  class="flex max-h-screen-safe bg-gray-50">
   <!-- Off-canvas menu for mobile -->
   <div x-show="sidebarOpen" class="lg:hidden">
     <div class="fixed inset-0 z-40 flex">
@@ -76,7 +74,7 @@
         </div>
         <div class="flex-1 h-0 mt-5 overflow-y-auto">
           <nav class="px-2">
-            <C.Sidebar.component socket={@socket} current_page={@page} />
+            <C.Sidebar.component socket={@socket} current_page={@page} is_dispatcher={@current_user.is_dispatcher}/>
           </nav>
         </div>
       </div>
@@ -86,7 +84,7 @@
     </div>
   </div>
   <!-- Static sidebar for desktop -->
-  <div class="hidden h-screen lg:flex lg:flex-shrink-0">
+  <div class="hidden h-screen-safe lg:flex lg:flex-shrink-0">
     <div class="flex flex-col w-64 pt-5 pb-4 bg-white border-r border-gray-200">
       <div class="flex items-center flex-shrink-0 px-4">
         <img
@@ -99,11 +97,11 @@
       <div class="flex flex-col flex-1 h-0 mt-5 overflow-y-auto">
         <!-- Sidebar component, swap this element with another sidebar if you like -->
         <nav class="flex-1 px-2 bg-white">
-          <C.Sidebar.component socket={@socket} current_page={@page} />
+          <C.Sidebar.component socket={@socket} current_page={@page} is_dispatcher={@current_user.is_dispatcher}/>
         </nav>
       </div>
       <div class="flex flex-col flex-shrink-0 p-4 border-t border-gray-200">
-        <a href="#" class="flex-shrink-0 block group">
+        <a href={Routes.rider_show_path(@socket, :profile)} class="flex-shrink-0 block group">
           <div class="flex items-center">
             <div>
               <img
@@ -125,7 +123,7 @@
       </div>
     </div>
   </div>
-  <div class="flex flex-col flex-1 w-0 h-screen max-h-screen overflow-hidden">
+  <div class="flex flex-col flex-1 w-0 h-screen-safe max-h-screen-safe overflow-hidden">
     <div class="pt-1 pl-1 lg:hidden sm:pl-3 sm:pt-3">
       <button
         @click="sidebarOpen = true"
