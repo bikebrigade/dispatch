@@ -888,9 +888,9 @@ defmodule BikeBrigadeWeb.CoreComponents do
                     class={[
                       "py-3.5 text-left text-sm font-semibold text-gray-900",
                       if(i == 0, do: "pl-4 pr-3 sm:pl-6", else: "px-3"),
-                      if(col[:show_at], do: "hidden " <> display_at_size(col[:show_at], "table-cell")),
+                      if(col[:show_at], do: "hidden " <> table_cell_at_size(col[:show_at])),
                       if(col[:unstack_at],
-                        do: "hidden " <> display_at_size(col[:unstack_at], "table-cell")
+                        do: "hidden " <> table_cell_at_size(col[:unstack_at])
                       )
                     ]}
                   >
@@ -933,9 +933,9 @@ defmodule BikeBrigadeWeb.CoreComponents do
                     class={[
                       "py-4 text-sm text-gray-500 whitespace-nowrap",
                       if(i == 0, do: "pl-4 pr-3 sm:pl-6 font-medium", else: "px-3"),
-                      if(col[:show_at], do: "hidden " <> display_at_size(col[:show_at], "table-cell")),
+                      if(col[:show_at], do: "hidden " <> table_cell_at_size(col[:show_at])),
                       if(col[:unstack_at],
-                        do: "hidden " <> display_at_size(col[:unstack_at], "table-cell")
+                        do: "hidden " <> table_cell_at_size(col[:unstack_at])
                       )
                     ]}
                   >
@@ -944,7 +944,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
                       <div
                         :for={col <- Enum.drop(@col, 1)}
                         :if={col[:unstack_at]}
-                        class={display_at_size(col[:unstack_at], "hidden")}
+                        class={hidden_at_size(col[:unstack_at])}
                       >
                         <dt class="sr-only">
                           <%= col[:label] %>
@@ -972,11 +972,22 @@ defmodule BikeBrigadeWeb.CoreComponents do
     """
   end
 
-  defp display_at_size(size, display_class) do
+  # These need to be written as two functions and not generalized to take a size & class name
+  # so tailwind sees the full class names
+  defp hidden_at_size(size) do
     case size do
-      :small -> "sm:#{display_class}"
-      :medium -> "md:#{display_class}"
-      :large -> "lg:#{display_class}"
+      :small -> "sm:hidden"
+      :medium -> "md:hidden"
+      :large -> "lg:hidden"
+      nil -> ""
+    end
+  end
+
+  defp table_cell_at_size(size) do
+    case size do
+      :small -> "sm:table-cell"
+      :medium -> "md:table-cell"
+      :large -> "lg:table-cell"
       nil -> ""
     end
   end
