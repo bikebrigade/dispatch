@@ -287,6 +287,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
   attr :checked, :boolean, doc: "the checked flag for checkbox inputs"
   attr :prompt, :string, default: nil, doc: "the prompt for select inputs"
   attr :options, :list, doc: "the options to pass to Phoenix.HTML.Form.options_for_select/2"
+  attr :multiple, :boolean, default: false, doc: "the multiple flag for select inputs"
   attr :rest, :global, include: ~w(autocomplete checked disabled form max maxlength min minlength
                                    multiple pattern placeholder readonly required size step)
   slot :inner_block
@@ -294,7 +295,10 @@ defmodule BikeBrigadeWeb.CoreComponents do
   def input(%{field: {f, field}} = assigns) do
     assigns
     |> assign(field: nil)
-    |> assign_new(:name, fn -> Phoenix.HTML.Form.input_name(f, field) end)
+    |> assign_new(:name, fn ->
+      name = Phoenix.HTML.Form.input_name(f, field)
+      if assigns.multiple, do: name <> "[]", else: name
+    end)
     |> assign_new(:id, fn -> Phoenix.HTML.Form.input_id(f, field) end)
     |> assign_new(:value, fn -> Phoenix.HTML.Form.input_value(f, field) end)
     |> assign_new(:errors, fn -> translate_errors(f.errors || [], field) end)
@@ -336,6 +340,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
         id={@id}
         name={@name}
         class="block w-full px-3 py-2 mt-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-zinc-500 focus:border-zinc-500 sm:text-sm"
+        multiple={@multiple}
         {@rest}
       >
         <option :if={@prompt}><%= @prompt %></option>
