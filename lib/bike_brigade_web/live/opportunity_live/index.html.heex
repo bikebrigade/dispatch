@@ -15,9 +15,34 @@
   id="opportunities"
   rows={@opportunities}
   checkboxes="selected"
-  checkbox_phx_change={JS.push("select")}
-  checkbox_checked?={&MapSet.member?(@selected, &1.id)}
+  checkboxes_phx_change={JS.push("select")}
+  checkboxes_selected={@selected}
 >
+  <:bulk_action>
+    <.button
+      size={:xxsmall}
+      color={:white}
+      phx-click={JS.push("update_selected", value: %{action: :publish})}
+      class="p-1"
+    >
+      <Heroicons.check_circle
+        mini
+        class="flex-shrink-0 w-5 h-5 mx-1 text-green-400 justify-self-end"
+      /> Publish Selected
+    </.button>
+  </:bulk_action>
+
+  <:bulk_action>
+    <.button
+      size={:xxsmall}
+      color={:white}
+      phx-click={JS.push("update_selected", value: %{action: :unpublish})}
+      class="p-1"
+    >
+      <Heroicons.x_circle mini class="flex-shrink-0 w-5 h-5 mx-1 text-red-400 justify-self-end" />
+      Unpublish Selected
+    </.button>
+  </:bulk_action>
   <:col :let={opportunity} label="Program">
     <.link navigate={~p"/programs/#{opportunity.program}"} class="link">
       <%= opportunity.program.name %>
@@ -97,7 +122,7 @@
         <thead>
           <tr>
             <th class="py-3 pl-3 pr-1 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-              <%= checkbox(:selected, :all,
+              <%= checkbox(:selected, :all2,
                 form: "selected",
                 value: Enum.count(@selected) == Enum.count(@opportunities),
                 class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
@@ -171,66 +196,7 @@
             </th>
           </tr>
         </thead>
-        <tbody class="bg-white">
-          <%= for opportunity <- @opportunities do %>
-            <tr id={"opportunity-#{opportunity.id}"}>
-              <td class="py-4 pl-3 pr-1 text-sm leading-5 text-gray-500 border-b border-gray-200">
-                <%= checkbox(:selected, "#{opportunity.id}",
-                  form: "selected",
-                  value: MapSet.member?(@selected, opportunity.id),
-                  class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                ) %>
-              </td>
-              <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
-                <.link navigate={~p"/programs/#{opportunity.program}"} class="link">
-                  <%= opportunity.program.name %>
-                </.link>
-              </td>
-              <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
-                <.date date={LocalizedDateTime.to_date(opportunity.delivery_start)} />
-              </td>
-              <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
-                <%= time_interval(opportunity.delivery_start, opportunity.delivery_end) %>
-              </td>
-              <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
-                <%= opportunity.location.address %>
-                <%= if opportunity.hide_address do %>
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                    hidden
-                  </span>
-                <% end %>
-              </td>
-              <td class="px-6 py-4 text-sm leading-5 text-center text-gray-500 break-all border-b border-gray-200">
-                <a href={opportunity.signup_link} class="inline-block link">
-                  <Heroicons.link solid aria-label="Link to signup" class="flex-shrink-0 w-5" />
-                </a>
-              </td>
-              <td class="px-6 py-4 text-sm leading-5 text-gray-500 break-all border-b border-gray-200 whitespace-nowrap">
-                <%= program_lead_name(opportunity) %>
-              </td>
-              <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
-                <.check_mark value={opportunity.published} />
-              </td>
-              <td class="px-6 py-4 space-x-1 space-y-1 text-right border-b border-gray-200">
-                <.button
-                  patch={~p"/opportunities/#{opportunity}/edit"}
-                  size={:xsmall}
-                  color={:white}
-                >
-                  Edit
-                </.button>
-                <.button
-                  phx-click={JS.push("delete", value: %{id: opportunity.id})}
-                  data-confirm="Are you sure?"
-                  size={:xsmall}
-                  color={:lightred}
-                >
-                  Delete
-                </.button>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
+        <tbody class="bg-white"></tbody>
       </table>
     </div>
   </div>

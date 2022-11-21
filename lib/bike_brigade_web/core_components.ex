@@ -73,7 +73,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
 
   defp button_size(size) do
     case size do
-      :xxsmall -> "p-0"
+      :xxsmall -> "p-0 text-xs"
       :xsmall -> "px-2.5 py-1.5 text-xs"
       :small -> "px-3 py-2 text-sm leading-4"
       :medium -> "px-4 py-2 text-sm"
@@ -840,8 +840,8 @@ defmodule BikeBrigadeWeb.CoreComponents do
   attr :rows, :list, required: true
 
   attr :checkboxes, :string, default: nil
-  attr :checkbox_checked?, :any
-  attr :checkbox_phx_change, JS, default: %JS{}
+  attr :checkboxes_phx_change, JS, default: %JS{}
+  attr :checkboxes_selected, MapSet, default: MapSet.new()
 
   slot :col, required: true do
     attr :show_at, :atom, values: [:small, :medium, :large]
@@ -850,35 +850,44 @@ defmodule BikeBrigadeWeb.CoreComponents do
   end
 
   slot :action, doc: "the slot for showing user actions in the last table column"
+  slot :bulk_action, doc: "the slot for showing bulk user actions at the top of the table"
 
   def table(assigns) do
+    assigns = assign(assigns, :num_checked, Enum.count(assigns.checkboxes_selected))
+
     ~H"""
     <div id={@id} class="flex flex-col mt-8">
       <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
           <div class="relative overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-            <form :if={@checkboxes} id={"#{@id}-form"} phx-change={@checkbox_phx_change}></form>
-            <div class="absolute top-0 flex items-center hidden h-12 space-x-3 left-12 bg-gray-50 sm:left-16">
-              <button
-                type="button"
-                class="inline-flex items-center rounded border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-30"
-              >
-                Bulk edit
-              </button>
-              <button
-                type="button"
-                class="inline-flex items-center rounded border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-30"
-              >
-                Delete all
-              </button>
+            <form :if={@checkboxes} id={"#{@id}-form"} phx-change={@checkboxes_phx_change}></form>
+            <div
+              :if={@num_checked > 0}
+              class="absolute top-0 flex items-center h-12 space-x-3 left-12 bg-gray-50 sm:left-16"
+            >
+              <span :for={bulk_action <- @bulk_action}>
+                <%= render_slot(bulk_action) %>
+              </span>
             </div>
             <table class="min-w-full divide-y divide-gray-300">
               <thead class="bg-gray-50">
                 <tr>
                   <th :if={@checkboxes} scope="col" class="relative w-12 px-6 sm:w-16 sm:px-8">
                     <input
-                      type="checkbox"
+                      type="hidden"
+                      name={Phoenix.HTML.Form.input_name(@checkboxes, "all")}
+                      value="false"
                       form={"#{@id}-form"}
+                    />
+                    <input
+                      type="checkbox"
+                      id={Phoenix.HTML.Form.input_id(@checkboxes, "all")}
+                      name={Phoenix.HTML.Form.input_name(@checkboxes, "all")}
+                      value="true"
+                      form={"#{@id}-form"}
+                      phx-hook="CheckboxAll"
+                      data-num-checked={@num_checked}
+                      data-num-rows={length(@rows)}
                       class="absolute w-4 h-4 -mt-2 text-indigo-600 border-gray-300 rounded left-4 top-1/2 focus:ring-indigo-500 sm:left-6"
                     />
                   </th>
@@ -905,11 +914,13 @@ defmodule BikeBrigadeWeb.CoreComponents do
                 <tr
                   :for={row <- @rows}
                   id={"#{@id}-#{Phoenix.Param.to_param(row)}"}
-                  class={if @checkboxes && @checkbox_checked?.(row), do: "bg-gray-50"}
+                  class={
+                    if @checkboxes && MapSet.member?(@checkboxes_selected, row.id), do: "bg-gray-50"
+                  }
                 >
                   <td :if={@checkboxes} class="relative w-12 px-6 sm:w-16 sm:px-8">
                     <div
-                      :if={@checkbox_checked?.(row)}
+                      :if={MapSet.member?(@checkboxes_selected, row.id)}
                       class="absolute inset-y-0 left-0 w-0.5 bg-indigo-600"
                     />
                     <input
@@ -923,7 +934,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
                       id={Phoenix.HTML.Form.input_id(@checkboxes, Phoenix.Param.to_param(row))}
                       name={Phoenix.HTML.Form.input_name(@checkboxes, Phoenix.Param.to_param(row))}
                       value="true"
-                      checked={@checkbox_checked?.(row)}
+                      checked={MapSet.member?(@checkboxes_selected, row.id)}
                       form={"#{@id}-form"}
                       class="absolute w-4 h-4 -mt-2 text-indigo-600 border-gray-300 rounded left-4 top-1/2 focus:ring-indigo-500 sm:left-6"
                     />
