@@ -792,6 +792,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
         class="pl-2"
       />
   """
+  # TODO: these attributes could use better names
   attr :current_field, :atom, required: true
   attr :default_order, :atom, values: [:asc, :desc], default: :asc
   attr :sort_field, :atom, required: true
@@ -843,10 +844,17 @@ defmodule BikeBrigadeWeb.CoreComponents do
   attr :checkboxes_phx_change, JS, default: %JS{}
   attr :checkboxes_selected, MapSet, default: MapSet.new()
 
+  attr :sort_click, JS
+  attr :sort_field, :atom
+  attr :sort_order, :atom, values: [:asc, :desc]
+
   slot :col, required: true do
     attr :show_at, :atom, values: [:small, :medium, :large]
     attr :unstack_at, :atom, values: [:small, :medium, :large]
     attr :label, :string
+
+    attr :sortable_field, :atom
+    attr :default_order, :atom, values: [:asc, :desc]
   end
 
   slot :action, doc: "the slot for showing user actions in the last table column"
@@ -903,7 +911,17 @@ defmodule BikeBrigadeWeb.CoreComponents do
                       )
                     ]}
                   >
-                    <%= col[:label] %>
+                    <div class="inline-flex space-x-1">
+                      <%= col[:label] %>
+                      <.sort_link
+                        :if={col[:sortable_field]}
+                        phx-click={@sort_click}
+                        current_field={col[:sortable_field]}
+                        default_order={col[:default_order]}
+                        sort_field={@sort_field}
+                        sort_order={@sort_order}
+                      />
+                    </div>
                   </th>
                   <th :if={@action != []} scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
                     <span class="sr-only">Actions</span>

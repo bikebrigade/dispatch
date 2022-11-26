@@ -17,6 +17,9 @@
   checkboxes="selected"
   checkboxes_phx_change={JS.push("select")}
   checkboxes_selected={@selected}
+  sort_click="sort"
+  sort_field={@sort_field}
+  sort_order={@sort_order}
 >
   <:bulk_action>
     <.button
@@ -43,12 +46,17 @@
       Unpublish Selected
     </.button>
   </:bulk_action>
-  <:col :let={opportunity} label="Program">
+  <:col
+    :let={opportunity}
+    label="Program"
+    sortable_field={:program_name}
+    default_order={:asc}
+  >
     <.link navigate={~p"/programs/#{opportunity.program}"} class="link">
       <%= opportunity.program.name %>
     </.link>
   </:col>
-  <:col :let={opportunity} label="Date">
+  <:col :let={opportunity} label="Date" sortable_field={:delivery_start} default_order={:asc}>
     <.date date={LocalizedDateTime.to_date(opportunity.delivery_start)} />
   </:col>
   <:col :let={opportunity} label="Time" show_at={:large}>
@@ -69,10 +77,16 @@
       <Heroicons.link solid aria-label="Link to signup" class="flex-shrink-0 w-5" />
     </.link>
   </:col>
-  <:col :let={opportunity} label="Lead" show_at={:large}>
+  <:col
+    :let={opportunity}
+    label="Lead"
+    show_at={:large}
+    sortable_field={:program_lead}
+    default_order={:asc}
+  >
     <%= program_lead_name(opportunity) %>
   </:col>
-  <:col :let={opportunity} label="Published">
+  <:col :let={opportunity} label="Published" sortable_field={:published} default_order={:desc}>
     <.check_mark value={opportunity.published} />
   </:col>
   <:action :let={opportunity}>
@@ -115,91 +129,6 @@
       </.button>
     </div>
   <% end %>
-  <div class="py-2 -my-2 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-    <div class="inline-block min-w-full overflow-hidden align-middle border-b border-gray-200 shadow sm:rounded-lg">
-      <form id="selected" phx-change="select"></form>
-      <table class="min-w-full table-fixed">
-        <thead>
-          <tr>
-            <th class="py-3 pl-3 pr-1 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-              <%= checkbox(:selected, :all2,
-                form: "selected",
-                value: Enum.count(@selected) == Enum.count(@opportunities),
-                class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-              ) %>
-            </th>
-            <th class="w-1/6 px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-              <div class="inline-flex">
-                Program
-                <.sort_link
-                  phx-click="sort"
-                  current_field={:program_name}
-                  default_order={:asc}
-                  sort_field={@sort_field}
-                  sort_order={@sort_order}
-                  class="pl-2"
-                />
-              </div>
-            </th>
-            <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-              <div class="inline-flex">
-                Date
-                <.sort_link
-                  phx-click="sort"
-                  current_field={:delivery_start}
-                  default_order={:asc}
-                  sort_field={@sort_field}
-                  sort_order={@sort_order}
-                  class="pl-2"
-                />
-              </div>
-            </th>
-            <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-              Time
-            </th>
-            <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-              Location
-            </th>
-            <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-              Link
-            </th>
-            <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-              <div class="inline-flex">
-                Lead
-                <.sort_link
-                  phx-click="sort"
-                  current_field={:program_lead}
-                  default_order={:asc}
-                  sort_field={@sort_field}
-                  sort_order={@sort_order}
-                  class="pl-2"
-                />
-              </div>
-            </th>
-            <th class="py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 1/6 bg-gray-50">
-              <div class="inline-flex">
-                Published
-                <.sort_link
-                  phx-click="sort"
-                  current_field={:published}
-                  default_order={:desc}
-                  sort_field={@sort_field}
-                  sort_order={@sort_order}
-                  class="pl-2"
-                />
-              </div>
-            </th>
-            <th class="w-40 px-6 py-4 text-right border-b border-gray-200 bg-gray-50">
-              <.button patch={~p"/opportunities/new"} size={:small}>
-                New
-              </.button>
-            </th>
-          </tr>
-        </thead>
-        <tbody class="bg-white"></tbody>
-      </table>
-    </div>
-  </div>
 </div>
 
 <.slideover
