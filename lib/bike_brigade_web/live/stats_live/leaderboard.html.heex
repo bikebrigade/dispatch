@@ -92,41 +92,5 @@
         <%= round_distance(rider_stat.distance) %> km
       </:col>
     </.table>
-    <UI.table rows={[]}>
-      <:th>
-        <div class="inline-flex align-top">
-          Name <.sort_icon field={:rider_name} options={@options} />
-        </div>
-      </:th>
-      <:th>
-        <div class="inline-flex align-baseline">
-          Campaigns <.sort_icon field={:campaigns} options={@options} />
-        </div>
-      </:th>
-      <:th>
-        <div class="inline-flex">
-          Deliveries <.sort_icon field={:deliveries} options={@options} />
-        </div>
-      </:th>
-      <:th>
-        <div class="inline-flex">
-          Distance <.sort_icon field={:distance} options={@options} />
-        </div>
-      </:th>
-      <:td :let={{rider, _campaigns, _tasks, _distance}}>
-        <.link navigate={~p"/riders/#{rider}"} class="link">
-          <%= rider.name %>
-        </.link>
-      </:td>
-      <:td :let={{_rider, campaigns, _tasks, _distance}}>
-        <%= campaigns %>
-      </:td>
-      <:td :let={{_rider, _campaigns, tasks, _distance}}>
-        <%= tasks %>
-      </:td>
-      <:td :let={{_rider, _campaigns, _tasks, distance}}>
-        <%= round_distance(distance) %> km
-      </:td>
-    </UI.table>
   </div>
 </div>
