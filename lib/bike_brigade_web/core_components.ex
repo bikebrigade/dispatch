@@ -880,7 +880,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
             <table class="min-w-full divide-y divide-gray-300">
               <thead class="bg-gray-50">
                 <tr>
-                  <th :if={@checkboxes} scope="col" class="relative w-12 px-6 sm:w-16 sm:px-8">
+                  <th :if={@checkboxes} scope="col" class="relative w-12 px-4 sm:w-16 sm:px-8">
                     <input
                       type="hidden"
                       name={Phoenix.HTML.Form.input_name(@checkboxes, "all")}
@@ -936,7 +936,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
                     if @checkboxes && MapSet.member?(@checkboxes_selected, row.id), do: "bg-gray-50"
                   }
                 >
-                  <td :if={@checkboxes} class="relative w-12 px-6 sm:w-16 sm:px-8">
+                  <td :if={@checkboxes} class="relative w-12 px-4 sm:w-16 sm:px-8">
                     <div
                       :if={MapSet.member?(@checkboxes_selected, row.id)}
                       class="absolute inset-y-0 left-0 w-0.5 bg-indigo-600"
@@ -985,9 +985,9 @@ defmodule BikeBrigadeWeb.CoreComponents do
 
                   <td
                     :if={@action != []}
-                    class="relative py-4 pl-3 pr-4 space-x-2 text-sm font-medium text-right whitespace-nowrap sm:pr-6"
+                    class="py-4 pl-2 pr-4 text-sm font-medium text-right sm:pr-6"
                   >
-                    <span :for={action <- @action}>
+                    <span :for={action <- @action} class="ml-1">
                       <%= render_slot(action, row) %>
                     </span>
                   </td>

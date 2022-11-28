@@ -56,7 +56,7 @@
       <%= opportunity.program.name %>
     </.link>
   </:col>
-  <:col :let={opportunity} label="Date" sortable_field={:delivery_start} default_order={:asc}>
+  <:col :let={opportunity} label="Date" sortable_field={:delivery_start} default_order={:asc} unstack_at={:large}>
     <.date date={LocalizedDateTime.to_date(opportunity.delivery_start)} />
   </:col>
   <:col :let={opportunity} label="Time" show_at={:large}>
@@ -86,23 +86,22 @@
   >
     <%= program_lead_name(opportunity) %>
   </:col>
-  <:col :let={opportunity} label="Published" sortable_field={:published} default_order={:desc}>
+  <:col :let={opportunity} label="Published">
     <.check_mark value={opportunity.published} />
   </:col>
   <:action :let={opportunity}>
-    <.button patch={~p"/opportunities/#{opportunity}/edit"} size={:xsmall} color={:white}>
+    <.link patch={~p"/opportunities/#{opportunity}/edit"} class="link">
       Edit
-    </.button>
+    </.link>
   </:action>
   <:action :let={opportunity}>
-    <.button
+    <.link
       phx-click={JS.push("delete", value: %{id: opportunity.id})}
       data-confirm="Are you sure?"
-      size={:xsmall}
-      color={:lightred}
+    class="link"
     >
       Delete
-    </.button>
+    </.link>
   </:action>
 </.table>
 
