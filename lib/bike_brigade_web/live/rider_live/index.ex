@@ -277,22 +277,6 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     {:noreply, assign(socket, :selected, selected)}
   end
 
-  def handle_event(
-        "select-rider",
-        %{"_target" => ["selected", "all"], "selected" => selected_params},
-        socket
-      ) do
-    %{opportunities: opportunities} = socket.assigns
-
-    selected =
-      case selected_params["all"] do
-        "true" -> Enum.map(opportunities, & &1.id) |> MapSet.new()
-        "false" -> MapSet.new()
-      end
-
-    {:noreply, assign(socket, :selected, selected)}
-  end
-
   def handle_event("sort", %{"field" => field, "order" => order}, socket) do
     field = String.to_existing_atom(field)
     order = String.to_existing_atom(order)

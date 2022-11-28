@@ -10,12 +10,11 @@
     </.button>
   </:actions>
 </.header>
-
+<form id="selected" phx-change="select"/>
 <.table
   id="opportunities"
   rows={@opportunities}
   checkboxes="selected"
-  checkboxes_phx_change={JS.push("select")}
   checkboxes_selected={@selected}
   sort_click="sort"
   sort_field={@sort_field}

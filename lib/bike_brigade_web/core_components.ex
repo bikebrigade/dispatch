@@ -840,8 +840,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
   attr :id, :string, required: true
   attr :rows, :list, required: true
 
-  attr :checkboxes, :string, default: nil
-  attr :checkboxes_phx_change, JS, default: %JS{}
+  attr :checkboxes, :string, default: nil, doc: "form to use for checkboxes"
   attr :checkboxes_selected, MapSet, default: MapSet.new()
 
   attr :sort_click, JS
@@ -859,6 +858,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
 
   slot :action, doc: "the slot for showing user actions in the last table column"
   slot :bulk_action, doc: "the slot for showing bulk user actions at the top of the table"
+  slot :footer, doc: "table footer"
 
   def table(assigns) do
     assigns = assign(assigns, :num_checked, Enum.count(assigns.checkboxes_selected))
@@ -868,7 +868,6 @@ defmodule BikeBrigadeWeb.CoreComponents do
       <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
           <div class="relative overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-            <form :if={@checkboxes} id={"#{@id}-form"} phx-change={@checkboxes_phx_change}></form>
             <div
               :if={@num_checked > 0}
               class="absolute top-0 flex items-center h-12 space-x-3 left-12 bg-gray-50 sm:left-16"
@@ -885,14 +884,14 @@ defmodule BikeBrigadeWeb.CoreComponents do
                       type="hidden"
                       name={Phoenix.HTML.Form.input_name(@checkboxes, "all")}
                       value="false"
-                      form={"#{@id}-form"}
+                      form={@checkboxes}
                     />
                     <input
                       type="checkbox"
                       id={Phoenix.HTML.Form.input_id(@checkboxes, "all")}
                       name={Phoenix.HTML.Form.input_name(@checkboxes, "all")}
                       value="true"
-                      form={"#{@id}-form"}
+                      form={@checkboxes}
                       phx-hook="CheckboxAll"
                       data-num-checked={@num_checked}
                       data-num-rows={length(@rows)}
@@ -945,7 +944,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
                       type="hidden"
                       name={Phoenix.HTML.Form.input_name(@checkboxes, Phoenix.Param.to_param(row))}
                       value="false"
-                      form={"#{@id}-form"}
+                      form={@checkboxes}
                     />
                     <input
                       type="checkbox"
@@ -953,7 +952,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
                       name={Phoenix.HTML.Form.input_name(@checkboxes, Phoenix.Param.to_param(row))}
                       value="true"
                       checked={MapSet.member?(@checkboxes_selected, row.id)}
-                      form={"#{@id}-form"}
+                      form={@checkboxes}
                       class="absolute w-4 h-4 -mt-2 text-indigo-600 border-gray-300 rounded left-4 top-1/2 focus:ring-indigo-500 sm:left-6"
                     />
                   </td>
@@ -994,6 +993,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
                 </tr>
               </tbody>
             </table>
+            <%= render_slot(@footer) %>
           </div>
         </div>
       </div>
