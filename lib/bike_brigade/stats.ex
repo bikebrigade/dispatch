@@ -8,6 +8,11 @@ defmodule BikeBrigade.Stats do
 
   alias BikeBrigade.LocalizedDateTime
 
+  defmodule RiderStat do
+    @derive {Phoenix.Param, key: :rider}
+    defstruct [:rider, :campaigns, :deliveries, :distance]
+  end
+
   def rider_counts() do
     total = Repo.aggregate(Rider, :count)
     active = Repo.one(from t in Task, select: count(t.assigned_rider_id, :distinct))
@@ -215,6 +220,11 @@ defmodule BikeBrigade.Stats do
       on: r.id == a.rider_id,
       group_by: r.id,
       order_by: ^{sort_order, order_by},
-      select: {r, count(a.campaign_id, :distinct), count(a.task_id, :distinct), sum(a.distance)}
+      select: %RiderStat{
+        rider: r,
+        campaigns: count(a.campaign_id, :distinct),
+        deliveries: count(a.task_id, :distinct),
+        distance: sum(a.distance)
+      }
   end
 end

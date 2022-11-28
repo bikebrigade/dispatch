@@ -82,11 +82,15 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
   end
 
   @impl Phoenix.LiveView
-  def handle_event("sort", options_params, socket) do
+  def handle_event("sort", %{"field" => field, "order" => order}, socket) do
     socket =
-      case Options.update(socket.assigns.options, options_params) do
-        {:ok, options} -> assign(socket, :options, options) |> assign_stats()
-        {:error, _} -> put_flash(socket, :error, "Invalid options selected")
+      case Options.update(socket.assigns.options, %{sort_by: field, sort_order: order}) do
+        {:ok, options} ->
+          assign(socket, :options, options) |> assign_stats()
+
+        {:error, err} ->
+          dbg(err)
+          put_flash(socket, :error, "Invalid options selected")
       end
 
     {:noreply, socket}

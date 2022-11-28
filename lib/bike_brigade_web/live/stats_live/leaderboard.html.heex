@@ -67,7 +67,32 @@
     </div>
   </.form>
   <div class="mt-3 overflow-x-auto align-middle sm:-mx-6 lg:-mx-8 sm:px-6 lg:px-8">
-    <UI.table rows={@stats}>
+    <.table
+      id="leaderboard"
+      rows={@stats}
+      sort_click="sort"
+      sort_field={@options.sort_by}
+      sort_order={@options.sort_order}
+    >
+      <:col :let={rider_stat} label="Name" sortable_field={:rider_name} default_order={:asc}>
+        <%= rider_stat.rider.name %>
+      </:col>
+      <:col :let={rider_stat} label="Campaigns" sortable_field={:campaigns} default_order={:desc}>
+        <%= rider_stat.campaigns %>
+      </:col>
+      <:col
+        :let={rider_stat}
+        label="Deliveries"
+        sortable_field={:deliveries}
+        default_order={:desc}
+      >
+        <%= rider_stat.deliveries %>
+      </:col>
+      <:col :let={rider_stat} label="Distance" sortable_field={:distance} default_order={:desc}>
+        <%= round_distance(rider_stat.distance) %> km
+      </:col>
+    </.table>
+    <UI.table rows={[]}>
       <:th>
         <div class="inline-flex align-top">
           Name <.sort_icon field={:rider_name} options={@options} />
