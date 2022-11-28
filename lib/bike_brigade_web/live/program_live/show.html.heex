@@ -1,46 +1,45 @@
-<div class="flex items-center justify-between mb-4">
-  <h1 class="text-lg font-medium leading-6 text-gray-900">
-    <%= @program.name %>
-  </h1>
-  <.button patch={~p"/programs/#{@program}/show/edit"}>Edit</.button>
-</div>
-<UI.table class="min-w-full table-fixed" rows={@program.campaigns}>
-  <:th>Date</:th>
-  <:th>Time</:th>
-  <:th>Riders</:th>
-  <:th>Deliveries</:th>
-  <:th class="flex justify-end" padding="px-3 py-3" uppercase={false}>
+<.header>
+  <%= @program.name %>
+  <:subtitle>
+    <%= @program.campaign_blurb %>
+  </:subtitle>
+  <:actions>
     <.button navigate={~p"/programs/#{@program}/campaigns/new"}>
       New Campaign
     </.button>
-  </:th>
-  <:td :let={campaign}>
-    <div class="flex items-center space-x-1">
-      <.date date={campaign_date(campaign)} navigate={~p"/campaigns/#{campaign}"} />
-    </div>
-  </:td>
-  <:td :let={campaign}>
-    <div class="w-24 truncate"><%= pickup_window(campaign) %></div>
-  </:td>
-  <:td :let={campaign}>
+    <.button patch={~p"/programs/#{@program}/show/edit"} color={:white} class="ml-1">Edit</.button>
+  </:actions>
+</.header>
+
+<.table id="campaigns" rows={@program.campaigns}>
+  <:col :let={campaign} label="Date">
+    <.date date={campaign_date(campaign)} navigate={~p"/campaigns/#{campaign}"} />
+  </:col>
+  <:col :let={campaign} label="Time">
+    <%= pickup_window(campaign) %>
+  </:col>
+  <:col :let={campaign} label="Riders">
     <%= campaign.stats.signed_up_rider_count %>
-  </:td>
-  <:td :let={campaign}>
+  </:col>
+  <:col :let={campaign} label="Deliveries">
     <%= campaign.stats.task_count %>
-  </:td>
-  <:td :let={campaign} class="text-right">
+  </:col>
+
+  <:action :let={campaign}>
     <.link navigate={~p"/campaigns/#{campaign}/edit"} class="link">
-      Edit
+      Edit <span class="sr-only">,<%= campaign_date(campaign) %></span>
     </.link>
+  </:action>
+  <:action :let={campaign}>
     <.link
       phx-click={JS.push("delete", value: %{id: campaign.id})}
       data-confirm="Are you sure?"
-      class="pl-2 link"
+      class="link"
     >
-      Delete
+      Delete <span class="sr-only">, <%= campaign_date(campaign) %></span>
     </.link>
-  </:td>
-</UI.table>
+  </:action>
+</.table>
 
 <.modal
   :if={@live_action == :edit}

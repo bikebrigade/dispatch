@@ -31,6 +31,7 @@
       </.with_tooltip>
     </div>
   </:col>
+
   <:action :let={user}>
     <.link patch={~p"/users/#{user}/edit"} class="link">
       Edit <span class="sr-only">, <%= user.name %></span>
