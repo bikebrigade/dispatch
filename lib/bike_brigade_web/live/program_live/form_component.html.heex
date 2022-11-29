@@ -2,7 +2,7 @@
   <.flash kind={:info} title="Success!" flash={@flash} />
   <.flash kind={:error} title="Error!" flash={@flash} />
   <.header><%= @title %></.header>
-  <.form
+  <.simple_form
     :let={c}
     for={@changeset}
     id="program-form"
@@ -10,258 +10,138 @@
     phx-change="validate"
     phx-submit="save"
   >
-    <%= for f <- inputs_for(c, :program) do %>
-      <div class="my-2">
-        <%= label f, :name, class: "block text-sm font-medium leading-5 text-gray-700", placeholder: "Program name" do %>
-          Name
-        <% end %>
-        <div class="mt-1 rounded-md shadow-sm">
-          <%= text_input(f, :name,
-            phx_debounce: "blur",
-            class:
-              "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5",
-            placeholder: "Program name"
-          ) %>
-        </div>
-        <%= error_tag(f, :name) %>
-      </div>
+    <div :for={f <- inputs_for(c, :program)} class="space-y-4">
+      <.input type="text" field={{f, :name}} label="Name" placeholder="Program name" />
+      <.input
+        type="textarea"
+        field={{f, :campaign_blurb}}
+        label="Campaign Blurb (please keep generic to be used on ongoing basis - 2 sentences)"
+      />
+      <.input type="textarea" field={{f, :campaign_blurb}} label="About (internal description)" />
+      <.input type="date" field={{f, :start_date}} label="Start Date" placeholder="YYYY-MM-DD" />
 
-      <div class="my-2">
-        <%= label f, :campaign_blurb, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-          Campaign Blurb (please keep generic to be used on ongoing basis - 2 sentences)
-        <% end %>
-        <div class="mt-1 rounded-md shadow-sm">
-          <%= textarea(f, :campaign_blurb,
-            class:
-              "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5",
-            placeholder: "A little bit about the program"
-          ) %>
-        </div>
-        <%= error_tag(f, :campaign_blurb) %>
-      </div>
-
-      <div class="my-2">
-        <%= label f, :description, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-          About (internal description)
-        <% end %>
-        <div class="mt-1 rounded-md shadow-sm">
-          <%= textarea(f, :description,
-            class:
-              "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5",
-            placeholder: "A little bit about the program"
-          ) %>
-        </div>
-        <%= error_tag(f, :description) %>
-      </div>
-
-      <div class="my-2">
-        <%= label f, :start_date, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-          Start Date
-        <% end %>
-        <div class="mt-1 rounded-md shadow-sm">
-          <%= date_input(f, :start_date,
-            placeholder: "YYYY-MM-DD",
-            class:
-              "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-          ) %>
-        </div>
-        <%= error_tag(f, :start_date) %>
-      </div>
-
-      <div class="my-2">
-        <%= label f, :schedules, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+      <div class="space-y-1">
+        <.header small>
           Schedules
-        <% end %>
-        <%= for {s, i} <- Enum.with_index(inputs_for c, :schedules) do %>
-          <div class="flex mt-1">
-            <%= select(s, :weekday, Ecto.Enum.values(ProgramForm.Schedule, :weekday),
-              class:
-                "capitalize block w-32 px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-            ) %>
-            <div class="ml-2">
-              <%= time_input(s, :start_time,
-                required: true,
-                phx_debounce: "blur",
-                class:
-                  "block w-32 px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-              ) %>
-            </div>
-            <div class="ml-2">
-              <%= time_input(s, :end_time,
-                required: true,
-                phx_debounce: "blur",
-                class:
-                  "block w-32 px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-              ) %>
-            </div>
-            <div class="justify-center ml-auto">
-              <.button
-                color={:clear}
-                size={:xxsmall}
-                phx-click={JS.push("remove_schedule", value: %{index: i}, target: @myself)}
-                type="button"
-              >
-                <span class="sr-only">Close</span>
-                <Heroicons.x_mark solid class="w-6 h-6" />
-              </.button>
-            </div>
-          </div>
-          <%= error_tag(s, :duration) %>
-        <% end %>
-        <div class="flex justify-end mt-2">
-          <.button
-            phx-click={JS.push("add_schedule", target: @myself)}
-            type="button"
-            size={:xsmall}
-          >
-            Add Schedule
-          </.button>
-        </div>
-      </div>
+          <:subtitle>
+            When deliveries for this program happen
+          </:subtitle>
+          <:actions>
+            <.button
+              phx-click={JS.push("add_schedule", target: @myself)}
+              type="button"
+              size={:xsmall}
+            >
+              Add Schedule
+            </.button>
+          </:actions>
+        </.header>
 
-      <%= if @action == :edit do %>
-        <div class="my-2">
-          <%= label f, :default_item_id, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-            Items
-          <% end %>
-          <UI.table class="min-w-full table-fixed" rows={@program.items}>
-            <:th class="w-1/3">
-              Name
-            </:th>
-            <:th class="w-full">
-              Description
-            </:th>
-            <:th class="w-1/3">
-              Category
-            </:th>
-            <:th class="w-full">
-              Hidden
-            </:th>
-            <:th class="flex justify-end w-32" padding="px-3 py-3" uppercase={false}>
-              <.button size={:xsmall} patch={~p"/programs/#{@program}/items/new"}>
-                New Item
-              </.button>
-            </:th>
-
-            <:td :let={item}>
-              <%= item.name %>
-            </:td>
-            <:td :let={item}>
-              <%= item.description %>
-            </:td>
-            <:td :let={item}>
-              <%= item.category %>
-            </:td>
-            <:td :let={item}>
-              <%= if item.hidden do %>
-                <div class="flex justify-center">
-                  <Heroicons.eye_slash class="flex-shrink-0 w-6 h-6 mx-1 text-gray-600" />
-                </div>
-              <% end %>
-            </:td>
-            <:td :let={item} class="text-right">
-              <.link patch={~p"/programs/#{@program}/items/#{item}/edit"} class="link">
-                Edit
-              </.link>
-            </:td>
-          </UI.table>
-        </div>
-      <% end %>
-
-      <div class="my-2">
-        <%= label f, :contact_name, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-          Contact name
-        <% end %>
-        <div class="mt-1 rounded-md shadow-sm">
-          <%= text_input(f, :contact_name,
-            phx_debounce: "blur",
-            class:
-              "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5",
-            placeholder: "Point of contact's name"
-          ) %>
-        </div>
-        <%= error_tag(f, :contact_name) %>
-      </div>
-
-      <div class="my-2">
-        <%= label f, :contact_email, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-          Contact email
-        <% end %>
-        <div class="mt-1 rounded-md shadow-sm">
-          <%= text_input(f, :contact_email,
-            class:
-              "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5",
-            placeholder: "Point of contact's email"
-          ) %>
-        </div>
-        <%= error_tag(f, :contact_email) %>
-      </div>
-
-      <div class="my-2">
-        <%= label f, :contact_phone, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-          Contact phone
-        <% end %>
-        <div class="mt-1 rounded-md shadow-sm">
-          <%= text_input(f, :contact_phone,
-            class:
-              "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5",
-            placeholder: "Point of contact's phone number"
-          ) %>
-        </div>
-        <%= error_tag(f, :contact_phone) %>
-      </div>
-
-      <div class="my-2">
-        <%= label f, :description, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-          Program Lead
-        <% end %>
-        <div class="mt-1 rounded-md shadow-sm">
-          <.live_component
-            module={UserSelectionComponent}
-            id={:select_user}
-            selected_user_id={@program.lead_id}
-            input_name={input_name(f, :lead_id)}
+        <div :for={{s, i} <- Enum.with_index(inputs_for(c, :schedules))} class="flex">
+          <.input
+            type="select"
+            field={{s, :weekday}}
+            options={[
+              Monday: :monday,
+              Tuesday: :tuesday,
+              Wednesday: :wednesday,
+              Thursday: :thursday,
+              Friday: :friday,
+              Saturday: :saturday,
+              Sunday: :sunday
+            ]}
           />
-        </div>
-      </div>
-
-      <div class="my-2">
-        <%= label f, :spreadsheet_layout, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-          Spreadsheet Layout
-        <% end %>
-        <div class="mt-1 rounded-md shadow-sm">
-          <%= select(
-            f,
-            :spreadsheet_layout,
-            %{"Foodshare" => :foodshare, "Mutual Aid Parkdale" => :map},
-            phx_debounce: "blur",
-            class:
-              "block w-full py-2 pl-3 pr-10 mt-1 text-xs border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-          ) %>
-        </div>
-        <%= error_tag(f, :description) %>
-      </div>
-
-      <div class="my-2">
-        <div class="relative flex items-start">
-          <div class="flex items-center h-5">
-            <%= checkbox(f, :active,
-              phx_debounce: "blur",
-              class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-            ) %>
+          <.input type="time" field={{s, :start_time}} />
+          <.input type="time" field={{s, :end_time}} />
+          <div class="justify-center ml-auto">
+            <.button
+              color={:clear}
+              size={:xxsmall}
+              phx-click={JS.push("remove_schedule", value: %{index: i}, target: @myself)}
+              type="button"
+            >
+              <span class="sr-only">Close</span>
+              <Heroicons.x_mark solid class="w-6 h-6" />
+            </.button>
           </div>
-          <div class="ml-3 text-sm">
-            <%= label f, :active, class: "font-medium text-gray-700" do %>
-              Active
+        </div>
+      </div>
+
+      <div :if={@action == :edit} class="my-2">
+        <.header small>
+          Items
+          <:subtitle>
+            What we deliver for this program
+          </:subtitle>
+          <:actions>
+            <.button size={:xsmall} patch={~p"/programs/#{@program}/items/new"}>
+              New Item
+            </.button>
+          </:actions>
+        </.header>
+
+        <.table id="items" rows={@program.items}>
+          <:col :let={item} label="Name">
+            <%= item.name %>
+          </:col>
+          <:col :let={item} label="Description" show_at={:large}>
+            <%= item.description %>
+          </:col>
+          <:col :let={item} label="Category">
+            <%= item.category %>
+          </:col>
+          <:col :let={item} label="Hidden" unstack_at={:large}>
+            <%= if item.hidden do %>
+              <div class="flex justify-center">
+                <Heroicons.eye_slash class="flex-shrink-0 w-6 h-6 mx-1 text-gray-600" />
+              </div>
             <% end %>
-          </div>
-        </div>
+          </:col>
+          <:action :let={item}>
+            <.link patch={~p"/programs/#{@program}/items/#{item}/edit"} class="link">
+              Edit
+            </.link>
+          </:action>
+        </.table>
       </div>
-      <div class="flex justify-end">
-        <.button type="submit" phx-disable-with="Saving...">
-          Save
-        </.button>
-      </div>
-    <% end %>
-  </.form>
+
+      <.input
+        type="text"
+        field={{f, :contact_name}}
+        label="Contact Name"
+        placeholder="Point of contact's name"
+      />
+      <.input
+        type="email"
+        field={{f, :contact_email}}
+        label="Contact Email"
+        placeholder="Point of contact's name"
+      />
+      <.input
+        type="phone"
+        field={{f, :contact_phonel}}
+        label="Contact Phone"
+        placeholder="Point of contact's phone"
+      />
+
+      <.user_select
+        field={{f, :lead_id}}
+        label="Program Lead"
+        placeholder="Point of contact's phone"
+      />
+
+      <.input
+        type="select"
+        field={{f, :spreadsheet_layout}}
+        label="Spreadsheet Layout"
+        options={[Foodshare: :foodshare, "Mutual Aid Parkdale": :map]}
+      />
+
+      <.input type="checkbox" field={{f, :active}} label="Active" />
+    </div>
+
+    <:actions>
+      <.button type="submit" phx-disable-with="Saving...">Save</.button>
+    </:actions>
+  </.simple_form>
 </div>

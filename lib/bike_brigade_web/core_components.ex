@@ -4,7 +4,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
 
   alias BikeBrigade.Riders.Rider
   alias BikeBrigade.LocalizedDateTime
-  alias BikeBrigadeWeb.Components.{Icons, RiderSelectionComponent}
+  alias BikeBrigadeWeb.Components.{Icons, RiderSelectionComponent, UserSelectionComponent}
 
   alias BikeBrigade.Locations.Location
 
@@ -242,6 +242,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
   Renders a header with title.
   """
   attr :class, :string, default: nil
+  attr :small, :boolean, default: false
   slot :inner_block, required: true
   slot :subtitle
   slot :actions
@@ -250,7 +251,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
     ~H"""
     <header class={[@actions != [] && "sm:flex sm:items-center", @class]}>
       <div class="sm:flex-auto">
-        <h1 class="text-xl font-semibold text-gray-900">
+        <h1 class={["font-semibold text-gray-900", if(@small, do: "text-lg", else: "text-xl")]}>
           <%= render_slot(@inner_block) %>
         </h1>
         <p :if={@subtitle != []} class="mt-2 text-sm text-gray-700">
@@ -424,6 +425,38 @@ defmodule BikeBrigadeWeb.CoreComponents do
         id={@id}
         input_name={@name}
         selected_rider={@selected_rider}
+        {@rest}
+      />
+      <p :if={@help_text} class="mt-2 text-sm text-gray-500">
+        <%= @help_text %>
+      </p>
+    </div>
+    """
+  end
+
+  attr :id, :any
+  attr :name, :any
+  attr :field, :any, doc: "a %Phoenix.HTML.Form{}/field name tuple, for example: {f, :email}"
+  attr :selected_user_id, :integer, default: nil
+  attr :label, :string, default: nil
+  attr :help_text, :string, default: nil
+  attr :rest, :global, include: ~w(multi)
+
+  def user_select(%{field: {f, field}} = assigns) do
+    assigns =
+      assigns
+      |> assign_new(:name, fn -> Phoenix.HTML.Form.input_name(f, field) end)
+      |> assign_new(:id, fn -> Phoenix.HTML.Form.input_id(f, field) end)
+
+    ~H"""
+    <div phx-feedback-for={@name}>
+      <.label for={@id}><%= @label %></.label>
+
+      <.live_component
+        module={UserSelectionComponent}
+        id={@id}
+        input_name={@name}
+        selected_user_id={@selected_user_id}
         {@rest}
       />
       <p :if={@help_text} class="mt-2 text-sm text-gray-500">
