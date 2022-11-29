@@ -16,7 +16,7 @@ end
 # Seed 2 programs
 if Delivery.list_programs() == [] do
   for _ <- 1..2 do
-    Seeder.program()
+    program = Seeder.program()
     # Seed 3 items/program
     for _ <- 1..3 do
       Seeder.item_for_program(program)
