@@ -24,9 +24,6 @@
   }
 
   /* LiveView specific classes for your customizations */
-  .phx-no-feedback {
-    display: none;
-  }
 
   .phx-click-loading {
     opacity: 0.5;

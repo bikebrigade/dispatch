@@ -87,7 +87,6 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
   def render(assigns) do
     ~H"""
     <div id={@id}>
-    <form id={"#{@id}-form"}></form>
       <div class="grid grid-cols-2 overflow-y-auto max-h-64">
         <%= for {id, rider} <- @selected_riders do %>
           <.rider
@@ -108,7 +107,7 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
           phx-debounce="50"
           autocomplete="off"
           placeholder="Type to search for riders by name or phone number"
-          form={"#{@id}-form"}
+          errors={[]}
         />
         <%= if @search != "" do %>
           <ul
@@ -133,8 +132,8 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
     """
   end
 
-  attr :rider, Rider, required: true
-  attr :on_unselect, JS, default: nil
+  attr(:rider, Rider, required: true)
+  attr(:on_unselect, JS, default: nil)
 
   defp rider(assigns) do
     assigns =
