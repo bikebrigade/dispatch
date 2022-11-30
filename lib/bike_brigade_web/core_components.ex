@@ -404,6 +404,56 @@ defmodule BikeBrigadeWeb.CoreComponents do
 
   attr :id, :any
   attr :name, :any
+  attr :label, :string, default: nil
+  attr :help_text, :string, default: nil
+  attr :field, :any, doc: "a %Phoenix.HTML.Form{}/field name tuple, for example: {f, :email}"
+  attr :errors, :list
+  attr :rest, :global, include: ~w(autocomplete checked disabled form max maxlength min minlength
+                                   multiple pattern placeholder readonly required size step)
+
+  slot :radio do
+    attr :label, :string
+    attr :value, :any
+  end
+
+  def radio_group(%{field: {f, field}} = assigns) do
+    assigns =
+      assigns
+      |> assign_new(:value, fn -> Phoenix.HTML.Form.input_value(f, field) end)
+      |> assign_new(:name, fn -> Phoenix.HTML.Form.input_name(f, field) end)
+      |> assign_new(:errors, fn -> translate_errors(f.errors || [], field) end)
+
+    ~H"""
+    <div phx-feedback-for={@name}>
+      <.label><%= @label %></.label>
+      <p :if={@help_text} class="text-sm leading-5 text-gray-500"><%= @help_text %></p>
+      <fieldset class="mt-4">
+        <div class="space-y-4 sm:flex sm:items-center sm:space-y-0 sm:space-x-10">
+          <div :for={radio <- @radio} class="flex items-center">
+            <input
+              id={Phoenix.HTML.Form.input_id(elem(@field, 0), elem(@field, 1), radio[:value])}
+              name={@name}
+              type="radio"
+              value={Phoenix.HTML.html_escape(radio[:value])}
+              checked={input_equals?(@value, radio[:value])}
+              class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+            />
+            <div class="ml-3 text-sm">
+              <.label for={
+                Phoenix.HTML.Form.input_id(elem(@field, 0), elem(@field, 1), radio[:value])
+              }>
+                <%= radio[:label] %>
+              </.label>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+    """
+  end
+
+  attr :id, :any
+  attr :name, :any
   attr :field, :any, doc: "a %Phoenix.HTML.Form{}/field name tuple, for example: {f, :email}"
   attr :selected_rider, Rider, default: nil
   attr :label, :string, default: nil
