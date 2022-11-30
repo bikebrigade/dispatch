@@ -455,17 +455,24 @@ defmodule BikeBrigadeWeb.CoreComponents do
   attr :id, :any
   attr :name, :any
   attr :field, :any, doc: "a %Phoenix.HTML.Form{}/field name tuple, for example: {f, :email}"
-  attr :selected_rider, Rider, default: nil
   attr :label, :string, default: nil
   attr :help_text, :string, default: nil
-  attr :rest, :global, include: ~w(multi)
+  attr :multi, :boolean, default: false
+  attr :rest, :global, include: ~w(selected_rider selected_riders)
 
   def rider_select(%{field: {f, field}} = assigns) do
     assigns =
       assigns
-      |> assign_new(:name, fn -> Phoenix.HTML.Form.input_name(f, field) end)
+      |> assign(field: nil)
+      |> assign_new(:name, fn ->
+        name = Phoenix.HTML.Form.input_name(f, field)
+        if assigns.multi, do: name <> "[]", else: name
+      end)
       |> assign_new(:id, fn -> Phoenix.HTML.Form.input_id(f, field) end)
+      |> rider_select()
+  end
 
+  def rider_select(assigns) do
     ~H"""
     <div phx-feedback-for={@name}>
       <.label for={@id}><%= @label %></.label>
@@ -474,7 +481,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
         module={RiderSelectionComponent}
         id={@id}
         input_name={@name}
-        selected_rider={@selected_rider}
+        multi={@multi}
         {@rest}
       />
       <p :if={@help_text} class="mt-2 text-sm text-gray-500">

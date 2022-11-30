@@ -2,7 +2,7 @@
   <.header><%= @title %></.header>
 
   <div class="mt-2">
-    <.form
+    <.simple_form
       :let={f}
       for={@changeset}
       id="sms_message-form"
@@ -11,36 +11,15 @@
       phx-target={@myself}
       autocomplete="off"
     >
-      <div>
-        <%= label f, :to, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-          To
-        <% end %>
-        <div class="mt-1 rounded-md shadow-sm">
-          <.live_component
-            module={RiderSelectionComponent}
-            id={:select_rider}
-            input_name="rider_ids[]"
-            multi={true}
-            selected_riders={@initial_riders}
-          />
-        </div>
-        <%= error_tag(f, :to) %>
-      </div>
+      <.rider_select
+        id="rider-select"
+        name="rider_ids[]"
+        multi={true}
+        selected_riders={@initial_riders}
+        label="To"
+      />
 
-      <div class="mt-2">
-        <%= label f, :body, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-          Message
-        <% end %>
-        <div class="mt-1 rounded-md shadow-sm">
-          <%= textarea(f, :body,
-            required: true,
-            phx_debounce: "blur",
-            class:
-              "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-          ) %>
-        </div>
-        <%= error_tag(f, :body) %>
-      </div>
+      <.input type="textarea" field={{f, :body}} label="Message" />
 
       <div class="flex justify-end mt-6 space-x-2">
         <.button
@@ -65,8 +44,7 @@
           Send
         </.button>
       </div>
-      <%= error_tag(f, :body) %>
-      <%= error_tag(f, :other_error) %>
+      <.error :for={msg <- translate_errors(f.errors, :other_error)}><%= msg %></.error>
       <div class="grid grid-cols-3 gap-4">
         <figure :for={entry <- @uploads.media.entries}>
           <.live_img_preview entry={entry} class="w-32" />
@@ -80,11 +58,11 @@
               &times;
             </button>
           </figcaption>
-          <p :for={err <- upload_errors(@uploads.media, entry)} class="text-sm text-red-600">
+          <.error :for={err <- upload_errors(@uploads.media, entry)}>
             <%= error_to_string(err) %>
-          </p>
+          </.error>
         </figure>
       </div>
-    </.form>
+    </.simple_form>
   </div>
 </div>
