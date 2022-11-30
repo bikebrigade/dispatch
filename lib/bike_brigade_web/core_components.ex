@@ -38,7 +38,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
   slot :inner_block, required: true
 
   @button_base_classes [
-    "inline-flex text-center items-center border border-transparent",
+    "inline-flex text-center items-center justify-center border border-transparent",
     "font-medium rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2",
     "disabled:hover:cursor-not-allowed disabled:opacity-25"
   ]
