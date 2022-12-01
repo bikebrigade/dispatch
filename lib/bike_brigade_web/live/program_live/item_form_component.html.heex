@@ -1,6 +1,7 @@
 <div>
   <.header><%= @title %></.header>
-  <.form
+
+  <.simple_form
     :let={f}
     for={@changeset}
     id="item-form"
@@ -8,70 +9,27 @@
     phx-change="validate"
     phx-submit="save"
   >
-    <%= hidden_input(f, :program_id) %>
-    <div class="my-2">
-      <%= label f, :name, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-        Name
-      <% end %>
-      <div class="mt-1 rounded-md shadow-sm">
-        <%= text_input(f, :name,
-          placeholder: "Food Hamper",
-          required: true,
-          phx_debounce: "blur",
-          class:
-            "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-        ) %>
-      </div>
-      <%= error_tag(f, :name) %>
-    </div>
+    <.input type="hidden" field={{f, :program_id}} />
+    <.input type="text" field={{f, :name}} placeholder="Food Hamper" label="Name" />
 
-    <div class="my-2">
-      <%= label f, :description, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-        Description
-      <% end %>
-      <div class="mt-1 rounded-md shadow-sm">
-        <%= text_input(f, :description,
-          placeholder: "3 grocery bags worth, 10-20lbs",
-          required: true,
-          phx_debounce: "blur",
-          class:
-            "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-        ) %>
-      </div>
-      <%= error_tag(f, :description) %>
-    </div>
+    <.input
+      type="text"
+      field={{f, :description}}
+      placeholder="3 grocery bags worth, 10-20lbs"
+      label="Description"
+    />
 
-    <div class="my-2">
-      <%= label f, :name, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-        Category
-      <% end %>
-      <div class="mt-1 rounded-md shadow-sm">
-        <%= select(f, :category, Ecto.Enum.values(Item, :category),
-          phx_debounce: "blur",
-          class:
-            "block w-full py-2 pl-3 pr-10 mt-1 text-xs border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-        ) %>
-      </div>
-      <%= error_tag(f, :category) %>
-    </div>
+    <.input
+      type="select"
+      field={{f, :category}}
+      options={Ecto.Enum.values(Item, :category)}
+      label="Category"
+    />
 
-    <div class="my-2">
-      <%= label f, :hidden, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-        Hidden?
-      <% end %>
-      <div class="mt-1">
-        <%= checkbox(f, :hidden,
-          phx_debounce: "blur",
-          class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-        ) %>
-      </div>
-      <%= error_tag(f, :hidden) %>
-    </div>
+    <.input type="checkbox" field={{f, :hidden}} label="Hidden?" />
 
-    <div class="flex justify-end mt-6">
-      <.button type="submit" phx-disable-with="Saving...">
-        Save
-      </.button>
-    </div>
-  </.form>
+    <:actions>
+      <.button type="submit" phx-disable-with="Saving...">Save</.button>
+    </:actions>
+  </.simple_form>
 </div>

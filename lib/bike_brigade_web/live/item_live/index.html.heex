@@ -29,7 +29,7 @@
 
 <.modal :if={@live_action in [:new, :edit]} id="item-modal" show on_cancel={JS.navigate(~p"/items/")}>
   <.live_component
-    module={BikeBrigadeWeb.BikeBrigadeWeb.ItemLive.FormComponent}
+    module={BikeBrigadeWeb.ItemLive.FormComponent}
     id={@item.id || :new}
     title={@page_title}
     action={@live_action}
