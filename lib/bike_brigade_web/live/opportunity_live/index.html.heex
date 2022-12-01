@@ -16,7 +16,7 @@
   rows={@opportunities}
   checkboxes="selected"
   checkboxes_selected={@selected}
-  sort_click="sort"
+  sort_click={JS.push("sort")}
   sort_field={@sort_field}
   sort_order={@sort_order}
 >

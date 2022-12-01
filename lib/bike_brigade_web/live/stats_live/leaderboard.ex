@@ -127,39 +127,6 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
     |> assign(:stats, stats)
   end
 
-  defp sort_icon(assigns = %{field: field, options: %Options{sort_by: field, sort_order: :desc}}) do
-    ~H"""
-    <.link
-      phx-click={JS.push("sort", value: %{sort_by: @field, sort_order: "asc"})}
-      class="pl-2 text-gray-500 hover:text-gray-700"
-    >
-      <Heroicons.bars_arrow_down mini class="w-5 h-5" />
-    </.link>
-    """
-  end
-
-  defp sort_icon(assigns = %{field: field, options: %Options{sort_by: field, sort_order: :asc}}) do
-    ~H"""
-    <.link
-      phx-click={JS.push("sort", value: %{sort_by: @field, sort_order: "desc"})}
-      class="pl-2 text-gray-500 hover:text-gray-700"
-    >
-      <Heroicons.bars_arrow_up mini class="w-5 h-5" />
-    </.link>
-    """
-  end
-
-  defp sort_icon(assigns) do
-    ~H"""
-    <.link
-      phx-click={JS.push("sort", value: %{sort_by: @field, sort_order: "asc"})}
-      class="pl-2 text-gray-300 hover:text-gray-700"
-    >
-      <Heroicons.bars_arrow_down mini class="w-5 h-5" />
-    </.link>
-    """
-  end
-
   defp download_path(options) do
     %{
       period: period,

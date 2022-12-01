@@ -2,7 +2,6 @@ defmodule BikeBrigadeWeb.CoreComponents do
   use Phoenix.Component
   alias Phoenix.LiveView.JS
 
-  alias BikeBrigade.Riders.Rider
   alias BikeBrigade.LocalizedDateTime
   alias BikeBrigadeWeb.Components.{Icons, RiderSelectionComponent, UserSelectionComponent}
 
@@ -218,6 +217,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
   attr :selected, :boolean, default: false
   attr :class, :string, default: nil
   attr :rest, :global
+  slot :inner_block
 
   def filter_button(assigns) do
     ~H"""
@@ -280,7 +280,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
   attr :type, :string,
     default: "text",
     values: ~w(checkbox color date datetime-local email file hidden month number password
-               range radio search select tel text time url week)
+               range radio search select tel text textarea time url week)
 
   attr :value, :any
   attr :field, :any, doc: "a %Phoenix.HTML.Form{}/field name tuple, for example: {f, :email}"
@@ -461,15 +461,14 @@ defmodule BikeBrigadeWeb.CoreComponents do
   attr :rest, :global, include: ~w(selected_rider selected_riders)
 
   def rider_select(%{field: {f, field}} = assigns) do
-    assigns =
-      assigns
-      |> assign(field: nil)
-      |> assign_new(:name, fn ->
-        name = Phoenix.HTML.Form.input_name(f, field)
-        if assigns.multi, do: name <> "[]", else: name
-      end)
-      |> assign_new(:id, fn -> Phoenix.HTML.Form.input_id(f, field) end)
-      |> rider_select()
+    assigns
+    |> assign(field: nil)
+    |> assign_new(:name, fn ->
+      name = Phoenix.HTML.Form.input_name(f, field)
+      if assigns.multi, do: name <> "[]", else: name
+    end)
+    |> assign_new(:id, fn -> Phoenix.HTML.Form.input_id(f, field) end)
+    |> rider_select()
   end
 
   def rider_select(assigns) do
@@ -767,6 +766,8 @@ defmodule BikeBrigadeWeb.CoreComponents do
 
   slot :confirm do
     attr :form, :string
+    attr :type, :string
+    attr :"phx-disable-with", :string
   end
 
   slot :cancel

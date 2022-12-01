@@ -119,7 +119,6 @@ defmodule BikeBrigadeWeb do
 
       alias BikeBrigadeWeb.Components.{
         Icons,
-        UI,
         RiderSelectionComponent,
         UserSelectionComponent
       }

@@ -616,10 +616,6 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     end
   end
 
-  defp all_selected?(riders, selected) do
-    MapSet.size(selected) != 0 && Enum.count(riders) == MapSet.size(selected)
-  end
-
   defp get_filter(filters, type) do
     filters
     |> Enum.find_value(fn

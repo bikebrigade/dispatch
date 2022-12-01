@@ -70,7 +70,7 @@
     <.table
       id="leaderboard"
       rows={@stats}
-      sort_click="sort"
+      sort_click={JS.push("sort")}
       sort_field={@options.sort_by}
       sort_order={@options.sort_order}
     >
