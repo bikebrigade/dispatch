@@ -1,7 +1,5 @@
 <div class="flex items-center justify-between ">
   <div class="relative flex flex-col w-2/3">
-  <.input id="search" name="search" value="" errors={[]}/>
-<div phx-feedback-for="search">feedback</div>
     <form id="rider-search" phx-change="suggest" phx-submit="filter" phx-click-away="clear-search">
       <div class="relative flex items-baseline w-full px-1 py-0 bg-white border border-gray-300 rounded-md shadow-sm sm:text-sm focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500">
         <.filter_list filters={@rider_search.filters} />
