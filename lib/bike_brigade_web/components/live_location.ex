@@ -66,7 +66,21 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
       |> Map.put(:action, :validate)
 
     form = Phoenix.HTML.FormData.to_form(changeset, as: socket.assigns.as)
-    {:noreply, socket |> assign(:location, apply_changes(changeset)) |> assign(:form, form)}
+
+    location = apply_changes(changeset)
+
+    socket =
+      if location.coords != socket.assigns.location.coords do
+        socket
+        |> push_event("update-marker", encode_marker(location))
+        |> push_event("redraw-map", %{recenter: true})
+      else
+        socket
+      end
+      |> assign(:location, location)
+      |> assign(:form, form)
+
+    {:noreply, socket}
   end
 
   @impl Phoenix.LiveComponent
