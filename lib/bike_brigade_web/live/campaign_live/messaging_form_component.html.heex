@@ -25,6 +25,7 @@
       </div>
     <% end %>
   </div>
+
   <.form
     :let={f}
     for={@changeset}
@@ -53,19 +54,19 @@
           <% end %>
           <.message_length_indicator length={@message_length} />
         </div>
-        <%= for instructions_template_form <- inputs_for(f, :instructions_template) do %>
+        <div
+          :for={instructions_template_form <- inputs_for(f, :instructions_template)}
+          class="mt-1 rounded-md shadow-sm"
+        >
           <%= hidden_inputs_for(instructions_template_form) %>
-          <div class="mt-1 rounded-md shadow-sm">
-            <%= textarea(instructions_template_form, :body,
-              required: true,
-              phx_hook: "Autocomplete",
-              data_autocomplete: inspect(directives()),
-              class:
-                "h-80 block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-            ) %>
-          </div>
-          <%= error_tag(instructions_template_form, :body) %>
-        <% end %>
+          <.input
+            type="textarea"
+            field={{instructions_template_form, :body}}
+            phx-hook="Autocomplete"
+            data-autocomplete={inspect(directives())}
+            extra_class="h-80"
+          />
+        </div>
       </div>
       <div class="w-1/2">
         <label class="block text-sm font-medium leading-5 text-gray-700">
@@ -78,9 +79,9 @@
     </div>
     <p class="mt-3 text-xs">
       Available directives are:
-      <%= for directive <- directives() do %>
-        <span class="mr-1 font-serif bg-gray-100">{{{<%= directive %>}}}</span>
-      <% end %>
+      <span :for={directive <- directives()} class="mr-1 font-serif bg-gray-100">
+        {{{<%= directive %>}}}
+      </span>
     </p>
     <div class="flex flex-row my-3 space-x-3">
       <div class="w-1/2">
@@ -98,14 +99,8 @@
             🙂
           </.button>
         <% end %>
-        <div class="mt-1 rounded-md shadow-sm">
-          <%= textarea(f, :details,
-            required: false,
-            class:
-              "h-60 block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-          ) %>
-        </div>
-        <%= error_tag(f, :details) %>
+
+        <.input type="textarea" field={{f, :details}} extra_class="h-60" />
       </div>
       <div class="w-1/2">
         <label class="block text-sm font-medium leading-5 text-gray-700">

@@ -6,7 +6,7 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
   alias BikeBrigade.Accounts
   alias BikeBrigade.Riders
   alias BikeBrigade.Riders.Rider
-  alias BikeBrigadeWeb.Components.LocationForm
+  alias BikeBrigadeWeb.Components.LiveLocation
 
   defmodule RiderForm do
     use BikeBrigade.Schema

@@ -4,7 +4,7 @@ defmodule BikeBrigadeWeb.CampaignLive.TaskFormComponent do
   alias BikeBrigade.Delivery
   alias BikeBrigade.Delivery.TaskItem
 
-  alias BikeBrigadeWeb.Components.LocationForm
+  alias BikeBrigadeWeb.Components.LiveLocation
 
   @impl Phoenix.LiveComponent
   def update(assigns, socket) do

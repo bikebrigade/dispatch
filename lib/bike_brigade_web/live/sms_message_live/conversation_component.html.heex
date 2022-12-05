@@ -168,37 +168,40 @@
           phx-target={@myself}
           autocomplete="off"
         >
-          <div class="flex flex-row items-center justify-between -mt-2 -ml-4 space-x-2">
-            <%= textarea(f, :body,
-              phx_debounce: "blur",
-              class:
-                "w-full h-9 px-3 py-1.5 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-            ) %>
+          <div class="flex flex-row items-center -mt-2 -ml-4 space-x-2">
+            <div class="w-full">
+              <.input type="textarea" field={{f, :body}}/>
+            </div>
+
             <.live_file_input upload={@uploads.media} class="sr-only" />
-            <.button
-              id="emoji-button"
-              phx-hook="EmojiButtonHook"
-              data-input-id={input_id(f, :body)}
-              type="button"
-              color={:white}
-              size={:xsmall}
-              class="py-1 text-lg"
-            >
-              🙂
-            </.button>
-            <label
-              for={@uploads.media.ref}
-              class="inline-flex items-center px-1.5 py-1.5 text-xs font-medium text-gray-700 bg-white border border-transparent border-gray-300 rounded shadow-sm cursor-pointer hover:bg-gray-50 focus:ring-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2"
-            >
-              <Icons.tailwindui_upload_photo class="w-6 h-6" aria-hidden="true" />
-            </label>
-            <.button type="submit" data-confirm={@confirm_send} phx-disable-with="Sending...">
-              Send
-            </.button>
+
+            <div class="flex flex-col space-y-1">
+              <.button type="submit" data-confirm={@confirm_send} phx-disable-with="Sending...">
+                Send
+              </.button>
+              <div class="flex items-center justify-between space-x-2">
+                <.button
+                  id="emoji-button"
+                  phx-hook="EmojiButtonHook"
+                  data-input-id={input_id(f, :body)}
+                  type="button"
+                  color={:white}
+                  size={:xsmall}
+                  class="py-1 text-lg"
+                >
+                  🙂
+                </.button>
+                <label
+                  for={@uploads.media.ref}
+                  class="inline-flex items-center px-1.5 py-1.5 text-xs font-medium text-gray-700 bg-white border border-transparent border-gray-300 rounded shadow-sm cursor-pointer hover:bg-gray-50 focus:ring-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2"
+                >
+                  <Icons.tailwindui_upload_photo class="w-6 h-6" aria-hidden="true" />
+                </label>
+              </div>
+            </div>
           </div>
-          <%= error_tag(f, :body) %>
           <%= error_tag(f, :other_error) %>
-          <div class="grid grid-cols-3 gap-4">
+          <div class="grid grid-cols-3 gap-4 mt-2">
             <figure :for={entry <- @uploads.media.entries}>
               <.live_img_preview entry={entry} class="w-32" />
               <figcaption class="flex">

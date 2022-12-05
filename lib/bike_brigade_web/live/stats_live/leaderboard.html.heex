@@ -39,24 +39,10 @@
         <%= if @options.period == :select do %>
           <div class="flex items-end space-x-1">
             <div class="w-45">
-              <%= label f, :start_date, class: "block mb-1 text-sm font-bold text-gray-700" do %>
-                Start Date
-              <% end %>
-              <%= date_input(f, :start_date,
-                class:
-                  "w-full py-2.5 pl-4 pr-4 text-sm font-medium leading-none text-gray-600 rounded-lg shadow-sm focus:outline-none focus:shadow-outline cursor-pointer"
-              ) %>
-              <%= error_tag(f, :start_date) %>
+              <.input type="date" field={{f, :start_date}} label="Start Date" />
             </div>
             <div class="w-45">
-              <%= label f, :end_date, class: "block mb-1 text-sm font-bold text-gray-700" do %>
-                End Date
-              <% end %>
-              <%= date_input(f, :end_date,
-                class:
-                  "w-full py-2.5 pl-4 pr-4 text-sm font-medium leading-none text-gray-600 rounded-lg shadow-sm focus:outline-none focus:shadow-outline cursor-pointer"
-              ) %>
-              <%= error_tag(f, :end_date) %>
+              <.input type="date" field={{f, :end_date}} label="End Date" />
             </div>
           </div>
           <.button target="_blank" href={download_path(@options)}>Download</.button>

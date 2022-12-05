@@ -289,6 +289,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
   attr :prompt, :string, default: nil, doc: "the prompt for select inputs"
   attr :options, :list, doc: "the options to pass to Phoenix.HTML.Form.options_for_select/2"
   attr :multiple, :boolean, default: false, doc: "the multiple flag for select inputs"
+  attr :extra_class, :string, default: nil, doc: "extra classes to include in the input"
   attr :rest, :global, include: ~w(autocomplete checked disabled form max maxlength min minlength
                                    multiple pattern placeholder readonly required size step)
   slot :inner_block
@@ -301,7 +302,14 @@ defmodule BikeBrigadeWeb.CoreComponents do
       if assigns.multiple, do: name <> "[]", else: name
     end)
     |> assign_new(:id, fn -> Phoenix.HTML.Form.input_id(f, field) end)
-    |> assign_new(:value, fn -> Phoenix.HTML.Form.input_value(f, field) end)
+    |> assign_new(:value, fn ->
+      value = Phoenix.HTML.Form.input_value(f, field)
+
+      case value do
+        %Time{} -> Time.truncate(value, :millisecond)
+        _ -> value
+      end
+    end)
     |> assign_new(:errors, fn -> translate_errors(f.errors || [], field) end)
     |> input()
   end
@@ -364,7 +372,8 @@ defmodule BikeBrigadeWeb.CoreComponents do
           "mt-1 block min-h-[6rem] w-full rounded-md border-gray-300 shadow-sm py-[calc(theme(spacing.2)-1px)] px-[calc(theme(spacing.3)-1px)]]",
           "text-gray-900 focus:outline-none sm:text-sm sm:leading-6",
           "phx-no-feedback:border-gray-300 phx-no-feedback:focus:border-indigo-500 phx-no-feedback:focus:ring-indigo-500",
-          "disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none"
+          "disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none",
+          @extra_class
         ]}
         {@rest}
       ><%= @value %></textarea>
@@ -390,7 +399,8 @@ defmodule BikeBrigadeWeb.CoreComponents do
           "mt-1 block w-full rounded-md border-gray-300 shadow-sm py-[calc(theme(spacing.2)-1px)] px-[calc(theme(spacing.3)-1px)]",
           "text-gray-900 focus:outline-none sm:text-sm sm:leading-6",
           "phx-no-feedback:border-gray-300 phx-no-feedback:focus:border-indigo-500 phx-no-feedback:focus:ring-indigo-500",
-          "disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none"
+          "disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none",
+          @extra_class
         ]}
         {@rest}
       />

@@ -39,13 +39,6 @@
       help_text="Link to a Google sheet"
     />
     <.input
-      type="text"
-      field={{f, :task_spreadsheet_url}}
-      label="Delivery Spreadsheet"
-      help_text="Link to a Google sheet"
-    />
-
-    <.input
       type="select"
       field={{f, :rider_spreadsheet_layout}}
       options={["Not Foodshare": :non_foodshare, Foodshare: :foodshare]}

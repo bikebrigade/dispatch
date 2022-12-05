@@ -36,9 +36,14 @@
     </div>
     <.input type="select" field={{f, :capacity}} label="Capacity" options={[{"Small", :small}, {"Medium", :medium}, {"Large", :large}]} />
 
-    <%= for l <- inputs_for(f, :location) do %>
-      <LocationForm.component for={l} label="Rider Location" />
-    <% end %>
+    <.live_component
+      module={LiveLocation}
+      id="location-form"
+      as={input_name(f, :location)}
+      location={@rider.location}
+      label="Pickup Location"
+    />
+
 
     <.input
       type="textarea"
