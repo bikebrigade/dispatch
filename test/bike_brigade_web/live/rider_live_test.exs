@@ -21,7 +21,7 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
       |> render_click()
 
       refute view
-             |> element("#bulk_message")
+             |> element("#sms_message-form")
              |> render() =~ rider.name
     end
 
@@ -37,7 +37,7 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
       |> render_click()
 
       assert view
-             |> element("#bulk_message")
+             |> element("#sms_message-form")
              |> render() =~ rider.name
     end
 

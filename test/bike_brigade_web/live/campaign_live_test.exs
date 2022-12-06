@@ -71,7 +71,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
       # Make sure we actually selected the rider
       assert has_element?(
                view,
-               ~s|#rider-select input[name="campaign_rider[rider_id]"][value="#{rider.id}"]|
+               ~s|#add_rider_form_rider_id input[name="campaign_rider[rider_id]"][value="#{rider.id}"]|
              )
 
       {:ok, _view, html} =
@@ -113,9 +113,6 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
       {_, _, proxy_pid} = view.proxy
 
       assert_receive {:EXIT, ^proxy_pid, {:shutdown, :closed}}
-      # require IEx; IEx.pry
-      # view
-      # |> open_browser()
 
       deliveries =
         file_input(view, "form", :delivery_spreadsheet2, [
@@ -141,11 +138,11 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
   defp select_rider(view, rider) do
     # Find a rider
     view
-    |> element("#rider-select input")
+    |> element("#add_rider_form_rider_id input")
     |> render_keyup(%{value: rider.name})
 
     view
-    |> element("#rider-select a")
+    |> element("#add_rider_form_rider_id a")
     |> render_click()
 
     view

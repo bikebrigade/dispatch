@@ -25,7 +25,7 @@ defmodule BikeBrigadeWeb.OpportunityLiveTest do
       # Select a program
 
       view
-      |> element("a", program.name)
+      |> element("a", ~r|#{program.name}\s+|)
       |> render_click()
 
       assert_redirected(view, "/programs/#{program.id}")
