@@ -1,184 +1,148 @@
-<%= if @live_action in [:new, :edit] do %>
-  <UI.slideover show id={:edit} return_to={Routes.opportunity_index_path(@socket, :index)}>
-    <:title><%= @page_title %></:title>
-    <.live_component
-      module={BikeBrigadeWeb.OpportunityLive.FormComponent}
-      id={@opportunity.id || :edit}
-      action={@live_action}
-      opportunity={@opportunity}
-      return_to={Routes.opportunity_index_path(@socket, :index)}
-    />
-  </UI.slideover>
-<% end %>
+<.header>
+  Opportunities
+  <:subtitle>
+    Opportunities are displayed on the
+    <.link href="https://www.bikebrigade.ca/deliveries">Bike Brigade Deliveries Calendar</.link>
+  </:subtitle>
+  <:actions>
+    <.button patch={~p"/opportunities/new"}>
+      New Opportunity
+    </.button>
+  </:actions>
+</.header>
+<form id="selected" phx-change="select"/>
+<.table
+  id="opportunities"
+  rows={@opportunities}
+  checkboxes="selected"
+  checkboxes_selected={@selected}
+  sort_click={JS.push("sort")}
+  sort_field={@sort_field}
+  sort_order={@sort_order}
+>
+  <:bulk_action>
+    <.button
+      size={:xxsmall}
+      color={:white}
+      phx-click={JS.push("update_selected", value: %{action: :publish})}
+      class="p-1"
+    >
+      <Heroicons.check_circle
+        mini
+        class="flex-shrink-0 w-5 h-5 mx-1 text-green-400 justify-self-end"
+      /> Publish Selected
+    </.button>
+  </:bulk_action>
+
+  <:bulk_action>
+    <.button
+      size={:xxsmall}
+      color={:white}
+      phx-click={JS.push("update_selected", value: %{action: :unpublish})}
+      class="p-1"
+    >
+      <Heroicons.x_circle mini class="flex-shrink-0 w-5 h-5 mx-1 text-red-400 justify-self-end" />
+      Unpublish Selected
+    </.button>
+  </:bulk_action>
+  <:col
+    :let={opportunity}
+    label="Program"
+    sortable_field={:program_name}
+    default_order={:asc}
+  >
+    <.link navigate={~p"/programs/#{opportunity.program}"} class="link">
+      <%= opportunity.program.name %>
+    </.link>
+  </:col>
+  <:col :let={opportunity} label="Date" sortable_field={:delivery_start} default_order={:asc} unstack_at={:large}>
+    <.date date={LocalizedDateTime.to_date(opportunity.delivery_start)} />
+  </:col>
+  <:col :let={opportunity} label="Time" show_at={:large}>
+    <%= time_interval(opportunity.delivery_start, opportunity.delivery_end) %>
+  </:col>
+
+  <:col :let={opportunity} label="Location" unstack_at={:large}>
+    <%= opportunity.location.address %>
+    <span
+      :if={opportunity.hide_address}
+      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"
+    >
+      hidden
+    </span>
+  </:col>
+  <:col :let={opportunity} label="Link" show_at={:large}>
+    <.link href={opportunity.signup_link} class="inline-block link">
+      <Heroicons.link solid aria-label="Link to signup" class="flex-shrink-0 w-5" />
+    </.link>
+  </:col>
+  <:col
+    :let={opportunity}
+    label="Lead"
+    show_at={:large}
+    sortable_field={:program_lead}
+    default_order={:asc}
+  >
+    <%= program_lead_name(opportunity) %>
+  </:col>
+  <:col :let={opportunity} label="Published">
+    <.check_mark value={opportunity.published} />
+  </:col>
+  <:action :let={opportunity}>
+    <.link patch={~p"/opportunities/#{opportunity}/edit"} class="link">
+      Edit
+    </.link>
+  </:action>
+  <:action :let={opportunity}>
+    <.link
+      phx-click={JS.push("delete", value: %{id: opportunity.id})}
+      data-confirm="Are you sure?"
+    class="link"
+    >
+      Delete
+    </.link>
+  </:action>
+</.table>
+
 <div class="flex flex-col py-4">
   <%= if Enum.count(@selected) != 0 do %>
     <div class="my-2">
-      <C.button
+      <.button
         size={:xsmall}
         color={:white}
-        phx_click="update-selected"
-        ,
-        phx-value-action="publish"
-        }
+        phx-click={JS.push("update_selected", value: %{action: :publish})}
       >
-        <Heroicons.Mini.check_circle class="flex-shrink-0 w-6 h-6 mx-1 text-green-400 justify-self-end" />
-        Publish Selected
-      </C.button>
-      <C.button
+        <Heroicons.check_circle
+          mini
+          class="flex-shrink-0 w-6 h-6 mx-1 text-green-400 justify-self-end"
+        /> Publish Selected
+      </.button>
+      <.button
         size={:xsmall}
         color={:white}
-        phx_click="update-selected"
-        phx-value-action="unpublish"
-        }
+        phx-click={JS.push("update_selected", value: %{action: :unpublish})}
       >
-        <Heroicons.Mini.x_circle class="flex-shrink-0 w-6 h-6 mx-1 text-red-400 justify-self-end" />
+        <Heroicons.x_circle mini class="flex-shrink-0 w-6 h-6 mx-1 text-red-400 justify-self-end" />
         Unpublish Selected
-      </C.button>
+      </.button>
     </div>
   <% end %>
-  <div class="py-2 -my-2 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-    <div class="inline-block min-w-full overflow-hidden align-middle border-b border-gray-200 shadow sm:rounded-lg">
-      <form id="selected" phx-change="select"></form>
-      <table class="min-w-full table-fixed">
-        <thead>
-          <tr>
-            <th class="py-3 pl-3 pr-1 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-              <%= checkbox(:selected, :all,
-                form: "selected",
-                value: Enum.count(@selected) == Enum.count(@opportunities),
-                class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-              ) %>
-            </th>
-            <th class="w-1/6 px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-              <div class="inline-flex">
-                Program
-                <C.sort_link
-                  phx-click="sort"
-                  current_field={:program_name}
-                  default_order={:asc}
-                  sort_field={@sort_field}
-                  sort_order={@sort_order}
-                  class="pl-2"
-                />
-              </div>
-            </th>
-            <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-              <div class="inline-flex">
-                Date
-                <C.sort_link
-                  phx-click="sort"
-                  current_field={:delivery_start}
-                  default_order={:asc}
-                  sort_field={@sort_field}
-                  sort_order={@sort_order}
-                  class="pl-2"
-                />
-              </div>
-            </th>
-            <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-              Time
-            </th>
-            <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-              Location
-            </th>
-            <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-              Link
-            </th>
-            <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
-              <div class="inline-flex">
-                Lead
-                <C.sort_link
-                  phx-click="sort"
-                  current_field={:program_lead}
-                  default_order={:asc}
-                  sort_field={@sort_field}
-                  sort_order={@sort_order}
-                  class="pl-2"
-                />
-              </div>
-            </th>
-            <th class="py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 1/6 bg-gray-50">
-              <div class="inline-flex">
-                Published
-                <C.sort_link
-                  phx-click="sort"
-                  current_field={:published}
-                  default_order={:desc}
-                  sort_field={@sort_field}
-                  sort_order={@sort_order}
-                  class="pl-2"
-                />
-              </div>
-            </th>
-            <th class="w-40 px-6 py-4 text-right border-b border-gray-200 bg-gray-50">
-              <C.button patch_to={Routes.opportunity_index_path(@socket, :new)} size={:small} }>
-                New
-              </C.button>
-            </th>
-          </tr>
-        </thead>
-        <tbody class="bg-white">
-          <%= for opportunity <- @opportunities do %>
-            <tr id={"opportunity-#{opportunity.id}"}>
-              <td class="py-4 pl-3 pr-1 text-sm leading-5 text-gray-500 border-b border-gray-200">
-                <%= checkbox(:selected, "#{opportunity.id}",
-                  form: "selected",
-                  value: MapSet.member?(@selected, opportunity.id),
-                  class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                ) %>
-              </td>
-              <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
-                <%= live_redirect to: Routes.program_show_path(@socket, :show, opportunity.program), class: "link" do %>
-                  <%= opportunity.program.name %>
-                <% end %>
-              </td>
-              <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
-                <C.date date={opportunity.delivery_start} />
-              </td>
-              <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
-                <%= time_interval(opportunity.delivery_start, opportunity.delivery_end) %>
-              </td>
-              <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
-                <%= opportunity.location.address %>
-                <%= if opportunity.hide_address do %>
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                    hidden
-                  </span>
-                <% end %>
-              </td>
-              <td class="px-6 py-4 text-sm leading-5 text-center text-gray-500 break-all border-b border-gray-200">
-                <a href={opportunity.signup_link} class="inline-block link">
-                  <Heroicons.Solid.link aria-label="Link to signup" class="flex-shrink-0 w-5" />
-                </a>
-              </td>
-              <td class="px-6 py-4 text-sm leading-5 text-gray-500 break-all border-b border-gray-200 whitespace-nowrap">
-                <%= program_lead_name(opportunity) %>
-              </td>
-              <td class="px-6 py-4 text-sm leading-5 text-gray-500 border-b border-gray-200">
-                <.check_mark value={opportunity.published} />
-              </td>
-              <td class="px-6 py-4 space-x-1 space-y-1 text-right border-b border-gray-200">
-                <C.button
-                  patch_to={Routes.opportunity_index_path(@socket, :edit, opportunity)}
-                  size={:xsmall}
-                  color={:white}
-                >
-                  Edit
-                </C.button>
-                <C.button
-                  phx-click="delete"
-                  phx-value-id={opportunity.id}
-                  data-confirm="Are you sure?"
-                  size={:xsmall}
-                  color={:lightred}
-                >
-                  Delete
-                </C.button>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
-  </div>
 </div>
+
+<.slideover
+  :if={@live_action in [:new, :edit]}
+  id="edit"
+  show
+  on_cancel={JS.patch(~p"/opportunities")}
+>
+  <:title><%= @page_title %></:title>
+  <.live_component
+    module={BikeBrigadeWeb.OpportunityLive.FormComponent}
+    id={@opportunity.id || :edit}
+    action={@live_action}
+    opportunity={@opportunity}
+    navigate={~p"/opportunities"}
+  />
+  <:confirm form="opportunity-form" type="submit" phx-disable-with="Saving...">Save</:confirm>
+  <:cancel>Cancel</:cancel>
+</.slideover>

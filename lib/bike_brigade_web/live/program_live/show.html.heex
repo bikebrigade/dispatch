@@ -1,73 +1,75 @@
-<%= if @live_action in [:edit] do %>
-  <UI.modal show id={:edit} return_to={Routes.program_show_path(@socket, :show, @program)}>
-    <:title>Edit Program</:title>
-    <.live_component
-      module={BikeBrigadeWeb.ProgramLive.FormComponent}
-      id={@program.id}
-      action={@live_action}
-      program={@program}
-      return_to={Routes.program_show_path(@socket, :show, @program)}
-    />
-  </UI.modal>
-<% end %>
-
-<%= if @live_action in [:new_campaign] do %>
-  <UI.modal show id={:new_campaign} return_to={Routes.program_show_path(@socket, :show, @program)}>
-  <:title>New Campaign</:title>
-    <.live_component
-      module={BikeBrigadeWeb.CampaignLive.FormComponent}
-      id={"campaign-#{@campaign.id || :new}"}
-      action={@live_action}
-      campaign={@campaign}
-      return_to={Routes.program_show_path(@socket, :show, @program)}
-    />
-  </UI.modal>
-<% end %>
-
-<div class="flex items-center justify-between mb-4">
-  <h1 class="text-lg font-medium leading-6 text-gray-900">
-    <%= @program.name %>
-  </h1>
-  <C.button patch_to={Routes.program_show_path(@socket, :edit, @program)}>Edit</C.button>
-</div>
-<UI.table class="min-w-full table-fixed" rows={@program.campaigns}>
-  <:th>Date</:th>
-  <:th>Time</:th>
-  <:th>Riders</:th>
-  <:th>Deliveries</:th>
-  <:th class="flex justify-end" padding="px-3 py-3" uppercase={false}>
-    <C.button redirect_to={Routes.program_show_path(@socket, :new_campaign, @program)}>
+<.header>
+  <%= @program.name %>
+  <:subtitle>
+    <%= @program.campaign_blurb %>
+  </:subtitle>
+  <:actions>
+    <.button navigate={~p"/programs/#{@program}/campaigns/new"}>
       New Campaign
-    </C.button>
-  </:th>
-  <:td let={campaign}>
-    <div class="flex items-center space-x-1">
-      <C.date
-        date={campaign_date(campaign)}
-        link_to={Routes.campaign_show_path(@socket, :show, campaign)}
-      />
-    </div>
-  </:td>
-  <:td let={campaign}>
-    <div class="w-24 truncate"><%= pickup_window(campaign) %></div>
-  </:td>
-  <:td let={campaign}>
+    </.button>
+    <.button patch={~p"/programs/#{@program}/show/edit"} color={:white} class="ml-1">Edit</.button>
+  </:actions>
+</.header>
+
+<.table id="campaigns" rows={@program.campaigns}>
+  <:col :let={campaign} label="Date">
+    <.date date={campaign_date(campaign)} navigate={~p"/campaigns/#{campaign}"} />
+  </:col>
+  <:col :let={campaign} label="Time">
+    <%= pickup_window(campaign) %>
+  </:col>
+  <:col :let={campaign} label="Riders">
     <%= campaign.stats.signed_up_rider_count %>
-  </:td>
-  <:td let={campaign}>
+  </:col>
+  <:col :let={campaign} label="Deliveries">
     <%= campaign.stats.task_count %>
-  </:td>
-  <:td let={campaign} class="text-right">
-    <%= live_redirect("Edit",
-      to: Routes.campaign_index_path(@socket, :edit, campaign),
-      class: "text-indigo-600 hover:text-indigo-900"
-    ) %>
-    <%= link("Delete",
-      to: "#",
-      phx_click: "delete",
-      phx_value_id: campaign.id,
-      data: [confirm: "Are you sure?"],
-      class: "pl-2 text-indigo-600 hover:text-indigo-900"
-    ) %>
-  </:td>
-</UI.table>
+  </:col>
+
+  <:action :let={campaign}>
+    <.link navigate={~p"/campaigns/#{campaign}/edit"} class="link">
+      Edit <span class="sr-only">,<%= campaign_date(campaign) %></span>
+    </.link>
+  </:action>
+  <:action :let={campaign}>
+    <.link
+      phx-click={JS.push("delete", value: %{id: campaign.id})}
+      data-confirm="Are you sure?"
+      class="link"
+    >
+      Delete <span class="sr-only">, <%= campaign_date(campaign) %></span>
+    </.link>
+  </:action>
+</.table>
+
+<.modal
+  :if={@live_action == :edit}
+  id="program-modal"
+  show
+  on_cancel={JS.navigate(~p"/programs/#{@program}")}
+>
+  <.live_component
+    module={BikeBrigadeWeb.ProgramLive.FormComponent}
+    id={@program.id}
+    title={@page_title}
+    action={@live_action}
+    program={@program}
+    navigate={~p"/programs/#{@program}"}
+  />
+</.modal>
+
+<.modal
+  :if={@live_action == :new_campaign}
+  id="program-modal"
+  show
+  on_cancel={JS.navigate(~p"/programs/#{@program}")}
+>
+  <:title>New Campaign</:title>
+  <.live_component
+    module={BikeBrigadeWeb.CampaignLive.FormComponent}
+    id={:new}
+    action={@live_action}
+    title={@page_title}
+    campaign={@campaign}
+    navigate={~p"/programs/#{@program}"}
+  />
+</.modal>

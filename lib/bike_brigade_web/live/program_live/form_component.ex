@@ -20,7 +20,7 @@ defmodule BikeBrigadeWeb.ProgramLive.FormComponent do
   end
 
   @impl Phoenix.LiveComponent
-  def handle_event("add-schedule", _params, socket) do
+  def handle_event("add_schedule", _params, socket) do
     changeset = socket.assigns.changeset
     schedules = Ecto.Changeset.get_field(changeset, :schedules) ++ [%ProgramForm.Schedule{}]
     changeset = Ecto.Changeset.put_embed(changeset, :schedules, schedules)
@@ -29,13 +29,13 @@ defmodule BikeBrigadeWeb.ProgramLive.FormComponent do
   end
 
   @impl Phoenix.LiveComponent
-  def handle_event("remove-schedule", %{"index" => index}, socket) do
+  def handle_event("remove_schedule", %{"index" => index}, socket) do
     changeset = socket.assigns.changeset
 
     schedules =
       changeset
       |> Ecto.Changeset.get_field(:schedules)
-      |> List.delete_at(String.to_integer(index))
+      |> List.delete_at(index)
 
     changeset =
       changeset
@@ -70,7 +70,7 @@ defmodule BikeBrigadeWeb.ProgramLive.FormComponent do
       {:noreply,
        socket
        |> put_flash(:info, "Program updated successfully")
-       |> push_redirect(to: socket.assigns.return_to)}
+       |> push_navigate(to: socket.assigns.navigate)}
     else
       {:error, %Ecto.Changeset{} = changeset} ->
         # TODO this trick is worthy of a blogpost
@@ -89,7 +89,7 @@ defmodule BikeBrigadeWeb.ProgramLive.FormComponent do
       {:noreply,
        socket
        |> put_flash(:info, "Program created successfully")
-       |> push_redirect(to: socket.assigns.return_to)}
+       |> push_navigate(to: socket.assigns.navigate)}
     else
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, changeset: changeset |> Map.put(:action, :insert))}

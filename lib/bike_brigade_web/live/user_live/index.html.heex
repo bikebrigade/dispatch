@@ -1,31 +1,11 @@
-<%= if @live_action in [:new, :edit] do %>
-  <UI.modal show id={:edit} return_to={Routes.user_index_path(@socket, :index)}>
-    <:title><%= Atom.to_string(@live_action) |> String.capitalize() %> Dispatcher</:title>
-    <.live_component
-      module={BikeBrigadeWeb.UserLive.FormComponent}
-      id={@user.id || :new}
-      action={@live_action}
-      user={@user}
-      return_to={Routes.user_index_path(@socket, :index)}
-    />
-  </UI.modal>
-<% end %>
-<UI.table rows={@users}>
-  <:th>
-    Name
-  </:th>
-  <:th>
-    Phone
-  </:th>
-  <:th class="text-right">
-    Status
-  </:th>
-  <:th class="flex justify-end" padding="px-3 py-3" uppercase={false}>
-    <C.button patch_to={Routes.user_index_path(@socket, :new)}>
-      New
-    </C.button>
-  </:th>
-  <:td let={user}>
+<.header>
+  Users
+  <:subtitle>
+    All of the users who have access to the Dispatch app. This includes Dispatchers and Riders.
+  </:subtitle>
+</.header>
+<.table id="users" rows={@users}>
+  <:col :let={user} label="Name">
     <div class="flex items-center">
       <div class="flex-shrink-0 w-10 h-10">
         <img class="w-10 h-10 rounded-full" src={gravatar(user.email)} alt="" />
@@ -35,31 +15,51 @@
         <div class="text-sm leading-5 text-gray-500"><%= user.email %></div>
       </div>
     </div>
-  </:td>
-  <:td let={user}>
+  </:col>
+  <:col :let={user} label="Phone">
     <%= user.phone %>
-  </:td>
-  <:td class="text-right" let={user}>
-    <%= if user.is_dispatcher do %>
-      <C.tooltip tooltip="Dispatcher" class="w-40">
+  </:col>
+  <:col :let={user} label="Status">
+    <div class="flex space-x-2">
+      <.with_tooltip :if={user.is_dispatcher}>
         🧑‍🔧
-      </C.tooltip>
-    <% end %>
-    <%= if user.rider_id  do %>
-      <C.tooltip tooltip="Rider" class="w-40">🚴</C.tooltip>
-    <% end %>
-  </:td>
-  <:td class="text-right" let={user}>
-    <%= live_patch("Edit",
-      to: Routes.user_index_path(@socket, :edit, user),
-      class: "pl-2 text-indigo-600 hover:text-indigo-900"
-    ) %>
-    <%= link("Delete",
-      to: "#",
-      phx_click: "delete",
-      phx_value_id: user.id,
-      data: [confirm: "Are you sure?"],
-      class: "pl-2 text-indigo-600 hover:text-indigo-900"
-    ) %>
-  </:td>
-</UI.table>
+        <:tooltip>Dispatcher</:tooltip>
+      </.with_tooltip>
+      <.with_tooltip :if={user.rider_id}>
+        🚴
+        <:tooltip>Rider</:tooltip>
+      </.with_tooltip>
+    </div>
+  </:col>
+
+  <:action :let={user}>
+    <.link patch={~p"/users/#{user}/edit"} class="link">
+      Edit <span class="sr-only">, <%= user.name %></span>
+    </.link>
+  </:action>
+  <:action :let={user}>
+    <.link
+      phx-click={JS.push("delete", value: %{id: user.id})}
+      data-confirm="Are you sure?"
+      class="link"
+    >
+      Delete <span class="sr-only">, <%= user.name %></span>
+    </.link>
+  </:action>
+</.table>
+
+<.modal
+  :if={@live_action in [:new, :edit]}
+  id="user-modal"
+  show
+  on_cancel={JS.navigate(~p"/users")}
+>
+  <.live_component
+    module={BikeBrigadeWeb.UserLive.FormComponent}
+    id={@user.id || :new}
+    action={@live_action}
+    title={@page_title}
+    user={@user}
+    navigate={~p"/users"}
+  />
+</.modal>

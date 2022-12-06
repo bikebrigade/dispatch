@@ -7,7 +7,7 @@ defmodule BikeBrigade.MixProject do
       version: "0.1.0",
       elixir: "~> 1.7",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: [:phoenix] ++ Mix.compilers(),
+      compilers: Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps()
@@ -40,22 +40,22 @@ defmodule BikeBrigade.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.6.5"},
+      {:phoenix, "~> 1.7.0-rc.0", override: true},
       {:phoenix_ecto, "~> 4.4"},
       {:ecto_sql, "~> 3.7"},
       {:ecto_psql_extras, "~> 0.7.4"},
       {:postgrex, ">= 0.0.0"},
-      {:phoenix_live_view, "~> 0.17.9"},
+      {:phoenix_live_view, "~> 0.18.3"},
       {:floki, ">= 0.0.0", only: :test},
       {:phoenix_html, "~> 3.1"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:phoenix_live_dashboard, "~> 0.6.2"},
+      {:phoenix_live_dashboard, "~> 0.7.2"},
       {:reverse_proxy_plug, "~> 2.1.0"},
       {:telemetry_metrics, "~> 0.4"},
       {:telemetry_poller, "~> 1.0.0"},
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
-      {:plug_cowboy, "~> 2.0"},
+      {:plug_cowboy, "~> 2.6", override: true},
       {:httpoison, "~> 1.6"},
       {:nimble_csv, "~> 1.2.0"},
       {:ex_phone_number, "~> 0.2"},
@@ -70,19 +70,19 @@ defmodule BikeBrigade.MixProject do
       {:google_api_drive, "~> 0.24.0"},
       {:google_api_storage, "~> 0.32.1"},
       {:google_api_sheets, "~> 0.29.0"},
-      {:goth, "~> 1.3-rc", override: true},
+      {:goth, "~> 1.3.1"},
       {:faker, "~> 0.17"},
       {:mustache, "~> 0.4.0"},
       {:honeybadger, "~> 0.18.1"},
       {:recase, "~> 0.5"},
-      {:heroicons, "~> 0.4.1"},
+      {:heroicons, "~> 0.5.0"},
       {:linkify,
        git: "https://github.com/mveytsman/linkify",
        ref: "42c1aca5da2c2ab28abf8f304b211c2a5d2c89c7"},
       {:crontab, "~> 1.1.10"},
       {:tzdata, "~> 1.1"},
       {:benchee, "~> 1.0.1"},
-      {:prom_ex, "~> 1.6.0"},
+      {:prom_ex, "~> 1.7.0"},
       {:esbuild, "~> 0.4.0", runtime: Mix.env() == :dev},
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
@@ -113,15 +113,10 @@ defmodule BikeBrigade.MixProject do
         "setup"
       ],
       setup: [
-
         "deps.get",
-
         "ecto.setup",
-
         "cmd mix ecto.migrate --migrations-path priv/repo/data_migrations",
-
         "cmd npm install --prefix assets"
-
       ],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],

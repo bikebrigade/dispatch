@@ -165,6 +165,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
       |> Riders.get_riders()
 
     socket
+    |> assign(:page_title, "Bulk Message Riders")
     |> assign_new(:rider_search, fn -> @default_rider_search end)
     |> fetch_results()
     |> assign(:initial_riders, riders)
@@ -232,8 +233,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
      |> assign(:show_suggestions, true)}
   end
 
-  def handle_event("remove-filter", %{"index" => i}, socket) do
-    i = String.to_integer(i)
+  def handle_event("remove_filter", %{"index" => i}, socket) do
     filters = List.delete_at(socket.assigns.rider_search.filters, i)
 
     {:noreply,
@@ -277,22 +277,6 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     {:noreply, assign(socket, :selected, selected)}
   end
 
-  def handle_event(
-        "select-rider",
-        %{"_target" => ["selected", "all"], "selected" => selected_params},
-        socket
-      ) do
-    %{opportunities: opportunities} = socket.assigns
-
-    selected =
-      case selected_params["all"] do
-        "true" -> Enum.map(opportunities, & &1.id) |> MapSet.new()
-        "false" -> MapSet.new()
-      end
-
-    {:noreply, assign(socket, :selected, selected)}
-  end
-
   def handle_event("sort", %{"field" => field, "order" => order}, socket) do
     field = String.to_existing_atom(field)
     order = String.to_existing_atom(order)
@@ -318,7 +302,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
      |> fetch_results()}
   end
 
-  def handle_event("set-mode", %{"mode" => mode}, socket) do
+  def handle_event("set_mode", %{"mode" => mode}, socket) do
     {:noreply,
      socket
      |> assign(:all_locations, [])
@@ -448,260 +432,6 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     end
   end
 
-  @impl Phoenix.LiveView
-  def render(assigns) do
-    ~H"""
-    <div>
-      <%= if @live_action == :message do %>
-        <UI.modal id={:bulk_message} show return_to={Routes.rider_index_path(@socket, :index)}>
-          <:title>Bulk Message</:title>
-          <.live_component
-            module={BikeBrigadeWeb.SmsMessageLive.FormComponent}
-            id={:bulk_message}
-            initial_riders={@initial_riders}
-            current_user={@current_user}
-          />
-        </UI.modal>
-      <% end %>
-      <div class="flex items-center justify-between ">
-        <div class="relative flex flex-col w-2/3">
-          <form
-            id="rider-search"
-            phx-change="suggest"
-            phx-submit="filter"
-            phx-click-away="clear-search"
-          >
-            <div class="relative flex items-baseline w-full px-1 py-0 bg-white border border-gray-300 rounded-md shadow-sm sm:text-sm focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500">
-              <.filter_list filters={@rider_search.filters} />
-              <input
-                type="text"
-                id="rider-search-input"
-                name="value"
-                value={display_search(@search)}
-                autocomplete="off"
-                class="w-full placeholder-gray-400 border-transparent appearance-none focus:border-transparent outline-transparent ring-transparent focus:ring-0"
-                placeholder="Name, tag, capacity, last active"
-                tabindex="1"
-              />
-              <%= if @rider_search.filters != [] do %>
-                <button
-                  type="button"
-                  phx-click="clear-filters"
-                  class="absolute right-1 text-gray-400 rounded-md top-2.5 hover:text-gray-500"
-                >
-                  <span class="sr-only">Clear Search</span>
-                  <Heroicons.Mini.x_mark class="w-6 h-6" />
-                </button>
-              <% end %>
-            </div>
-            <.suggestion_list suggestions={@suggestions} open={@show_suggestions} />
-            <button id="submit" type="submit" class="sr-only" />
-          </form>
-        </div>
-        <div class="inline-flex rounded-md shadow-sm">
-          <button
-            phx-click="set-mode"
-            phx-value-mode="list"
-            type="button"
-            class={
-              "#{if @mode == :list, do: "bg-gray-300", else: "bg-white"} relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-l-md hover:bg-gray-200 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-            }
-          >
-            <Heroicons.Mini.table_cells class="w-5 h-5 mr-1" /> List
-          </button>
-          <button
-            phx-click="set-mode"
-            phx-value-mode="map"
-            type="button"
-            class={
-              "#{if @mode == :map, do: "bg-gray-300", else: "bg-white"} relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 border border-gray-300 rounded-r-md hover:bg-gray-200 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-            }
-          >
-            Map <Heroicons.Mini.map class="w-5 h-5 ml-1" />
-          </button>
-        </div>
-        <C.button patch_to={Routes.rider_index_path(@socket, :message)}>
-          Bulk Message
-          <%= if MapSet.size(@selected) > 0 do %>
-            (<%= MapSet.size(@selected) %>)
-          <% end %>
-        </C.button>
-      </div>
-      <form id="selected" phx-change="select-rider"></form>
-      <%= if @mode == :map do %>
-        <div class="min-w-full mt-2 bg-white rounded-lg shadow">
-          <div class="p-1 h-[80vh]">
-            <.rider_map
-              rider_locations={@all_locations}
-              selected={@selected}
-              lat={43.653960}
-              lng={-79.425820}
-            />
-          </div>
-          <div
-            class="flex items-center justify-between px-4 py-3 border-t border-gray-200 sm:px-6"
-            aria-label="Pagination"
-          >
-            <div class="hidden sm:block">
-              <p class="text-sm text-gray-700">
-                Showing
-                <span class="font-medium">
-                  <%= @search_results.total %>
-                </span>
-                results
-              </p>
-            </div>
-          </div>
-        </div>
-      <% else %>
-        <UI.table id="riders" rows={@search_results.page} class="min-w-full mt-2">
-          <:th class="text-center" padding="px-3">
-            <%= checkbox(:selected, :all,
-              form: "selected",
-              value: all_selected?(@search_results.page, @selected),
-              class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-            ) %>
-          </:th>
-          <:th padding="px-3">
-            <div class="inline-flex">
-              Name
-              <C.sort_link
-                phx-click="sort"
-                current_field={:name}
-                default_order={:asc}
-                sort_field={@rider_search.sort_field}
-                sort_order={@rider_search.sort_order}
-                class="pl-2"
-              />
-            </div>
-          </:th>
-          <:th>
-            Location
-          </:th>
-          <:th>
-            Tags
-          </:th>
-          <:th>
-            <div class="inline-flex">
-              Capacity
-              <C.sort_link
-                phx-click="sort"
-                current_field={:capacity}
-                default_order={:desc}
-                sort_field={@rider_search.sort_field}
-                sort_order={@rider_search.sort_order}
-                class="pl-2"
-              />
-            </div>
-          </:th>
-          <:th>
-            <div class="inline-flex">
-              Last Active
-              <C.sort_link
-                phx-click="sort"
-                current_field={:last_active}
-                default_order={:desc}
-                sort_field={@rider_search.sort_field}
-                sort_order={@rider_search.sort_order}
-                class="pl-2"
-              />
-            </div>
-          </:th>
-          <:td let={rider} class="text-center" padding="px-3">
-            <%= checkbox(:selected, "#{rider.id}",
-              form: "selected",
-              value: MapSet.member?(@selected, rider.id),
-              class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-            ) %>
-          </:td>
-          <:td let={rider} padding="px-3">
-            <%= live_redirect to: Routes.rider_show_path(@socket, :show, rider), class: "link" do %>
-              <.bold_search
-                string={rider.name}
-                search={get_filter(@rider_search.filters, :name)}
-                search_type={:word_boundary}
-              />
-            <% end %>
-            <span class="text-xs lowercase ">(<%= pronouns(rider) %>)</span>
-            <.show_phone_if_filtered phone={rider.phone} filters={@rider_search.filters} />
-          </:td>
-          <:td let={rider}>
-            <%= Locations.neighborhood(rider.location) %>
-          </:td>
-          <:td let={rider}>
-            <ul class="flex">
-              <%= for tag <- rider.tags do %>
-                <li class="before:content-[','] first:before:content-['']">
-                  <button type="button" phx-click={add_filter(:tag, tag.name)} class="link">
-                    <%= if get_filter(@rider_search.filters, :tag, tag.name) do %>
-                      <span class="font-bold"><%= tag.name %></span>
-                    <% else %>
-                      <%= tag.name %>
-                    <% end %>
-                  </button>
-                </li>
-              <% end %>
-            </ul>
-          </:td>
-          <:td let={rider}>
-            <button type="button" phx-click={add_filter(:capacity, rider.capacity)} } class="link">
-              <%= if get_filter(@rider_search.filters, :capacity, rider.capacity) do %>
-                <span class="font-bold"><%= rider.capacity %></span>
-              <% else %>
-                <%= rider.capacity %>
-              <% end %>
-            </button>
-          </:td>
-          <:td let={rider}>
-            <%= if rider.latest_campaign do %>
-              <%= rider.latest_campaign.delivery_start
-              |> LocalizedDateTime.to_date()
-              |> Calendar.strftime("%b %-d, %Y") %>
-            <% end %>
-          </:td>
-          <:footer>
-            <nav
-              class="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6"
-              aria-label="Pagination"
-            >
-              <div class="hidden sm:block">
-                <p class="text-sm text-gray-700">
-                  Showing
-                  <span class="font-medium">
-                    <%= @search_results.page_first %>
-                  </span>
-                  to
-                  <span class="font-medium">
-                    <%= @search_results.page_last %>
-                  </span>
-                  of
-                  <span class="font-medium">
-                    <%= @search_results.total %>
-                  </span>
-                  results
-                </p>
-              </div>
-              <div class="flex justify-between flex-1 sm:justify-end">
-                <%= if RiderSearch.Results.has_prev_page?(@search_results) do %>
-                  <C.button phx-click="prev-page" color={:white}>
-                    Previous
-                  </C.button>
-                <% end %>
-
-                <%= if RiderSearch.Results.has_next_page?(@search_results) do %>
-                  <C.button phx-click="next-page" color={:white} class="ml-3">
-                    Next
-                  </C.button>
-                <% end %>
-              </div>
-            </nav>
-          </:footer>
-        </UI.table>
-      <% end %>
-    </div>
-    """
-  end
-
   defp suggestion_list(assigns) do
     ~H"""
     <dialog
@@ -822,10 +552,10 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
             "my-0.5 inline-flex items-center px-2.5 py-1.5 rounded-md text-md font-medium #{color(type)}"
           }>
             <span class="text-700 mr-0.5 font-base"><%= type %>:</span><%= search %>
-            <Heroicons.Mini.x_circle
+            <Heroicons.x_circle
+              mini
               class="w-5 h-5 ml-1 cursor-pointer"
-              phx-click="remove-filter"
-              phx-value-index={i}
+              phx-click={JS.push("remove_filter", value: %{index: i})}
             />
           </div>
         <% end %>
@@ -834,32 +564,15 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     """
   end
 
-  def rider_map(assigns) do
+  defp show_phone_if_filtered(assigns) do
+    assigns = assign(assigns, :phone_filter, get_filter(assigns.filters, :phone))
+
     ~H"""
-    <div
-      phx-hook="LeafletMapNext"
-      id="task-map"
-      data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
-      data-lat={@lat}
-      data-lng={@lng}
-      phx-update="ignore"
-      class="h-full"
-    >
+    <div :if={@phone_filter} class="flex">
+      <Heroicons.device_phone_mobile mini class="w-4 h-4" />
+      <.bold_search string={@phone} search={@phone_filter} />
     </div>
     """
-  end
-
-  defp show_phone_if_filtered(assigns) do
-    if phone_filter = get_filter(assigns.filters, :phone) do
-      ~H"""
-      <div class="flex">
-        <Heroicons.Mini.device_phone_mobile class="w-4 h-4" />
-        <.bold_search string={@phone} search={phone_filter} />
-      </div>
-      """
-    else
-      ~H""
-    end
   end
 
   defp bold_search(assigns) do
@@ -901,10 +614,6 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
       :capacity -> "text-rose-900 bg-rose-100"
       :phone -> "text-cyan-900 bg-cyan-100"
     end
-  end
-
-  defp all_selected?(riders, selected) do
-    MapSet.size(selected) != 0 && Enum.count(riders) == MapSet.size(selected)
   end
 
   defp get_filter(filters, type) do

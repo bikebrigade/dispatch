@@ -1,5 +1,9 @@
-defmodule BikeBrigadeWeb.EmbedTestView do
-  use BikeBrigadeWeb, :view
+defmodule BikeBrigadeWeb.EmbedTestHTML do
+  use BikeBrigadeWeb, :html
+
+  embed_templates "embed_test_html/*"
+
+  attr :src, :string, required: true
 
   def iframe(assigns) do
     ~H"""
@@ -16,6 +20,8 @@ defmodule BikeBrigadeWeb.EmbedTestView do
     </iframe>
     """
   end
+
+  attr :origin, :string, required: true
 
   def script(assigns) do
     ~H"""

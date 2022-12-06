@@ -4,7 +4,7 @@ defmodule BikeBrigadeWeb.CampaignLive.TaskFormComponent do
   alias BikeBrigade.Delivery
   alias BikeBrigade.Delivery.TaskItem
 
-  alias BikeBrigadeWeb.Components.LocationForm
+  alias BikeBrigadeWeb.Components.LiveLocation
 
   @impl Phoenix.LiveComponent
   def update(assigns, socket) do
@@ -45,13 +45,13 @@ defmodule BikeBrigadeWeb.CampaignLive.TaskFormComponent do
   end
 
   @impl Phoenix.LiveComponent
-  def handle_event("remove-item", %{"index" => index}, socket) do
+  def handle_event("remove_item", %{"index" => index}, socket) do
     changeset = socket.assigns.changeset
 
     task_items =
       changeset
       |> Ecto.Changeset.get_field(:task_items)
-      |> List.delete_at(String.to_integer(index))
+      |> List.delete_at(index)
 
     changeset =
       changeset
@@ -87,7 +87,7 @@ defmodule BikeBrigadeWeb.CampaignLive.TaskFormComponent do
       {:ok, _task} ->
         {:noreply,
          socket
-         |> push_redirect(to: socket.assigns.return_to)}
+         |> push_navigate(to: socket.assigns.navigate)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, :changeset, changeset)}
@@ -101,7 +101,7 @@ defmodule BikeBrigadeWeb.CampaignLive.TaskFormComponent do
       {:ok, _task} ->
         {:noreply,
          socket
-         |> push_redirect(to: socket.assigns.return_to)}
+         |> push_navigate(to: socket.assigns.navigate)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, :changeset, changeset)}

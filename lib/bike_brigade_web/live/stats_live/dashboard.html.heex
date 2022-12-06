@@ -38,8 +38,7 @@
     </h3>
     <span class="relative z-0 inline-flex rounded-md shadow-sm">
       <button
-        phx-click="select-period"
-        phx-value-period="week"
+        phx-click={JS.push("select_period", value: %{period: :week})}
         type="button"
         class={
           "#{if @period == :week, do: "bg-gray-200", else: "bg-white"} relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-l-md hover:bg-gray-200 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
@@ -48,8 +47,7 @@
         Week
       </button>
       <button
-        phx-click="select-period"
-        phx-value-period="month"
+        phx-click={JS.push("select_period", value: %{period: :month})}
         type="button"
         class={
           "#{if @period == :month, do: "bg-gray-200", else: "bg-white"} relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 border border-gray-300 rounded-r-md hover:bg-gray-200 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"

@@ -3,7 +3,6 @@ defmodule BikeBrigadeWeb.CampaignLive.AddRiderFormComponent do
 
   alias BikeBrigade.Delivery
   alias BikeBrigade.Delivery.CampaignRider
-  import BikeBrigadeWeb.CampaignHelpers
 
   @impl Phoenix.LiveComponent
   def mount(socket) do
@@ -31,7 +30,7 @@ defmodule BikeBrigadeWeb.CampaignLive.AddRiderFormComponent do
       {:ok, _cr} ->
         {:noreply,
          socket
-         |> push_redirect(to: Routes.campaign_show_path(socket, :show, campaign))}
+         |> push_redirect(to: ~p"/campaigns/#{campaign}")}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, :changeset, changeset)}

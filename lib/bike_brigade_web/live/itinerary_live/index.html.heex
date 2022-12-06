@@ -4,36 +4,43 @@
 >
   <div class="items-center block font-medium xl:flex">
     <p>
-      Itinerary for
-      <%= Calendar.strftime(@date, "%A %B %-d, %Y") %>
+      Itinerary for <%= Calendar.strftime(@date, "%A %B %-d, %Y") %>
     </p>
     <div class="flex justify-between flex-1 text-gray-500 xl:ml-3">
       <%= if @campaign_riders != [] do %>
-        <%= get_task_count(@campaign_riders) %> <%= Inflex.inflect("delivery", get_task_count(@campaign_riders)) %> for
-        <%= length(@campaign_riders) %> <%= Inflex.inflect("campaign", length(@campaign_riders)) %>
+        <%= get_task_count(@campaign_riders) %> <%= Inflex.inflect(
+          "delivery",
+          get_task_count(@campaign_riders)
+        ) %> for <%= length(@campaign_riders) %> <%= Inflex.inflect(
+          "campaign",
+          length(@campaign_riders)
+        ) %>
       <% end %>
     </div>
   </div>
   <div class="flex justify-end flex-1">
     <span class="relative z-0 inline-flex rounded-md shadow-sm">
-      <%= live_patch to: Routes.itinerary_index_path(@socket, :index, date: Date.add(@date, -1)),
-        aria_label: "Previous Day",
-        class: "relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-do %>
-        <Heroicons.Solid.chevron_left class="w-5 h-5" />
-      <% end %>
-      <%= live_patch to: Routes.itinerary_index_path(@socket, :index, date: LocalizedDateTime.today),
-        class: "relative items-center hidden px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 sm:inline-flex hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-do %>
+      <.link
+        patch={~p"/itinerary?date=#{Date.add(@date, -1)}"}
+        aria-label="Previous Day"
+        class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+      >
+        <Heroicons.chevron_left solid class="w-5 h-5" />
+      </.link>
+      <.link
+        patch={~p"/itinerary?date=#{LocalizedDateTime.today()}"}
+        class="relative items-center hidden px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 sm:inline-flex hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+      >
         Today
-      <% end %>
+      </.link>
 
-      <%= live_patch to: Routes.itinerary_index_path(@socket, :index, date: Date.add(@date, 1)),
-        aria_label: "Next Day",
-        class: "relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-do %>
-        <Heroicons.Solid.chevron_right class="w-5 h-5" />
-      <% end %>
+      <.link
+        patch={~p"/itinerary?date=#{Date.add(@date, 1)}"}
+        aria-label="Next Day"
+        class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+      >
+        <Heroicons.chevron_right solid class="w-5 h-5" />
+      </.link>
     </span>
   </div>
 </nav>
@@ -41,49 +48,51 @@ do %>
   <%= for cr <- @campaign_riders do %>
     <div class="flex w-full bg-white shadow sm:my-1 sm:rounded-md">
       <ul role="list" class="w-full divide-y divide-gray-200">
-          <li id={"campaign-#{cr.campaign.id}"}>
-            <div class="px-4 py-4">
-              <div class="items-center justify-between md:flex">
-                <div class="flex items-center mb-2 space-x-1">
-                  <%= live_redirect(name(cr.campaign),
-                    to: Routes.campaign_show_path(@socket, :show, cr.campaign),
-                    class: "link font-bold"
-                  ) %>
-                </div>
-                <div class="flex-shrink-0 space-y-1 md:space-y-0 md:space-x-2 md:flex">
-                  <C.button
-                    redirect_to={Routes.delivery_show_path(@socket, :show, cr.token)}
-                    size={:medium}
-                  >
-                    Details
-                  </C.button>
-                </div>
+        <li id={"campaign-#{cr.campaign.id}"}>
+          <div class="px-4 py-4">
+            <div class="items-center justify-between md:flex">
+              <div class="flex items-center mb-2 space-x-1">
+                <.link
+                  navigate={~p"/campaigns/#{cr.campaign}"}
+                  class="font-bold link"
+                >
+                  <%= name(cr.campaign) %>
+                </.link>
               </div>
-              <div class="mt-2 sm:flex sm:justify-between">
-                <div class="sm:flex">
-                  <p class="flex items-center text-sm text-gray-500">
-                    <Heroicons.Outline.clock
-                      aria-label="Pickup Time"
-                      class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
-                    />
-                    <%= pickup_window(cr.campaign) %>
-                  </p>
-                </div>
-              </div>
-              <.get_location campaign={cr.campaign} />
-              <div class="mt-2 sm:flex sm:justify-between">
-                <div class="sm:flex">
-                  <p class="flex items-center text-sm text-gray-500">
-                    <Heroicons.Outline.shopping_bag
-                      aria-label="Location"
-                      class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
-                    />
-                    <%= humanized_task_count(cr.campaign.tasks) %>
-                  </p>
-                </div>
+              <div class="flex-shrink-0 space-y-1 md:space-y-0 md:space-x-2 md:flex">
+                <.button
+                  navigate={~p"/app/delivery/#{cr.token}"}
+                  size={:medium}
+                >
+                  Details
+                </.button>
               </div>
             </div>
-          </li>
+            <div class="mt-2 sm:flex sm:justify-between">
+              <div class="sm:flex">
+                <p class="flex items-center text-sm text-gray-500">
+                  <Heroicons.clock
+                    aria-label="Pickup Time"
+                    class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
+                  />
+                  <%= pickup_window(cr.campaign) %>
+                </p>
+              </div>
+            </div>
+            <.get_location campaign={cr.campaign} />
+            <div class="mt-2 sm:flex sm:justify-between">
+              <div class="sm:flex">
+                <p class="flex items-center text-sm text-gray-500">
+                  <Heroicons.shopping_bag
+                    aria-label="Location"
+                    class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
+                  />
+                  <%= humanized_task_count(cr.campaign.tasks) %>
+                </p>
+              </div>
+            </div>
+          </div>
+        </li>
       </ul>
     </div>
   <% end %>

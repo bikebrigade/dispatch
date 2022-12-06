@@ -2,8 +2,7 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
   use BikeBrigadeWeb, :live_component
 
   alias BikeBrigade.Riders
-  alias BikeBrigade.Riders.RiderSearch
-  alias BikeBrigade.Riders.RiderSearch.Filter
+  alias BikeBrigade.Riders.{Rider, RiderSearch, RiderSearch.Filter}
 
   @impl Phoenix.LiveComponent
   def mount(socket) do
@@ -52,16 +51,12 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
   end
 
   def handle_event("unselect", %{"id" => id}, socket) do
-    id = String.to_integer(id)
-
     {:noreply,
      socket
      |> update(:selected_riders, &Map.delete(&1, id))}
   end
 
   def handle_event("select", %{"id" => id}, socket) do
-    id = String.to_integer(id)
-
     {:noreply,
      socket
      |> update(:selected_riders, &Map.put_new_lazy(&1, id, fn -> Riders.get_rider!(id) end))
@@ -91,50 +86,43 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
   @impl true
   def render(assigns) do
     ~H"""
-    <div id="rider-select">
+    <div id={@id}>
       <div class="grid grid-cols-2 overflow-y-auto max-h-64">
         <%= for {id, rider} <- @selected_riders do %>
-          <.show rider={rider}>
-            <:x>
-              <a
-                href="#"
-                phx-click="unselect"
-                phx-value-id={id}
-                phx-target={@myself}
-                class="block text-sm text-gray-400 bg-white rounded-md font-base hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                <Heroicons.Solid.x_mark class="w-5 h-5" />
-              </a>
-            </:x>
-          </.show>
+          <.rider
+            rider={rider}
+            on_unselect={JS.push("unselect", value: %{id: rider.id}, target: @myself)}
+          />
           <input type="hidden" name={@input_name} value={id} />
         <% end %>
       </div>
       <%= if @multi || Enum.empty?(@selected_riders) do %>
-        <input
+        <.input
+          id={"#{@id}-input"}
           type="text"
+          name="search"
+          value=""
           phx-keyup="suggest"
           phx-target={@myself}
           phx-debounce="50"
-          name="search"
           autocomplete="off"
           placeholder="Type to search for riders by name or phone number"
-          class="block w-full px-3 py-2 placeholder-gray-400 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          form="select-form"
+          errors={[]}
         />
         <%= if @search != "" do %>
-          <ul id="rider-selection-list" class="overflow-y-auto max-h-64" phx-hook="RiderSelectionList">
+          <ul
+            id="rider-selection-list"
+            class="mt-1 space-y-2 overflow-y-auto max-h-64"
+            phx-hook="RiderSelectionList"
+          >
             <%= for rider <- @riders do %>
               <li id={"rider-selection:#{rider.id}"}>
-                <a
-                  href="#"
-                  phx-click="select"
-                  phx-value-id={rider.id}
-                  phx-target={@myself}
+                <.link
+                  phx-click={JS.push("select", value: %{id: rider.id}, target: @myself)}
                   class="block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
                 >
-                  <.show rider={rider} />
-                </a>
+                  <.rider rider={rider} />
+                </.link>
               </li>
             <% end %>
           </ul>
@@ -144,13 +132,16 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
     """
   end
 
-  defp show(assigns) do
+  attr(:rider, Rider, required: true)
+  attr(:on_unselect, JS, default: nil)
+
+  defp rider(assigns) do
     assigns =
       assigns
       |> assign_new(:x, fn -> [] end)
 
     ~H"""
-    <div class="flex items-start px-3 py-4">
+    <div class="flex items-start px-2 py-3 border border-gray-300 rounded-md shadow-sm">
       <div class="flex items-center flex-1 min-w-0">
         <div class="flex-shrink-0">
           <img class="w-12 h-12 rounded-full" src={gravatar(@rider.email)} alt="" />
@@ -163,18 +154,24 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
             </span>
           </div>
           <div class="flex items-center mt-2 text-xs leading-5 text-gray-700">
-            <Heroicons.Mini.device_phone_mobile class="flex-shrink-0 w-4 h-4 mr-1 text-gray-500" />
+            <Heroicons.device_phone_mobile mini class="flex-shrink-0 w-4 h-4 mr-1 text-gray-500" />
             <span class="truncate">
               <%= @rider.phone %>
             </span>
           </div>
           <div class="flex items-center mt-2 text-xs text-gray-700">
-            <Heroicons.Mini.envelope class="flex-shrink-0 w-4 h-4 mr-1 text-gray-500" />
+            <Heroicons.envelope mini class="flex-shrink-0 w-4 h-4 mr-1 text-gray-500" />
             <span class="truncate"><%= @rider.email %></span>
           </div>
         </div>
       </div>
-      <%= render_slot(@x) %>
+      <.link
+        :if={@on_unselect}
+        phx-click={@on_unselect}
+        class="block text-sm text-gray-400 bg-white rounded-md font-base hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+      >
+        <Heroicons.x_mark solid class="w-5 h-5" />
+      </.link>
     </div>
     """
   end

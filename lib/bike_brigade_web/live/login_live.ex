@@ -1,5 +1,5 @@
 defmodule BikeBrigadeWeb.LoginLive do
-  use BikeBrigadeWeb, {:live_view, layout: {BikeBrigadeWeb.LayoutView, "public.live.html"}}
+  use BikeBrigadeWeb, {:live_view, layout: :public}
   use Phoenix.HTML
 
   alias BikeBrigade.AuthenticationMessenger
@@ -69,7 +69,7 @@ defmodule BikeBrigadeWeb.LoginLive do
         {:noreply,
          socket
          |> put_flash(:error, err)
-         |> push_patch(to: Routes.login_path(socket, :index))}
+         |> push_patch(to: ~p"/login")}
     end
   end
 end

@@ -5,14 +5,16 @@
 >
   <div class="w-full py-3 text-center mb-14">
     <h1 class="font-serif text-4xl font-medium ">
-      <%= Calendar.strftime(@start_date, "%b %-d") %> -
-      <%= Calendar.strftime(@end_date, "%b %-d, %Y") %>
+      <%= Calendar.strftime(@start_date, "%b %-d") %> - <%= Calendar.strftime(
+        @end_date,
+        "%b %-d, %Y"
+      ) %>
     </h1>
   </div>
   <%= if @show_buttons do %>
     <div class="z-10 sticky top-0 h-16 sm:h-28 bg-black flex sm:justify-center pl-0.5 w-full gap-5 py-2 text-center  overflow-x-auto">
       <%= for {date, _opportunities} <- @opportunities  do %>
-        <C.button href={"##{date}"} size={:xlarge} color={:black} class="flex-col font-medium">
+        <.button href={"##{date}"} size={:xlarge} color={:black} class="flex-col font-medium">
           <div class="flex flex-row sm:flex-col">
             <div class="pr-2 text-sm sm:text-lg sm:pr-0">
               <%= Calendar.strftime(date, "%a") %>
@@ -22,11 +24,11 @@
             </div>
             <%= if date == @today do %>
               <div class="mt-2 ml-0.5 sm:ml-3">
-                <C.Icons.circle class="w-2 h-2 mt-0" />
+                <Icons.circle class="w-2 h-2 mt-0" />
               </div>
             <% end %>
           </div>
-        </C.button>
+        </.button>
       <% end %>
     </div>
   <% end %>
@@ -51,7 +53,7 @@
             <div class="flex flex-row w-4/5 min-w-full pb-5 space-x-1">
               <!-- don't show images yet
             <div class="hidden md:block">
-              <img class="w-full h-full" src={Routes.static_path(@socket, "/images/wordmark-black.png")}/>
+              <img class="w-full h-full" src={~p"/images/wordmark-black.png"}/>
             </div>
             -->
               <div class="flex flex-col space-y-3">
@@ -59,19 +61,23 @@
                   <%= opportunity.program.name %>
                 </h2>
                 <div class="flex items-center text-sm text-gray-300">
-                  <Heroicons.Outline.clock
+                  <Heroicons.clock
                     aria-label="Pickup Time"
                     class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
                   />
                   <%= time_interval(opportunity.delivery_start, opportunity.delivery_end) %>
                 </div>
                 <div class="flex items-center text-sm text-gray-300">
-                  <Heroicons.Outline.map_pin class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
+                  <Heroicons.map_pin class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
                   <%= if !opportunity.hide_address do %>
                     <div class="flex flex-col sm:flex-row">
-                      <%= link to: GoogleMaps.open_map_url(opportunity.location), target: "_blank", class: "underline hover:text-gray-300 mr-1" do %>
+                      <.link
+                        href={GoogleMaps.open_map_url(opportunity.location)}
+                        target="_blank"
+                        class="mr-1 underline hover:text-gray-300"
+                      >
                         <%= opportunity.location.address %>
-                      <% end %>
+                      </.link>
                       <div class="font-medium">
                         (<%= Locations.neighborhood(opportunity.location) %>)
                       </div>
@@ -84,7 +90,7 @@
                 </div>
                 <%= if opportunity.program.campaign_blurb  do %>
                   <div class="flex items-start text-sm text-gray-300">
-                    <Heroicons.Outline.information_circle
+                    <Heroicons.information_circle
                       aria-label="Pickup Time"
                       class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
                     />
@@ -93,7 +99,7 @@
                 <% end %>
                 <%= if Enum.filter(opportunity.program.items, fn item -> not item.hidden end) != []  do %>
                   <div class="flex items-start text-sm text-gray-300">
-                    <Heroicons.Outline.shopping_bag
+                    <Heroicons.shopping_bag
                       aria-label="Pickup Time"
                       class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
                     />
@@ -101,23 +107,23 @@
                       You'll be delivering:
                       <%= for item when not item.hidden <- opportunity.program.items do %>
                         <p class="text-sm text-gray-300">
-                          <span class="font-bold"><%= item.name %></span> -
-                          <%= item.description %>
+                          <span class="font-bold"><%= item.name %></span>
+                          - <%= item.description %>
                         </p>
                       <% end %>
                     </div>
                   </div>
                 <% end %>
                 <div>
-                  <!--<C.button patch_to={Routes.calendar_index_path(@socket, :show, opportunity)} patch_replace color={:black}>More Info</C.button>-->
-                  <C.button
+                  <!--<.button patch={~p"/embed/calendar/#{opportunity}"} patch_replace color={:black}>More Info</.button>-->
+                  <.button
                     href={opportunity.signup_link}
                     target="_blank"
                     class="ml-7"
                     color={:black}
                   >
                     Sign Up
-                  </C.button>
+                  </.button>
                 </div>
               </div>
             </div>

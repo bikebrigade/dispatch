@@ -17,9 +17,9 @@
       </div>
       <div class="flex-shrink-0">
         <div class="flex justify-end flex-1">
-          <C.button href={"sms:#{BikeBrigade.Messaging.inbound_number(@rider)}"}>
+          <.button href={{:sms, "#{BikeBrigade.Messaging.inbound_number(@rider)}"}}>
             Contact Bike Brigade
-          </C.button>
+          </.button>
         </div>
       </div>
     </div>
@@ -48,7 +48,7 @@
     </div>
     <div class="relative flex justify-center">
       <span class="px-2 text-gray-500 bg-gray-50">
-        <Heroicons.Outline.star class="w-5 h-5 text-gray-500" />
+        <Heroicons.star class="w-5 h-5 text-gray-500" />
       </span>
     </div>
   </div>
@@ -59,7 +59,7 @@
         aria-hidden="true"
       >
         <div class="flex items-center justify-center flex-shrink-0 w-8 h-8 bg-green-700 rounded-full ring-8 ring-white">
-          <Heroicons.Mini.clipboard_document_check class="w-5 h-5 text-white" />
+          <Heroicons.clipboard_document_check mini class="w-5 h-5 text-white" />
         </div>
         <div class="w-full pl-1 border-l border-gray-200 sm:flex-nowrap">
           <div class="flex flex-col space-y-.5">
@@ -68,27 +68,27 @@
                 Pick up
               </h2>
               <div class="flex flex-wrap items-start justify-end flex-shrink ml-auto">
-                <C.button
+                <.button
                   href={open_map_url(@campaign)}
                   aria-label="Map Pickup"
                   size={:small}
                   color={:green}
                 >
-                  <Heroicons.Mini.map class="w-5 h-5 mr-1 -ml-0.5" />
+                  <Heroicons.map mini class="w-5 h-5 mr-1 -ml-0.5" />
                   Map
-                </C.button>
+                </.button>
               </div>
             </div>
             <div class="inline-flex flex-shrink-0 leading-normal">
-              <Heroicons.Mini.clock
+              <Heroicons.clock mini
                 aria-label="Pickup Time"
                 class="w-4 h-4 mt-1 mr-1 text-gray-500"
               />
               <%= CampaignHelpers.pickup_window(@campaign, @rider) %>
             </div>
-            <C.location location={@campaign.location} />
+            <.location location={@campaign.location} />
             <div class="inline-flex leading-normal">
-              <Heroicons.Mini.shopping_bag class="flex-shrink-0 w-4 h-4 mt-1 mr-1 text-gray-500 " />
+              <Heroicons.shopping_bag mini class="flex-shrink-0 w-4 h-4 mt-1 mr-1 text-gray-500 " />
               <%= humanized_task_count(@rider.assigned_tasks) %>
             </div>
           </div>
@@ -107,17 +107,17 @@
             phx-hook="Alpine"
             class="relative mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-7"
           >
-            <div :class="{ 'max-h-20': collapsed }" class="overflow-hidden whitespace-pre-wrap">
+            <div x-bind:class="{ 'max-h-20': collapsed }" class="overflow-hidden whitespace-pre-wrap">
               <%= render_raw(@campaign.details) %>
             </div>
             <div
               x-show="overflows"
-              :class="{'absolute inset-x-0 bottom-0': collapsed }"
+              x-bind:class="{'absolute inset-x-0 bottom-0': collapsed }"
               class="flex justify-around p-1.5 bg-white bg-opacity-90"
             >
               <button
                 x-text="collapsed ? 'Show More...' : 'Show Less'"
-                @click="collapsed = !collapsed"
+                x-on:click="collapsed = !collapsed"
                 type="button"
                 class="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
@@ -134,7 +134,7 @@
         </div>
         <div class="relative flex justify-center">
           <span class="px-2 text-gray-500 bg-gray-50">
-            <Heroicons.Outline.chevron_down class="w-5 h-5 text-gray-500" />
+            <Heroicons.chevron_down class="w-5 h-5 text-gray-500" />
           </span>
         </div>
       </div>
@@ -156,40 +156,40 @@
                 </h2>
                 <div class="flex items-start justify-end flex-shrink space-x-1">
                   <%= if task.dropoff_phone do %>
-                    <C.button
+                    <.button
                       href={sms_url(@campaign, @rider, task)}
                       aria-label={"Text Delivery #{i}"}
                       size={:small}
                     >
-                      <Heroicons.Mini.chat_bubble_bottom_center_text class="w-5 h-5 mr-1 -ml-0.5" />
+                      <Heroicons.chat_bubble_bottom_center_text mini class="w-5 h-5 mr-1 -ml-0.5" />
                       Text
-                    </C.button>
-                    <C.button href={tel_url(task)} aria-label={"Call Delivery #{i}"} size={:small}>
-                      <Heroicons.Mini.phone_arrow_up_right class="w-5 h-5 mr-1 -ml-0.5" />
+                    </.button>
+                    <.button href={tel_url(task)} aria-label={"Call Delivery #{i}"} size={:small}>
+                      <Heroicons.phone_arrow_up_right mini class="w-5 h-5 mr-1 -ml-0.5" />
                       Call
-                    </C.button>
+                    </.button>
                   <% end %>
-                  <C.button
+                  <.button
                     href={open_map_url(task)}
                     target="_blank"
                     aria-label={"Map Delivery #{i}"}
                     size={:small}
                   >
-                    <Heroicons.Mini.map class="w-5 h-5 mr-1 -ml-0.5" />
+                    <Heroicons.map mini class="w-5 h-5 mr-1 -ml-0.5" />
                     Map
-                  </C.button>
+                  </.button>
                 </div>
               </div>
               <div class="inline-flex flex-shrink-0 leading-normal">
-                <Heroicons.Mini.user
+                <Heroicons.user mini
                   aria-label="Dropoff Name"
                   class="w-4 h-4 mt-1 mr-1 text-gray-500"
                 />
                 <%= task.dropoff_name %>
               </div>
-              <C.location location={task.dropoff_location} />
+              <.location location={task.dropoff_location} />
               <div class="inline-flex flex-shrink-0 leading-normal">
-                <Heroicons.Mini.device_phone_mobile
+                <Heroicons.device_phone_mobile mini
                   aria-label="Dropoff Phone"
                   class="w-4 h-4 mt-1 mr-1 text-gray-500"
                 />
@@ -200,7 +200,7 @@
                 <% end %>
               </div>
               <div class="inline-flex leading-normal">
-                <Heroicons.Mini.shopping_bag class="flex-shrink-0 w-4 h-4 mt-1 mr-1 text-gray-500 " />
+                <Heroicons.shopping_bag mini class="flex-shrink-0 w-4 h-4 mt-1 mr-1 text-gray-500 " />
                 <%= CampaignHelpers.request_type(task) %>
               </div>
             </div>
@@ -219,7 +219,7 @@
               phx-hook="Alpine"
               class="relative mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-7"
             >
-              <div :class="{ 'max-h-24': collapsed }" class="overflow-hidden">
+              <div x-bind:class="{ 'max-h-24': collapsed }" class="overflow-hidden">
                 <%= if is_nil(task.rider_notes) or task.rider_notes=="" do %>
                   N/A
                 <% else %>
@@ -228,12 +228,12 @@
               </div>
               <div
                 x-show="overflows"
-                :class="{'absolute inset-x-0 bottom-0': collapsed }"
+                x-bind:class="{'absolute inset-x-0 bottom-0': collapsed }"
                 class="flex justify-around p-1.5 bg-white bg-opacity-90"
               >
                 <button
                   x-text="collapsed ? 'Show More...' : 'Show Less'"
-                  @click="collapsed = !collapsed"
+                  x-on:click="collapsed = !collapsed"
                   type="button"
                   class="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
@@ -250,14 +250,14 @@
       </div>
       <div class="relative flex justify-center">
         <span class="px-2 text-gray-500 bg-gray-50">
-          <Heroicons.Outline.chevron_double_down class="w-5 h-5 text-gray-500" />
+          <Heroicons.chevron_double_down class="w-5 h-5 text-gray-500" />
         </span>
       </div>
     </div>
     <div class="w-full overflow-hidden bg-white shadow-md sm:mt-2 sm:rounded-lg">
       <div class="flex items-start space-x-1 p-2.5 bg-white border-b border-gray-200 sm:p-4">
         <div class="flex items-center justify-center flex-shrink-0 w-8 h-8 bg-green-700 rounded-full ring-8 ring-white">
-          <Heroicons.Mini.star class="w-5 h-5 text-white" />
+          <Heroicons.star mini class="w-5 h-5 text-white" />
         </div>
         <div class="w-full pl-1 border-l border-gray-200 sm:flex-nowrap">
           <div class="flex flex-row items-center justify-between">
@@ -265,10 +265,10 @@
               Tell us you're done.
             </h2>
             <div class="flex flex-wrap items-start justify-end flex-shrink ml-auto">
-              <C.button href={sms_done_url(@campaign, @rider)} class="ml-auto" color={:green}>
-                <Heroicons.Mini.chat_bubble_left_right class="w-5 h-5 mr-1 -ml-0.5" />
+              <.button href={sms_done_url(@campaign, @rider)} class="ml-auto" color={:green}>
+                <Heroicons.chat_bubble_left_right mini class="w-5 h-5 mr-1 -ml-0.5" />
                 I'm done!
-              </C.button>
+              </.button>
             </div>
           </div>
           <div class="mt-1">
@@ -283,7 +283,7 @@
       </div>
       <div class="relative flex justify-center">
         <span class="px-2 text-gray-500 bg-gray-50">
-          <Heroicons.Mini.map class="w-5 h-5 text-gray-500" />
+          <Heroicons.map mini class="w-5 h-5 text-gray-500" />
         </span>
       </div>
     </div>
@@ -293,9 +293,9 @@
           Full Route Map
         </h2>
         <div class="flex justify-end flex-1 pb-1 my-4 mr-3">
-          <C.button href={directions_url(assigns)} font-medium text-white>
+          <.button href={directions_url(assigns)} class="font-medium text-white">
             Open in Google Maps
-          </C.button>
+          </.button>
         </div>
       </div>
       <div class="p-3 sm:p-4">

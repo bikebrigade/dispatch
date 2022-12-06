@@ -1,163 +1,75 @@
-<%= case @live_action do %>
-  <% :edit -> %>
-    <UI.modal show id={:edit} return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}>
-      <:title><%= @page_title %></:title>
-      <.live_component
-        module={BikeBrigadeWeb.CampaignLive.FormComponent}
-        id={@campaign.id}
-        title={@page_title}
-        action={@live_action}
-        campaign={@campaign}
-        return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}
-      />
-    </UI.modal>
-  <% :add_rider -> %>
-    <UI.modal
-      show
-      id={:add_rider}
-      return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}
-    >
-      <:title>Add Rider</:title>
-      <.live_component
-        module={BikeBrigadeWeb.CampaignLive.AddRiderFormComponent}
-        id={@campaign.id}
-        title={@page_title}
-        action={@live_action}
-        campaign={@campaign}
-        return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}
-      />
-    </UI.modal>
-  <% :new_task -> %>
-    <UI.modal
-      show
-      id={:new_task}
-      return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}
-    >
-      <:title>Add Task</:title>
-      <.live_component
-        module={BikeBrigadeWeb.CampaignLive.TaskFormComponent}
-        id={@campaign.id}
-        campaign={@campaign}
-        task={@form_task}
-        action={:new}
-        return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}
-      />
-    </UI.modal>
-  <% :edit_task -> %>
-    <UI.modal
-      show
-      id={:new_task}
-      return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}
-    >
-      <:title>Edit Task</:title>
-      <.live_component
-        module={BikeBrigadeWeb.CampaignLive.TaskFormComponent}
-        id={@campaign.id}
-        campaign={@campaign}
-        task={@form_task}
-        action={:edit}
-        return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}
-      />
-    </UI.modal>
-  <% :messaging -> %>
-    <UI.slideover
-      id={:messaging}
-      return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}
-      wide
-    >
-      <:title>
-        Campaign Messaging
-      </:title>
-      <.live_component
-        module={BikeBrigadeWeb.CampaignLive.MessagingFormComponent}
-        id={@campaign.id}
-        campaign={@campaign}
-        riders={@riders}
-        return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}
-      />
-    </UI.slideover>
-  <% :bulk_message -> %>
-    <UI.modal
-      id={:bulk_message}
-      show
-      return_to={Routes.campaign_show_path(@socket, :show, @campaign.id)}
-    >
-      <:title>Bulk Message</:title>
-      <.live_component
-        module={BikeBrigadeWeb.SmsMessageLive.FormComponent}
-        id={:bulk_message}
-        initial_riders={Map.values(@riders)}
-        current_user={@current_user}
-      />
-    </UI.modal>
-  <% _ -> %>
-<% end %>
 <div class="flex flex-col h-full">
   <div class="flex flex-row flex-wrap items-center md:flex-nowrap">
-    <C.button patch_to={Routes.campaign_show_path(@socket, :messaging, @campaign.id)} class="mr-3">
-      <Heroicons.Mini.chat_bubble_left_right class="w-5 h-5 mr-2 -ml-1" />
-      Messaging
-    </C.button>
+    <.button patch={~p"/campaigns/#{@campaign}/messaging"} class="mr-3">
+      <Heroicons.chat_bubble_left_right mini class="w-5 h-5 mr-2 -ml-1" /> Messaging
+    </.button>
     <div class="relative inline-block dropdown">
-      <C.button class="my-3 mr-3">
+      <.button class="my-3 mr-3">
         <span class="mr-1">Print</span>
-        <Heroicons.Solid.chevron_down class="w-4 h-4" />
-      </C.button>
+        <Heroicons.chevron_down solid class="w-4 h-4" />
+      </.button>
       <ul class="absolute z-10 hidden pt-1 text-gray-700 dropdown-menu">
         <li>
-          <%= link("Assignments",
-            to: Routes.printable_campaign_assignments_path(@socket, :index, @campaign.id),
-            class: "rounded-t bg-gray-200 hover:bg-gray-400 py-2 px-14 block whitespace-nowrap"
-          ) %>
+          <.link
+            href={~p"/campaigns/#{@campaign}/printable/assignments"}
+            class="block py-2 bg-gray-200 rounded-t hover:bg-gray-400 px-14 whitespace-nowrap"
+          >
+            Assignments
+          </.link>
         </li>
         <li>
-          <%= link("Safety Check Tracker",
-            to: Routes.printable_safety_check_path(@socket, :index, @campaign.id),
-            class: "rounded-t bg-gray-200 hover:bg-gray-400 py-2 px-14 block whitespace-nowrap"
-          ) %>
+          <.link
+            href={~p"/campaigns/#{@campaign}/printable/safety_check"}
+            class="block py-2 bg-gray-200 rounded-t hover:bg-gray-400 px-14 whitespace-nowrap"
+          >
+            Safety Check Tracker
+          </.link>
         </li>
       </ul>
     </div>
 
     <div class="relative inline-block dropdown">
-      <C.button class="my-3 mr-3">
+      <.button class="my-3 mr-3">
         <span class="mr-1">Download</span>
-        <Heroicons.Solid.chevron_down class="w-4 h-4" />
-      </C.button>
+        <Heroicons.chevron_down solid class="w-4 h-4" />
+      </.button>
       <ul class="absolute z-10 hidden pt-1 text-gray-700 dropdown-menu">
         <li>
-          <%= link("Assignments",
-            to: Routes.campaign_path(@socket, :download_assignments, @campaign.id),
-            download: true,
-            class: "rounded-t bg-gray-200 hover:bg-gray-400 py-2 px-14 block whitespace-nowrap"
-          ) %>
+          <.link
+            href={~p"/campaigns/#{@campaign}/download_assignments"}
+            download
+            class="block py-2 bg-gray-200 rounded-t hover:bg-gray-400 px-14 whitespace-nowrap"
+          >
+            Assignments
+          </.link>
         </li>
         <li>
-          <%= link("Results",
-            to: Routes.campaign_path(@socket, :download_results, @campaign.id),
-            download: true,
-            class: "rounded-t bg-gray-200 hover:bg-gray-400 py-2 px-14 block whitespace-nowrap"
-          ) %>
+          <.link
+            href={~p"/campaigns/#{@campaign}/download_results"}
+            download
+            class="block py-2 bg-gray-200 rounded-t hover:bg-gray-400 px-14 whitespace-nowrap"
+          >
+            Results
+          </.link>
         </li>
       </ul>
     </div>
     <div class="flex w-full md:justify-end">
       <div class="flex space-x-1">
-        <C.button
-          phx-click={UI.show_modal(:edit)}
+        <.button
           color={:white}
-          patch_to={Routes.campaign_show_path(@socket, :edit, @campaign.id)}
+          patch={~p"/campaigns/#{@campaign}/show/edit"}
         >
           Edit
-        </C.button>
-        <C.button patch_to={Routes.campaign_show_path(@socket, :bulk_message, @campaign.id)}>
+        </.button>
+        <.button patch={~p"/campaigns/#{@campaign}/bulk_message"}>
           Bulk Message
-        </C.button>
+        </.button>
       </div>
     </div>
   </div>
   <div class="flex my-5 space-x-2">
-    <C.date date={campaign_date(@campaign)} />
+    <.date date={campaign_date(@campaign)} />
     <h1 class="text-lg font-medium leading-6 text-gray-900">
       <%= name(@campaign) %>
     </h1>
@@ -203,3 +115,104 @@
     </div>
   </div>
 </div>
+
+<.modal
+  :if={@live_action == :edit}
+  id="campaign-modal"
+  show
+  on_cancel={JS.navigate(~p"/campaigns/#{@campaign}")}
+>
+  <.live_component
+    module={BikeBrigadeWeb.CampaignLive.FormComponent}
+    id={@campaign.id}
+    title={@page_title}
+    action={@live_action}
+    campaign={@campaign}
+    navigate={~p"/campaigns/#{@campaign}"}
+  />
+</.modal>
+
+<.modal
+  :if={@live_action == :add_rider}
+  id="campaign-modal"
+  show
+  on_cancel={JS.navigate(~p"/campaigns/#{@campaign}")}
+>
+  <.live_component
+    module={BikeBrigadeWeb.CampaignLive.AddRiderFormComponent}
+    id={@campaign.id}
+    title={@page_title}
+    action={@live_action}
+    campaign={@campaign}
+    navigate={~p"/campaigns/#{@campaign}"}
+  />
+</.modal>
+
+<.modal
+  :if={@live_action == :new_task}
+  id="campaign-modal"
+  show
+  on_cancel={JS.navigate(~p"/campaigns/#{@campaign}")}
+>
+  <.live_component
+    module={BikeBrigadeWeb.CampaignLive.TaskFormComponent}
+    id={@campaign.id}
+    title={@page_title}
+    action={:new}
+    campaign={@campaign}
+    task={@form_task}
+    navigate={~p"/campaigns/#{@campaign}"}
+  />
+</.modal>
+
+<.modal
+  :if={@live_action == :edit_task}
+  id="campaign-modal"
+  show
+  on_cancel={JS.navigate(~p"/campaigns/#{@campaign}")}
+>
+  <.live_component
+    module={BikeBrigadeWeb.CampaignLive.TaskFormComponent}
+    id={@campaign.id}
+    title={@page_title}
+    action={:edit}
+    campaign={@campaign}
+    task={@form_task}
+    navigate={~p"/campaigns/#{@campaign}"}
+  />
+</.modal>
+
+<.modal
+  :if={@live_action == :bulk_message}
+  id="campaign-modal"
+  show
+  on_cancel={JS.navigate(~p"/campaigns/#{@campaign}")}
+>
+  <.live_component
+    module={BikeBrigadeWeb.SmsMessageLive.FormComponent}
+    id={:bulk_message}
+    title={@page_title}
+    initial_riders={Map.values(@riders)}
+    current_user={@current_user}
+    navigate={~p"/campaigns/#{@campaign}"}
+  />
+</.modal>
+
+<.slideover
+  :if={@live_action == :messaging}
+  id="messaging"
+  show
+  wide
+  on_cancel={JS.patch(~p"/campaigns/#{@campaign}")}
+>
+  <:title>
+    Campaign Messaging
+  </:title>
+  <.live_component
+    module={BikeBrigadeWeb.CampaignLive.MessagingFormComponent}
+    id={@campaign.id}
+    campaign={@campaign}
+    riders={@riders}
+    navigate={~p"/campaigns/#{@campaign}"}
+  />
+</.slideover>

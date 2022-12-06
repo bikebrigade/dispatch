@@ -19,12 +19,12 @@ defmodule BikeBrigadeWeb.Authentication do
       {:error, :token_expired} ->
         conn
         |> put_flash(:error, "Access code is expired. Please try again.")
-        |> redirect(to: Routes.login_path(conn, :index))
+        |> redirect(to: ~p"/login")
 
       {:error, :token_invalid} ->
         conn
         |> put_flash(:error, "Access code is invalid. Please try again.")
-        |> redirect(to: Routes.login_path(conn, :index, %{"phone" => phone}))
+        |> redirect(to: ~p"/login?#{%{phone: phone}}")
     end
   end
 
@@ -44,7 +44,7 @@ defmodule BikeBrigadeWeb.Authentication do
     conn
     |> renew_session()
     |> put_flash(:info, "Goodbye")
-    |> redirect(to: Routes.login_path(conn, :index))
+    |> redirect(to: ~p"/login")
   end
 
   # TODO
@@ -71,7 +71,7 @@ defmodule BikeBrigadeWeb.Authentication do
     else
       conn
       |> put_flash(:error, "You must login to access this page.")
-      |> redirect(to: Routes.login_path(conn, :index))
+      |> redirect(to: ~p"/login")
       |> halt()
     end
   end
@@ -84,7 +84,7 @@ defmodule BikeBrigadeWeb.Authentication do
       _ ->
         conn
         |> put_flash(:error, "You must be a dispatcher to access this page.")
-        |> redirect(to: Routes.login_path(conn, :index))
+        |> redirect(to: ~p"/login")
         |> halt()
     end
   end

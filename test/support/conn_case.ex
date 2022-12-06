@@ -23,16 +23,16 @@ defmodule BikeBrigadeWeb.ConnCase do
 
   using do
     quote do
+      # The default endpoint for testing
+      @endpoint BikeBrigadeWeb.Endpoint
+
+      use BikeBrigadeWeb, :verified_routes
+
       # Import conveniences for testing with connections
       import Plug.Conn
       import Phoenix.ConnTest
       import BikeBrigadeWeb.ConnCase
       import BikeBrigade.Fixtures
-
-      alias BikeBrigadeWeb.Router.Helpers, as: Routes
-
-      # The default endpoint for testing
-      @endpoint BikeBrigadeWeb.Endpoint
     end
   end
 

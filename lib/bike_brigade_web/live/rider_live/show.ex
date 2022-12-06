@@ -24,10 +24,9 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
   end
 
   @impl Phoenix.LiveView
-  def handle_event("prev-schedule", %{"period" => period}, socket) do
+  def handle_event("prev_schedule", %{"period" => period}, socket) do
     [{date, _}, _, _] = socket.assigns.schedule
 
-    period = String.to_integer(period)
     day1 = Date.add(date, -period)
     day2 = Date.add(date, -period + 1)
     day3 = Date.add(date, -period + 2)
@@ -43,10 +42,9 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
      |> assign(:schedule, schedule)}
   end
 
-  def handle_event("next-schedule", %{"period" => period}, socket) do
+  def handle_event("next_schedule", %{"period" => period}, socket) do
     [_, _, {date, _}] = socket.assigns.schedule
 
-    period = String.to_integer(period)
     day1 = Date.add(date, period - 2)
     day2 = Date.add(date, period - 1)
     day3 = Date.add(date, period)
@@ -79,10 +77,6 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
     socket
     |> assign(:page_title, "Edit Profile")
     |> assign(:page, :profile)
-    |> assign(
-      :return_to,
-      Routes.rider_show_path(socket, :profile)
-    )
     |> assign_rider(socket.assigns.current_user.rider_id)
   end
 
@@ -93,10 +87,6 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
 
   defp apply_action(socket, :edit, %{"id" => id}) do
     socket
-    |> assign(
-      :return_to,
-      Routes.rider_show_path(socket, :show, id)
-    )
     |> assign_rider(id)
   end
 
@@ -135,13 +125,23 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
   defp latest_campaign_info(assigns) do
     if assigns.rider.latest_campaign do
       ~H"""
-      <%= link(@rider.latest_campaign.program.name,
-        to: Routes.campaign_show_path(@socket, :show, @rider.latest_campaign),
-        class: "link"
-      ) %> on <%= format_date(@rider.latest_campaign.delivery_start) %>
+      <.link navigate={~p"/campaigns/#{@rider.latest_campaign}"} class="link">
+        <%= @rider.latest_campaign.program.name %>
+      </.link>
+      on <%= format_date(@rider.latest_campaign.delivery_start) %>
       """
     else
       ~H"Nothing (yet!)"
     end
+  end
+
+  defp rider_marker(rider) do
+    %{
+      id: rider.id,
+      lat: lat(rider.location),
+      lng: lng(rider.location),
+      icon:  "bicycle",
+      color: "#1c64f2"
+    }
   end
 end

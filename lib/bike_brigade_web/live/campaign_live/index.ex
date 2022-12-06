@@ -5,6 +5,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
   alias BikeBrigade.LocalizedDateTime
 
   alias BikeBrigade.Delivery
+  alias BikeBrigade.Delivery.Campaign
   alias BikeBrigade.Messaging.SmsMessage
 
   import BikeBrigadeWeb.CampaignHelpers
@@ -84,32 +85,40 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
     |> Enum.reverse()
   end
 
+  attr :campaign, Campaign, required: true
+
+  def message_info(%{campaign: %Campaign{scheduled_message: %{send_at: send_at}}} = assigns)
+      when not is_nil(send_at) do
+    assigns = assign(assigns, :send_at, send_at)
+
+    ~H"""
+    <Heroicons.clock mini class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-500" />
+    <p>
+      Message scheduled for
+      <time datetime={@send_at}>
+        <%= datetime(@send_at) %>
+      </time>
+    </p>
+    """
+  end
+
+  def message_info(
+        %{campaign: %Campaign{latest_message: %SmsMessage{sent_at: sent_at}}} = assigns
+      ) do
+    assigns = assign(assigns, :sent_at, sent_at)
+
+    ~H"""
+    <Heroicons.chat_bubble_left_right mini class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-500" />
+    <p>
+      Last messaged at
+      <time datetime={@sent_at}>
+        <%= datetime(@sent_at) %>
+      </time>
+    </p>
+    """
+  end
+
   def message_info(assigns) do
-    case assigns.campaign do
-      %{scheduled_message: %{send_at: send_at}} when not is_nil(send_at) ->
-        ~H"""
-        <Heroicons.Mini.clock class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-500" />
-        <p>
-          Message scheduled for
-          <time datetime={send_at}>
-            <%= datetime(send_at) %>
-          </time>
-        </p>
-        """
-
-      %{latest_message: %SmsMessage{sent_at: sent_at}} ->
-        ~H"""
-        <Heroicons.Mini.chat_bubble_left_right class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-500" />
-        <p>
-          Last messaged at
-          <time datetime={sent_at}>
-            <%= datetime(sent_at) %>
-          </time>
-        </p>
-        """
-
-      _ ->
-        ~H""
-    end
+    ~H""
   end
 end

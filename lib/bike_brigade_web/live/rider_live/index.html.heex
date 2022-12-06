@@ -1,0 +1,186 @@
+<div class="flex items-center justify-between ">
+  <div class="relative flex flex-col w-2/3">
+    <form id="rider-search" phx-change="suggest" phx-submit="filter" phx-click-away="clear-search">
+      <div class="relative flex items-baseline w-full px-1 py-0 bg-white border border-gray-300 rounded-md shadow-sm sm:text-sm focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500">
+        <.filter_list filters={@rider_search.filters} />
+        <input
+          type="text"
+          id="rider-search-input"
+          name="value"
+          value={display_search(@search)}
+          autocomplete="off"
+          class="w-full placeholder-gray-400 border-transparent appearance-none focus:border-transparent outline-transparent ring-transparent focus:ring-0"
+          placeholder="Name, tag, capacity, last active"
+          tabindex="1"
+        />
+        <%= if @rider_search.filters != [] do %>
+          <button
+            type="button"
+            phx-click="clear-filters"
+            class="absolute right-1 text-gray-400 rounded-md top-2.5 hover:text-gray-500"
+          >
+            <span class="sr-only">Clear Search</span>
+            <Heroicons.x_mark mini class="w-6 h-6" />
+          </button>
+        <% end %>
+      </div>
+      <.suggestion_list suggestions={@suggestions} open={@show_suggestions} />
+      <button id="submit" type="submit" class="sr-only" />
+    </form>
+  </div>
+  <div class="inline-flex rounded-md shadow-sm">
+    <button
+      phx-click={JS.push("set_mode", value: %{mode: :list})}
+      type="button"
+      class={
+          "#{if @mode == :list, do: "bg-gray-300", else: "bg-white"} relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-l-md hover:bg-gray-200 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+        }
+    >
+      <Heroicons.table_cells mini class="w-5 h-5 mr-1" /> List
+    </button>
+    <button
+      phx-click={JS.push("set_mode", value: %{mode: :map})}
+      type="button"
+      class={
+          "#{if @mode == :map, do: "bg-gray-300", else: "bg-white"} relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 border border-gray-300 rounded-r-md hover:bg-gray-200 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+        }
+    >
+      Map <Heroicons.map mini class="w-5 h-5 ml-1" />
+    </button>
+  </div>
+  <.button patch={~p"/riders/message"}>
+    Bulk Message
+    <%= if MapSet.size(@selected) > 0 do %>
+      (<%= MapSet.size(@selected) %>)
+    <% end %>
+  </.button>
+</div>
+<form id="selected" phx-change="select-rider"/>
+<%= if @mode == :map do %>
+  <div class="min-w-full mt-2 bg-white rounded-lg shadow">
+    <div class="p-1 h-[80vh]">
+      <.map_next
+        id="riders-map"
+        initial_markers={rider_markers(@all_locations, @selected)}
+        coords={%Geo.Point{coordinates: {-79.425820, 43.653960}}}
+      />
+    </div>
+    <div
+      class="flex items-center justify-between px-4 py-3 border-t border-gray-200 sm:px-6"
+      aria-label="Pagination"
+    >
+      <div class="hidden sm:block">
+        <p class="text-sm text-gray-700">
+          Showing
+          <span class="font-medium">
+            <%= @search_results.total %>
+          </span>
+          results
+        </p>
+      </div>
+    </div>
+  </div>
+<% else %>
+  <.table
+    id="riders"
+    rows={@search_results.page}
+    checkboxes="selected"
+    checkboxes_selected={@selected}
+    sort_click={JS.push("sort")}
+    sort_field={@rider_search.sort_field}
+    sort_order={@rider_search.sort_order}
+  >
+    <:col :let={rider} label="Name" sortable_field={:name} default_order={:asc}>
+      <.link navigate={~p"/riders/#{rider}"} class="link">
+        <.bold_search
+          string={rider.name}
+          search={get_filter(@rider_search.filters, :name)}
+          search_type={:word_boundary}
+        />
+      </.link>
+      <span class="text-xs lowercase ">(<%= pronouns(rider) %>)</span>
+      <.show_phone_if_filtered phone={rider.phone} filters={@rider_search.filters} />
+    </:col>
+    <:col :let={rider} label="Location">
+      <%= Locations.neighborhood(rider.location) %>
+    </:col>
+    <:col :let={rider} label="Tags">
+      <ul class="flex">
+        <li :for={tag <- rider.tags} class="before:content-[','] first:before:content-['']">
+          <button type="button" phx-click={add_filter(:tag, tag.name)} class="link">
+            <%= if get_filter(@rider_search.filters, :tag, tag.name) do %>
+              <span class="font-bold"><%= tag.name %></span>
+            <% else %>
+              <%= tag.name %>
+            <% end %>
+          </button>
+        </li>
+      </ul>
+    </:col>
+    <:col :let={rider} label="Capacity" sortable_field={:capacity} default_order={:desc}>
+      <button type="button" phx-click={add_filter(:capacity, rider.capacity)} } class="link">
+        <%= if get_filter(@rider_search.filters, :capacity, rider.capacity) do %>
+          <span class="font-bold"><%= rider.capacity %></span>
+        <% else %>
+          <%= rider.capacity %>
+        <% end %>
+      </button>
+    </:col>
+    <:col :let={rider} label="Last Active" sortable_field={:last_active} default_order={:desc}>
+      <%= if rider.latest_campaign do %>
+        <%= rider.latest_campaign.delivery_start
+        |> LocalizedDateTime.to_date()
+        |> Calendar.strftime("%b %-d, %Y") %>
+      <% end %>
+    </:col>
+    <:footer>
+      <nav
+        class="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6"
+        aria-label="Pagination"
+      >
+        <div class="hidden sm:block">
+          <p class="text-sm text-gray-700">
+            Showing
+            <span class="font-medium">
+              <%= @search_results.page_first %>
+            </span>
+            to
+            <span class="font-medium">
+              <%= @search_results.page_last %>
+            </span>
+            of
+            <span class="font-medium">
+              <%= @search_results.total %>
+            </span>
+            results
+          </p>
+        </div>
+        <div class="flex justify-between flex-1 sm:justify-end">
+          <%= if RiderSearch.Results.has_prev_page?(@search_results) do %>
+            <.button phx-click="prev-page" color={:white}>
+              Previous
+            </.button>
+          <% end %>
+
+          <%= if RiderSearch.Results.has_next_page?(@search_results) do %>
+            <.button phx-click="next-page" color={:white} class="ml-3">
+              Next
+            </.button>
+          <% end %>
+        </div>
+      </nav>
+    </:footer>
+  </.table>
+<% end %>
+
+<.modal :if={@live_action == :message} id="riders-modal" show on_cancel={JS.navigate(~p"/riders")}>
+  <.live_component
+    module={BikeBrigadeWeb.SmsMessageLive.FormComponent}
+    id={:bulk_message}
+    action={@live_action}
+    title={@page_title}
+    initial_riders={@initial_riders}
+    current_user={@current_user}
+    navigate={~p"/riders"}
+  />
+</.modal>

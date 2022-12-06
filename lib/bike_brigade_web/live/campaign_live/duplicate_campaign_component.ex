@@ -9,95 +9,46 @@ defmodule BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent do
   def render(assigns) do
     ~H"""
     <div>
-      <C.flash_component flash={@flash} />
-      <.form
-        let={f}
+      <.flash kind={:info} title="Success!" flash={@flash} />
+      <.flash kind={:error} title="Error!" flash={@flash} />
+      <.header><%= @title %></.header>
+      <.simple_form
+        :let={f}
         for={:duplicate_form}
         id="duplicate-campaign-form"
         phx-target={@myself}
         phx-submit="duplicate"
       >
-        <%= for d <- inputs_for(f, :date_time_form) do %>
-          <div class="flex my-2 mt-4 space-x-2">
-            <div>
-              <%= label d, :delivery_date, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-                New Delivery Date
-              <% end %>
-              <div class="my-1 rounded-md shadow-sm">
-                <%= date_input(d, :delivery_date,
-                  value: LocalizedDateTime.to_date(@campaign.delivery_start),
-                  class:
-                    "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-                ) %>
-              </div>
-              <%= error_tag(d, :delivery_date) %>
-            </div>
-            <div>
-              <%= label d, :start_time, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-                Start
-              <% end %>
-              <div class="my-1 rounded-md shadow-sm">
-                <%= time_input(d, :start_time,
-                  value: LocalizedDateTime.to_time(@campaign.delivery_start),
-                  class:
-                    "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-                ) %>
-              </div>
-              <%= error_tag(d, :start_time) %>
-            </div>
-            <div>
-              <%= label d, :end_time, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-                End
-              <% end %>
-              <div class="my-1 rounded-md shadow-sm">
-                <%= time_input(d, :end_time,
-                  value: LocalizedDateTime.to_time(@campaign.delivery_end),
-                  class:
-                    "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-                ) %>
-              </div>
-              <%= error_tag(d, :end_time) %>
-            </div>
-          </div>
-        <% end %>
-        <div class="mt-4 space-y-4">
-          <div class="relative flex items-start">
-            <div class="flex items-center h-5">
-              <%= checkbox(f, :duplicate_deliveries,
-                value: true,
-                phx_debounce: "blur",
-                class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-              ) %>
-            </div>
-            <div class="ml-3 text-sm">
-              <%= label f, :duplicate_deliveries, class: "font-medium text-gray-700" do %>
-                Copy Deliveries
-              <% end %>
-            </div>
-          </div>
+        <div :for={d <- inputs_for(f, :date_time_form)} class="flex my-2 mt-4 space-x-2">
+          <.input
+            type="date"
+            field={{d, :delivery_date}}
+            label="New Delivery Date"
+            value={LocalizedDateTime.to_date(@campaign.delivery_start)}
+          />
+          <.input
+            type="time"
+            field={{d, :start_time}}
+            label="Start"
+            value={LocalizedDateTime.to_time(@campaign.delivery_start)}
+          />
+          <.input
+            type="time"
+            field={{d, :end_time}}
+            label="End"
+            value={LocalizedDateTime.to_time(@campaign.delivery_end)}
+          />
         </div>
-        <div class="mt-4 space-y-4">
-          <div class="relative flex items-start">
-            <div class="flex items-center h-5">
-              <%= checkbox(f, :duplicate_riders,
-                value: true,
-                phx_debounce: "blur",
-                class: "w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-              ) %>
-            </div>
-            <div class="ml-3 text-sm">
-              <%= label f, :duplicate_riders, class: "font-medium text-gray-700" do %>
-                Copy Riders
-              <% end %>
-            </div>
-          </div>
-        </div>
-        <div class="flex justify-end mt-2">
-          <C.button type="submit" phx-disable-with="Saving...">
+
+        <.input type="checkbox" checked field={{f, :duplicate_deliveries}} label="Copy Deliveries" />
+        <.input type="checkbox" checked field={{f, :duplicate_riders}} label="Copy Riders" />
+
+        <:actions>
+          <.button type="submit" phx-disable-with="Saving...">
             Duplicate
-          </C.button>
-        </div>
-      </.form>
+          </.button>
+        </:actions>
+      </.simple_form>
     </div>
     """
   end
@@ -129,7 +80,7 @@ defmodule BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent do
     {:noreply,
      socket
      |> put_flash(:info, "Campaign duplicated successfully")
-     |> push_redirect(to: socket.assigns.return_to)}
+     |> push_navigate(to: socket.assigns.navigate)}
   end
 
   defp create_new_campaign(old_campaign, date_time_form_params) do

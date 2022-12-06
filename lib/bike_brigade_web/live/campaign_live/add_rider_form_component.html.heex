@@ -1,75 +1,27 @@
 <div>
-  <.form
-    let={f}
+  <.flash kind={:info} title="Success!" flash={@flash} />
+  <.flash kind={:error} title="Error!" flash={@flash} />
+  <.header><%= @title %></.header>
+  <.simple_form
+    :let={f}
     for={@changeset}
     id="add_rider_form"
-    phx_target={@myself}
-    phx_submit="add_rider"
-    phx_change="validate"
+    phx-target={@myself}
+    phx-submit="add_rider"
+    phx-change="validate"
     autocomplete="off"
   >
-    <C.flash_component flash={@flash} />
-    <div>
-      <%= label f, :rider_id, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-        Rider
-      <% end %>
-      <div class="mt-1 rounded-md shadow-sm">
-        <.live_component
-          module={C.RiderSelectionComponent}
-          id={:select_rider}
-          input_name={input_name(f, :rider_id)}
-        />
-      </div>
-    </div>
-    <div class="mt-2">
-      <%= label f, :capacity, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-        Capacity
-      <% end %>
-      <div class="mt-1">
-        <%= number_input(f, :rider_capacity,
-          class:
-            "block w-16 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-        ) %>
-      </div>
-      <%= error_tag(f, :rider_capacity) %>
-    </div>
-    <div class="mt-2">
-      <%= label f, :pickup_window, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-        Pickup window
-      <% end %>
-      <div class="mt-1">
-        <%= text_input(f, :pickup_window,
-          placeholder: pickup_window(@campaign),
-          class:
-            "block w-20 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-        ) %>
-      </div>
-      <%= error_tag(f, :pickup_window) %>
-    </div>
-    <fieldset class="mt-2">
-      <div>
-        <legend class="block text-sm font-medium leading-5 text-gray-700">
-          Enter buildings?
-        </legend>
-      </div>
-      <div class="mt-2 space-y-2">
-        <div class="flex items-center">
-          <%= label class: "block ml-2 text-sm font-medium text-gray-700" do %>
-            <%= radio_button(f, :enter_building, true, checked: true) %> Yes
-          <% end %>
-        </div>
-        <div class="flex items-center">
-          <%= label class: "block ml-2 text-sm font-medium text-gray-700" do %>
-            <%= radio_button(f, :enter_building, false) %> No
-          <% end %>
-        </div>
-      </div>
-      <%= error_tag(f, :enter_building) %>
-    </fieldset>
-    <div class="flex justify-end mt-6">
-      <C.button type="submit" phx-disable-with="Adding...">
+    <.rider_select field={{f, :rider_id}} label="Rider" />
+    <.input type="number" field={{f, :rider_capacity}} label="Capacity" />
+    <.input type="text" field={{f, :pickup_window}} label="Pickup Window" />
+    <.radio_group field={{f, :enter_building}} label="Enter buildings?">
+      <:radio value={true} label="Yes" />
+      <:radio value={false} label="No" />
+    </.radio_group>
+    <:actions>
+      <.button type="submit" phx-disable-with="Adding...">
         Add
-      </C.button>
-    </div>
-  </.form>
+      </.button>
+    </:actions>
+  </.simple_form>
 </div>

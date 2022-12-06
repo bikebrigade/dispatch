@@ -6,7 +6,7 @@ defmodule BikeBrigadeWeb.OpportunityLive.FormComponent do
   alias BikeBrigade.Delivery.Program
   alias BikeBrigade.LocalizedDateTime
 
-  alias BikeBrigadeWeb.Components.LocationForm
+  alias BikeBrigadeWeb.Components.LiveLocation
 
   # TODO: DRY this with CampaignForm
   defmodule OpportunityForm do
@@ -144,7 +144,7 @@ defmodule BikeBrigadeWeb.OpportunityLive.FormComponent do
       {:noreply,
        socket
        |> put_flash(:info, "Opportunity updated successfully")
-       |> push_redirect(to: socket.assigns.return_to)}
+       |> push_navigate(to: socket.assigns.navigate)}
     else
       {:error, _changeset} ->
         {:noreply, assign(socket, :changeset, changeset |> Map.put(:action, :insert))}

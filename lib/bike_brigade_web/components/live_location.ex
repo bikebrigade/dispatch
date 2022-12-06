@@ -3,7 +3,6 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
 
   alias Phoenix.LiveView.JS
   alias BikeBrigade.Locations.Location
-  alias BikeBrigade.Geocoder
 
   import Ecto.Changeset
 
@@ -67,7 +66,21 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
       |> Map.put(:action, :validate)
 
     form = Phoenix.HTML.FormData.to_form(changeset, as: socket.assigns.as)
-    {:noreply, socket |> assign(:location, apply_changes(changeset)) |> assign(:form, form)}
+
+    location = apply_changes(changeset)
+
+    socket =
+      if location.coords != socket.assigns.location.coords do
+        socket
+        |> push_event("update-marker", encode_marker(location))
+        |> push_event("redraw-map", %{recenter: true})
+      else
+        socket
+      end
+      |> assign(:location, location)
+      |> assign(:form, form)
+
+    {:noreply, socket}
   end
 
   @impl Phoenix.LiveComponent
@@ -124,7 +137,7 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
             class={"#{if !@open, do: "hidden"} ml-1 edit-mode"}
             phx-click={JS.push("close", target: @myself)}
           >
-            <Heroicons.Solid.chevron_down class="w-5 h-5" />
+            <Heroicons.chevron_down solid class="w-5 h-5" />
           </button>
         </div>
         <div class={"#{if !@open, do: "hidden"} my-1 edit-mode"}>
@@ -232,10 +245,11 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
               <%= # error_tag(@location, :country) %>
             </div>
           </div>
-          <C.map_next
+          <.map_next
+            id={"#{@id}-map"}
             coords={@location.coords}
             class="w-full h-64 mt-2"
-            initial_markers={encode_marker(@location)}
+            initial_markers={[encode_marker(@location)]}
           />
         </div>
       </div>
@@ -244,16 +258,13 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
   end
 
   defp encode_marker(location) do
-    [
-      %{
-        id: location.id,
-        lat: lat(location),
-        lng: lng(location),
-        icon: "warehouse",
-        color: "#1c64f2"
-      }
-    ]
-    |> Jason.encode!()
+    %{
+      id: location.id,
+      lat: lat(location),
+      lng: lng(location),
+      icon: "warehouse",
+      color: "#1c64f2"
+    }
   end
 
   defp location_input_value(location) do

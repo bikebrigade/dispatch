@@ -186,8 +186,6 @@ defmodule BikeBrigade.Locations.Location do
   defp parse_unit(address), do: {address, nil}
 
   defimpl String.Chars do
-    alias BikeBrigade.Locations.Location
-
     def to_string(location) do
       address =
         if not is_nil(location.address) do
@@ -206,8 +204,6 @@ defmodule BikeBrigade.Locations.Location do
   end
 
   defimpl Phoenix.HTML.Safe do
-    alias BikeBrigade.Locations.Location
-
     def to_iodata(location) do
       String.Chars.to_string(location)
     end

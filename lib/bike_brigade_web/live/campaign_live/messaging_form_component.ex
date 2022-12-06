@@ -132,7 +132,7 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
      socket
      |> assign(campaign: campaign)
      |> put_flash(:info, "Successfully sent messages!")
-     |> push_redirect(to: Routes.campaign_show_path(socket, :show, campaign))}
+     |> push_navigate(to: socket.assigns.navigate)}
   end
 
   def handle_event("delete-schedule", _, socket) do
@@ -185,13 +185,27 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
     ~H"""
     <div class="flex text-xs font-medium text-gray-600">
       <span class={@color}><%= @length %>/1600</span>
-      <C.tooltip
-        tooltip="Messages over 1600 characters in length tend to get broken up into multiple texts"
-        class="w-40"
-      >
-        <Heroicons.Solid.question_mark_circle class="w-4 h-4 ml-0.5 " />
-      </C.tooltip>
+      <.with_tooltip>
+        <Heroicons.question_mark_circle solid class="w-4 h-4 ml-0.5 " />
+        <:tooltip>
+          <div class="w-40">
+            Messages over 1600 characters in length tend to get broken up into multiple texts.
+          </div>
+        </:tooltip>
+      </.with_tooltip>
     </div>
     """
+  end
+
+  defp show_scheduling(js \\ %JS{}) do
+    js
+    |> JS.show(to: ".show-if-scheduling", display: "flex")
+    |> JS.hide(to: ".hide-if-scheduling")
+  end
+
+  defp hide_scheduling(js \\ %JS{}) do
+    js
+    |> JS.hide(to: ".show-if-scheduling")
+    |> JS.show(to: ".hide-if-scheduling", display: "flex")
   end
 end

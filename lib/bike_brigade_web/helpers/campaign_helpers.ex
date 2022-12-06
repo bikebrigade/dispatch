@@ -16,13 +16,6 @@ defmodule BikeBrigadeWeb.CampaignHelpers do
   def selected?(%Rider{id: id}, %Rider{id: id}), do: true
   def selected?(_, _), do: false
 
-  def same_rider?(%Rider{id: id}, id), do: true
-
-  def same_rider?(%Rider{id: id}, str_id) when is_binary(str_id),
-    do: Integer.to_string(id) == str_id
-
-  def same_rider?(_, _), do: false
-
   def same_task?(%Task{id: id}, id), do: true
 
   def same_task?(%Task{id: id}, str_id) when is_binary(str_id),

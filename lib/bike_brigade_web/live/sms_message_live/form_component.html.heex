@@ -1,10 +1,9 @@
-<div
-  class="flex-grow-0 px-6 py-5 bg-white border-t border-gray-200 sm:rounded-b-lg"
-  phx-drop-target={@uploads.media.ref}
->
-  <div class="w-full">
-    <.form
-      let={f}
+<div phx-drop-target={@uploads.media.ref}>
+  <.header><%= @title %></.header>
+
+  <div class="mt-2">
+    <.simple_form
+      :let={f}
       for={@changeset}
       id="sms_message-form"
       phx-change="validate"
@@ -12,40 +11,18 @@
       phx-target={@myself}
       autocomplete="off"
     >
-      <div>
-        <%= label f, :to, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-          To
-        <% end %>
-        <div class="mt-1 rounded-md shadow-sm">
-          <.live_component
-            module={C.RiderSelectionComponent}
-            id={:select_rider}
-            input_name="rider_ids[]"
-            multi={true}
-            selected_riders={@initial_riders}
-          />
-        </div>
-        <%= error_tag(f, :to) %>
-      </div>
+      <.rider_select
+        id="rider-select"
+        name="rider_ids[]"
+        multi={true}
+        selected_riders={@initial_riders}
+        label="To"
+      />
 
-      <div class="mt-2">
-        <%= label f, :body, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-          Message
-        <% end %>
-        <div class="mt-1 rounded-md shadow-sm">
-          <%= textarea(f, :body,
-            required: true,
-            phx_debounce: "blur",
-            class:
-              "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-          ) %>
-        </div>
-        <%= error_tag(f, :body) %>
-      </div>
+      <.input type="textarea" field={{f, :body}} label="Message" />
 
       <div class="flex justify-end mt-6 space-x-2">
-        <C.button
-          class=""
+        <.button
           id="emoji-button2"
           phx-hook="EmojiButtonHook"
           data-input-id={input_id(f, :body)}
@@ -55,42 +32,37 @@
           class="py-1 text-lg"
         >
           🙂
-        </C.button>
-        <%= live_file_input(@uploads.media, class: "sr-only") %>
+        </.button>
+        <.live_file_input upload={@uploads.media} class="sr-only" />
         <label
           for={@uploads.media.ref}
           class="inline-flex items-center px-1.5 py-1.5 text-xs font-medium text-gray-700 bg-white border border-transparent border-gray-300 rounded shadow-sm cursor-pointer hover:bg-gray-50 focus:ring-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2"
         >
-          <C.Icons.tailwindui_upload_photo class="w-6 h-6" aria-hidden="true" />
+          <Icons.tailwindui_upload_photo class="w-6 h-6" aria-hidden="true" />
         </label>
-        <C.button type="submit" data-confirm={@confirm_send} phx-disable-with="Sending...">
+        <.button type="submit" data-confirm={@confirm_send} phx-disable-with="Sending...">
           Send
-        </C.button>
+        </.button>
       </div>
-      <%= error_tag(f, :body) %>
-      <%= error_tag(f, :other_error) %>
+      <.error :for={msg <- translate_errors(f.errors, :other_error)}><%= msg %></.error>
       <div class="grid grid-cols-3 gap-4">
-        <%= for entry <- @uploads.media.entries do %>
-          <figure>
-            <%= live_img_preview(entry, class: "w-32") %>
-            <figcaption class="flex">
-              <div class="mr-1"><%= entry.client_name %></div>
-              <button
-                type="button"
-                phx-click="cancel-upload"
-                phx-value-ref={entry.ref}
-                phx-target={@myself}
-                aria-label="cancel"
-              >
-                &times;
-              </button>
-            </figcaption>
-          </figure>
-          <%= for err <- upload_errors(@uploads.media, entry) do %>
-            <p class="alert alert-danger"><%= error_to_string(err) %></p>
-          <% end %>
-        <% end %>
+        <figure :for={entry <- @uploads.media.entries}>
+          <.live_img_preview entry={entry} class="w-32" />
+          <figcaption class="flex">
+            <div class="mr-1"><%= entry.client_name %></div>
+            <button
+              type="button"
+              phx-click={JS.push("cancel-upload", value: %{ref: entry.ref}, target: @myself)}
+              aria-label="cancel"
+            >
+              &times;
+            </button>
+          </figcaption>
+          <.error :for={err <- upload_errors(@uploads.media, entry)}>
+            <%= error_to_string(err) %>
+          </.error>
+        </figure>
       </div>
-    </.form>
+    </.simple_form>
   </div>
 </div>

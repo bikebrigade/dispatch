@@ -82,11 +82,15 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
   end
 
   @impl Phoenix.LiveView
-  def handle_event("sort", options_params, socket) do
+  def handle_event("sort", %{"field" => field, "order" => order}, socket) do
     socket =
-      case Options.update(socket.assigns.options, options_params) do
-        {:ok, options} -> assign(socket, :options, options) |> assign_stats()
-        {:error, _} -> put_flash(socket, :error, "Invalid options selected")
+      case Options.update(socket.assigns.options, %{sort_by: field, sort_order: order}) do
+        {:ok, options} ->
+          assign(socket, :options, options) |> assign_stats()
+
+        {:error, err} ->
+          dbg(err)
+          put_flash(socket, :error, "Invalid options selected")
       end
 
     {:noreply, socket}
@@ -123,48 +127,6 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
     |> assign(:stats, stats)
   end
 
-  defp sort_icon(assigns = %{field: field, options: %Options{sort_by: field, sort_order: :desc}}) do
-    ~H"""
-    <a
-      phx-click="sort"
-      phx-value-sort_by={@field}
-      phx-value-sort_order="asc"
-      href="#"
-      class="pl-2 text-gray-500 hover:text-gray-700"
-    >
-      <Heroicons.Mini.bars_arrow_down class="w-5 h-5" />
-    </a>
-    """
-  end
-
-  defp sort_icon(assigns = %{field: field, options: %Options{sort_by: field, sort_order: :asc}}) do
-    ~H"""
-    <a
-      phx-click="sort"
-      phx-value-sort_by={@field}
-      phx-value-sort_order="desc"
-      href="#"
-      class="pl-2 text-gray-500 hover:text-gray-700"
-    >
-      <Heroicons.Mini.bars_arrow_up class="w-5 h-5" />
-    </a>
-    """
-  end
-
-  defp sort_icon(assigns) do
-    ~H"""
-    <a
-      phx-click="sort"
-      phx-value-sort_by={@field}
-      phx-value-sort_order="asc"
-      href="#"
-      class="pl-2 text-gray-300 hover:text-gray-700"
-    >
-      <Heroicons.Mini.bars_arrow_down class="w-5 h-5" />
-    </a>
-    """
-  end
-
   defp download_path(options) do
     %{
       period: period,
@@ -174,20 +136,23 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
       end_date: end_date
     } = options
 
-    case period do
-      :all_time ->
-        Routes.export_stats_path(BikeBrigadeWeb.Endpoint, :leaderboard,
-          sort_by: options.sort_by,
-          sort_order: options.sort_order
-        )
+    params =
+      case period do
+        :all_time ->
+          %{
+            sort_by: options.sort_by,
+            sort_order: options.sort_order
+          }
 
-      :select ->
-        Routes.export_stats_path(BikeBrigadeWeb.Endpoint, :leaderboard,
-          sort_by: sort_by,
-          sort_order: sort_order,
-          start_date: start_date,
-          end_date: end_date
-        )
-    end
+        :select ->
+          %{
+            sort_by: sort_by,
+            sort_order: sort_order,
+            start_date: start_date,
+            end_date: end_date
+          }
+      end
+
+    ~p"/stats/leaderboard/download?#{params}"
   end
 end

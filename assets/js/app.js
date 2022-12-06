@@ -157,17 +157,31 @@ Hooks.LeafletMapNext = {
     this.handleEvent("update-marker", ({
       id,
       icon,
-      color
+      color,
+      lat,
+      lng
     }) => {
       this.markers[id].setIcon(L.MakiMarkers.icon({
         color: color,
         icon: icon
-      }))
+      }));
+
+      if (lat && lng) {
+        this.markers[id].setLatLng([lat, lng]);
+      }
     });
 
-    this.handleEvent("redraw-map", () => {
-      // TODO: we redraw every map on this event. In the future we may want to scope by id if we have multiple maps on one page
+    this.handleEvent("redraw-map", ({
+      recenter
+    }) => {
+      if (recenter) {
+        let lat = this.el.dataset.lat || "43.6532"
+        let lng = this.el.dataset.lng || "-79.3832"
+        this.map.setView([lat, lng], this.el.dataset.zoom || 13);
+      }
+
       this.map.invalidateSize()
+
     });
   },
 };
@@ -491,6 +505,24 @@ let liveSocket = new LiveSocket("/live", Socket, {
     }
   }
 })
+
+Hooks.CheckboxAll = {
+  updated() {
+    const numChecked = parseInt(this.el.dataset.numChecked);
+    const numRows = parseInt(this.el.dataset.numRows);
+
+    if (numChecked === 0) {
+      this.el.checked = false;
+      this.el.indeterminate = false;
+    } else if (numChecked === numRows) {
+      this.el.checked = true;
+      this.el.indeterminate = false;
+    } else {
+      this.el.checked = false;
+      this.el.indeterminate = true;
+    }
+  }
+}
 
 Hooks.EmojiButtonHook = {
   mounted() {

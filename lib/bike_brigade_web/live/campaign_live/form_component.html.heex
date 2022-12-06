@@ -1,128 +1,52 @@
 <div>
-  <C.flash_component flash={@flash} />
-  <.form
-    let={f}
+  <.flash kind={:info} title="Success!" flash={@flash} />
+  <.flash kind={:error} title="Error!" flash={@flash} />
+  <.header><%= @title %></.header>
+  <.simple_form
+    :let={f}
     for={@changeset}
     id="user-form"
     phx-target={@myself}
     phx-change="validate"
     phx-submit="save"
   >
-    <div class="flex my-2 space-x-2">
-      <div>
-        <%= label f, :delivery_date, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-          Delivery Date
-        <% end %>
-        <div class="mt-1 rounded-md shadow-sm">
-          <%= date_input(f, :delivery_date,
-            required: true,
-            placeholder: "YYYY-MM-DD",
-            phx_debounce: "blur",
-            class:
-              "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-          ) %>
-        </div>
-        <%= error_tag(f, :delivery_date) %>
-      </div>
-      <div>
-        <%= label f, :start_time, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-          Start
-        <% end %>
-        <div class="mt-1">
-          <%= time_input(f, :start_time,
-            required: true,
-            phx_debounce: "blur",
-            class:
-              "block w-28 px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-          ) %>
-        </div>
-        <%= error_tag(f, :start_time) %>
-      </div>
-      <div>
-        <%= label f, :end_time, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-          End
-        <% end %>
-        <div class="mt-1">
-          <%= time_input(f, :end_time,
-            required: true,
-            phx_debounce: "blur",
-            class:
-              "block w-28 px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-          ) %>
-          <%= error_tag(f, :end_time) %>
-        </div>
-      </div>
-    </div>
-    <div class="my-2">
-      <%= label f, :program_id, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-        Program
-      <% end %>
-      <div class="mt-1 rounded-md shadow-sm">
-        <%= select(f, :program_id, @program_options,
-          phx_debounce: "blur",
-          class:
-            "block w-full py-2 pl-3 pr-10 mt-1 text-xs border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-        ) %>
-      </div>
-      <%= error_tag(f, :program_id) %>
-      <%= live_redirect("Create New Program",
-        to: Routes.program_index_path(@socket, :new),
-        class: "text-xs link"
-      ) %>
+    <div class="flex space-x-2">
+      <.input type="date" field={{f, :delivery_date}} label="Delivery Date" />
+      <.input type="time" field={{f, :start_time}} label="Start" />
+      <.input type="time" field={{f, :end_time}} label="End" />
     </div>
 
-    <.live_component module={LiveLocation} id="location-form" as={input_name(f, :location)} location={@campaign.location} label="Pickup Location" />
+    <.input type="select" field={{f, :program_id}} options={@program_options} label="Program" />
 
-    <div class="my-2">
-      <%= label f, :task_spreadsheet_url, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-        Delivery Spreadsheet (link to google sheet)
-      <% end %>
-      <div class="mt-1 rounded-md shadow-sm">
-        <%= text_input(f, :task_spreadsheet_url,
-          class:
-            "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5",
-          id: "rider_spreadsheet",
-          file_input: "one"
-        ) %>
-      </div>
-      <%= error_tag(f, :task_spreadsheet_url) %>
-    </div>
+    <.live_component
+      module={LiveLocation}
+      id="location-form"
+      as={input_name(f, :location)}
+      location={@campaign.location}
+      label="Pickup Location"
+    />
 
-    <div class="my-2">
-      <%= label f, :rider_spreadsheet_url, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-        Rider Spreadsheet (link to google sheet)
-      <% end %>
-      <div class="mt-1 rounded-md shadow-sm">
-        <%= text_input(f, :rider_spreadsheet_url,
-          class:
-            "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5",
-          id: "task_spreadsheet",
-          file_input: "one"
-        ) %>
-      </div>
-      <%= error_tag(f, :rider_spreadsheet_url) %>
-    </div>
+    <.input
+      type="text"
+      field={{f, :task_spreadsheet_url}}
+      label="Delivery Spreadsheet"
+      help_text="Link to a Google sheet"
+    />
+    <.input
+      type="text"
+      field={{f, :rider_spreadsheet_url}}
+      label="Rider Spreadsheet"
+      help_text="Link to a Google sheet"
+    />
+    <.input
+      type="select"
+      field={{f, :rider_spreadsheet_layout}}
+      options={["Not Foodshare": :non_foodshare, Foodshare: :foodshare]}
+      label="Program"
+    />
 
-    <div class="my-2">
-      <%= label f, :rider_spreadsheet_layout, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-        Rider Spreadsheet Layout
-      <% end %>
-      <div class="mt-1 rounded-md shadow-sm">
-        <%= select(
-          f,
-          :rider_spreadsheet_layout,
-          ["Not Foodshare": :non_foodshare, Foodshare: :foodshare],
-          phx_debounce: "blur",
-          class:
-            "block w-full py-2 pl-3 pr-10 mt-1 text-xs border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-        ) %>
-      </div>
-      <%= error_tag(f, :rider_spreadsheet_layout) %>
-    </div>
-    <div class="flex justify-end mt-2">
-      <C.button type="submit" phx-disable-with="Saving...">
-        Save
-      </C.button>
-    </div>
-  </.form>
+    <:actions>
+      <.button type="submit" phx-disable-with="Saving...">Save</.button>
+    </:actions>
+  </.simple_form>
 </div>

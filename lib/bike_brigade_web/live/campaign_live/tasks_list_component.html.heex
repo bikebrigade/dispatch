@@ -1,41 +1,37 @@
 <div class="flex flex-col max-h-full">
   <div class="flex flex-row flex-wrap items-baseline flex-grow space-y-1">
-    <C.button patch_to={Routes.campaign_show_path(@socket, :new_task, @campaign)} size={:small}>
+    <.button patch={~p"/campaigns/#{@campaign}/tasks/new"} size={:small}>
       Add Task
-    </C.button>
+    </.button>
   </div>
   <div class="my-2 ml-2">
     <h3 class="text-lg font-medium leading-6 text-gray-900">
       Tasks
     </h3>
     <div class="text-base font-medium leading-6 text-gray-800">
-      <%= Map.values(@tasks) |> Enum.count(&task_assigned?/1) %> / <%= Enum.count(@tasks) %>
-      assigned
+      <%= Map.values(@tasks) |> Enum.count(&task_assigned?/1) %> / <%= Enum.count(@tasks) %> assigned
     </div>
   </div>
   <div class="p-2 border-b">
     <div class="flex flex-row flex-wrap gap-1">
-      <C.filter_button
-        phx-click="filter-tasks"
-        phx-value-assignment="all"
+      <.filter_button
+        phx-click={JS.push("filter_tasks", value: %{assignment: "all"})}
         selected={@tasks_query[:assignment] == "all"}
       >
         All
-      </C.filter_button>
-      <C.filter_button
-        phx-click="filter-tasks"
-        phx-value-assignment="unassigned"
+      </.filter_button>
+      <.filter_button
+        phx-click={JS.push("filter_tasks", value: %{assignment: "unassigned"})}
         selected={@tasks_query[:assignment] == "unassigned"}
       >
         Unassigned
-      </C.filter_button>
-      <C.filter_button
-        phx-click="filter-tasks"
-        phx-value-assignment="assigned"
+      </.filter_button>
+      <.filter_button
+        phx-click={JS.push("filter_tasks", value: %{assignment: "assigned"})}
         selected={@tasks_query[:assignment] == "assigned"}
       >
         Assigned
-      </C.filter_button>
+      </.filter_button>
     </div>
     <input
       type="text"
@@ -49,10 +45,8 @@
   <ul class="flex-1 overflow-y-auto scrolling-touch" id="tasks-list" phx-hook="TasksList">
     <%= for {_id, task} <- @tasks_list do %>
       <li id={"tasks-list:#{task.id}"}>
-        <a
-          phx-click="select-task"
-          phx-value-id={task.id}
-          href="#"
+        <.link
+          phx-click={JS.push("select_task", value: %{id: task.id})}
           class={
             "block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50 #{if selected?(@selected_task, task), do: "bg-gray-100", else: ""}"
           }
@@ -79,59 +73,58 @@
               </div>
             </div>
           </div>
-        </a>
+        </.link>
         <%= if selected?(@selected_task, task) do %>
           <div class="p-2 mx-1 rounded-b shadow-inner bg-gray-50">
             <div class="flex flex-row my-2">
-              <Heroicons.Mini.map_pin class="flex-shrink-0 w-4 h-4 text-gray-500" />
+              <Heroicons.map_pin mini class="flex-shrink-0 w-4 h-4 text-gray-500" />
               <div class="mx-1 text-sm leading-5 text-gray-800">
                 <span class="pii"><%= task.dropoff_location.address %></span>
               </div>
             </div>
             <div class="flex flex-row my-2">
-              <Heroicons.Mini.device_phone_mobile class="flex-shrink-0 w-4 h-4" />
+              <Heroicons.device_phone_mobile mini class="flex-shrink-0 w-4 h-4" />
               <div class="mx-1 text-sm leading-5 text-gray-800">
                 <span class="pii"><%= task.dropoff_phone %></span>
               </div>
             </div>
             <div class="flex flex-row my-2">
-              <Heroicons.Mini.pencil_square class="flex-shrink-0 w-4 h-4 text-gray-500" />
+              <Heroicons.pencil_square mini class="flex-shrink-0 w-4 h-4 text-gray-500" />
               <div class="mx-1 text-sm leading-5 text-gray-600">
                 <span class="pii"><%= task.rider_notes %></span>
               </div>
             </div>
             <div class="flex flex-row my-2">
-              <C.Icons.maki_bicycle_15 class="flex-shrink-0 w-4 h-4 text-gray-500" />
+              <Icons.maki_bicycle_15 class="flex-shrink-0 w-4 h-4 text-gray-500" />
               <%= cond do %>
                 <% task.assigned_rider != nil -> %>
-                  <a
-                    href="#"
-                    phx-click="select-rider"
-                    phx-value-id={task.assigned_rider.id}
+                  <.link
+                    phx-click={JS.push("select_rider", value: %{id: task.assigned_rider.id})}
                     class="mx-1 text-sm leading-5 text-indigo-600"
                   >
                     <%= task.assigned_rider.name %>
-                  </a>
-                  <C.button
-                    phx-click="unassign-task"
-                    phx-value-task-id={@selected_task.id}
+                  </.link>
+                  <.button
+                    phx-click={JS.push("unassign_task", value: %{task_id: @selected_task.id})}
                     color={:secondary}
                     size={:xsmall}
                     class=""
                   >
                     Unassign
-                  </C.button>
+                  </.button>
                 <% @selected_rider != nil -> %>
                   <div class="mx-1 text-sm leading-5">
-                    <C.button
-                      phx-click="assign-task"
-                      phx-value-task-id={@selected_task.id}
-                      phx-value-rider-id={@selected_rider.id}
+                    <.button
+                      phx-click={
+                        JS.push("assign_task",
+                          value: %{task_id: @selected_task.id, rider_id: @selected_rider.id}
+                        )
+                      }
                       size={:xsmall}
                       class=""
                     >
                       Assign to <%= @selected_rider.name %>
-                    </C.button>
+                    </.button>
                   </div>
                 <% true -> %>
                   <div class="mx-1 text-sm leading-5 text-gray-500">None</div>
@@ -153,21 +146,20 @@
             </form>
             <div class="pt-5">
               <div class="flex justify-end space-x-1.5">
-                <C.button
-                  patch_to={Routes.campaign_show_path(@socket, :edit_task, @campaign, task)}
+                <.button
+                  patch={~p"/campaigns/#{@campaign}/tasks/#{task}/edit"}
                   color={:white}
                   size={:xsmall}
                 >
                   Edit
-                </C.button>
-                <C.button
-                  phx-click="delete-task"
-                  phx-value-task-id={task.id}
+                </.button>
+                <.button
+                  phx-click={JS.push("delete_task", value: %{task_id: task.id})}
                   color={:red}
                   size={:xsmall}
                 >
                   Delete
-                </C.button>
+                </.button>
               </div>
             </div>
           </div>

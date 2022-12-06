@@ -85,6 +85,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
 
   defp apply_action(socket, :new_task, _) do
     socket
+    |> assign(:page_title, "New Task")
     |> assign(:form_task, %Task{})
   end
 
@@ -92,19 +93,35 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
     task = Delivery.get_task(task_id)
 
     socket
+    |> assign(:page_title, "Edit Task")
     |> assign(:form_task, task)
+  end
+
+  defp apply_action(socket, :add_rider, _) do
+    socket
+    |> assign(:page_title, "Add Rider")
+  end
+
+  defp apply_action(socket, :bulk_message, _) do
+    socket
+    |> assign(:page_title, "Message Riders for Campaign")
   end
 
   defp apply_action(socket, _, _), do: socket
 
   @impl true
-  def handle_event("select-task", %{"id" => id}, socket) do
+  def handle_event("select_task", %{"id" => id}, socket) do
+    selected_task = socket.assigns.selected_task
+
     socket =
-      if !same_task?(socket.assigns.selected_task, id) do
-        assign(socket, selected_task: get_task(socket, id))
-        |> push_event("select-task", %{id: id})
-      else
-        assign(socket, selected_task: nil)
+      case selected_task do
+        # Unselect if selected
+        %{id: ^id} ->
+          assign(socket, selected_task: nil)
+
+        _ ->
+          assign(socket, selected_task: get_task(socket, id))
+          |> push_event("select-task", %{id: id})
       end
 
     {:noreply, socket}
@@ -130,7 +147,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
 
   @impl true
   def handle_event(
-        "filter-tasks",
+        "filter_tasks",
         %{"assignment" => assignment},
         socket
       ) do
@@ -152,7 +169,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
 
   @impl true
   def handle_event(
-        "filter-riders",
+        "filter_riders",
         %{"capacity" => capacity},
         socket
       ) do
@@ -162,20 +179,25 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   end
 
   @impl true
-  def handle_event("select-rider", %{"id" => id}, socket) do
+  def handle_event("select_rider", %{"id" => id}, socket) do
+    selected_rider = socket.assigns.selected_rider
+
     socket =
-      if !same_rider?(socket.assigns.selected_rider, id) do
-        assign(socket, selected_rider: get_rider(socket, id))
-        |> push_event("select-rider", %{id: id})
-      else
-        assign(socket, selected_rider: nil)
+      case selected_rider do
+        # Unselect if selected
+        %{id: ^id} ->
+          assign(socket, selected_rider: nil)
+
+        _ ->
+          assign(socket, selected_rider: get_rider(socket, id))
+          |> push_event("select_rider", %{id: id})
       end
 
     {:noreply, assign(socket, :resent, false)}
   end
 
   @impl true
-  def handle_event("assign-task", %{"task-id" => task_id, "rider-id" => rider_id}, socket) do
+  def handle_event("assign_task", %{"task_id" => task_id, "rider_id" => rider_id}, socket) do
     {:ok, _task} =
       get_task(socket, task_id)
       |> Delivery.update_task(%{assigned_rider_id: rider_id})
@@ -184,7 +206,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   end
 
   @impl true
-  def handle_event("unassign-task", %{"task-id" => task_id}, socket) do
+  def handle_event("unassign_task", %{"task_id" => task_id}, socket) do
     task = get_task(socket, task_id)
 
     if task.assigned_rider do
@@ -213,7 +235,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   end
 
   @impl true
-  def handle_event("resend-message", %{"rider-id" => rider_id}, socket) do
+  def handle_event("resend_message", %{"rider_id" => rider_id}, socket) do
     rider = get_rider(socket, rider_id)
 
     Delivery.send_campaign_message(socket.assigns.campaign, rider)
@@ -224,7 +246,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   end
 
   @impl Phoenix.LiveView
-  def handle_event("remove-rider", %{"rider-id" => rider_id}, socket) do
+  def handle_event("remove_rider", %{"rider_id" => rider_id}, socket) do
     rider = get_rider(socket, rider_id)
 
     Delivery.remove_rider_from_campaign(socket.assigns.campaign, rider)

@@ -9,19 +9,19 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
     setup [:create_program, :login]
 
     test "lists programs for week programs", %{conn: conn, program: program} do
-      {:ok, _index_live, html} = live(conn, Routes.program_index_path(conn, :index))
+      {:ok, _index_live, html} = live(conn, ~p"/programs")
 
       assert html =~ "Programs"
       assert html =~ program.name
     end
 
     test "redirects to show program", %{conn: conn, program: program} do
-      {:ok, view, _html} = live(conn, Routes.program_index_path(conn, :index))
+      {:ok, view, _html} = live(conn, ~p"/programs")
 
       # Select the program
 
       view
-      |> element("a", program.name)
+      |> element("a", ~r|#{program.name}\s+|)
       |> render_click()
 
       assert_redirected(view, "/programs/#{program.id}")
@@ -30,7 +30,7 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
     # Click on Edit
 
     test "redirects to edit program", %{conn: conn, program: program} do
-      {:ok, view, _html} = live(conn, Routes.program_index_path(conn, :index))
+      {:ok, view, _html} = live(conn, ~p"/programs")
 
       view
       |> element("# a", "Edit")
@@ -42,7 +42,7 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
     # Edit form
 
     test "can edit a program", %{conn: conn, program: program} do
-      {:ok, view, _html} = live(conn, Routes.program_show_path(conn, :edit, program))
+      {:ok, view, _html} = live(conn, ~p"/programs/#{program}/show/edit")
 
       {:ok, _view, html} =
         view
@@ -70,7 +70,7 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
     # New item
 
     test "can add new item", %{conn: conn, program: program} do
-      {:ok, view, html} = live(conn, Routes.program_index_path(conn, :edit, program))
+      {:ok, view, html} = live(conn, ~p"/programs/#{program}/edit")
 
       refute html =~ "Awesome food hamper"
 
@@ -92,7 +92,7 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
       |> render_submit()
 
       # Open the edit page again to make sure we have the new item type
-      {:ok, _view, html} = live(conn, Routes.program_index_path(conn, :edit, program))
+      {:ok, _view, html} = live(conn, ~p"/programs/#{program}/edit")
 
       assert html =~ "Awesome food hamper"
     end

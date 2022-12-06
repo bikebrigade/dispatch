@@ -6,7 +6,7 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
   alias BikeBrigade.Accounts
   alias BikeBrigade.Riders
   alias BikeBrigade.Riders.Rider
-  alias BikeBrigadeWeb.Components.LocationForm
+  alias BikeBrigadeWeb.Components.LiveLocation
 
   defmodule RiderForm do
     use BikeBrigade.Schema
@@ -117,7 +117,7 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
         {:ok, _user} ->
           socket
           |> put_flash(:info, "Login enabled")
-          |> push_redirect(to: socket.assigns.return_to)
+          |> push_navigate(to: socket.assigns.navigate)
 
         {:error, _error} ->
           socket
@@ -136,7 +136,7 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
       {:noreply,
        socket
        |> put_flash(:info, "Rider updated successfully")
-       |> push_redirect(to: socket.assigns.return_to)}
+       |> push_navigate(to: socket.assigns.navigate)}
     else
       _ -> {:noreply, assign(socket, :changeset, socket.assigns.changeset)}
     end
@@ -148,7 +148,7 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
         {:noreply,
          socket
          |> put_flash(:info, "Rider created successfully")
-         |> push_redirect(to: socket.assigns.return_to)}
+         |> push_navigate(to: socket.assigns.navigate)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, changeset: changeset)}

@@ -1,119 +1,79 @@
 <div>
-  <.form
-    let={f}
-    for={@changeset}
-    id="task_form"
-    phx-target={@myself}
-    phx-change="validate"
-    phx-submit="save"
-  >
-    <C.flash_component flash={@flash} />
+  <.flash kind={:info} title="Success!" flash={@flash} />
+  <.flash kind={:error} title="Error!" flash={@flash} />
+  <.header><%= @title %></.header>
 
-    <%= if @campaign.program.items == [] do %>
-      <div class="mt-2">
-        You'll have to set up the kinds of items that we delivery for
-        <%= @campaign.program.name %> (Meals, Foodshare Boxes, etc) before you can add a task.
-        <div class="mt-1">
-          <C.button
-            size={:small}
-            redirect_to={Routes.program_index_path(@socket, :edit, @campaign.program)}
-          >
-            Set up delivery items
-          </C.button>
-        </div>
+  <%= if @campaign.program.items == [] do %>
+    <div class="mt-2">
+      You'll have to set up the kinds of items that we delivery for <%= @campaign.program.name %> (Meals, Foodshare Boxes, etc) before you can add a task.
+      <div class="mt-1">
+        <.button size={:small} navigate={~p"/programs/#{@campaign.program}/edit"}>
+          Set up delivery items
+        </.button>
       </div>
-    <% else %>
-      <div class="mt-2">
-        <%= label f, :dropoff_name, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-          Dropoff Name
-        <% end %>
-        <div class="mt-1">
-          <%= text_input(f, :dropoff_name,
-            phx_debounce: "blur",
-            class:
-              "block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          ) %>
-        </div>
-        <%= error_tag(f, :dropoff_name) %>
-      </div>
-      <div class="mt-2">
-        <%= label f, :dropoff_phone, class: "block text-sm font-medium leading-5 text-gray-700" do %>
-          Dropoff Phone
-        <% end %>
-        <div class="mt-1">
-          <%= text_input(f, :dropoff_phone,
-            phx_debounce: "blur",
-            class:
-              "block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          ) %>
-        </div>
-        <%= error_tag(f, :dropoff_phone) %>
-      </div>
-      <%= for l <- inputs_for(f, :dropoff_location) do %>
-        <LocationForm.component for={l} label="Dropoff Location" />
-      <% end %>
+    </div>
+  <% else %>
+    <.simple_form
+      :let={f}
+      for={@changeset}
+      id="task_form"
+      phx-target={@myself}
+      phx-change="validate"
+      phx-submit="save"
+    >
+      <.input type="text" field={{f, :dropoff_name}} label="Dropoff Name" />
+      <.input type="tel" field={{f, :dropoff_phone}} label="Dropoff Phone" />
+      <.live_component
+        module={LiveLocation}
+        id="location-form"
+        as={input_name(f, :dropoff_location)}
+        location={@task.dropoff_location}
+        label="Dropoff Location"
+      />
 
-      <div class="my-2">
-        <%= label f, :schedules, class: "block text-sm font-medium leading-5 text-gray-700" do %>
+      <div>
+        <.header small>
           Deliver
-          <a href="#" phx-click="add-item" phx-target={@myself} class="text-xs font-normal link">
-            (Delivering multiple kinds of items?)
-          </a>
-        <% end %>
-        <%= for {g, i} <- Enum.with_index(inputs_for f, :task_items) do %>
+          <:subtitle>
+            <.link phx-click={JS.push("add-item", target: @myself)} class="link">
+              Delivering multiple kinds of items?
+            </.link>
+          </:subtitle>
+        </.header>
+        <div
+          :for={{g, i} <- Enum.with_index(inputs_for(f, :task_items))}
+          class="flex items-center mt-1 space-x-2"
+        >
           <%= hidden_inputs_for(g) %>
-          <div class="flex items-center mt-1 space-x-2">
-            <%= number_input(g, :count,
-              phx_debounce: "blur",
-              class:
-                "block w-16 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            ) %>
-            <%= select(g, :item_id, item_options(@campaign.program.items),
-              class:
-                "capitalize block w-52 px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-            ) %>
-            <%= if i > 0 do %>
-              <div class="justify-center ml-auto">
-                <button
-                  phx-click="remove-item"
-                  phx-value-index={i}
-                  phx-target={@myself}
-                  type="button"
-                  class="block text-gray-400 bg-white rounded-md hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                  <span class="sr-only">Close</span>
-                  <Heroicons.Solid.x_mark class="w-6 h-6" />
-                </button>
-              </div>
-            <% end %>
+          <div class="w-16"><.input type="number" field={{g, :count}} /></div>
+          <.input
+            type="select"
+            field={{g, :item_id}}
+            options={item_options(@campaign.program.items)}
+          />
+          <div :if={i > 0} class="flex items-center justify-center">
+            <.button
+              phx-click={JS.push("remove_item", value: %{index: i}, target: @myself)}
+              type="button"
+              color={:clear}
+              size={:xxsmall}
+            >
+              <span class="sr-only">Close</span>
+              <Heroicons.x_mark solid class="w-6 h-6" />
+            </.button>
           </div>
-          <%= error_tag(g, :item) %>
-        <% end %>
-        <%= live_redirect("Set up program's delivery items",
-          to: Routes.program_index_path(@socket, :edit, @campaign.program.id),
-          class: "text-xs link"
-        ) %>
+        </div>
+
+        <.link navigate={~p"/programs/#{@campaign.program.id}/edit"} class="text-xs link">
+          Set up program's delivery items
+        </.link>
       </div>
 
-      <div class="mt-2">
-        <%= label f, :about, class: "block text-sm font-medium text-gray-700" do %>
-          Notes
-        <% end %>
-        <div class="mt-1">
-          <%= textarea(f, :rider_notes,
-            phx_debounce: "blur",
-            rows: 3,
-            class:
-              "block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          ) %>
-        </div>
-        <%= error_tag(f, :rider_notes) %>
-      </div>
-      <div class="flex justify-end mt-6">
-        <C.button type="submit" phx-disable-with="Saving...">
-          Save
-        </C.button>
-      </div>
-    <% end %>
-  </.form>
+      <.input type="textarea" field={{f, :rider_notes}} label="Notes" />
+
+      <:actions>
+        <.button type="submit" phx-disable-with="Saving...">Save</.button>
+      </:actions>
+    </.simple_form>
+  <% end %>
 </div>

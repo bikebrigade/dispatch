@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html class="h-full" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta property="og:title" content="Bike Brigade Dispatch" />
+    <meta name="csrf-token" content={get_csrf_token()} />
+    <.live_title suffix=" ·  Bike Brigade Dispatch"><%= assigns[:page_title] || "" %></.live_title>
+    <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+    <link rel="icon" href={if BikeBrigade.Utils.dev?(), do: ~p"/favicon_dev.png", else:  ~p"/favicon.png"} />
+    <script defer type="text/javascript" src={~p"/assets/app.js"}>
+    </script>
+  </head>
+
+  <body class="h-full bg-gray-50">
+    <%= @inner_content %>
+  </body>
+</html>

@@ -101,12 +101,4 @@ defmodule BikeBrigadeWeb.LiveHelpers do
   end
 
   def render_raw(nil), do: ""
-
-  def favicon_path(conn) do
-    if BikeBrigade.Utils.dev?() do
-      BikeBrigadeWeb.Router.Helpers.static_path(conn, "/favicon_dev.png")
-    else
-      BikeBrigadeWeb.Router.Helpers.static_path(conn, "/favicon.png")
-    end
-  end
 end

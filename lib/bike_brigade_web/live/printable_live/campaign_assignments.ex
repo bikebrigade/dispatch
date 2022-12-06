@@ -1,5 +1,5 @@
 defmodule BikeBrigadeWeb.PrintableLive.CampaignAssignments do
-  use BikeBrigadeWeb, {:live_view, layout: {BikeBrigadeWeb.LayoutView, "fullscreen.live.html"}}
+  use BikeBrigadeWeb, {:live_view, layout: :fullscreen}
   import BikeBrigadeWeb.CampaignHelpers
 
   alias BikeBrigade.Delivery

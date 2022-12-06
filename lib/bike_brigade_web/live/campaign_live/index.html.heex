@@ -1,27 +1,35 @@
-<%= if @live_action in [:new, :edit] do %>
-  <UI.modal show id={:edit} return_to={Routes.campaign_index_path(@socket, :index, current_week: @current_week)}>
-    <:title><%= Atom.to_string(@live_action) |> String.capitalize() %> Campaign</:title>
-    <.live_component
-      module={BikeBrigadeWeb.CampaignLive.FormComponent}
-      id={"campaign-#{@campaign.id || :new}"}
-      action={@live_action}
-      campaign={@campaign}
-      return_to={Routes.campaign_index_path(@socket, :index, current_week: @current_week)}
-    />
-  </UI.modal>
-<% end %>
-<%= if @live_action == :duplicate do %>
-  <UI.modal show id={:duplicate} return_to={Routes.campaign_index_path(@socket, :index, current_week: @current_week)}>
-    <:title>Duplicate campaign</:title>
-    <.live_component
-      module={BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent}
-      id={:duplicate}
-      action={@live_action}
-      campaign={@campaign}
-      return_to={Routes.campaign_index_path(@socket, :index, current_week: @current_week)}
-    />
-  </UI.modal>
-<% end %>
+<.modal
+  :if={@live_action in [:new, :edit]}
+  id="campaign-modal"
+  show
+  on_cancel={JS.navigate(~p"/campaigns?current_week=#{@current_week}")}
+>
+  <.live_component
+    module={BikeBrigadeWeb.CampaignLive.FormComponent}
+    id={@campaign.id || :new}
+    title={@page_title}
+    action={@live_action}
+    campaign={@campaign}
+    navigate={~p"/campaigns?current_week=#{@current_week}"}
+  />
+</.modal>
+
+<.modal
+  :if={@live_action == :duplicate}
+  id="campaign-modal"
+  show
+  on_cancel={JS.navigate(~p"/campaigns?current_week=#{@current_week}")}
+>
+  <.live_component
+    module={BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent}
+    id={:duplicate}
+      title={@page_title}
+    action={@live_action}
+    campaign={@campaign}
+    navigate={~p"/campaigns?current_week=#{@current_week}"}
+  />
+</.modal>
+
 <nav
   class="flex items-center justify-between px-4 py-3 mb-1 border-b-2 border-gray-200"
   aria-label="Pagination"
@@ -36,33 +44,36 @@
   </div>
   <div class="flex justify-between flex-1 sm:justify-end">
     <span class="relative z-0 inline-flex rounded-md shadow-sm">
-      <%= live_patch to: Routes.campaign_index_path(@socket, :index, current_week: Date.add(@current_week, -7)),
-        class: "relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-do %>
-        <Heroicons.Solid.chevron_left class="w-5 h-5" />
-      <% end %>
-      <%= live_patch to: Routes.campaign_index_path(@socket, :index, current_week: Date.beginning_of_week(LocalizedDateTime.today())),
-        class: "relative items-center hidden px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 sm:inline-flex hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-do %>
+      <.link
+        patch={~p"/campaigns?current_week=#{Date.add(@current_week, -7)}"}
+        class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+      >
+        <Heroicons.chevron_left solid class="w-5 h-5" />
+      </.link>
+      <.link
+        patch={~p"/campaigns?current_week=#{Date.beginning_of_week(LocalizedDateTime.today())}"}
+        class="relative items-center hidden px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 sm:inline-flex hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+      >
         Today
-      <% end %>
+      </.link>
 
-      <%= live_patch to: Routes.campaign_index_path(@socket, :index, current_week: Date.add(@current_week, 7)),
-        class: "relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-do %>
-        <Heroicons.Solid.chevron_right class="w-5 h-5" />
-      <% end %>
+      <.link
+        patch={~p"/campaigns?current_week=#{Date.add(@current_week, 7)}"}
+        class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+      >
+        <Heroicons.chevron_right solid class="w-5 h-5" />
+      </.link>
     </span>
   </div>
-  <C.button patch_to={Routes.campaign_index_path(@socket, :new)} class="ml-2" %>
+  <.button patch={~p"/campaigns/new"} class="ml-2">
     New Campaign
-  </C.button>
+  </.button>
 </nav>
 <%= if @campaigns != [] do %>
   <%= for {date, campaigns} <- @campaigns do %>
     <div class="flex w-full bg-white shadow sm:my-1 sm:rounded-md">
       <div class="w-32 py-4 pl-4">
-        <C.date date={date} />
+        <.date date={date} />
       </div>
       <ul role="list" class="w-full divide-y divide-gray-200">
         <%= for c <- campaigns do %>
@@ -70,52 +81,46 @@ do %>
             <div class="px-4 py-4">
               <div class="items-center justify-between md:flex">
                 <div class="flex items-center mb-2 space-x-1">
-                  <%= live_redirect(name(c),
-                    to: Routes.campaign_show_path(@socket, :show, c),
-                    class: "link text-sm font-medium"
-                  ) %>
+                  <.link navigate={~p"/campaigns/#{c}"} class="text-sm font-medium link">
+                    <%= name(c) %>
+                  </.link>
                 </div>
                 <div class="flex-shrink-0 space-y-1 md:space-y-0 md:space-x-2 md:flex">
-                  <C.button
-                    size={:xsmall}
-                    color={:white}
-                    patch_to={Routes.campaign_index_path(@socket, :edit, c)}
-                  >
+                  <.button size={:xsmall} color={:white} patch={~p"/campaigns/#{c}/edit"}>
                     Edit
-                  </C.button>
-                  <C.button
-                    patch_to={Routes.campaign_index_path(@socket, :duplicate, c)}
-                    size={:xsmall}
-                    color={:white}
-                  >
+                  </.button>
+                  <.button patch={~p"/campaigns/#{c}/duplicate"} size={:xsmall} color={:white}>
                     Duplicate
-                  </C.button>
-                  <C.button
+                  </.button>
+                  <.button
                     size={:xsmall}
                     color={:lightred}
-                    phx-click="delete"
-                    phx-value-id={c.id}
+                    phx-click={JS.push("delete", value: %{id: c.id})}
                     data-confirm="Are you sure?"
                   >
                     Delete
-                  </C.button>
+                  </.button>
                 </div>
               </div>
               <div class="mt-2 sm:flex sm:justify-between">
                 <div class="sm:flex">
                   <p class="flex items-center text-sm text-gray-700">
-                    <Heroicons.Mini.clock
+                    <Heroicons.clock
+                      mini
                       aria-label="Pickup Time"
                       class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-500"
                     />
                     <%= pickup_window(c) %>
                   </p>
                   <p class="flex items-center mt-2 text-sm text-gray-700 sm:mt-0 sm:ml-6">
-                    <C.Icons.maki_bicycle_share class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-500" />
+                    <Icons.maki_bicycle_share class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-500" />
                     <%= c.stats.signed_up_rider_count %>
                   </p>
                   <p class="flex items-center mt-2 text-sm text-gray-700 sm:mt-0 sm:ml-6">
-                    <Heroicons.Mini.shopping_bag class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-500" />
+                    <Heroicons.shopping_bag
+                      mini
+                      class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-500"
+                    />
                     <%= c.stats.task_count %>
                   </p>
                 </div>

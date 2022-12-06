@@ -1,88 +1,82 @@
-<%= if @live_action in [:new, :edit] do %>
-  <UI.modal show id={:edit} return_to={Routes.program_index_path(@socket, :index)}>
-    <:title><%= Atom.to_string(@live_action) |> String.capitalize() %> Program</:title>
-    <.live_component
-      module={BikeBrigadeWeb.ProgramLive.FormComponent}
-      id={@program.id || :new}
-      action={@live_action}
-      program={@program}
-      return_to={Routes.program_index_path(@socket, :index)}
-    />
-  </UI.modal>
-<% end %>
-
-<%= if @live_action in [:new_item, :edit_item] do %>
-  <UI.modal show id={:edit_item} return_to={Routes.program_index_path(@socket, :edit, @program)}>
-    <:title>Edit Item</:title>
-    <.live_component
-      module={BikeBrigadeWeb.ProgramLive.ItemFormComponent}
-      id={@item.id || :new}
-      action={@live_action}
-      program={@program}
-      item={@item}
-      return_to={Routes.program_index_path(@socket, :index)}
-    />
-  </UI.modal>
-<% end %>
-
-<UI.table rows={@programs}>
-  <:th>
-    Name
-  </:th>
-  <:th>
-    Campaigns
-  </:th>
-  <:th>
-    Latest Campaign
-  </:th>
-  <:th>
-    Schedule
-  </:th>
-  <:th>
-    Lead
-  </:th>
-  <:th class="flex justify-end" padding="px-3 py-3" uppercase={false}>
-    <C.button patch_to={Routes.program_index_path(@socket, :new)} %>
+<.header>
+  Programs
+  <:subtitle>
+    Programs are collections deliveries we run with a partner. For example <span class="italic">Foodshare</span>, <span class="italic">Community Fridges - Dufferin Grove</span>, and
+    <span class="italic">Community Fridges - This Way Up</span>
+    are examples of Programs.
+  </:subtitle>
+  <:actions>
+    <.button patch={~p"/programs/new"}>
       New Program
-    </C.button>
-  </:th>
-  <:td let={program}>
-    <%= live_redirect(program.name,
-      to: Routes.program_show_path(@socket, :show, program),
-      class: "pl-2 text-indigo-600 hover:text-indigo-900"
-    ) %>
+    </.button>
+  </:actions>
+</.header>
+
+<.table id="programs" rows={@programs}>
+  <:col :let={program} label="Name">
+    <.link navigate={~p"/programs/#{program}"} class="link">
+      <%= program.name %>
+    </.link>
     <%= if !program.active do %>
       <span class="inline-block px-2 ml-2 text-xs border rounded-full">
         Inactive
       </span>
     <% end %>
-  </:td>
-  <:td let={program}>
+  </:col>
+  <:col :let={program} label="Campaigns" show_at={:large}>
     <%= program.campaign_count %>
-  </:td>
-  <:td let={program}>
-    <%= if latest_campaign = program.latest_campaign do %>
-      <%= live_redirect to: Routes.campaign_show_path(@socket, :show, latest_campaign), class: "inline-flex hover:bg-indigo-100" do %>
-        <C.date date={latest_campaign.delivery_start} />
-      <% end %>
-    <% end %>
-  </:td>
-  <:td let={program}>
-    <%= if program.schedules != [] do %>
-      <%= for s <- program.schedules do %>
-        <div><%= ProgramForm.Schedule.from_program_schedule(s) %></div>
-      <% end %>
-    <% else %>
-      N/A
-    <% end %>
-  </:td>
-  <:td let={program}>
-    <%= if program.lead, do: program.lead.name, else: "N/A" %>
-  </:td>
-  <:td let={program} class="px-4 py-3 text-right">
-    <%= live_patch("Edit",
-      to: Routes.program_index_path(@socket, :edit, program),
-      class: "text-indigo-600 hover:text-indigo-900"
-    ) %>
-  </:td>
-</UI.table>
+  </:col>
+  <:col :let={program} label="Latest Campaign" unstack_at={:large}>
+    <.date
+      :if={program.latest_campaign}
+      navigate={~p"/campaigns/#{program.latest_campaign}"}
+      date={campaign_date(program.latest_campaign)}
+    />
+  </:col>
+  <:col :let={program} label="Schedule" unstack_at={:large}>
+    <div :for={s <- program.schedules}>
+      <%= ProgramForm.Schedule.from_program_schedule(s) %>
+    </div>
+  </:col>
+  <:col :let={program} label="Lead">
+    <span :if={program.lead}><%= program.lead.name %></span>
+  </:col>
+  <:action :let={program}>
+    <.link patch={~p"/programs/#{program}/edit"} class="link">
+      Edit <span class="sr-only">, <%= program.name %></span>
+    </.link>
+  </:action>
+</.table>
+
+<.modal
+  :if={@live_action in [:new, :edit]}
+  id="program-modal"
+  show
+  on_cancel={JS.navigate(~p"/programs")}
+>
+  <.live_component
+    module={BikeBrigadeWeb.ProgramLive.FormComponent}
+    id={@program.id || :new}
+    title={@page_title}
+    action={@live_action}
+    program={@program}
+    navigate={~p"/programs"}
+  />
+</.modal>
+
+<.modal
+  :if={@live_action in [:new_item, :edit_item]}
+  id="program-modal"
+  show
+  on_cancel={JS.navigate(~p"/programs/#{@program}/edit")}
+>
+  <.live_component
+    module={BikeBrigadeWeb.ProgramLive.ItemFormComponent}
+    id={@item.id || :new}
+    action={@live_action}
+    title={@page_title}
+    program={@program}
+    item={@item}
+    navigate={~p"/programs/#{@program}/edit"}
+  />
+</.modal>

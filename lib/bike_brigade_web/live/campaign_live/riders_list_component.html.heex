@@ -1,40 +1,40 @@
 <div class="flex flex-col max-h-full">
   <div class="flex flex-col flex-wrap items-baseline flex-grow space-y-1 xl:flex-row xl:space-x-1">
-    <C.button phx-click="auto-assign" size={:small} class="space-x-1">
+    <.button phx-click="auto-assign" size={:small} class="space-x-1">
       <p>Auto Assign</p>
-      <C.tooltip tooltip="This will assign the remaining tasks" class="w-40">
-        <Heroicons.Mini.exclamation_circle class="w-4 h-4" />
-      </C.tooltip>
-    </C.button>
-    <C.button patch_to={Routes.campaign_show_path(@socket, :add_rider, @campaign)} size={:small}>
+      <.with_tooltip>
+        <Heroicons.exclamation_circle mini class="w-4 h-4" />
+        <:tooltip>
+          <div class="w-32">This will assign the remaining tasks</div>
+        </:tooltip>
+      </.with_tooltip>
+    </.button>
+    <.button patch={~p"/campaigns/#{@campaign}/add_rider"} size={:small}>
       Add Rider
-    </C.button>
+    </.button>
   </div>
   <div class="my-2 ml-2">
     <h3 class="text-lg font-medium leading-6 text-gray-900">
       Riders
     </h3>
     <div class="text-base font-medium leading-6 text-gray-800">
-      <%= Map.values(@riders) |> Enum.count(&rider_available?/1) %> / <%= Enum.count(@riders) %>
-      available
+      <%= Map.values(@riders) |> Enum.count(&rider_available?/1) %> / <%= Enum.count(@riders) %> available
     </div>
   </div>
   <div class="p-2 border-b">
     <div class="flex flex-row flex-wrap gap-1">
-      <C.filter_button
-        phx-click="filter-riders"
-        phx-value-capacity="all"
+      <.filter_button
+        phx-click={JS.push("filter_riders", value: %{capacity: :all})}
         selected={@riders_query[:capacity] == "all"}
       >
         All
-      </C.filter_button>
-      <C.filter_button
-        phx-click="filter-riders"
-        phx-value-capacity="available"
+      </.filter_button>
+      <.filter_button
+        phx-click={JS.push("filter_riders", value: %{capacity: :available})}
         selected={@riders_query[:capacity] == "available"}
       >
         Available
-      </C.filter_button>
+      </.filter_button>
     </div>
     <input
       type="text"
@@ -48,10 +48,8 @@
   <ul class="flex-1 overflow-y-auto scrolling-touch" id="riders-list" phx-hook="RidersList">
     <%= for {_id, rider} <- @riders_list do %>
       <li id={"riders-list:#{rider.id}"}>
-        <a
-          phx-click="select-rider"
-          phx-value-id={rider.id}
-          href="#"
+        <.link
+          phx-click={JS.push("select_rider", value: %{id: rider.id})}
           class={
             "block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50#{if selected?(@selected_rider, rider), do: " bg-gray-100"}"
           }
@@ -64,32 +62,37 @@
               </span>
             </div>
             <%= if rider.task_enter_building do %>
-              <Heroicons.Mini.building_office class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end" />
+              <Heroicons.building_office
+                mini
+                class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end"
+              />
             <% end %>
             <%= if has_notes?(rider) do %>
-              <Heroicons.Mini.pencil_square class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500" />
+              <Heroicons.pencil_square mini class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500" />
             <% end %>
             <%= if rider.text_based_itinerary do %>
-              <C.tooltip
-                tooltip="This rider will receive an extra message with text-only delivery instructions"
-                class="w-40"
-              >
-                <Heroicons.Mini.signal_slash class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500" />
-              </C.tooltip>
+              <.with_tooltip>
+                <Heroicons.signal_slash mini class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500" />
+                <:tooltip>
+                  <div class="w-40">
+                    This rider will receive an extra message with text-only delivery instructions
+                  </div>
+                </:tooltip>
+              </.with_tooltip>
             <% end %>
           </div>
-        </a>
+        </.link>
         <%= if selected?(@selected_rider, rider) do %>
           <div class="p-2 mx-1 rounded-b shadow-inner bg-gray-50">
             <div class="flex flex-row my-2">
-              <Heroicons.Mini.clock class="flex-shrink-0 w-4 h-4 text-gray-500" />
+              <Heroicons.clock mini class="flex-shrink-0 w-4 h-4 text-gray-500" />
               <div class="mx-1 text-sm leading-5 text-gray-800">
                 <%= pickup_window(@campaign, rider) %>
               </div>
             </div>
             <%= if has_notes?(rider) do %>
               <div class="flex flex-row my-2">
-                <Heroicons.Mini.pencil_square class="flex-shrink-0 w-4 h-4 text-gray-500" />
+                <Heroicons.pencil_square mini class="flex-shrink-0 w-4 h-4 text-gray-500" />
                 <div class="mx-1 text-sm leading-5 text-gray-600">
                   <%= rider.task_notes %>
                 </div>
@@ -98,15 +101,18 @@
             <%= if Enum.count(rider.assigned_tasks) > 0 do %>
               <%= for task <- rider.assigned_tasks do %>
                 <div class="flex flex-row my-2">
-                  <Heroicons.Mini.map_pin class="flex-shrink-0 w-4 h-4 text-gray-500" />
-                  <a href="#" phx-click="select-task" phx-value-id={task.id} class="flex flex-col">
+                  <Heroicons.map_pin mini class="flex-shrink-0 w-4 h-4 text-gray-500" />
+                  <.link
+                    phx-click={JS.push("select_task", value: %{id: task.id})}
+                    class="flex flex-col"
+                  >
                     <div class="mx-1 text-sm leading-5 text-indigo-600">
                       <span class="pii"><%= task.dropoff_location %></span>
                     </div>
                     <div class="mx-1 text-xs font-medium leading-5">
                       <span class="pii"><%= task.dropoff_name %></span>
                     </div>
-                  </a>
+                  </.link>
                 </div>
               <% end %>
             <% else %>
@@ -114,36 +120,37 @@
             <% end %>
             <div class="flex flex-row mt-5 space-x-1">
               <%= if @resent do %>
-                <C.button
-                  phx-click="resend-message"
-                  phx-value-rider-id={rider.id}
+                <.button
+                  phx-click={JS.push("resend_message", value: %{rider_id: rider.id})}
                   size={:xsmall}
                   disabled
                 >
                   Sent!
-                </C.button>
+                </.button>
               <% else %>
-                <C.button phx-click="resend-message" phx-value-rider-id={rider.id} size={:xsmall}>
+                <.button
+                  phx-click={JS.push("resend_message", value: %{rider_id: rider.id})}
+                  size={:xsmall}
+                >
                   Resend
-                </C.button>
+                </.button>
               <% end %>
-              <C.button
-                redirect_to={Routes.sms_message_index_path(@socket, :show, rider.id)}
+              <.button
+                navigate={~p"/messages/#{rider}"}
                 color={:secondary}
                 size={:xsmall}
               >
                 Message
-              </C.button>
+              </.button>
             </div>
             <div class="mt-1">
-              <C.button
-                phx-click="remove-rider"
-                phx-value-rider-id={rider.id}
+              <.button
+                phx-click={JS.push("remove_rider", value: %{rider_id: rider.id})}
                 color={:red}
                 size={:xsmall}
               >
                 Remove
-              </C.button>
+              </.button>
             </div>
           </div>
         <% end %>

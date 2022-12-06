@@ -22,7 +22,7 @@ config :bike_brigade, BikeBrigade.Repo, types: BikeBrigade.PostgresTypes
 config :bike_brigade, BikeBrigadeWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "pcB9K1AsMcibczlVowBtpMGnpBeHfkHBDrizPkBCIMz0tGQwhCw/iL9GEOE0fNIm",
-  render_errors: [view: BikeBrigadeWeb.ErrorView, accepts: ~w(html json), layout: false],
+  render_errors: [view: BikeBrigadeWeb.ErrorHTML, accepts: ~w(html json), layout: false],
   pubsub_server: BikeBrigade.PubSub,
   live_view: [signing_salt: "ZvJcZ6yv"],
   static_url: [path: "/static"]
@@ -44,7 +44,7 @@ config :esbuild,
 
 # Tailwind
 config :tailwind,
-  version: "3.0.18",
+  version: "3.2.4",
   default: [
     args: ~w(
     --config=tailwind.config.js

@@ -1,10 +1,10 @@
 defmodule BikeBrigade.SmsService do
   use BikeBrigade.Adapter, :sms_service
 
+  use Phoenix.VerifiedRoutes, endpoint: BikeBrigadeWeb.Endpoint, router: BikeBrigadeWeb.Router
+
   alias BikeBrigade.Messaging.SmsMessage
   alias BikeBrigade.Utils
-  alias BikeBrigadeWeb.Router.Helpers, as: Routes
-  alias BikeBrigadeWeb.Endpoint
   alias BikeBrigade.Accounts
 
   @type sid :: String.t()
@@ -87,7 +87,7 @@ defmodule BikeBrigade.SmsService do
   defp status_callback_url() do
     case Utils.fetch_env!(:sms_service, :status_callback_url) do
       :local ->
-        Routes.twilio_url(Endpoint, :status_callback)
+        url(~p"/webhooks/twilio/status_callback")
 
       url when is_binary(url) ->
         url
