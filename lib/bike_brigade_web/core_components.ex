@@ -302,14 +302,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
       if assigns.multiple, do: name <> "[]", else: name
     end)
     |> assign_new(:id, fn -> Phoenix.HTML.Form.input_id(f, field) end)
-    |> assign_new(:value, fn ->
-      value = Phoenix.HTML.Form.input_value(f, field)
-
-      case value do
-        %Time{} -> Time.truncate(value, :millisecond)
-        _ -> value
-      end
-    end)
+    |> assign_new(:value, fn -> Phoenix.HTML.Form.input_value(f, field) end)
     |> assign_new(:errors, fn -> translate_errors(f.errors || [], field) end)
     |> input()
   end
@@ -386,6 +379,22 @@ defmodule BikeBrigadeWeb.CoreComponents do
   end
 
   def input(assigns) do
+    assigns =
+      case assigns.value do
+        time = %Time{} ->
+          # Truncate time to minutes
+          time =
+            time
+            |> Time.to_string()
+            |> String.slice(0, 5)
+
+          assigns
+          |> assign(:value, time)
+
+        _ ->
+          assigns
+      end
+
     ~H"""
     <div phx-feedback-for={@name}>
       <.label for={@id}><%= @label %></.label>
