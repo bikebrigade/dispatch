@@ -105,8 +105,8 @@
       <%= Locations.neighborhood(rider.location) %>
     </:col>
     <:col :let={rider} label="Tags">
-      <ul class="flex">
-        <li :for={tag <- rider.tags} class="before:content-[','] first:before:content-['']">
+      <ul class="flex flex-wrap ">
+        <li :for={tag <-  rider.tags} class="flex after:content-[',\00a0'] last:after:content-['']">
           <button type="button" phx-click={add_filter(:tag, tag.name)} class="link">
             <%= if get_filter(@rider_search.filters, :tag, tag.name) do %>
               <span class="font-bold"><%= tag.name %></span>
