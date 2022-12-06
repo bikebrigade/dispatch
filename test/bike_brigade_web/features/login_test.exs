@@ -13,12 +13,12 @@ defmodule BikeBrigadeWeb.Features.LoginTest do
     session
     |> visit("/login")
     |> assert_has(css("h2", text: "Sign into your Bike Brigade account"))
-    |> fill_in(text_field("Phone number"), with: user.phone)
+    |> fill_in(text_field("Phone Number"), with: user.phone)
     |> click(button("Get Login Code"))
     |> assert_has(
       css("*[role=notice]", text: "We sent an authentication code to your phone number")
     )
-    |> fill_in(text_field("Authentication code"), with: get_authentication_code())
+    |> fill_in(text_field("Authentication Code"), with: get_authentication_code())
     |> click(button("Sign in"))
 
     assert current_path(session) == "/campaigns"

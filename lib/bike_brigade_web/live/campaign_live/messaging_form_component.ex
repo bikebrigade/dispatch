@@ -1,7 +1,5 @@
 defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
   use BikeBrigadeWeb, :live_component
-  alias BikeBrigade.Riders
-  alias Mailchimp.Campaign
   alias BikeBrigadeWeb.CampaignHelpers
 
   alias BikeBrigade.LocalizedDateTime
