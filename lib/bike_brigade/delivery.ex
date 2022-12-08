@@ -249,6 +249,13 @@ defmodule BikeBrigade.Delivery do
     |> Repo.preload(preload)
   end
 
+  def get_campaign!(id, opts \\ []) do
+    preload = Keyword.get(opts, :preload, [:location, :program])
+
+    Repo.get!(Campaign, id)
+    |> Repo.preload(preload)
+  end
+
   @doc """
   Returns a tuple of `{riders, tasks}` for a `campaign`. Riders are pre-loaded with their assigned tasks,
   and tasks are pre-loaded with the assigned rider, and task_items/items.
