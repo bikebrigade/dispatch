@@ -184,13 +184,13 @@ defmodule BikeBrigadeWeb.CoreComponents do
       :if={msg = render_slot(@inner_block) || Phoenix.Flash.get(@flash, @kind)}
       id={@id}
       phx-mounted={@autoshow && show("##{@id}")}
-      phx-click={hide("##{@id}")}
+      phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide("##{@id}")}
       class={[
-        "top-0 w-full left-0 right-0 z-50 p-1 m-0",
+        "top-0 w-full left-0 right-0 z-50 p-1 m-0 p-3",
         "fixed hidden md:left-auto md:top-2 md:right-2 md:w-96 md:z-50 md:rounded-lg md:p-3 md:shadow-md md:shadow-zinc-900/5 ring-1",
         @kind == :info && "bg-emerald-50 text-emerald-800 ring-emerald-500 fill-cyan-900",
-        @kind == :warn && "bg-amber-50 p-3 text-amber-800 ring-amber-500 fill-amber-900",
-        @kind == :error && "bg-rose-50 p-3 text-rose-900 shadow-md ring-rose-500 fill-rose-900"
+        @kind == :warn && "bg-amber-50 text-amber-800 ring-amber-500 fill-amber-900",
+        @kind == :error && "bg-rose-50 text-rose-900 shadow-md ring-rose-500 fill-rose-900"
       ]}
       {@rest}
     >
