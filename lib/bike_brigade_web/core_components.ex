@@ -178,15 +178,18 @@ defmodule BikeBrigadeWeb.CoreComponents do
   slot :inner_block, doc: "the optional inner block that renders the flash message"
 
   def flash(assigns) do
+
     ~H"""
     <div
       :if={msg = render_slot(@inner_block) || Phoenix.Flash.get(@flash, @kind)}
       id={@id}
       phx-mounted={@autoshow && show("##{@id}")}
-      phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide("#flash")}
+      phx-click={hide("##{@id}")}
       class={[
-        "fixed hidden top-2 right-2 w-96 z-50 rounded-lg p-3 shadow-md shadow-zinc-900/5 ring-1",
+        "top-0 w-full left-0 right-0 z-50 p-1 m-0",
+        "fixed hidden md:left-auto md:top-2 md:right-2 md:w-96 md:z-50 md:rounded-lg md:p-3 md:shadow-md md:shadow-zinc-900/5 ring-1",
         @kind == :info && "bg-emerald-50 text-emerald-800 ring-emerald-500 fill-cyan-900",
+        @kind == :warn && "bg-amber-50 p-3 text-amber-800 ring-amber-500 fill-amber-900",
         @kind == :error && "bg-rose-50 p-3 text-rose-900 shadow-md ring-rose-500 fill-rose-900"
       ]}
       {@rest}
@@ -194,12 +197,15 @@ defmodule BikeBrigadeWeb.CoreComponents do
       <button :if={@close} type="button" class="absolute p-2 group top-2 right-1" aria-label="Close">
         <Heroicons.x_mark solid class="w-5 h-5 stroke-current opacity-40 group-hover:opacity-70" />
       </button>
-      <p :if={@title} class="flex items-center gap-1.5 text-[0.8125rem] font-semibold leading-6">
+      <div class="flex items-center sm:flex md:justify-start md:flex-col md:items-start">
+      <p :if={@title} class="flex items-center gap-1.5 text-[0.8125rem] font-semibold leading-6 mr-2">
         <Heroicons.information_circle :if={@kind == :info} mini class="w-4 h-4" />
         <Heroicons.exclamation_circle :if={@kind == :error} mini class="w-4 h-4" />
+        <Heroicons.exclamation_circle :if={@kind == :warn} mini class="w-4 h-4" />
         <%= @title %>
       </p>
-      <p class="mt-2 text-[0.8125rem] leading-5"><%= msg %></p>
+      <p class="md:mt-2 text-[0.8125rem] leading-5"><%= msg %></p>
+      </div>
     </div>
     """
   end
