@@ -58,7 +58,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.ConversationComponent do
   end
 
   @impl Phoenix.LiveComponent
-  def handle_event("cancel-upload", %{"ref" => ref}, socket) do
+  def handle_event("cancel_upload", %{"ref" => ref}, socket) do
     {:noreply, cancel_upload(socket, :media, ref)}
   end
 
@@ -86,7 +86,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.ConversationComponent do
   end
 
   @impl Phoenix.LiveComponent
-  def handle_event("load-more", _params, socket) do
+  def handle_event("load_more", _params, socket) do
     %{rider: rider, earliest_timestamp: earliest_timestamp} = socket.assigns
     conversation = Messaging.latest_messages(rider, earliest_timestamp)
 

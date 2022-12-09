@@ -97,7 +97,7 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
   end
 
   @impl Phoenix.LiveView
-  def handle_event("update-options", %{"options" => options_params}, socket) do
+  def handle_event("update_options", %{"options" => options_params}, socket) do
     socket =
       case Options.update(socket.assigns.options, options_params) do
         {:ok, options} -> assign(socket, :options, options) |> assign_stats()

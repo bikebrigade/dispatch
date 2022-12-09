@@ -18,7 +18,7 @@ defmodule BikeBrigadeWeb.CampaignLive.RiderMarkerComponent do
           true -> "#a0aec0"
         end
       }
-      data-click-event="select-rider"
+      data-click-event="select_rider"
       data-click-value-id={@rider.id}
     >
       <%= if  selected?(@selected_rider, @rider) do %>

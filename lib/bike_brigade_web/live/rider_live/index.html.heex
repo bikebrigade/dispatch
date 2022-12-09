@@ -1,6 +1,6 @@
 <div class="flex items-center justify-between ">
   <div class="relative flex flex-col w-2/3">
-    <form id="rider-search" phx-change="suggest" phx-submit="filter" phx-click-away="clear-search">
+    <form id="rider-search" phx-change="suggest" phx-submit="filter" phx-click-away="clear_search">
       <div class="relative flex items-baseline w-full px-1 py-0 bg-white border border-gray-300 rounded-md shadow-sm sm:text-sm focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500">
         <.filter_list filters={@rider_search.filters} />
         <input
@@ -16,7 +16,7 @@
         <%= if @rider_search.filters != [] do %>
           <button
             type="button"
-            phx-click="clear-filters"
+            phx-click="clear_filters"
             class="absolute right-1 text-gray-400 rounded-md top-2.5 hover:text-gray-500"
           >
             <span class="sr-only">Clear Search</span>
@@ -55,7 +55,7 @@
     <% end %>
   </.button>
 </div>
-<form id="selected" phx-change="select-rider"/>
+<form id="selected" phx-change="select_rider"/>
 <%= if @mode == :map do %>
   <div class="min-w-full mt-2 bg-white rounded-lg shadow">
     <div class="p-1 h-[80vh]">
@@ -157,13 +157,13 @@
         </div>
         <div class="flex justify-between flex-1 sm:justify-end">
           <%= if RiderSearch.Results.has_prev_page?(@search_results) do %>
-            <.button phx-click="prev-page" color={:white}>
+            <.button phx-click="prev_page" color={:white}>
               Previous
             </.button>
           <% end %>
 
           <%= if RiderSearch.Results.has_next_page?(@search_results) do %>
-            <.button phx-click="next-page" color={:white} class="ml-3">
+            <.button phx-click="next_page" color={:white} class="ml-3">
               Next
             </.button>
           <% end %>

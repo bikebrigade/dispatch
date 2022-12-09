@@ -49,7 +49,7 @@ Hooks.TasksList = {
 };
 Hooks.RidersList = {
   mounted() {
-    this.handleEvent("select-rider", ({
+    this.handleEvent("select_rider", ({
       id
     }) => {
       this.el.querySelector(`[id="riders-list:${id}"]`).scrollIntoView({
@@ -380,7 +380,7 @@ Hooks.MessageList = {
     this.el.addEventListener("scroll", e => {
       if (!this.doneLoading && this.el.scrollTop == 0) {
         let curScrollheight = this.el.scrollHeight;
-        this.pushEventTo(`[id="${this.el.id}"]`, "load-more", {}, ({
+        this.pushEventTo(`[id="${this.el.id}"]`, "load_more", {}, ({
           done: done
         }, _ref) => {
           this.doneLoading = done;

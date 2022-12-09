@@ -206,13 +206,13 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
      |> clear_selected()}
   end
 
-  def handle_event("clear-search", _params, socket) do
+  def handle_event("clear_search", _params, socket) do
     {:noreply,
      socket
      |> clear_search()}
   end
 
-  def handle_event("clear-filters", _params, socket) do
+  def handle_event("clear_filters", _params, socket) do
     {:noreply,
      socket
      |> update(:rider_search, &RiderSearch.filter(&1, []))
@@ -244,7 +244,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   end
 
   def handle_event(
-        "select-rider",
+        "select_rider",
         %{"_target" => ["selected", "all"], "selected" => %{"all" => select_all}},
         socket
       ) do
@@ -261,7 +261,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   end
 
   def handle_event(
-        "select-rider",
+        "select_rider",
         %{"_target" => ["selected", id], "selected" => selected_params},
         socket
       ) do
@@ -288,14 +288,14 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
      |> remove_selected_riders()}
   end
 
-  def handle_event("next-page", _params, socket) do
+  def handle_event("next_page", _params, socket) do
     {:noreply,
      socket
      |> update(:rider_search, &RiderSearch.next_page/1)
      |> fetch_results()}
   end
 
-  def handle_event("prev-page", _params, socket) do
+  def handle_event("prev_page", _params, socket) do
     {:noreply,
      socket
      |> update(:rider_search, &RiderSearch.prev_page/1)
@@ -438,7 +438,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
       id="suggestion-list"
       open={@open}
       class="absolute z-10 w-full p-2 mt-0 overflow-y-auto bg-white border rounded shadow-xl top-100 max-h-fit"
-      phx-window-keydown="clear-search"
+      phx-window-keydown="clear_search"
       phx-key="escape"
     >
       <p class="text-sm text-gray-500">Press Tab to cycle suggestions</p>

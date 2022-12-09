@@ -32,7 +32,7 @@ defmodule BikeBrigadeWeb.CampaignLive.TaskFormComponent do
   end
 
   @impl Phoenix.LiveComponent
-  def handle_event("add-item", _params, socket) do
+  def handle_event("add_item", _params, socket) do
     changeset = socket.assigns.changeset
 
     task_items =

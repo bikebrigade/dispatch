@@ -128,7 +128,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   end
 
   @impl true
-  def handle_event("auto-assign", _, socket) do
+  def handle_event("auto_assign", _, socket) do
     BikeBrigade.Delivery.hacky_assign(socket.assigns.campaign)
 
     {:noreply, socket}
@@ -235,7 +235,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   end
 
   @impl true
-  def handle_event("resend-message", %{"rider_id" => rider_id}, socket) do
+  def handle_event("resend_message", %{"rider_id" => rider_id}, socket) do
     rider = get_rider(socket, rider_id)
 
     Delivery.send_campaign_message(socket.assigns.campaign, rider)
@@ -246,7 +246,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   end
 
   @impl Phoenix.LiveView
-  def handle_event("remove-rider", %{"rider_id" => rider_id}, socket) do
+  def handle_event("remove_rider", %{"rider_id" => rider_id}, socket) do
     rider = get_rider(socket, rider_id)
 
     Delivery.remove_rider_from_campaign(socket.assigns.campaign, rider)
@@ -255,7 +255,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   end
 
   @impl Phoenix.LiveView
-  def handle_event("delete-task", %{"task-id" => task_id}, socket) do
+  def handle_event("delete_task", %{"task-id" => task_id}, socket) do
     task = get_task(socket, task_id)
     Delivery.delete_task(task)
 

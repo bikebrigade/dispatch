@@ -208,7 +208,7 @@
                 <div class="mr-1"><%= entry.client_name %></div>
                 <button
                   type="button"
-                  phx-click={JS.push("cancel-upload", value: %{ref: entry.ref}, target: @myself)}
+                  phx-click={JS.push("cancel_upload", value: %{ref: entry.ref}, target: @myself)}
                   aria-label="cancel"
                 >
                   &times;
