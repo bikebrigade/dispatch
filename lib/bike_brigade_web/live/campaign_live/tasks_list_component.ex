@@ -18,8 +18,8 @@ defmodule BikeBrigadeWeb.CampaignLive.TasksListComponent do
 
   @impl true
   def handle_event(
-        "update-delivery-status",
-        %{"task-id" => task_id, "delivery-status" => delivery_status},
+        "update_delivery_status",
+        %{"task_id" => task_id, "delivery_status" => delivery_status},
         socket
       ) do
     # TODO some error handling

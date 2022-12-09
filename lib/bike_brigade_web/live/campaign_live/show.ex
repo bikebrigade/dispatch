@@ -220,8 +220,8 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
 
   @impl true
   def handle_event(
-        "change-delivery-status",
-        %{"task-id" => task_id, "delivery-status" => delivery_status},
+        "change_delivery_status",
+        %{"task_id" => task_id, "delivery_status" => delivery_status},
         socket
       ) do
     # TODO some error handling
@@ -255,7 +255,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   end
 
   @impl Phoenix.LiveView
-  def handle_event("delete_task", %{"task-id" => task_id}, socket) do
+  def handle_event("delete_task", %{"task_id" => task_id}, socket) do
     task = get_task(socket, task_id)
     Delivery.delete_task(task)
 

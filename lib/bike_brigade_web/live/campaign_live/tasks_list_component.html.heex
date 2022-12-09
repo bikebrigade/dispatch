@@ -131,10 +131,10 @@
               <% end %>
             </div>
 
-            <form phx-change="update-delivery-status" phx-target={@myself}>
-              <input type="hidden" name="task-id" value={task.id} />
+            <form phx-change="update_delivery_status" phx-target={@myself}>
+              <input type="hidden" name="task_id" value={task.id} />
               <select
-                name="delivery-status"
+                name="delivery_status"
                 class="block px-2 py-1 mt-1 text-xs leading-6 border-gray-300 form-select focus:outline-none focus:ring-blue focus:border-blue-300"
               >
                 <%= for delivery_status <- ~W(pending picked_up completed failed) do %>
