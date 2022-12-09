@@ -57,7 +57,7 @@ defmodule BikeBrigadeWeb.LoginLive do
   end
 
   @impl Phoenix.LiveView
-  def handle_event("submit-phone", %{"login" => attrs}, socket) do
+  def handle_event("submit_phone", %{"login" => attrs}, socket) do
     with {:ok, login} <- Login.validate_phone(attrs),
          :ok <- AuthenticationMessenger.generate_token(login.phone) do
       {:noreply, assign(socket, state: :token, changeset: Ecto.Changeset.change(login))}

@@ -4,7 +4,7 @@
       <label class="block text-sm font-medium leading-5 text-gray-700">
         Preview for rider
       </label>
-      <form id="select-rider-form" phx-target={@myself} phx-change="select-rider">
+      <form id="select-rider-form" phx-target={@myself} phx-change="select_rider">
         <select
           id="selected_rider_id"
           name="selected_rider_id"
@@ -247,7 +247,7 @@
           Save
         </.button>
         <.button
-          phx-click={JS.push("delete-schedule", target: @myself) |> hide_scheduling()}
+          phx-click={JS.push("delete_schedule", target: @myself) |> hide_scheduling()}
           color={:red}
           class="hidden ml-3 show-if-scheduling"
         >

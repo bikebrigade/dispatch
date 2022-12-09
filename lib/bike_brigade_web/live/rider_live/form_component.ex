@@ -111,7 +111,7 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
     save_rider(socket, socket.assigns.action, rider_form_params)
   end
 
-  def handle_event("enable-login", _params, socket) do
+  def handle_event("enable_login", _params, socket) do
     socket =
       case Accounts.create_user_for_rider(socket.assigns.rider) do
         {:ok, _user} ->

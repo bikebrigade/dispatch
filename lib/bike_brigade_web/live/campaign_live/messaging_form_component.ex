@@ -48,7 +48,7 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
   end
 
   @impl true
-  def handle_event("select-rider", %{"selected_rider_id" => rider_id}, socket) do
+  def handle_event("select_rider", %{"selected_rider_id" => rider_id}, socket) do
     rider_id = String.to_integer(rider_id)
 
     {:noreply,
@@ -56,7 +56,7 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
      |> assign(:selected_rider, Map.get(socket.assigns.riders, rider_id))}
   end
 
-  def handle_event("select-rider", _, socket) do
+  def handle_event("select_rider", _, socket) do
     {:noreply, socket}
   end
 
@@ -135,7 +135,7 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
      |> push_navigate(to: socket.assigns.navigate)}
   end
 
-  def handle_event("delete-schedule", _, socket) do
+  def handle_event("delete_schedule", _, socket) do
     case Delivery.update_campaign(socket.assigns.campaign, %{"scheduled_message" => nil}) do
       {:ok, campaign} ->
         {:noreply,
