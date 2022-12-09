@@ -1118,6 +1118,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
       :small -> "sm:hidden"
       :medium -> "md:hidden"
       :large -> "lg:hidden"
+      :xlarge -> "xl:hidden"
       nil -> ""
     end
   end
@@ -1127,6 +1128,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
       :small -> "sm:table-cell"
       :medium -> "md:table-cell"
       :large -> "lg:table-cell"
+      :xlarge -> "xl:table-cell"
       nil -> ""
     end
   end
