@@ -170,10 +170,8 @@
         >
           <div class="flex flex-row items-center -mt-2 -ml-4 space-x-2">
             <div class="w-full">
-              <.input type="textarea" field={{f, :body}}/>
+              <.input type="textarea" field={{f, :body}} />
             </div>
-
-            <.live_file_input upload={@uploads.media} class="sr-only" />
 
             <div class="flex flex-col space-y-1">
               <.button type="submit" data-confirm={@confirm_send} phx-disable-with="Sending...">
@@ -193,8 +191,12 @@
                 </.button>
                 <label
                   for={@uploads.media.ref}
-                  class="inline-flex items-center px-1.5 py-1.5 text-xs font-medium text-gray-700 bg-white border border-transparent border-gray-300 rounded shadow-sm cursor-pointer hover:bg-gray-50 focus:ring-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2"
+                  class="inline-flex items-center px-1.5 py-1.5 text-xs font-medium text-gray-700
+                  bg-white border border-transparent border-gray-300 rounded shadow-sm cursor-pointer
+                  hover:bg-gray-50 focus-within:ring-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 "
                 >
+                  <.live_file_input upload={@uploads.media} class="sr-only" />
+
                   <Icons.tailwindui_upload_photo class="w-6 h-6" aria-hidden="true" />
                 </label>
               </div>
