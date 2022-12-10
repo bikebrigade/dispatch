@@ -92,6 +92,6 @@ defmodule BikeBrigadeWeb.StatsLive.Dashboard do
     socket
     |> assign(:period, period)
     |> assign(:last_period, last_period)
-    |> push_event("update-chart", dataset)
+    |> push_event("update_chart", dataset)
   end
 end

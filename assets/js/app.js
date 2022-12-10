@@ -36,7 +36,7 @@ customElements.define('leaflet-circle', LeafletCircle);
 
 Hooks.TasksList = {
   mounted() {
-    this.handleEvent("select-task", ({
+    this.handleEvent("select_task", ({
       id
     }) => {
       this.el.querySelector(`[id="tasks-list:${id}"]`).scrollIntoView({
@@ -141,7 +141,7 @@ Hooks.LeafletMapNext = {
     initialMarkers.forEach(addMarker);
 
 
-    this.handleEvent("update-markers", ({
+    this.handleEvent("update_markers", ({
       added,
       removed
     }) => {
@@ -154,7 +154,7 @@ Hooks.LeafletMapNext = {
       });
     });
 
-    this.handleEvent("update-marker", ({
+    this.handleEvent("update_marker", ({
       id,
       icon,
       color,
@@ -171,7 +171,7 @@ Hooks.LeafletMapNext = {
       }
     });
 
-    this.handleEvent("redraw-map", ({
+    this.handleEvent("redraw_map", ({
       recenter
     }) => {
       if (recenter) {
@@ -388,7 +388,7 @@ Hooks.MessageList = {
         });
       }
     });
-    this.handleEvent("new-message", () => {
+    this.handleEvent("new_message", () => {
       // scroll to bottom
       this.el.scrollTop = this.el.scrollHeight;
     });
@@ -454,7 +454,7 @@ Hooks.Chart = {
       }
     });
 
-    this.handleEvent("update-chart", (data) => {
+    this.handleEvent("update_chart", (data) => {
       this.chart.data = data;
       this.chart.update();
     })

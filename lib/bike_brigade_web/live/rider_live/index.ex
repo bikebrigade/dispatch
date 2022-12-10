@@ -321,11 +321,11 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
       if MapSet.member?(selected, rider_id) do
         socket
         |> assign(:selected, MapSet.delete(selected, rider_id))
-        |> push_event("update-marker", %{id: rider_id, icon: "bicycle", color: @unselected_color})
+        |> push_event("update_marker", %{id: rider_id, icon: "bicycle", color: @unselected_color})
       else
         socket
         |> assign(:selected, MapSet.put(selected, rider_id))
-        |> push_event("update-marker", %{id: rider_id, icon: "bicycle", color: @selected_color})
+        |> push_event("update_marker", %{id: rider_id, icon: "bicycle", color: @selected_color})
       end
 
     {:noreply, socket}
@@ -401,7 +401,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
 
       socket
       |> assign(:all_locations, all_locations)
-      |> push_event("update-markers", %{
+      |> push_event("update_markers", %{
         added: rider_markers(added, socket.assigns.selected),
         removed: for({id, _, _} <- removed, do: %{id: id})
       })
