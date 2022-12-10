@@ -144,10 +144,10 @@ Hooks.LeafletMapNext = {
 
 
     this.handleEvent("update_markers", ({
-      added,
-      removed
+      added = [],
+      removed = []
     }) => {
-      added.forEach(addMarker);
+       added.forEach(addMarker);
       removed.forEach(({
         id
       }) => {
@@ -163,6 +163,10 @@ Hooks.LeafletMapNext = {
       lat,
       lng
     }) => {
+      if (icon === undefined) {
+        icon = this.markers[id].getIcon().options.icon
+      }
+
       this.markers[id].setIcon(L.MakiMarkers.icon({
         color: color,
         icon: icon
