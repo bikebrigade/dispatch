@@ -56,10 +56,7 @@
     </div>
     <div class="flex w-full md:justify-end">
       <div class="flex space-x-1">
-        <.button
-          color={:white}
-          patch={~p"/campaigns/#{@campaign}/show/edit"}
-        >
+        <.button color={:white} patch={~p"/campaigns/#{@campaign}/show/edit"}>
           Edit
         </.button>
         <.button patch={~p"/campaigns/#{@campaign}/bulk_message"}>
@@ -100,17 +97,7 @@
     </div>
     <div class="col-span-2 bg-white shadow min-h-96 max-h-128 md:min-h-0 md:max-h-full sm:rounded-lg">
       <div class="px-4 py-5 h-96 md:h-full sm:p-6">
-        <.live_component
-          module={MapComponent}
-          id={:tasks_map}
-          campaign={@campaign}
-          tasks={@tasks}
-          riders={@riders}
-          tasks_query={@tasks_query}
-          riders_query={@riders_query}
-          selected_task={@selected_task}
-          selected_rider={@selected_rider}
-        />
+        <.campaign_map campaign={@campaign} riders={@riders} tasks={@tasks} />
       </div>
     </div>
   </div>
