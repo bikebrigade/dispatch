@@ -108,31 +108,33 @@ Hooks.LeafletMapNext = {
       clickTarget,
       tooltip
     }) => {
-      const marker = L.marker([lat, lng], {
-        icon: L.MakiMarkers.icon({
-          color: color,
-          icon: icon
-        }),
-        zIndexOffset: zIndex
-      });
-
-      if (clickEvent) {
-        marker.on('click', e => {
-          let payload = clickValue;
-          if (clickTarget) {
-            this.pushEventTo(clickTarget, clickEvent, payload);
-          } else {
-            this.pushEvent(clickEvent, payload);
-          }
+      if (this.markers[id] === undefined) {
+        const marker = L.marker([lat, lng], {
+          icon: L.MakiMarkers.icon({
+            color: color,
+            icon: icon
+          }),
+          zIndexOffset: zIndex
         });
-      }
 
-      if (tooltip) {
-        marker.bindTooltip(tooltip);
-      }
+        if (clickEvent) {
+          marker.on('click', e => {
+            let payload = clickValue;
+            if (clickTarget) {
+              this.pushEventTo(clickTarget, clickEvent, payload);
+            } else {
+              this.pushEvent(clickEvent, payload);
+            }
+          });
+        }
 
-      marker.addTo(this.map);
-      this.markers[id] = marker;
+        if (tooltip) {
+          marker.bindTooltip(tooltip);
+        }
+
+        marker.addTo(this.map);
+        this.markers[id] = marker;
+      }
     };
 
     this.markers = {};
