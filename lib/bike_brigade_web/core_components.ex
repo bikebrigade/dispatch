@@ -958,8 +958,8 @@ defmodule BikeBrigadeWeb.CoreComponents do
   attr :sort_order, :atom, values: [:asc, :desc]
 
   slot :col, required: true do
-    attr :show_at, :atom, values: [:small, :medium, :large]
-    attr :unstack_at, :atom, values: [:small, :medium, :large]
+    attr :show_at, :atom, values: [:small, :medium, :large, :xlarge]
+    attr :unstack_at, :atom, values: [:small, :medium, :large, :xlarge]
     attr :label, :string
 
     attr :sortable_field, :atom
