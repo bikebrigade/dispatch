@@ -311,7 +311,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   end
 
   def handle_event(
-        "map-click-rider",
+        "map_click_rider",
         %{"id" => rider_id},
         socket
       ) do
@@ -425,7 +425,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
         lng: lng(location),
         icon: "bicycle",
         color: color,
-        clickEvent: "map-click-rider",
+        clickEvent: "map_click_rider",
         clickValue: %{id: id},
         tooltip: name
       }

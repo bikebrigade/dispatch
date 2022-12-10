@@ -121,7 +121,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
 
         _ ->
           assign(socket, selected_task: get_task(socket, id))
-          |> push_event("select-task", %{id: id})
+          |> push_event("select_task", %{id: id})
       end
 
     {:noreply, socket}
@@ -136,7 +136,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
 
   @impl true
   def handle_event(
-        "search-tasks",
+        "search_tasks",
         %{"value" => query},
         socket
       ) do
@@ -158,7 +158,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
 
   @impl true
   def handle_event(
-        "search-riders",
+        "search_riders",
         %{"value" => query},
         socket
       ) do
