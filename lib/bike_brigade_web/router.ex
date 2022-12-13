@@ -80,9 +80,23 @@ defmodule BikeBrigadeWeb.Router do
   end
 
   scope "/", BikeBrigadeWeb do
-    pipe_through [:browser, :require_authenticated_user, :set_honeybadger_context]
+    pipe_through [:browser, :set_honeybadger_context]
 
-    get "/", Plugs.RedirectUser, dispatcher: [to: "/campaigns"], default: [to: "/profile"]
+    get "/", Plugs.RedirectUser,
+      unauthenticated: [to: "/login"],
+      dispatcher: [to: "/campaigns"],
+      default: [to: "/profile"]
+  end
+
+  scope "/", BikeBrigadeWeb do
+    pipe_through [:browser, :redirect_if_user_is_authenticated]
+
+    live "/login", LoginLive, :index
+    post "/login", Authentication, :login
+  end
+
+  scope "/", BikeBrigadeWeb do
+    pipe_through [:browser, :require_authenticated_user, :set_honeybadger_context]
 
     live_session :user, on_mount: LiveHooks.Authentication do
       live "/profile", RiderLive.Show, :profile
@@ -170,13 +184,6 @@ defmodule BikeBrigadeWeb.Router do
   end
 
   scope "/", BikeBrigadeWeb do
-    pipe_through [:browser, :redirect_if_user_is_authenticated]
-
-    live "/login", LoginLive, :index
-    post "/login", Authentication, :login
-  end
-
-  scope "/", BikeBrigadeWeb do
     pipe_through [:api]
 
     get "/status", StatusController, :status
@@ -254,12 +261,15 @@ defmodule BikeBrigadeWeb.Plugs.RedirectUser do
 
   @impl Plug
   def call(conn, options) do
-    case conn.assigns.current_user do
-      %{is_dispatcher: true} ->
+    case conn.assigns do
+      %{current_user: %{is_dispatcher: true}} ->
         Redirect.call(conn, options[:dispatcher])
 
-      _ ->
+      %{current_user: _} ->
         Redirect.call(conn, options[:default])
+
+      _ ->
+        Redirect.call(conn, options[:unauthenticated])
     end
   end
 end
