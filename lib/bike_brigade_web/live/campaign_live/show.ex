@@ -3,7 +3,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
 
   import BikeBrigadeWeb.CampaignHelpers
   import BikeBrigade.Utils, only: [replace_if_updated: 2]
-  alias BikeBrigadeWeb.CampaignLive.{TasksListComponent, MapComponent, RidersListComponent}
+  alias BikeBrigadeWeb.CampaignLive.{TasksListComponent, RidersListComponent}
   alias BikeBrigade.Delivery
   alias BikeBrigade.Delivery.{Campaign, Task, CampaignRider}
   alias BikeBrigade.Riders.Rider
@@ -367,10 +367,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
         {:campaign_rider_created, %CampaignRider{campaign_id: campaign_id, rider_id: rider_id}},
         socket
       ) do
-    IO.inspect(socket.assigns.campaign.id)
-    IO.inspect(campaign_id)
-
-    %{campaign: campaign, selected_rider: selected_rider} = socket.assigns
+    %{campaign: campaign} = socket.assigns
 
     if campaign_id == campaign.id do
       # TODO this will call `Delivery.campaign_riders_and_tasks` on every change

@@ -24,16 +24,6 @@ import {
 
 let Hooks = {}
 
-class LeafletMap extends HTMLElement {}
-
-customElements.define('leaflet-map', LeafletMap);
-
-class LeafletMarker extends HTMLElement {}
-customElements.define('leaflet-marker', LeafletMarker);
-
-class LeafletCircle extends HTMLElement {}
-customElements.define('leaflet-circle', LeafletCircle);
-
 Hooks.TasksList = {
   mounted() {
     this.handleEvent("select_task", ({

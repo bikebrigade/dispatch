@@ -625,7 +625,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
   def map_next(assigns) do
     ~H"""
     <div :if={@coords != %Geo.Point{}} class={@class}>
-      <leaflet-map
+      <div
         phx-hook="LeafletMapNext"
         id={@id}
         data-lat={lat(@coords)}
@@ -634,7 +634,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
         data-initial_markers={Jason.encode!(@initial_markers)}
         class="h-full"
       >
-      </leaflet-map>
+      </div>
     </div>
     """
   end
@@ -1158,38 +1158,6 @@ defmodule BikeBrigadeWeb.CoreComponents do
         </span>
         <div class="w-3 h-3 -mt-2 transform rotate-45 bg-black"></div>
       </div>
-    </div>
-    """
-  end
-
-  # --- OLD ---
-
-  # TODO finish the LeafletNext refactor so we can get rid of this
-  def map(assigns) do
-    assigns = assign_new(assigns, :class, fn -> "" end)
-
-    ~H"""
-    <div class={@class}>
-      <leaflet-map
-        :if={@coords != %Geo.Point{}}
-        phx-hook="LeafletMap"
-        id={"location-map-#{inspect(@coords.coordinates)}"}
-        data-lat={lat(@coords)}
-        data-lng={lng(@coords)}
-        data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
-        class="h-full"
-      >
-        <leaflet-marker
-          phx-hook="LeafletMarker"
-          id={"location-marker-#{inspect(@coords.coordinates)}"}
-          data-lat={lat(@coords)}
-          data-lng={lng(@coords)}
-          data-icon="warehouse"
-          data-color="#1c64f2"
-        >
-        </leaflet-marker>
-      </leaflet-map>
-      <div :if={@coords == %Geo.Point{}} class="p-2">Location Unknown</div>
     </div>
     """
   end
