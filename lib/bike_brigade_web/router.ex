@@ -104,6 +104,9 @@ defmodule BikeBrigadeWeb.Router do
 
       live "/itinerary", ItineraryLive.Index, :index
     end
+
+    post "/logout", Authentication, :logout
+
   end
 
   scope "/", BikeBrigadeWeb do
@@ -179,8 +182,6 @@ defmodule BikeBrigadeWeb.Router do
 
     get "/campaigns/:id/download_assignments", CampaignController, :download_assignments
     get "/campaigns/:id/download_results", CampaignController, :download_results
-
-    post "/logout", Authentication, :logout
   end
 
   scope "/", BikeBrigadeWeb do
