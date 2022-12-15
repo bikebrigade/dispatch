@@ -7,7 +7,10 @@ case config_env() do
       config :bike_brigade, BikeBrigade.Repo, hostname: "postgres"
     end
 
-  DotenvParser.load_file(".env.local")
+    DotenvParser.load_file(".env.local")
+
+  :test ->
+    DotenvParser.load_file(".env.local")
 
   :prod ->
     app_env =
