@@ -8,9 +8,6 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   alias BikeBrigade.Delivery.{Campaign, Task, CampaignRider}
   alias BikeBrigade.Riders.Rider
 
-  @selected_color "#5850ec"
-  @unselected_color "#4a5568"
-
   @impl true
   def mount(_params, _session, socket) do
     if connected?(socket) do
@@ -114,38 +111,18 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
 
   @impl true
   def handle_event("select_task", %{"id" => id}, socket) do
-    selected_task = socket.assigns.selected_task
+    previously_selected_task = socket.assigns.selected_task
+
+    # If we already selected the task, we will unselect it
+    newly_selected_task =
+      if previously_selected_task == nil || previously_selected_task.id != id do
+        get_task(socket, id)
+      end
 
     socket =
-      case selected_task do
-        # Unselect if selected
-        %{id: ^id} ->
-          assign(socket, selected_task: nil)
-          |> push_event("update_marker", %{
-            id: "task-#{id}",
-            color: @unselected_color
-          })
-
-        %{id: selected_id} ->
-          assign(socket, selected_task: get_task(socket, id))
-          |> push_event("select_task", %{id: id})
-          |> push_event("update_marker", %{
-            id: "task-#{selected_id}",
-            color: @unselected_color
-          })
-          |> push_event("update_marker", %{
-            id: "task-#{id}",
-            color: @selected_color
-          })
-
-        nil ->
-          assign(socket, selected_task: get_task(socket, id))
-          |> push_event("select_task", %{id: id})
-          |> push_event("update_marker", %{
-            id: "task-#{id}",
-            color: @selected_color
-          })
-      end
+      socket
+      |> assign(selected_task: newly_selected_task)
+      |> maybe_push_client_task_events(previously_selected_task, newly_selected_task)
 
     {:noreply, socket}
   end
@@ -203,40 +180,21 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
 
   @impl true
   def handle_event("select_rider", %{"id" => id}, socket) do
-    selected_rider = socket.assigns.selected_rider
+    previously_selected_rider = socket.assigns.selected_rider
 
-    socket =
-      case selected_rider do
-        # Unselect if selected
-        %{id: ^id} ->
-          assign(socket, selected_rider: nil)
-          |> push_event("update_marker", %{
-            id: "rider-#{id}",
-            color: @unselected_color
-          })
-
-        %{id: selected_id} ->
-          assign(socket, selected_rider: get_rider(socket, id))
-          |> push_event("select_rider", %{id: id})
-          |> push_event("update_marker", %{
-            id: "rider-#{selected_id}",
-            color: @unselected_color
-          })
-          |> push_event("update_marker", %{
-            id: "rider-#{id}",
-            color: @selected_color
-          })
-
-        nil ->
-          assign(socket, selected_rider: get_rider(socket, id))
-          |> push_event("select_rider", %{id: id})
-          |> push_event("update_marker", %{
-            id: "rider-#{id}",
-            color: @selected_color
-          })
+    # If we already selected the task, we will unselect it
+    newly_selected_rider =
+      if previously_selected_rider == nil || previously_selected_rider.id != id do
+        get_rider(socket, id)
       end
 
-    {:noreply, assign(socket, :resent, false)}
+    socket =
+      socket
+      |> assign(:selected_rider, newly_selected_rider)
+      |> maybe_push_client_rider_events(previously_selected_rider, newly_selected_rider)
+      |> assign(:resent, false)
+
+    {:noreply, socket}
   end
 
   @impl true
@@ -440,7 +398,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
           lat: lat(location),
           lng: lng(location),
           icon: "circle",
-          color: @unselected_color,
+          color: @unselected_task_color,
           clickEvent: "select_task",
           clickValue: %{id: id},
           tooltip: dropoff_name
@@ -458,13 +416,82 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
     """
   end
 
+  @unselected_task_color "#c3ddfd"
+  @selected_task_color "#5145cd"
+  @selected_rider_color "#5850ec"
+  @unselected_rider_color "#4a5568"
+
+  defp maybe_push_client_task_events(socket, previously_selected_task, newly_selected_task) do
+    socket
+    |> then(fn socket ->
+      case newly_selected_task do
+        %Task{id: id} ->
+          socket
+          |> push_event("select_task", %{id: id})
+          |> push_event("update_marker", %{
+            id: "task-#{id}",
+            color: @selected_task_color
+          })
+
+        nil ->
+          socket
+      end
+    end)
+    |> then(fn socket ->
+      case previously_selected_task do
+        %Task{id: id} ->
+          socket
+          |> push_event("update_marker", %{
+            id: "task-#{id}",
+            color: @unselected_task_color
+          })
+
+        nil ->
+          socket
+      end
+    end)
+  end
+
+  defp maybe_push_client_rider_events(socket, previously_selected_rider, newly_selected_rider) do
+    socket
+    |> then(fn socket ->
+      case newly_selected_rider do
+        %Rider{id: id} ->
+          socket
+          |> push_event("select_rider", %{id: id})
+          |> push_event("update_marker", %{
+            id: "rider-#{id}",
+            color: @selected_rider_color
+          })
+
+        nil ->
+          socket
+      end
+    end)
+    |> then(fn socket ->
+      case previously_selected_rider do
+        %Rider{id: id} ->
+          IO.inspect("HI")
+
+          socket
+          |> push_event("update_marker", %{
+            id: "rider-#{id}",
+            color: @unselected_rider_color
+          })
+
+        nil ->
+          socket
+      end
+    end)
+  end
+
   defp rider_marker(%Rider{id: id, name: name, location: location}) do
     %{
       id: "rider-#{id}",
       lat: lat(location),
       lng: lng(location),
       icon: "bicycle",
-      color: @unselected_color,
+      color: @unselected_rider_color,
       clickEvent: "select_rider",
       clickValue: %{id: id},
       tooltip: name
