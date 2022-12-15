@@ -424,10 +424,16 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   @unselected_rider_color "#4a5568"
 
   defp maybe_push_client_task_events(socket, previously_selected_task, newly_selected_task) do
+    # TODO: do i use campaign location or task,pickup_location
+    campaign_location = socket.assigns.campaign.location
+
     socket
     |> then(fn socket ->
       case newly_selected_task do
-        %Task{id: id} ->
+        nil ->
+          socket
+
+        %Task{id: id, dropoff_location: dropoff_location} ->
           socket
           |> push_event("select_task", %{id: id})
           |> push_event("update_layer", %{
@@ -435,13 +441,28 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
             type: :marker,
             data: %{color: @selected_task_color}
           })
-
-        nil ->
-          socket
+          |> push_event("add_layers", %{
+            data: [
+              %{
+                id: "line-#{id}",
+                type: :polyline,
+                data: %{
+                  latlngs: [
+                    [lat(campaign_location), lng(campaign_location)],
+                    [lat(dropoff_location), lng(dropoff_location)]
+                  ],
+                  color: "red"
+                }
+              }
+            ]
+          })
       end
     end)
     |> then(fn socket ->
       case previously_selected_task do
+        nil ->
+          socket
+
         %Task{id: id} ->
           socket
           |> push_event("update_layer", %{
@@ -449,9 +470,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
             type: :marker,
             data: %{color: @unselected_task_color}
           })
-
-        nil ->
-          socket
+          |> push_event("remove_layers", %{data: [%{id: "line-#{id}"}]})
       end
     end)
   end
@@ -476,8 +495,6 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
     |> then(fn socket ->
       case previously_selected_rider do
         %Rider{id: id} ->
-          IO.inspect("HI")
-
           socket
           |> push_event("update_layer", %{
             id: "rider-#{id}",

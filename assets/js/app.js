@@ -89,43 +89,59 @@ Hooks.LeafletMap = {
 
     const addLayer = ({
       id,
-      data: {
-        lat,
-        lng,
-        icon,
-        color,
-        clickEvent,
-        clickValue,
-        clickTarget,
-        tooltip
-      }
+      type,
+      data
     }) => {
       if (this.layers[id] === undefined) {
-        const marker = L.marker([lat, lng], {
-          icon: L.MakiMarkers.icon({
-            color: color,
-            icon: icon
-          }),
-          zIndexOffset: zIndex
-        });
-
-        if (clickEvent) {
-          marker.on('click', e => {
-            let payload = clickValue;
-            if (clickTarget) {
-              this.pushEventTo(clickTarget, clickEvent, payload);
-            } else {
-              this.pushEvent(clickEvent, payload);
-            }
+        if (type == "marker") {
+          let {
+            lat,
+            lng,
+            icon,
+            color,
+            clickEvent,
+            clickValue,
+            clickTarget,
+            tooltip
+          } = data;
+          const marker = L.marker([lat, lng], {
+            icon: L.MakiMarkers.icon({
+              color: color,
+              icon: icon
+            }),
+            zIndexOffset: zIndex
           });
-        }
 
-        if (tooltip) {
-          marker.bindTooltip(tooltip);
-        }
+          if (clickEvent) {
+            marker.on('click', e => {
+              let payload = clickValue;
+              if (clickTarget) {
+                this.pushEventTo(clickTarget, clickEvent, payload);
+              } else {
+                this.pushEvent(clickEvent, payload);
+              }
+            });
+          }
 
-        marker.addTo(this.map);
-        this.layers[id] = marker;
+          if (tooltip) {
+            marker.bindTooltip(tooltip);
+          }
+
+          marker.addTo(this.map);
+          this.layers[id] = marker;
+        } else if (type == "polyline") {
+          let {
+            latlngs,
+            color,
+          } = data;
+          const polyline = L.polyline(latlngs, {
+            color: color,
+            zIndexOffset: zIndex
+          });
+
+          polyline.addTo(this.map);
+          this.layers[id] = polyline;
+        }
       }
     };
 
@@ -134,11 +150,15 @@ Hooks.LeafletMap = {
     let initialLayers = JSON.parse(this.el.dataset.initial_layers);
     initialLayers.forEach(addLayer);
 
-    this.handleEvent("add_layers", ({data: layers}) => {
+    this.handleEvent("add_layers", ({
+      data: layers
+    }) => {
       layers.forEach(addLayer);
     });
 
-    this.handleEvent("remove_layers", ({data: layers}) => {
+    this.handleEvent("remove_layers", ({
+      data: layers
+    }) => {
       layers.forEach(({
         id
       }) => {
