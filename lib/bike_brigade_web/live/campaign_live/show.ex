@@ -423,6 +423,9 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   @selected_rider_color "#5850ec"
   @unselected_rider_color "#4a5568"
 
+  @pickup_line_color "#c7d2fe" #indigo-200
+  @dropoff_line_color "#818cf8" #indigo-400
+
   defp maybe_push_client_task_events(socket, previously_selected_task, newly_selected_task) do
     # TODO: do i use campaign location or task,pickup_location
     campaign_location = socket.assigns.campaign.location
@@ -433,7 +436,39 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
         nil ->
           socket
 
-        %Task{id: id, dropoff_location: dropoff_location} ->
+        %Task{id: id, dropoff_location: dropoff_location, assigned_rider: assigned_rider} ->
+          dropoff_line = %{
+            id: "dropoff-line-#{id}",
+            type: :polyline,
+            data: %{
+              latlngs: [
+                [lat(campaign_location), lng(campaign_location)],
+                [lat(dropoff_location), lng(dropoff_location)]
+              ],
+              color: @dropoff_line_color
+            }
+          }
+
+          lines =
+            if assigned_rider do
+              [
+                dropoff_line,
+                %{
+                  id: "pickup-line-#{id}",
+                  type: :polyline,
+                  data: %{
+                    latlngs: [
+                      [lat(assigned_rider.location), lng(assigned_rider.location)],
+                      [lat(campaign_location), lng(campaign_location)]
+                    ],
+                    color: @pickup_line_color
+                  }
+                }
+              ]
+            else
+              [dropoff_line]
+            end
+
           socket
           |> push_event("select_task", %{id: id})
           |> push_event("update_layer", %{
@@ -442,19 +477,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
             data: %{color: @selected_task_color}
           })
           |> push_event("add_layers", %{
-            layers: [
-              %{
-                id: "line-#{id}",
-                type: :polyline,
-                data: %{
-                  latlngs: [
-                    [lat(campaign_location), lng(campaign_location)],
-                    [lat(dropoff_location), lng(dropoff_location)]
-                  ],
-                  color: "red"
-                }
-              }
-            ]
+            layers: lines
           })
       end
     end)
@@ -470,7 +493,9 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
             type: :marker,
             data: %{color: @unselected_task_color}
           })
-          |> push_event("remove_layers", %{layers: [%{id: "line-#{id}"}]})
+          |> push_event("remove_layers", %{
+            layers: [%{id: "pickup-line-#{id}"}, %{id: "dropoff-line-#{id}"}]
+          })
       end
     end)
   end

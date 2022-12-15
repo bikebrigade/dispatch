@@ -160,8 +160,10 @@ Hooks.LeafletMap = {
       layers.forEach(({
         id
       }) => {
-        this.map.removeLayer(this.layers[id]);
-        delete this.layers[id];
+        if (this.layers[id]) {
+          this.map.removeLayer(this.layers[id]);
+          delete this.layers[id];
+        }
       });
     });
 
