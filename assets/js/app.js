@@ -87,18 +87,20 @@ Hooks.LeafletMap = {
       zIndex = parseInt(this.el.dataset.zindex);
     }
 
-    const addMarker = ({
+    const addLayer = ({
       id,
-      lat,
-      lng,
-      icon,
-      color,
-      clickEvent,
-      clickValue,
-      clickTarget,
-      tooltip
+      data: {
+        lat,
+        lng,
+        icon,
+        color,
+        clickEvent,
+        clickValue,
+        clickTarget,
+        tooltip
+      }
     }) => {
-      if (this.markers[id] === undefined) {
+      if (this.layers[id] === undefined) {
         const marker = L.marker([lat, lng], {
           icon: L.MakiMarkers.icon({
             color: color,
@@ -123,47 +125,53 @@ Hooks.LeafletMap = {
         }
 
         marker.addTo(this.map);
-        this.markers[id] = marker;
+        this.layers[id] = marker;
       }
     };
 
-    this.markers = {};
+    this.layers = {};
 
-    let initialMarkers = JSON.parse(this.el.dataset.initial_markers);
-    initialMarkers.forEach(addMarker);
+    let initialLayers = JSON.parse(this.el.dataset.initial_layers);
+    initialLayers.forEach(addLayer);
 
+    this.handleEvent("add_layers", ({data: layers}) => {
+      layers.forEach(addLayer);
+    });
 
-    this.handleEvent("update_markers", ({
-      added = [],
-      removed = []
-    }) => {
-       added.forEach(addMarker);
-      removed.forEach(({
+    this.handleEvent("remove_layers", ({data: layers}) => {
+      layers.forEach(({
         id
       }) => {
-        this.map.removeLayer(this.markers[id]);
-        delete this.map[id];
+        this.map.removeLayer(this.layers[id]);
+        delete this.layers[id];
       });
     });
 
-    this.handleEvent("update_marker", ({
+    this.handleEvent("update_layer", ({
       id,
-      icon,
-      color,
-      lat,
-      lng
+      type,
+      data
     }) => {
-      if (icon === undefined) {
-        icon = this.markers[id].getIcon().options.icon
-      }
+      if (type == "marker") {
+        let {
+          icon,
+          color,
+          lat,
+          lng
+        } = data;
 
-      this.markers[id].setIcon(L.MakiMarkers.icon({
-        color: color,
-        icon: icon
-      }));
+        if (icon === undefined) {
+          icon = this.layers[id].getIcon().options.icon
+        }
 
-      if (lat && lng) {
-        this.markers[id].setLatLng([lat, lng]);
+        this.layers[id].setIcon(L.MakiMarkers.icon({
+          color: color,
+          icon: icon
+        }));
+
+        if (lat && lng) {
+          this.layers[id].setLatLng([lat, lng]);
+        }
       }
     });
 

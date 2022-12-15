@@ -317,7 +317,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
      socket
      |> assign_campaign(campaign)
      |> assign(:selected_task, selected_task)
-     |> push_event("update_markers", %{removed: [%{id: "task-#{deleted_id}"}]})}
+     |> push_event("remove_layers", %{data: [%{id: "task-#{deleted_id}"}]})}
   end
 
   @impl true
@@ -334,7 +334,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
 
       {:noreply,
        socket
-       |> push_event("update_markers", %{added: [rider_marker(rider)]})}
+       |> push_event("add_layers", %{data: [rider_marker(rider)]})}
     else
       {:noreply, socket}
     end
@@ -362,7 +362,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
        socket
        |> assign_campaign(campaign)
        |> assign(:selected_rider, selected_rider)
-       |> push_event("update_markers", %{removed: [%{id: "rider-#{deleted_rider_id}"}]})}
+       |> push_event("remove_layers", %{data: [%{id: "rider-#{deleted_rider_id}"}]})}
     else
       {:noreply, socket}
     end
@@ -379,11 +379,14 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   defp campaign_map(assigns) do
     campaign_marker = %{
       id: "campaign",
-      lat: lat(assigns.campaign.location),
-      lng: lng(assigns.campaign.location),
-      icon: "warehouse",
-      color: "#1c64f2",
-      tooltip: "Pickup Location"
+      type: :marker,
+      data: %{
+        lat: lat(assigns.campaign.location),
+        lng: lng(assigns.campaign.location),
+        icon: "warehouse",
+        color: "#1c64f2",
+        tooltip: "Pickup Location"
+      }
     }
 
     rider_markers =
@@ -395,24 +398,23 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
       for {id, %Task{dropoff_name: dropoff_name, dropoff_location: location}} <- assigns.tasks do
         %{
           id: "task-#{id}",
-          lat: lat(location),
-          lng: lng(location),
-          icon: "circle",
-          color: @unselected_task_color,
-          clickEvent: "select_task",
-          clickValue: %{id: id},
-          tooltip: dropoff_name
+          type: :marker,
+          data: %{
+            lat: lat(location),
+            lng: lng(location),
+            icon: "circle",
+            color: @unselected_task_color,
+            clickEvent: "select_task",
+            clickValue: %{id: id},
+            tooltip: dropoff_name
+          }
         }
       end
 
-    assigns = assign(assigns, :initial_markers, [campaign_marker | rider_markers ++ task_markers])
+    assigns = assign(assigns, :initial_layers, [campaign_marker | rider_markers ++ task_markers])
 
     ~H"""
-    <.map
-      id="campaign-map"
-      coords={@campaign.location.coords}
-      initial_markers={@initial_markers}
-    />
+    <.map id="campaign-map" coords={@campaign.location.coords} initial_layers={@initial_layers} />
     """
   end
 
@@ -428,9 +430,10 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
         %Task{id: id} ->
           socket
           |> push_event("select_task", %{id: id})
-          |> push_event("update_marker", %{
+          |> push_event("update_layer", %{
             id: "task-#{id}",
-            color: @selected_task_color
+            type: :marker,
+            data: %{color: @selected_task_color}
           })
 
         nil ->
@@ -441,9 +444,10 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
       case previously_selected_task do
         %Task{id: id} ->
           socket
-          |> push_event("update_marker", %{
+          |> push_event("update_layer", %{
             id: "task-#{id}",
-            color: @unselected_task_color
+            type: :marker,
+            data: %{color: @unselected_task_color}
           })
 
         nil ->
@@ -459,9 +463,10 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
         %Rider{id: id} ->
           socket
           |> push_event("select_rider", %{id: id})
-          |> push_event("update_marker", %{
+          |> push_event("update_layer", %{
             id: "rider-#{id}",
-            color: @selected_rider_color
+            type: :marker,
+            data: %{color: @selected_rider_color}
           })
 
         nil ->
@@ -474,9 +479,10 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
           IO.inspect("HI")
 
           socket
-          |> push_event("update_marker", %{
+          |> push_event("update_layer", %{
             id: "rider-#{id}",
-            color: @unselected_rider_color
+            type: :marker,
+            data: %{color: @unselected_rider_color}
           })
 
         nil ->
@@ -488,13 +494,16 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   defp rider_marker(%Rider{id: id, name: name, location: location}) do
     %{
       id: "rider-#{id}",
-      lat: lat(location),
-      lng: lng(location),
-      icon: "bicycle",
-      color: @unselected_rider_color,
-      clickEvent: "select_rider",
-      clickValue: %{id: id},
-      tooltip: name
+      type: :marker,
+      data: %{
+        lat: lat(location),
+        lng: lng(location),
+        icon: "bicycle",
+        color: @unselected_rider_color,
+        clickEvent: "select_rider",
+        clickValue: %{id: id},
+        tooltip: name
+      }
     }
   end
 end

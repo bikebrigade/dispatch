@@ -611,13 +611,13 @@ defmodule BikeBrigadeWeb.CoreComponents do
       <.map
         id="rider-map"
         coords={coords(@rider.location)}
-        initial_markers={[rider_marker(@rider)]}
+        initial_layers={[rider_marker(@rider)]}
         class="w-full h-32 sm:h-40"
       />
   """
   attr :id, :string, required: true
   attr :class, :string, default: "h-full"
-  attr :initial_markers, :list, default: []
+  attr :initial_layers, :list, default: []
   attr :coords, Geo.Point, required: true
   attr :lat, :float
   attr :lng, :float
@@ -631,7 +631,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
         data-lat={lat(@coords)}
         data-lng={lng(@coords)}
         data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
-        data-initial_markers={Jason.encode!(@initial_markers)}
+        data-initial_layers={Jason.encode!(@initial_layers)}
         class="h-full"
       >
       </div>
