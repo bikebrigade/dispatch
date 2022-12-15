@@ -478,9 +478,10 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
             type: :marker,
             data: %{color: @selected_task_color}
           })
-          |> push_event("add_layers", %{
-            layers: lines
-          })
+
+          # |> push_event("add_layers", %{
+          #   layers: lines
+          # })
       end
     end)
     |> then(fn socket ->
