@@ -317,7 +317,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
      socket
      |> assign_campaign(campaign)
      |> assign(:selected_task, selected_task)
-     |> push_event("remove_layers", %{data: [%{id: "task-#{deleted_id}"}]})}
+     |> push_event("remove_layers", %{layers: [%{id: "task-#{deleted_id}"}]})}
   end
 
   @impl true
@@ -334,7 +334,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
 
       {:noreply,
        socket
-       |> push_event("add_layers", %{data: [rider_marker(rider)]})}
+       |> push_event("add_layers", %{layers: [rider_marker(rider)]})}
     else
       {:noreply, socket}
     end
@@ -362,7 +362,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
        socket
        |> assign_campaign(campaign)
        |> assign(:selected_rider, selected_rider)
-       |> push_event("remove_layers", %{data: [%{id: "rider-#{deleted_rider_id}"}]})}
+       |> push_event("remove_layers", %{layers: [%{id: "rider-#{deleted_rider_id}"}]})}
     else
       {:noreply, socket}
     end
@@ -442,7 +442,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
             data: %{color: @selected_task_color}
           })
           |> push_event("add_layers", %{
-            data: [
+            layers: [
               %{
                 id: "line-#{id}",
                 type: :polyline,
@@ -470,7 +470,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
             type: :marker,
             data: %{color: @unselected_task_color}
           })
-          |> push_event("remove_layers", %{data: [%{id: "line-#{id}"}]})
+          |> push_event("remove_layers", %{layers: [%{id: "line-#{id}"}]})
       end
     end)
   end

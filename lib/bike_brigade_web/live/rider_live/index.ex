@@ -411,11 +411,11 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
       |> assign(:all_locations, all_locations)
       |> push_event(
         "add_layers",
-        %{data: rider_markers(added, socket.assigns.selected)}
+        %{layers: rider_markers(added, socket.assigns.selected)}
       )
       |> push_event(
         "remove_layers",
-        %{data: for({id, _, _} <- removed, do: %{id: id})}
+        %{layers: for({id, _, _} <- removed, do: %{id: id})}
       )
     else
       socket

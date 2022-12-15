@@ -151,13 +151,11 @@ Hooks.LeafletMap = {
     initialLayers.forEach(addLayer);
 
     this.handleEvent("add_layers", ({
-      data: layers
-    }) => {
-      layers.forEach(addLayer);
-    });
+      layers
+    }) => layers.forEach(addLayer));
 
     this.handleEvent("remove_layers", ({
-      data: layers
+      layers
     }) => {
       layers.forEach(({
         id
