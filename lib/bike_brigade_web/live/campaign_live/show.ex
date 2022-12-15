@@ -8,6 +8,15 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   alias BikeBrigade.Delivery.{Campaign, Task, CampaignRider}
   alias BikeBrigade.Riders.Rider
 
+
+  @unselected_task_color "#c3ddfd"
+  @selected_task_color "#5145cd"
+  @selected_rider_color "#5850ec"
+  @unselected_rider_color "#4a5568"
+
+  @pickup_line_color "#c7d2fe" #indigo-200
+  @dropoff_line_color "#818cf8" #indigo-400
+
   @impl true
   def mount(_params, _session, socket) do
     if connected?(socket) do
@@ -418,13 +427,6 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
     """
   end
 
-  @unselected_task_color "#c3ddfd"
-  @selected_task_color "#5145cd"
-  @selected_rider_color "#5850ec"
-  @unselected_rider_color "#4a5568"
-
-  @pickup_line_color "#c7d2fe" #indigo-200
-  @dropoff_line_color "#818cf8" #indigo-400
 
   defp maybe_push_client_task_events(socket, previously_selected_task, newly_selected_task) do
     # TODO: do i use campaign location or task,pickup_location
