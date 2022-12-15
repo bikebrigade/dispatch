@@ -245,7 +245,7 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
               <%= # error_tag(@location, :country) %>
             </div>
           </div>
-          <.map_next
+          <.map
             id={"#{@id}-map"}
             coords={@location.coords}
             class="w-full h-64 mt-2"

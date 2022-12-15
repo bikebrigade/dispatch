@@ -51,7 +51,7 @@ Hooks.RidersList = {
   }
 };
 
-Hooks.LeafletMapNext = {
+Hooks.LeafletMap = {
   mounted() {
     const template = document.createElement('template');
     template.innerHTML = `
@@ -179,61 +179,6 @@ Hooks.LeafletMapNext = {
       this.map.invalidateSize()
 
     });
-  },
-};
-
-
-Hooks.LeafletMap = {
-  mounted() {
-    const template = document.createElement('template');
-    template.innerHTML = `
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
-    integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
-    crossorigin=""/>
-    <div style="height: 100%; z-index:0;">
-        <slot />
-    </div>
-`
-    L.MakiMarkers.accessToken = this.el.dataset.mapbox_access_token
-    this.el.attachShadow({
-      mode: 'open'
-    });
-    this.el.shadowRoot.appendChild(template.content.cloneNode(true));
-    this.mapElement = this.el.shadowRoot.querySelector('div')
-    let lat = this.el.dataset.lat || "43.6532"
-    let lng = this.el.dataset.lng || "-79.3832"
-
-    this.map = L.map(this.mapElement).setView([lat, lng], this.el.dataset.zoom || 13);
-    L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-      maxZoom: 18,
-      id: 'mapbox/light-v10',
-      tileSize: 512,
-      zoomOffset: -1,
-      accessToken: this.el.dataset.mapbox_access_token,
-    }).addTo(this.map)
-
-    this.layers = {}
-
-    this.el.addEventListener('layer:created', e => {
-      this.layers[e.detail.id] = e.detail.layer
-      e.detail.layer.addTo(this.map)
-    })
-
-    this.el.addEventListener('layer:updated', e => {
-      if (this.layers[e.detail.id]) {
-        this.layers[e.detail.id].removeFrom(this.map)
-      }
-      this.layers[e.detail.id] = e.detail.layer
-      e.detail.layer.addTo(this.map)
-    })
-
-    this.el.addEventListener('layer:destroyed', e => {
-      if (this.layers[e.detail.id]) {
-        this.layers[e.detail.id].removeFrom(this.map)
-        delete this.layers[e.detail.id]
-      }
-    })
   },
 };
 

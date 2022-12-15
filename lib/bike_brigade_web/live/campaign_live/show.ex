@@ -408,7 +408,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
     assigns = assign(assigns, :initial_markers, [campaign_marker | rider_markers ++ task_markers])
 
     ~H"""
-    <.map_next
+    <.map
       id="campaign-map"
       coords={@campaign.location.coords}
       initial_markers={@initial_markers}

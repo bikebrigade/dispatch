@@ -608,7 +608,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
 
   ## Examples
 
-      <.map_next
+      <.map
         id="rider-map"
         coords={coords(@rider.location)}
         initial_markers={[rider_marker(@rider)]}
@@ -622,11 +622,11 @@ defmodule BikeBrigadeWeb.CoreComponents do
   attr :lat, :float
   attr :lng, :float
 
-  def map_next(assigns) do
+  def map(assigns) do
     ~H"""
     <div :if={@coords != %Geo.Point{}} class={@class}>
       <div
-        phx-hook="LeafletMapNext"
+        phx-hook="LeafletMap"
         id={@id}
         data-lat={lat(@coords)}
         data-lng={lng(@coords)}
