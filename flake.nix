@@ -42,11 +42,6 @@
         # Decorative prompt override so we know when we're in a dev shell
         baseHook = ''
           export PS1="\[\e[1;33m\][dev]\[\e[1;34m\] \w $ \[\e[0m\]"
-
-          set -a
-          [[ -f .env.local ]] && . .env.local
-          set +a
-
         '';
 
         elixirHook = ''
