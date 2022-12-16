@@ -972,6 +972,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
     attr :default_order, :atom, values: [:asc, :desc]
   end
 
+  slot :row_class, default: "", doc: "optional css class to apply to each row, also useful for getting elements in tests."
   slot :action, doc: "the slot for showing user actions in the last table column"
   slot :bulk_action, doc: "the slot for showing bulk user actions at the top of the table"
   slot :footer, doc: "table footer"
@@ -1047,9 +1048,9 @@ defmodule BikeBrigadeWeb.CoreComponents do
                 <tr
                   :for={row <- @rows}
                   id={"#{@id}-#{Phoenix.Param.to_param(row)}"}
-                  class={
-                    if @checkboxes && MapSet.member?(@checkboxes_selected, row.id), do: "bg-gray-50"
-                  }
+                  class={[@row_class,
+                    (if @checkboxes && MapSet.member?(@checkboxes_selected, row.id), do: "bg-gray-50")
+                  ]}
                 >
                   <td :if={@checkboxes} class="relative w-12 px-4 sm:w-16 sm:px-8">
                     <div
