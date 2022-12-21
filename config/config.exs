@@ -73,11 +73,11 @@ config :bike_brigade, BikeBrigade.Tasks.MailchimpImporter,
 
 # We use the same phone number for our authentication and regular messaging by they are configurable separately for now
 config :bike_brigade, BikeBrigade.Messaging,
-  outbound_number: {:system, "PHONE_NUMBER"},
-  new_outbound_number: {:system, "NEW_PHONE_NUMBER"},
-  inbound_numbers: {:system, "INBOUND_NUMBERS", :optional}
+  outbound_number: {:system, "PHONE_NUMBER", default: "647-555-5555"},
+  new_outbound_number: {:system, "NEW_PHONE_NUMBER", default: "647-555-5555"},
+  inbound_numbers: {:system, "INBOUND_NUMBERS", default: "647-555-5555"}
 
-config :bike_brigade, BikeBrigade.AuthenticationMessenger, phone_number: {:system, "PHONE_NUMBER"}
+config :bike_brigade, BikeBrigade.AuthenticationMessenger, phone_number: {:system, "PHONE_NUMBER", default: "647-555-5555"}
 
 # Config our google clients
 config :bike_brigade, BikeBrigade.GoogleMaps, api_key: {:system, "GOOGLE_MAPS_API_KEY"}
