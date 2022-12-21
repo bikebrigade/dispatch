@@ -59,9 +59,9 @@
 <%= if @mode == :map do %>
   <div class="min-w-full mt-2 bg-white rounded-lg shadow">
     <div class="p-1 h-[80vh]">
-      <.map_next
+      <.map
         id="riders-map"
-        initial_markers={rider_markers(@all_locations, @selected)}
+        initial_layers={rider_markers(@all_locations, @selected)}
         coords={%Geo.Point{coordinates: {-79.425820, 43.653960}}}
       />
     </div>

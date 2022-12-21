@@ -138,10 +138,13 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
   defp rider_marker(rider) do
     %{
       id: rider.id,
-      lat: lat(rider.location),
-      lng: lng(rider.location),
-      icon:  "bicycle",
-      color: "#1c64f2"
+      type: :marker,
+      data: %{
+        lat: lat(rider.location),
+        lng: lng(rider.location),
+        icon: "bicycle",
+        color: "#1c64f2"
+      }
     }
   end
 end
