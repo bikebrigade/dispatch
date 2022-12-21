@@ -80,7 +80,7 @@ config :bike_brigade, BikeBrigade.Messaging,
 config :bike_brigade, BikeBrigade.AuthenticationMessenger, phone_number: {:system, "PHONE_NUMBER", default: "647-555-5555"}
 
 # Config our google clients
-config :bike_brigade, BikeBrigade.GoogleMaps, api_key: {:system, "GOOGLE_MAPS_API_KEY"}
+config :bike_brigade, BikeBrigade.GoogleMaps, api_key: {:system, "GOOGLE_MAPS_API_KEY", default: ""}
 
 # Set slack channel IDs for messaging
 config :bike_brigade, BikeBrigade.Messaging.Slack.Operations,
