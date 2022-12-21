@@ -25,7 +25,6 @@ export default {
   StatsDashboardChart,
   CheckboxAll,
   FrameHook,
-  // REVIEW: this hook is used on TagsComponent module, which isn't used anywhere. Remove it?
   TagsComponentHook,
   LeafletMap
 }
