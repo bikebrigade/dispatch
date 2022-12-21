@@ -1075,7 +1075,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
                   <td
                     :for={{col, i} <- Enum.with_index(@col)}
                     class={[
-                      "py-4 text-sm text-gray-500 whitespace-nowrap",
+                      "py-4 text-sm text-gray-500",
                       if(i == 0, do: "pl-4 pr-3 sm:pl-6 font-medium", else: "px-3"),
                       if(col[:show_at], do: "hidden " <> table_cell_at_size(col[:show_at])),
                       if(col[:unstack_at],
