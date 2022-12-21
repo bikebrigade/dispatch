@@ -1,8 +1,14 @@
-<div class="flex flex-wrap h-full max-h-full min-h-0 -mx-3">
-  <div class={
-    "h-full max-h-full w-full px-2 sm:overflow-hidden sm:w-4/12 #{unless @live_action == :index, do: "hidden"} sm:block"
-  }>
-    <div class="flex flex-col h-full max-h-full bg-white shadow sm:rounded-lg">
+<div class={[
+  "flex flex-wrap h-full max-h-full min-h-0 -mx-3"
+]}>
+  <div class={[
+    "h-full w-full px-2 sm:w-4/12 sm:block",
+    unless(@live_action == :index, do: "hidden")
+  ]}>
+    <div class={[
+      "flex flex-col h-full bg-white shadow sm:rounded-lg",
+      "max-h-[calc(100vh-6rem)] sm:max-h-[calc(100vh-6.75rem)] md:max-h-[calc(100vh-3rem)]"
+    ]}>
       <div class="px-4 py-5 bg-white border-b border-gray-200 sm:px-6 sm:rounded-t-lg">
         <div class="flex flex-wrap items-center justify-between -mt-2 -ml-4 sm:flex-nowrap">
           <div class="h-10 mt-2 ml-4">
@@ -207,7 +213,12 @@
   </div>
 <% end %>
 
-<.modal :if={@live_action == :new} id="messaging-modal" show on_cancel={JS.navigate(~p"/messages")}>
+<.modal
+  :if={@live_action == :new}
+  id="messaging-modal"
+  show
+  on_cancel={JS.navigate(~p"/messages")}
+>
   <.live_component
     module={BikeBrigadeWeb.SmsMessageLive.FormComponent}
     id={:new}
