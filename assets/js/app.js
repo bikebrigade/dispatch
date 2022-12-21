@@ -2,57 +2,18 @@
 //import "../css/app.scss"
 
 import "phoenix_html"
-import {
-  Socket
-} from "phoenix"
+import { Socket } from "phoenix"
 import topbar from "topbar"
-import {
-  LiveSocket
-} from "phoenix_live_view"
-
-
+import { LiveSocket } from "phoenix_live_view"
 import L from "leaflet"
 import "leaflet-makimarkers"
 import "@ryangjchandler/alpine-clipboard"
 import "alpinejs"
 
 import hooks from './hooks';
-
 let Hooks = hooks
-
-//REVIEW: LeafletLayer is not being used anywhere? Can I remove?
-// Base object for layer callbacks
-const LeafletLayer = {
-  mounted() {
-    this.mapEl = this.el.closest("leaflet-map")
-    this.mapEl.dispatchEvent(new CustomEvent('layer:created', {
-      detail: {
-        id: this.el.id,
-        layer: this.layer()
-      }
-    }));
-  },
-
-  updated() {
-    this.mapEl.dispatchEvent(new CustomEvent('layer:updated', {
-      detail: {
-        id: this.el.id,
-        layer: this.layer()
-      }
-    }));
-  },
-
-  destroyed() {
-    this.mapEl.dispatchEvent(new CustomEvent('layer:destroyed', {
-      detail: {
-        id: this.el.id,
-        layer: this.layer()
-      }
-    }));
-  },
-};
-
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
+
 let liveSocket = new LiveSocket("/live", Socket, {
   hooks: Hooks,
   params: {

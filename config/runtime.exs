@@ -7,6 +7,8 @@ case config_env() do
       config :bike_brigade, BikeBrigade.Repo, hostname: "postgres"
     end
 
+  DotenvParser.load_file(".env.local")
+
   :prod ->
     app_env =
       case System.get_env("APP_ENV") do
