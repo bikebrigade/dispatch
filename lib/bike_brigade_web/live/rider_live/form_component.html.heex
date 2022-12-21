@@ -34,16 +34,32 @@
         }
       />
     </div>
-    <.input type="select" field={{f, :capacity}} label="Capacity" options={[{"Small", :small}, {"Medium", :medium}, {"Large", :large}]} />
+
+    <div phx-feedback-for={input_name(f, :tags)}>
+      <CoreComponents.label for={input_id(f, :tags)}>Tags</CoreComponents.label>
+
+      <.live_component
+        module={BikeBrigadeWeb.RiderLive.TagsComponent}
+        id={:rider_tags}
+        tags={@form.tags}
+        input_name={"#{input_name(f, :tags)}[]"}
+      />
+    </div>
+
+    <.input
+      type="select"
+      field={{f, :capacity}}
+      label="Capacity"
+      options={[{"Small", :small}, {"Medium", :medium}, {"Large", :large}]}
+    />
 
     <.live_component
       module={LiveLocation}
       id="location-form"
       as={input_name(f, :location)}
       location={@rider.location}
-      label="Pickup Location"
+      label="Rider Location"
     />
-
 
     <.input
       type="textarea"
