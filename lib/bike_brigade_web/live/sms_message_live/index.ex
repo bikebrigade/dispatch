@@ -106,12 +106,16 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
       send_update(ConversationComponent, id: message.rider_id, conversation: [message])
     end
 
-    rider = Riders.get_rider(message.rider_id)
+    socket =
+      if rider = Riders.get_rider(message.rider_id) do
+        socket
+        |> assign(:conversations, [{rider, message}])
+        |> push_event("new_message", %{"riderId" => rider.id})
+      else
+        socket
+      end
 
-    {:noreply,
-     socket
-     |> assign(:conversations, [{rider, message}])
-     |> push_event("new_message", %{"riderId" => rider.id})}
+    {:noreply, socket}
   end
 
   @impl true

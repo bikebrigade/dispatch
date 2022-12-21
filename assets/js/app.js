@@ -24,16 +24,6 @@ import {
 
 let Hooks = {}
 
-class LeafletMap extends HTMLElement {}
-
-customElements.define('leaflet-map', LeafletMap);
-
-class LeafletMarker extends HTMLElement {}
-customElements.define('leaflet-marker', LeafletMarker);
-
-class LeafletCircle extends HTMLElement {}
-customElements.define('leaflet-circle', LeafletCircle);
-
 Hooks.TasksList = {
   mounted() {
     this.handleEvent("select_task", ({
@@ -61,7 +51,7 @@ Hooks.RidersList = {
   }
 };
 
-Hooks.LeafletMapNext = {
+Hooks.LeafletMap = {
   mounted() {
     const template = document.createElement('template');
     template.innerHTML = `
@@ -97,79 +87,111 @@ Hooks.LeafletMapNext = {
       zIndex = parseInt(this.el.dataset.zindex);
     }
 
-    const addMarker = ({
+    const addLayer = ({
       id,
-      lat,
-      lng,
-      icon,
-      color,
-      clickEvent,
-      clickValue,
-      clickTarget,
-      tooltip
+      type,
+      data
     }) => {
-      if (this.markers[id] === undefined) {
-        const marker = L.marker([lat, lng], {
-          icon: L.MakiMarkers.icon({
-            color: color,
-            icon: icon
-          }),
-          zIndexOffset: zIndex
-        });
-
-        if (clickEvent) {
-          marker.on('click', e => {
-            let payload = clickValue;
-            if (clickTarget) {
-              this.pushEventTo(clickTarget, clickEvent, payload);
-            } else {
-              this.pushEvent(clickEvent, payload);
-            }
+      if (this.layers[id] === undefined) {
+        if (type == "marker") {
+          let {
+            lat,
+            lng,
+            icon,
+            color,
+            clickEvent,
+            clickValue,
+            clickTarget,
+            tooltip
+          } = data;
+          const marker = L.marker([lat, lng], {
+            icon: L.MakiMarkers.icon({
+              color: color,
+              icon: icon
+            }),
+            zIndexOffset: zIndex
           });
-        }
 
-        if (tooltip) {
-          marker.bindTooltip(tooltip);
-        }
+          if (clickEvent) {
+            marker.on('click', e => {
+              let payload = clickValue;
+              if (clickTarget) {
+                this.pushEventTo(clickTarget, clickEvent, payload);
+              } else {
+                this.pushEvent(clickEvent, payload);
+              }
+            });
+          }
 
-        marker.addTo(this.map);
-        this.markers[id] = marker;
+          if (tooltip) {
+            marker.bindTooltip(tooltip);
+          }
+
+          marker.addTo(this.map);
+          this.layers[id] = marker;
+        } else if (type == "polyline") {
+          let {
+            latlngs,
+            color,
+          } = data;
+          const polyline = L.polyline(latlngs, {
+            color: color,
+            zIndexOffset: zIndex
+          });
+
+          polyline.addTo(this.map);
+          this.layers[id] = polyline;
+        }
       }
     };
 
-    this.markers = {};
+    this.layers = {};
 
-    let initialMarkers = JSON.parse(this.el.dataset.initial_markers);
-    initialMarkers.forEach(addMarker);
+    let initialLayers = JSON.parse(this.el.dataset.initial_layers);
+    initialLayers.forEach(addLayer);
 
+    this.handleEvent("add_layers", ({
+      layers
+    }) => layers.forEach(addLayer));
 
-    this.handleEvent("update_markers", ({
-      added,
-      removed
+    this.handleEvent("remove_layers", ({
+      layers
     }) => {
-      added.forEach(addMarker);
-      removed.forEach(({
+      layers.forEach(({
         id
       }) => {
-        this.map.removeLayer(this.markers[id]);
-        delete this.map[id];
+        if (this.layers[id]) {
+          this.map.removeLayer(this.layers[id]);
+          delete this.layers[id];
+        }
       });
     });
 
-    this.handleEvent("update_marker", ({
+    this.handleEvent("update_layer", ({
       id,
-      icon,
-      color,
-      lat,
-      lng
+      type,
+      data
     }) => {
-      this.markers[id].setIcon(L.MakiMarkers.icon({
-        color: color,
-        icon: icon
-      }));
+      if (type == "marker") {
+        let {
+          icon,
+          color,
+          lat,
+          lng
+        } = data;
 
-      if (lat && lng) {
-        this.markers[id].setLatLng([lat, lng]);
+        if (icon === undefined) {
+          icon = this.layers[id].getIcon().options.icon
+        }
+
+        this.layers[id].setIcon(L.MakiMarkers.icon({
+          color: color,
+          icon: icon
+        }));
+
+        if (lat && lng) {
+          this.layers[id].setLatLng([lat, lng]);
+        }
       }
     });
 
@@ -185,61 +207,6 @@ Hooks.LeafletMapNext = {
       this.map.invalidateSize()
 
     });
-  },
-};
-
-
-Hooks.LeafletMap = {
-  mounted() {
-    const template = document.createElement('template');
-    template.innerHTML = `
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
-    integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
-    crossorigin=""/>
-    <div style="height: 100%; z-index:0;">
-        <slot />
-    </div>
-`
-    L.MakiMarkers.accessToken = this.el.dataset.mapbox_access_token
-    this.el.attachShadow({
-      mode: 'open'
-    });
-    this.el.shadowRoot.appendChild(template.content.cloneNode(true));
-    this.mapElement = this.el.shadowRoot.querySelector('div')
-    let lat = this.el.dataset.lat || "43.6532"
-    let lng = this.el.dataset.lng || "-79.3832"
-
-    this.map = L.map(this.mapElement).setView([lat, lng], this.el.dataset.zoom || 13);
-    L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-      maxZoom: 18,
-      id: 'mapbox/light-v10',
-      tileSize: 512,
-      zoomOffset: -1,
-      accessToken: this.el.dataset.mapbox_access_token,
-    }).addTo(this.map)
-
-    this.layers = {}
-
-    this.el.addEventListener('layer:created', e => {
-      this.layers[e.detail.id] = e.detail.layer
-      e.detail.layer.addTo(this.map)
-    })
-
-    this.el.addEventListener('layer:updated', e => {
-      if (this.layers[e.detail.id]) {
-        this.layers[e.detail.id].removeFrom(this.map)
-      }
-      this.layers[e.detail.id] = e.detail.layer
-      e.detail.layer.addTo(this.map)
-    })
-
-    this.el.addEventListener('layer:destroyed', e => {
-      if (this.layers[e.detail.id]) {
-        this.layers[e.detail.id].removeFrom(this.map)
-        delete this.layers[e.detail.id]
-      }
-    })
   },
 };
 
@@ -274,75 +241,6 @@ const LeafletLayer = {
   },
 };
 
-Hooks.LeafletMarker = {
-  ...LeafletLayer,
-  ...{
-    layer() {
-      let zIndex = 0;
-      if (this.el.dataset.zindex != null) {
-        zIndex = parseInt(this.el.dataset.zindex);
-      }
-
-      let marker = L.marker([this.el.dataset.lat, this.el.dataset.lng], {
-        icon: L.MakiMarkers.icon({
-          color: this.el.dataset.color,
-          icon: this.el.dataset.icon
-        }),
-        zIndexOffset: zIndex
-      })
-
-      if (this.el.dataset.clickEvent) {
-        marker = marker.on('click', e => {
-          // TODO: generalize to non-id parameters
-          let payload = null
-          if (this.el.dataset.clickValueId) {
-            payload = {
-              id: this.el.dataset.clickValueId
-            }
-          }
-          // We can have targeted events or ones that go to the view itself
-          if (this.el.dataset.clickTarget) {
-            this.pushEventTo(this.el.dataset.clickTarget, this.el.dataset.clickEvent, payload)
-          } else {
-            console.log(this.el.dataset)
-            this.pushEvent(this.el.dataset.clickEvent, payload)
-          }
-        })
-      }
-
-      if (tooltip = this.el.dataset.tooltip) {
-        marker = marker.bindTooltip(tooltip);
-      }
-      return marker
-    }
-  }
-};
-
-Hooks.LeafletPolyline = {
-  ...LeafletLayer,
-  ...{
-    layer() {
-      return L.polyline([
-        [this.el.dataset.from_lat, this.el.dataset.from_lng],
-        [this.el.dataset.to_lat, this.el.dataset.to_lng]
-      ], {
-        color: this.el.dataset.color || "#3388ff"
-      });
-    }
-  }
-};
-
-Hooks.LeafletCircle = {
-  ...LeafletLayer,
-  ...{
-    layer() {
-      return L.circle([this.el.dataset.lat, this.el.dataset.lng], {
-        radius: this.el.dataset.radius,
-        color: this.el.dataset.color || "#3388ff"
-      })
-    }
-  }
-};
 
 Hooks.ConversationList = {
   mounted() {

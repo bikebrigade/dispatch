@@ -72,7 +72,7 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
     socket =
       if location.coords != socket.assigns.location.coords do
         socket
-        |> push_event("update_marker", encode_marker(location))
+        |> push_event("update_layer", encode_marker(location))
         |> push_event("redraw_map", %{recenter: true})
       else
         socket
@@ -245,11 +245,11 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
               <%= # error_tag(@location, :country) %>
             </div>
           </div>
-          <.map_next
+          <.map
             id={"#{@id}-map"}
             coords={@location.coords}
             class="w-full h-64 mt-2"
-            initial_markers={[encode_marker(@location)]}
+            initial_layers={[encode_marker(@location)]}
           />
         </div>
       </div>
@@ -260,10 +260,13 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
   defp encode_marker(location) do
     %{
       id: location.id,
-      lat: lat(location),
-      lng: lng(location),
-      icon: "warehouse",
-      color: "#1c64f2"
+      type: :marker,
+      data: %{
+        lat: lat(location),
+        lng: lng(location),
+        icon: "warehouse",
+        color: "#1c64f2"
+      }
     }
   end
 

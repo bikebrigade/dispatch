@@ -47,9 +47,3 @@ jobs:
       run: mix assets.deploy
     - name: Run tests
       run: mix test
-    env:
-      GOOGLE_MAPS_API_KEY: ""
-      GOOGLE_SERVICE_JSON: "{}"
-      MAILCHIMP_API_KEY: ""
-      PHONE_NUMBER: "647-555-5555"
-      NEW_PHONE_NUMBER: "647-555-5555"

@@ -321,11 +321,19 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
       if MapSet.member?(selected, rider_id) do
         socket
         |> assign(:selected, MapSet.delete(selected, rider_id))
-        |> push_event("update_marker", %{id: rider_id, icon: "bicycle", color: @unselected_color})
+        |> push_event("update_layer", %{
+          id: rider_id,
+          type: :marker,
+          data: %{color: @unselected_color}
+        })
       else
         socket
         |> assign(:selected, MapSet.put(selected, rider_id))
-        |> push_event("update_marker", %{id: rider_id, icon: "bicycle", color: @selected_color})
+        |> push_event("update_layer", %{
+          id: rider_id,
+          type: :marker,
+          data: %{color: @selected_color}
+        })
       end
 
     {:noreply, socket}
@@ -401,10 +409,14 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
 
       socket
       |> assign(:all_locations, all_locations)
-      |> push_event("update_markers", %{
-        added: rider_markers(added, socket.assigns.selected),
-        removed: for({id, _, _} <- removed, do: %{id: id})
-      })
+      |> push_event(
+        "add_layers",
+        %{layers: rider_markers(added, socket.assigns.selected)}
+      )
+      |> push_event(
+        "remove_layers",
+        %{layers: for({id, _, _} <- removed, do: %{id: id})}
+      )
     else
       socket
     end
@@ -421,13 +433,16 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
 
       %{
         id: id,
-        lat: lat(location),
-        lng: lng(location),
-        icon: "bicycle",
-        color: color,
-        clickEvent: "map_click_rider",
-        clickValue: %{id: id},
-        tooltip: name
+        type: :marker,
+        data: %{
+          lat: lat(location),
+          lng: lng(location),
+          icon: "bicycle",
+          color: color,
+          clickEvent: "map_click_rider",
+          clickValue: %{id: id},
+          tooltip: name
+        }
       }
     end
   end

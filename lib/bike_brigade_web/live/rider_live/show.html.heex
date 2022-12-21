@@ -153,10 +153,10 @@
       Location
     </h2>
     <div class="p-1 my-5 bg-white rounded-lg shadow">
-      <.map_next
+      <.map
         id="rider-map"
         coords={coords(@rider.location)}
-        initial_markers={[rider_marker(@rider)]}
+        initial_layers={[rider_marker(@rider)]}
         class="w-full h-32 sm:h-40"
       />
     </div>
