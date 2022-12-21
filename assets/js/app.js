@@ -59,7 +59,6 @@ liveSocket.connect()
 // >> liveSocket.enableLatencySim(1000)
 window.liveSocket = liveSocket
 
-// REVIEW: I can't find hidePII or showPII used anywhere. Can we remove?
 // expose a PII mode
 window.hidePII = () => {
   if (!document.getElementById('pii-style')) {

@@ -1,6 +1,6 @@
 import { EmojiButton } from '@joeattardi/emoji-button';
 
-export default {
+const EmojiButtonHook = {
   mounted() {
     const picker = new EmojiButton();
     const inputEl = document.querySelector(`#${this.el.dataset.inputId}`);
@@ -21,4 +21,6 @@ export default {
     this.el.addEventListener("click", () => picker.togglePicker(this.el));
   }
 
-}
+};
+
+export default EmojiButtonHook;

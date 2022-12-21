@@ -1,4 +1,4 @@
-export default {
+const LeafletMap = {
   mounted() {
     const template = document.createElement('template');
     template.innerHTML = `
@@ -157,3 +157,4 @@ export default {
   },
 };
 
+export default LeafletMap;

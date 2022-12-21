@@ -1,4 +1,4 @@
-export default {
+const TagsComponentHook = {
   mounted() {
     this.el.addEventListener('keydown', e => {
       if (e.key == 'Enter') {
@@ -10,4 +10,6 @@ export default {
       }
     });
   }
-}
+};
+
+export default TagsComponentHook;

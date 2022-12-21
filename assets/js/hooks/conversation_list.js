@@ -1,4 +1,4 @@
-export default {
+const ConversationList = {
   mounted() {
     this.handleEvent("select_rider", ({
       id
@@ -25,4 +25,6 @@ export default {
       }
     });
   }
-}
+};
+
+export default ConversationList;

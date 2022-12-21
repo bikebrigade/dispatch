@@ -1,4 +1,5 @@
-export default {
+
+const Alpine = {
   mounted() {
     this.el.dispatchEvent(new CustomEvent('mounted', {
       bubbles: true
@@ -9,4 +10,6 @@ export default {
       bubbles: true
     }));
   },
-}
+};
+
+export default Alpine;

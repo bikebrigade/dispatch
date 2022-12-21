@@ -1,6 +1,6 @@
 import Tribute from "tributejs";
 
-export default {
+const Autocomplete = {
   mounted() {
     let autocompletes = JSON.parse(this.el.dataset.autocomplete)
     let tribute = new Tribute({
@@ -15,4 +15,6 @@ export default {
 
     tribute.attach(this.el)
   }
-}
+};
+
+export default Autocomplete;

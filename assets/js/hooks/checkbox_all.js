@@ -1,4 +1,4 @@
-export default {
+const CheckboxAll = {
   updated() {
     const numChecked = parseInt(this.el.dataset.numChecked);
     const numRows = parseInt(this.el.dataset.numRows);
@@ -14,4 +14,6 @@ export default {
       this.el.indeterminate = true;
     }
   }
-}
+};
+
+export default CheckboxAll;

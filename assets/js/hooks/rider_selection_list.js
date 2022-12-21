@@ -1,4 +1,4 @@
-export default {
+const RiderSelectionList = {
   mounted() {
     this.el.addEventListener("scroll", e => {
       gap = this.el.scrollHeight - this.el.scrollTop - this.el.clientHeight;
@@ -9,4 +9,6 @@ export default {
       }
     });
   }
-}
+};
+
+export default RiderSelectionList;

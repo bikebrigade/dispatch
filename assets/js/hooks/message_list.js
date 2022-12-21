@@ -1,4 +1,4 @@
-export default {
+const MessageList = {
   mounted() {
     // scroll to bottom
     this.el.scrollTop = this.el.scrollHeight;
@@ -20,4 +20,6 @@ export default {
       this.el.scrollTop = this.el.scrollHeight;
     });
   }
-}
+};
+
+export default MessageList;

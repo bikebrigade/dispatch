@@ -1,6 +1,6 @@
 import Chart from 'chart.js/auto';
 
-export default {
+const StatsDashboardChart = {
   mounted() {
     this.chart = new Chart(this.el, {
       type: 'line',
@@ -18,4 +18,6 @@ export default {
       this.chart.update();
     })
   }
-}
+};
+
+export default StatsDashboardChart;

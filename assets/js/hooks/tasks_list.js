@@ -1,4 +1,4 @@
-export default {
+const TasksList = {
   mounted() {
     this.handleEvent("select_task", ({
       id
@@ -10,4 +10,6 @@ export default {
       })
     })
   }
-}
+};
+
+export default TasksList;

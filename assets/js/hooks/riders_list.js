@@ -1,4 +1,4 @@
-export default {
+const RidersList = {
   mounted() {
     this.handleEvent("select_rider", ({
       id
@@ -10,4 +10,6 @@ export default {
       })
     })
   }
-}
+};
+
+export default RidersList;
