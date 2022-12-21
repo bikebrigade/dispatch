@@ -1,8 +1,5 @@
-import L from "leaflet"
-import "leaflet-makimarkers"
-
 export default {
- mounted() {
+  mounted() {
     const template = document.createElement('template');
     template.innerHTML = `
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
@@ -160,33 +157,3 @@ export default {
   },
 };
 
-// Base object for layer callbacks
-const LeafletLayer = {
-  mounted() {
-    this.mapEl = this.el.closest("leaflet-map")
-    this.mapEl.dispatchEvent(new CustomEvent('layer:created', {
-      detail: {
-        id: this.el.id,
-        layer: this.layer()
-      }
-    }));
-  },
-
-  updated() {
-    this.mapEl.dispatchEvent(new CustomEvent('layer:updated', {
-      detail: {
-        id: this.el.id,
-        layer: this.layer()
-      }
-    }));
-  },
-
-  destroyed() {
-    this.mapEl.dispatchEvent(new CustomEvent('layer:destroyed', {
-      detail: {
-        id: this.el.id,
-        layer: this.layer()
-      }
-    }));
-  },
-};

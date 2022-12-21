@@ -137,6 +137,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
         |> push_map_events(previously_selected_task)
         |> push_map_events(task)
       end
+
     {:noreply, socket}
   end
 
