@@ -13,7 +13,7 @@ const StatsDashboardChart = {
       }
     });
 
-    this.handleEvent("update_chart", (data) => {
+    this.handleEvent("stats_dashboard:update_chart", (data) => {
       this.chart.data = data;
       this.chart.update();
     })

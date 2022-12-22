@@ -15,7 +15,7 @@ const MessageList = {
         });
       }
     });
-    this.handleEvent("new_message", () => {
+    this.handleEvent("message_list:new_message", () => {
       // scroll to bottom
       this.el.scrollTop = this.el.scrollHeight;
     });
