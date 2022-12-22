@@ -4,8 +4,11 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
   alias BikeBrigadeWeb.SmsMessageLive.ConversationComponent
   alias BikeBrigade.Presence
   alias BikeBrigade.Messaging
-  alias BikeBrigade.Riders
+
   alias BikeBrigade.Delivery
+
+  alias BikeBrigade.Riders
+  alias BikeBrigade.Riders.RiderSearch
 
   import BikeBrigadeWeb.MessagingHelpers
   import BikeBrigadeWeb.CampaignHelpers, only: [request_type: 1]
@@ -27,6 +30,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
       |> assign(:presence, [])
       |> assign(:others_present, [])
       |> assign(:conversations, conversations)
+      |> assign(:rider_search_value, "")
       |> assign_rider(rider)
 
     socket =
@@ -64,6 +68,27 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
     {:noreply,
      socket
      |> apply_action(socket.assigns.live_action, params)}
+  end
+
+  @impl true
+  def handle_event("search_riders", %{"search" => ""}, socket) do
+    {:noreply, socket |> assign(:rider_search_value, "") |> push_event("clear_search", %{})}
+  end
+
+  @impl true
+  def handle_event("search_riders", %{"search" => search}, socket) do
+    filter = %RiderSearch.Filter{type: :name, search: search}
+
+    {_rs, results} =
+      RiderSearch.new(filters: [filter], limit: 1000)
+      |> RiderSearch.fetch()
+
+    rider_ids = for r <- results.page, do: r.id
+
+    {:noreply,
+     socket
+     |> assign(:rider_search_value, search)
+     |> push_event("only_show", %{"ids" => rider_ids})}
   end
 
   @impl true
