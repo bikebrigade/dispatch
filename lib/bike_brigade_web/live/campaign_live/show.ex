@@ -195,7 +195,6 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   @impl true
   def handle_event("select_rider", %{"id" => id}, socket) do
     previously_selected_rider = socket.assigns.selected_rider
-
     rider = get_rider(socket, id)
 
     socket =
