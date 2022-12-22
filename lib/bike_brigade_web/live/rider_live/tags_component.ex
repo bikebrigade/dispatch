@@ -60,7 +60,7 @@ defmodule BikeBrigadeWeb.RiderLive.TagsComponent do
         id={"#{@id}-tag-input"}
         type="text"
         class="w-1/2 border-transparent appearance-none focus:border-transparent outline-transparent ring-transparent focus:ring-0"
-        phx-hook="TagsComponentHook"
+        phx-hook="TagsComponent"
         phx-keyup="suggest"
         phx-target={@myself}
         autocomplete="off"
