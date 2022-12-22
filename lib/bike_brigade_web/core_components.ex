@@ -32,13 +32,17 @@ defmodule BikeBrigadeWeb.CoreComponents do
     default: :primary,
     values: [:primary, :secondary, :white, :green, :red, :lightred, :clear, :black]
 
+  attr :rounded, :atom,
+    default: :normal,
+    values: [:none, :small, :normal, :medium, :full]
+
   attr :class, :string, default: nil
   attr :rest, :global, include: ~w(href patch navigate disabled)
   slot :inner_block, required: true
 
   @button_base_classes [
     "inline-flex text-center items-center justify-center border border-transparent",
-    "font-medium rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2",
+    "font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2",
     "disabled:hover:cursor-not-allowed disabled:opacity-25"
   ]
 
@@ -52,7 +56,10 @@ defmodule BikeBrigadeWeb.CoreComponents do
     ~H"""
     <button
       type={@type}
-      class={@button_base_classes ++ [button_size(@size), button_color(@color), @class]}
+      class={
+        @button_base_classes ++
+          [button_size(@size), button_color(@color), button_rounded(@rounded), @class]
+      }
       {@rest}
     >
       <%= render_slot(@inner_block) %>
@@ -64,7 +71,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
     assigns = assign(assigns, :button_base_classes, @button_base_classes)
 
     ~H"""
-    <.link class={@button_base_classes ++ [button_size(@size), button_color(@color), @class]} {@rest}>
+    <.link class={@button_base_classes ++ [button_size(@size), button_color(@color), button_rounded(@rounded), @class]} {@rest}>
       <%= render_slot(@inner_block) %>
     </.link>
     """
@@ -106,6 +113,16 @@ defmodule BikeBrigadeWeb.CoreComponents do
 
       :black ->
         "border-gray-300 text-white bg-black hover:bg-white hover:text-black"
+    end
+  end
+
+  defp button_rounded(rounded) do
+    case rounded do
+      :non -> "rounded-none"
+      :small -> "rounded-sm"
+      :normal -> "rounded"
+      :medium -> "rounded-md"
+      :full -> "rounded-full"
     end
   end
 
@@ -178,7 +195,6 @@ defmodule BikeBrigadeWeb.CoreComponents do
   slot :inner_block, doc: "the optional inner block that renders the flash message"
 
   def flash(assigns) do
-
     ~H"""
     <div
       :if={msg = render_slot(@inner_block) || Phoenix.Flash.get(@flash, @kind)}
@@ -198,13 +214,16 @@ defmodule BikeBrigadeWeb.CoreComponents do
         <Heroicons.x_mark solid class="w-5 h-5 stroke-current opacity-40 group-hover:opacity-70" />
       </button>
       <div class="flex items-center sm:flex md:justify-start md:flex-col md:items-start">
-      <p :if={@title} class="flex items-center gap-1.5 text-[0.8125rem] font-semibold leading-6 mr-2">
-        <Heroicons.information_circle :if={@kind == :info} mini class="w-4 h-4" />
-        <Heroicons.exclamation_circle :if={@kind == :error} mini class="w-4 h-4" />
-        <Heroicons.exclamation_circle :if={@kind == :warn} mini class="w-4 h-4" />
-        <%= @title %>
-      </p>
-      <p class="md:mt-2 text-[0.8125rem] leading-5"><%= msg %></p>
+        <p
+          :if={@title}
+          class="flex items-center gap-1.5 text-[0.8125rem] font-semibold leading-6 mr-2"
+        >
+          <Heroicons.information_circle :if={@kind == :info} mini class="w-4 h-4" />
+          <Heroicons.exclamation_circle :if={@kind == :error} mini class="w-4 h-4" />
+          <Heroicons.exclamation_circle :if={@kind == :warn} mini class="w-4 h-4" />
+          <%= @title %>
+        </p>
+        <p class="md:mt-2 text-[0.8125rem] leading-5"><%= msg %></p>
       </div>
     </div>
     """
