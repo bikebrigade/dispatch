@@ -1,4 +1,3 @@
-
 const Alpine = {
   mounted() {
     this.el.dispatchEvent(new CustomEvent('mounted', {

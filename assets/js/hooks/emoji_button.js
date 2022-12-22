@@ -1,8 +1,8 @@
-import { EmojiButton } from '@joeattardi/emoji-button';
+import { EmojiButton as emojiButton } from '@joeattardi/emoji-button';
 
-const EmojiButtonHook = {
+const EmojiButton = {
   mounted() {
-    const picker = new EmojiButton();
+    const picker = new emojiButton();
     const inputEl = document.querySelector(`#${this.el.dataset.inputId}`);
     if (inputEl === undefined) {
       console.warn("Input element for EmojiButton ", this.el.id, " not found. Emoji button disabled.")
@@ -23,4 +23,4 @@ const EmojiButtonHook = {
 
 };
 
-export default EmojiButtonHook;
+export default EmojiButton;

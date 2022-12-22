@@ -1,4 +1,4 @@
-const FrameHook = {
+const Frame = {
   mounted() {
     const resizeObserver = new ResizeObserver(_entries => {
       window.parent.postMessage({
@@ -10,7 +10,8 @@ const FrameHook = {
     window.parent.postMessage({
       height: this.el.scrollHeight
     }, "*");
-  };
+  }
   
-  export default FrameHook;
 }
+
+export default Frame;

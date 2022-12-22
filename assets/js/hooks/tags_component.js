@@ -1,4 +1,4 @@
-const TagsComponentHook = {
+const TagsComponent = {
   mounted() {
     this.el.addEventListener('keydown', e => {
       if (e.key == 'Enter') {
@@ -12,4 +12,4 @@ const TagsComponentHook = {
   }
 };
 
-export default TagsComponentHook;
+export default TagsComponent;

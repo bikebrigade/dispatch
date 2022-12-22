@@ -5,11 +5,11 @@ import MessageList from "./message_list";
 import RiderSelectionList from "./rider_selection_list";
 import Alpine from "./alpine";
 import Autocomplete from './autocomplete';
-import EmojiButtonHook from './emoji_button';
+import EmojiButton from './emoji_button';
 import CheckboxAll from './checkbox_all';
 import StatsDashboardChart from './stats_dashboard_chart';
-import FrameHook from './frame';
-import TagsComponentHook from './tags_component';
+import Frame from './frame';
+import TagsComponent from './tags_component';
 import LeafletMap from './leaflet_map';
 
 
@@ -21,10 +21,10 @@ export default {
   RiderSelectionList,
   Alpine,
   Autocomplete,
-  EmojiButtonHook,
+  EmojiButton,
   StatsDashboardChart,
   CheckboxAll,
-  FrameHook,
-  TagsComponentHook,
+  Frame,
+  TagsComponent,
   LeafletMap
 }
