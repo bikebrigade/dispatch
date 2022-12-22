@@ -25,7 +25,7 @@ const ConversationList = {
       }
     });
 
-    this.handleEvent("only_show", ({
+    this.handleEvent("conversation_list:only_show", ({
       ids
     }) => {
       Array.from(this.el.children).forEach((item) => {
@@ -37,7 +37,7 @@ const ConversationList = {
       });
     });
 
-    this.handleEvent("clear_search", ({}) => {
+    this.handleEvent("conversation_list:clear_search", ({}) => {
       document.getElementById("rider-search").value = ""
       Array.from(this.el.children).forEach((item) => {
         item.classList.remove("hidden");

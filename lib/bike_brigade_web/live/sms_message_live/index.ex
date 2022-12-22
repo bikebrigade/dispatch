@@ -72,7 +72,10 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
 
   @impl true
   def handle_event("search_riders", %{"search" => ""}, socket) do
-    {:noreply, socket |> assign(:rider_search_value, "") |> push_event("clear_search", %{})}
+    {:noreply,
+     socket
+     |> assign(:rider_search_value, "")
+     |> push_event("conversation_list:clear_search", %{})}
   end
 
   @impl true
@@ -88,7 +91,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
     {:noreply,
      socket
      |> assign(:rider_search_value, search)
-     |> push_event("only_show", %{"ids" => rider_ids})}
+     |> push_event("conversation_list:only_show", %{"ids" => rider_ids})}
   end
 
   @impl true
