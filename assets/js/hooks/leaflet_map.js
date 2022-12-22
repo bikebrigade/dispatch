@@ -1,3 +1,6 @@
+import L from "leaflet"
+import "leaflet-makimarkers"
+
 const LeafletMap = {
   mounted() {
     const template = document.createElement('template');
