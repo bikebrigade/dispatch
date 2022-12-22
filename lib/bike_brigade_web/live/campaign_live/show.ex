@@ -489,4 +489,18 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
       }
     }
   end
+
+  defp has_scheduled_message?(campaign) do
+    case campaign do
+      %{scheduled_message: %{send_at: send_at}} when not is_nil(send_at) -> true
+      _ -> false
+    end
+  end
+
+  defp has_latest_message?(campaign) do
+    case campaign do
+      %{latest_message: %{sent_at: sent_at}} when not is_nil(sent_at) -> true
+      _ -> false
+    end
+  end
 end
