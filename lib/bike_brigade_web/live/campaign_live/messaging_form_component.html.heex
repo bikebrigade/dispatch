@@ -42,7 +42,7 @@
             Text Message
             <.button
               id="emoji-button"
-              phx-hook="EmojiButton"
+              phx-hook="EmojiButtonHook"
               data-input-id={input_id(f, :instructions_template_body)}
               type="button"
               color={:white}
@@ -89,7 +89,7 @@
           App Details
           <.button
             id="emoji-button2"
-            phx-hook="EmojiButton"
+            phx-hook="EmojiButtonHook"
             data-input-id={input_id(f, :details)}
             type="button"
             color={:white}
