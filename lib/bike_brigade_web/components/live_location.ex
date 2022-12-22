@@ -72,8 +72,8 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
     socket =
       if location.coords != socket.assigns.location.coords do
         socket
-        |> push_event("update_layer", encode_marker(location))
-        |> push_event("redraw_map", %{recenter: true})
+        |> push_event("leaflet:update_layer", encode_marker(location))
+        |> push_event("leaflet:redraw_map", %{recenter: true})
       else
         socket
       end
@@ -88,7 +88,7 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
     {:noreply,
      socket
      |> assign(:open, true)
-     |> push_event("redraw_map", %{})}
+     |> push_event("leaflet:redraw_map", %{})}
   end
 
   @impl Phoenix.LiveComponent

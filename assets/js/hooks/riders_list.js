@@ -1,6 +1,6 @@
 const RidersList = {
   mounted() {
-    this.handleEvent("select_rider", ({
+    this.handleEvent("riders_list:select_rider", ({
       id
     }) => {
       this.el.querySelector(`[id="riders-list:${id}"]`).scrollIntoView({

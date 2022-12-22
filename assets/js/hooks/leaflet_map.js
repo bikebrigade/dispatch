@@ -100,11 +100,11 @@ const LeafletMap = {
     let initialLayers = JSON.parse(this.el.dataset.initial_layers);
     initialLayers.forEach(addLayer);
 
-    this.handleEvent("add_layers", ({
+    this.handleEvent("leaflet:add_layers", ({
       layers
     }) => layers.forEach(addLayer));
 
-    this.handleEvent("remove_layers", ({
+    this.handleEvent("leaflet:remove_layers", ({
       layers
     }) => {
       layers.forEach(({
@@ -117,7 +117,7 @@ const LeafletMap = {
       });
     });
 
-    this.handleEvent("update_layer", ({
+    this.handleEvent("leaflet:update_layer", ({
       id,
       type,
       data
@@ -145,7 +145,7 @@ const LeafletMap = {
       }
     });
 
-    this.handleEvent("redraw_map", ({
+    this.handleEvent("leaflet:redraw_map", ({
       recenter
     }) => {
       if (recenter) {

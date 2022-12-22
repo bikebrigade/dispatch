@@ -47,7 +47,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.ConversationComponent do
      |> assign(assigns)
      |> assign(conversation: conversation)
      |> assign(phx_update: "append")
-     |> push_event("new_message", %{})}
+     |> push_event("message_list:new_message", %{})}
   end
 
   @impl Phoenix.LiveComponent
