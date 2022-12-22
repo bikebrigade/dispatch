@@ -955,6 +955,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
   """
   attr :id, :string, required: true
   attr :rows, :list, required: true
+  attr :row_class, :string, default: "", doc: "optional css class to apply to each row, also useful for getting elements in tests."
 
   attr :checkboxes, :string, default: nil, doc: "form to use for checkboxes"
   attr :checkboxes_selected, MapSet, default: MapSet.new()
@@ -972,7 +973,6 @@ defmodule BikeBrigadeWeb.CoreComponents do
     attr :default_order, :atom, values: [:asc, :desc]
   end
 
-  slot :row_class, default: "", doc: "optional css class to apply to each row, also useful for getting elements in tests."
   slot :action, doc: "the slot for showing user actions in the last table column"
   slot :bulk_action, doc: "the slot for showing bulk user actions at the top of the table"
   slot :footer, doc: "table footer"

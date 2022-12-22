@@ -7,9 +7,8 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
     setup [:create_rider, :login]
 
     test "lists all riders, with working next/previous pagination", %{conn: conn} do
-      # REVIEW: is there a way I can just call :create_rider here? Do I have to import it from conn_case?
-      for _ <- 0..25, do: BikeBrigade.Fixtures.fixture(:rider)
-      {:ok, index_live, html} = live(conn, ~p"/riders")
+      for _ <- 0..25, do: fixture(:rider)
+      {:ok, index_live, _html} = live(conn, ~p"/riders")
 
       get_row_count = fn view ->
         view |> render() |> Floki.parse_fragment!() |> Floki.find(".rider-row") |> Enum.count()
@@ -20,9 +19,6 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
       assert get_row_count.(index_live) == 7
       index_live |> element("#prev-riders-page") |> render_click()
       assert get_row_count.(index_live) == 20
-    end
-
-    test "Riders can sort by name, capacity and last active", %{conn: conn} do
     end
 
     test "bulk message with no riders selected", %{conn: conn, rider: rider} do
