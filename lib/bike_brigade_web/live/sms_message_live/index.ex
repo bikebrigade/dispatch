@@ -138,7 +138,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
       if rider = Riders.get_rider(message.rider_id) do
         socket
         |> assign(:conversations, [{rider, message}])
-        |> push_event("new_message", %{"riderId" => rider.id})
+        |> push_event("conversation_list:new_message", %{"riderId" => rider.id})
       else
         socket
       end
@@ -215,7 +215,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
     socket
     |> assign(:selected_rider, rider)
     |> assign(:latest_campaign_tasks, latest_campaign_tasks)
-    |> push_event("select_rider", %{"id" => rider.id})
+    |> push_event("conversation_list:select_rider", %{"id" => rider.id})
   end
 
   defp details_buffer(campaign) do

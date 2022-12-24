@@ -321,7 +321,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
       if MapSet.member?(selected, rider_id) do
         socket
         |> assign(:selected, MapSet.delete(selected, rider_id))
-        |> push_event("update_layer", %{
+        |> push_event("leaflet:update_layer", %{
           id: rider_id,
           type: :marker,
           data: %{color: @unselected_color}
@@ -329,7 +329,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
       else
         socket
         |> assign(:selected, MapSet.put(selected, rider_id))
-        |> push_event("update_layer", %{
+        |> push_event("leaflet:update_layer", %{
           id: rider_id,
           type: :marker,
           data: %{color: @selected_color}

@@ -133,7 +133,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
       else
         socket
         |> assign(selected_task: task)
-        |> push_event("select_task", %{id: id})
+        |> push_event("tasks_list:select_task", %{id: id})
         |> push_map_events(previously_selected_task)
         |> push_map_events(task)
       end
@@ -195,6 +195,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   @impl true
   def handle_event("select_rider", %{"id" => id}, socket) do
     previously_selected_rider = socket.assigns.selected_rider
+
     rider = get_rider(socket, id)
 
     socket =
@@ -206,6 +207,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
       else
         socket
         |> assign(selected_rider: rider)
+        |> push_event("riders_list:select_rider", %{id: id})
         |> push_map_events(previously_selected_rider)
         |> push_map_events(rider)
       end
@@ -334,7 +336,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
      socket
      |> assign_campaign(campaign)
      |> assign(:selected_task, selected_task)
-     |> push_event("remove_layers", %{layers: [%{id: "task-#{deleted_id}"}]})}
+     |> push_event("leaflet:remove_layers", %{layers: [%{id: "task-#{deleted_id}"}]})}
   end
 
   @impl true
@@ -351,7 +353,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
 
       {:noreply,
        socket
-       |> push_event("add_layers", %{layers: [rider_marker(rider)]})}
+       |> push_event("leaflet:add_layers", %{layers: [rider_marker(rider)]})}
     else
       {:noreply, socket}
     end
@@ -379,7 +381,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
        socket
        |> assign_campaign(campaign)
        |> assign(:selected_rider, selected_rider)
-       |> push_event("remove_layers", %{layers: [%{id: "rider-#{deleted_rider_id}"}]})}
+       |> push_event("leaflet:remove_layers", %{layers: [%{id: "rider-#{deleted_rider_id}"}]})}
     else
       {:noreply, socket}
     end
@@ -451,7 +453,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
         else: @unselected_task_color
 
     socket
-    |> push_event("update_layer", %{
+    |> push_event("leaflet:update_layer", %{
       id: "task-#{id}",
       type: :marker,
       data: %{color: color, icon: if(assigned_rider_id, do: "circle", else: "cross")}
@@ -465,7 +467,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
         else: @unselected_rider_color
 
     socket
-    |> push_event("update_layer", %{
+    |> push_event("leaflet:update_layer", %{
       id: "rider-#{id}",
       type: :marker,
       data: %{color: color}
@@ -486,5 +488,19 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
         tooltip: name
       }
     }
+  end
+
+  defp has_scheduled_message?(campaign) do
+    case campaign do
+      %{scheduled_message: %{send_at: send_at}} when not is_nil(send_at) -> true
+      _ -> false
+    end
+  end
+
+  defp has_latest_message?(campaign) do
+    case campaign do
+      %{latest_message: %{sent_at: sent_at}} when not is_nil(sent_at) -> true
+      _ -> false
+    end
   end
 end

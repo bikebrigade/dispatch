@@ -1,6 +1,6 @@
 const ConversationList = {
   mounted() {
-    this.handleEvent("select_rider", ({
+    this.handleEvent("conversation_list:select_rider", ({
       id
     }) => {
       if (this.selectedRiderId != undefined) {
@@ -16,7 +16,7 @@ const ConversationList = {
       this.selectedRiderId = id;
     });
 
-    this.handleEvent("new_message", ({
+    this.handleEvent("conversation_list:new_message", ({
       riderId
     }) => {
       let msg = document.getElementById(`conversation-list-item:${riderId}`);

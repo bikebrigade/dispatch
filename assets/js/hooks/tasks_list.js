@@ -1,6 +1,6 @@
 const TasksList = {
   mounted() {
-    this.handleEvent("select_task", ({
+    this.handleEvent("tasks_list:select_task", ({
       id
     }) => {
       this.el.querySelector(`[id="tasks-list:${id}"]`).scrollIntoView({

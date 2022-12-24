@@ -2,7 +2,7 @@ import { EmojiButton as emojiButton } from '@joeattardi/emoji-button';
 
 const EmojiButton = {
   mounted() {
-    const picker = new emojiButton();
+    const picker = new emojiButton({zIndex: 100});
     const inputEl = document.querySelector(`#${this.el.dataset.inputId}`);
     if (inputEl === undefined) {
       console.warn("Input element for EmojiButton ", this.el.id, " not found. Emoji button disabled.")
