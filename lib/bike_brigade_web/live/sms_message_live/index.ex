@@ -4,8 +4,11 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
   alias BikeBrigadeWeb.SmsMessageLive.ConversationComponent
   alias BikeBrigade.Presence
   alias BikeBrigade.Messaging
-  alias BikeBrigade.Riders
+
   alias BikeBrigade.Delivery
+
+  alias BikeBrigade.Riders
+  alias BikeBrigade.Riders.RiderSearch
 
   import BikeBrigadeWeb.MessagingHelpers
   import BikeBrigadeWeb.CampaignHelpers, only: [request_type: 1]
@@ -27,6 +30,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
       |> assign(:presence, [])
       |> assign(:others_present, [])
       |> assign(:conversations, conversations)
+      |> assign(:rider_search_value, "")
       |> assign_rider(rider)
 
     socket =
@@ -64,6 +68,30 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
     {:noreply,
      socket
      |> apply_action(socket.assigns.live_action, params)}
+  end
+
+  @impl true
+  def handle_event("search_riders", %{"search" => ""}, socket) do
+    {:noreply,
+     socket
+     |> assign(:rider_search_value, "")
+     |> push_event("conversation_list:clear_search", %{})}
+  end
+
+  @impl true
+  def handle_event("search_riders", %{"search" => search}, socket) do
+    filter = %RiderSearch.Filter{type: :name, search: search}
+
+    {_rs, results} =
+      RiderSearch.new(filters: [filter], limit: 1000)
+      |> RiderSearch.fetch()
+
+    rider_ids = for r <- results.page, do: r.id
+
+    {:noreply,
+     socket
+     |> assign(:rider_search_value, search)
+     |> push_event("conversation_list:only_show", %{"ids" => rider_ids})}
   end
 
   @impl true
@@ -204,5 +232,57 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
     for {_, %{user: u}} <- presence, u.id != current_user.id do
       u
     end
+  end
+
+  attr :others_present, :list, required: true
+
+  defp currently_viewing(assigns) do
+    ~H"""
+    <div
+      :if={!Enum.empty?(@others_present)}
+      class="fixed top-0 right-0 z-10 flex-col items-end hidden mt-2 mr-2 sm:flex"
+    >
+      <div
+        id="currently-viewing"
+        class="hidden w-64 bg-white border border-gray-200 shadow sm:rounded-lg"
+      >
+        <div class="px-2 py-3 bg-white border-b border-gray-200 sm:rounded-t-lg">
+          <div class="absolute top-0 right-0 pt-4 pr-4 sm:block">
+            <button
+              phx-click={JS.hide(to: "#currently-viewing") |> JS.show(to: "#currently-viewing-close")}
+              type="button"
+              class="block text-gray-400 bg-white rounded-md hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              <span class="sr-only">Close</span>
+              <Heroicons.x_mark solid class="w-6 h-6" />
+            </button>
+          </div>
+          <div class="flex flex-wrap items-center">
+            <h3 class="text-lg font-medium leading-6 text-gray-900">
+              <%= Enum.count(@others_present) %> Currently Viewing
+            </h3>
+          </div>
+        </div>
+        <ul class="px-2 py-3">
+          <%= for user <- @others_present
+          do %>
+            <li><%= user.name %></li>
+          <% end %>
+        </ul>
+      </div>
+
+      <div id="currently-viewing-close">
+        <.button
+          phx-click={JS.hide(to: "#currently-viewing-close") |> JS.show(to: "#currently-viewing")}
+          type="button"
+          color={:white}
+          rounded={:full}
+        >
+          <Heroicons.eye solid class="w-5 h-5" />
+          <span class="ml-1 text-sm font-semibold"><%= Enum.count(@others_present) %></span>
+        </.button>
+      </div>
+    </div>
+    """
   end
 end

@@ -24,6 +24,25 @@ const ConversationList = {
         this.el.prepend(msg)
       }
     });
+
+    this.handleEvent("conversation_list:only_show", ({
+      ids
+    }) => {
+      Array.from(this.el.children).forEach((item) => {
+        if (ids.includes(parseInt(item.dataset.riderId))) {
+          item.classList.remove("hidden");
+        } else {
+          item.classList.add("hidden");
+        }
+      });
+    });
+
+    this.handleEvent("conversation_list:clear_search", ({}) => {
+      document.getElementById("rider-search").value = ""
+      Array.from(this.el.children).forEach((item) => {
+        item.classList.remove("hidden");
+      });
+    });
   }
 };
 
