@@ -974,6 +974,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
   """
   attr :id, :string, required: true
   attr :rows, :list, required: true
+  attr :row_class, :string, default: "", doc: "optional css class to apply to each row, also useful for getting elements in tests."
 
   attr :checkboxes, :string, default: nil, doc: "form to use for checkboxes"
   attr :checkboxes_selected, MapSet, default: MapSet.new()
@@ -1066,9 +1067,9 @@ defmodule BikeBrigadeWeb.CoreComponents do
                 <tr
                   :for={row <- @rows}
                   id={"#{@id}-#{Phoenix.Param.to_param(row)}"}
-                  class={
-                    if @checkboxes && MapSet.member?(@checkboxes_selected, row.id), do: "bg-gray-50"
-                  }
+                  class={[@row_class,
+                    (if @checkboxes && MapSet.member?(@checkboxes_selected, row.id), do: "bg-gray-50")
+                  ]}
                 >
                   <td :if={@checkboxes} class="relative w-12 px-4 sm:w-16 sm:px-8">
                     <div

@@ -6,11 +6,19 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
   describe "Index" do
     setup [:create_rider, :login]
 
-    test "lists all riders", %{conn: conn, rider: rider} do
-      {:ok, _index_live, html} = live(conn, ~p"/riders")
+    test "lists all riders, with working next/previous pagination", %{conn: conn} do
+      for _ <- 0..25, do: fixture(:rider)
+      {:ok, index_live, _html} = live(conn, ~p"/riders")
 
-      assert html =~ "Riders"
-      assert html =~ rider.name
+      get_row_count = fn view ->
+        view |> render() |> Floki.parse_fragment!() |> Floki.find(".rider-row") |> Enum.count()
+      end
+
+      assert get_row_count.(index_live) == 20
+      index_live |> element("#next-riders-page") |> render_click()
+      assert get_row_count.(index_live) == 7
+      index_live |> element("#prev-riders-page") |> render_click()
+      assert get_row_count.(index_live) == 20
     end
 
     test "bulk message with no riders selected", %{conn: conn, rider: rider} do

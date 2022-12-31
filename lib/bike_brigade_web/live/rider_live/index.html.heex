@@ -86,6 +86,7 @@
     rows={@search_results.page}
     checkboxes="selected"
     checkboxes_selected={@selected}
+    row_class="rider-row"
     sort_click={JS.push("sort")}
     sort_field={@rider_search.sort_field}
     sort_order={@rider_search.sort_order}
@@ -157,13 +158,13 @@
         </div>
         <div class="flex justify-between flex-1 sm:justify-end">
           <%= if RiderSearch.Results.has_prev_page?(@search_results) do %>
-            <.button phx-click="prev_page" color={:white}>
+            <.button id="prev-riders-page" phx-click="prev_page" color={:white}>
               Previous
             </.button>
           <% end %>
 
           <%= if RiderSearch.Results.has_next_page?(@search_results) do %>
-            <.button phx-click="next_page" color={:white} class="ml-3">
+            <.button id="next-riders-page" phx-click="next_page" color={:white} class="ml-3">
               Next
             </.button>
           <% end %>
