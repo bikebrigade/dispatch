@@ -2,6 +2,8 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
   use BikeBrigadeWeb.ConnCase, only: []
 
   import Phoenix.LiveViewTest
+  alias BikeBrigadeWeb.CampaignHelpers
+  alias BikeBrigade.LocalizedDateTime
 
   describe "Index" do
     setup [:create_campaign, :login]
@@ -21,6 +23,46 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
       |> render_click()
 
       assert_redirected(view, "/campaigns/#{campaign.id}")
+    end
+
+    test "clicking 'New Campaign' goes to new campaign route", ctx do
+      {:ok, view, _html} = live(ctx.conn, ~p"/campaigns/")
+      view |> element("a", "New Campaign") |> render_click()
+      assert_patched(view, ~p"/campaigns/new")
+    end
+
+    test "Can duplicate a campaign", ctx do
+      # get current week for the query param.
+      d = LocalizedDateTime.today() |> Date.beginning_of_week()
+      week_str = "#{d.year}-#{d.month}-#{d.day}"
+
+      {:ok, view, html} = live(ctx.conn, ~p"/campaigns/")
+      view |> element("#duplicate-campaign-#{ctx.campaign.id}") |> render_click()
+      open_browser(view)
+      assert_patched(view, ~p"/campaigns/#{ctx.campaign}/duplicate")
+      view |> element("#duplicate-campaign-form") |> render_submit()
+      assert_redirected(view, ~p"/campaigns?current_week=#{week_str}")
+
+      # Revisit with a fresh view and ensure we have duplicates
+      {:ok, view, html} = live(ctx.conn, ~p"/campaigns/")
+      rendered = render(view)
+
+      campaign_rows =
+        Floki.parse_fragment!(rendered)
+        |> Floki.find("[data-test-group=campaign-name]")
+        |> Enum.map(fn x -> String.trim(Floki.text(x)) end)
+
+      assert(Enum.uniq(campaign_rows) != campaign_rows)
+    end
+
+    @tag :skip
+    test "Can delete a campaign", ctx do
+      # TODO: we can't complete this test until there is a liveview modal that handles deletion
+      # rather than window.alert - as window alert can't be interacted with in live view tests.
+      {:ok, view, html} = live(ctx.conn, ~p"/campaigns/")
+      assert html =~ CampaignHelpers.name(ctx.campaign)
+      view |> element("#delete-campaign-#{ctx.campaign.id}") |> render_click()
+      refute html =~ CampaignHelpers.name(ctx.campaign)
     end
   end
 
