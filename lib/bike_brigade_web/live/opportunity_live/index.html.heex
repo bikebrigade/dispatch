@@ -14,6 +14,7 @@
 <.table
   id="opportunities"
   rows={@opportunities}
+  row_class={"opportunity-row"}
   checkboxes="selected"
   checkboxes_selected={@selected}
   sort_click={JS.push("sort")}
@@ -51,7 +52,7 @@
     sortable_field={:program_name}
     default_order={:asc}
   >
-    <.link navigate={~p"/programs/#{opportunity.program}"} class="link">
+    <.link navigate={~p"/programs/#{opportunity.program}"} class="link program-row-name">
       <%= opportunity.program.name %>
     </.link>
   </:col>

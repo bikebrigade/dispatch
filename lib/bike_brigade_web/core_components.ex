@@ -1051,6 +1051,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
                       <.sort_link
                         :if={col[:sortable_field]}
                         phx-click={@sort_click}
+                        data-test-id={"sort_#{col[:sortable_field]}"}
                         current_field={col[:sortable_field]}
                         default_order={col[:default_order]}
                         sort_field={@sort_field}

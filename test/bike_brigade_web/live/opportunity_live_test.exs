@@ -58,4 +58,42 @@ defmodule BikeBrigadeWeb.OpportunityLiveTest do
              |> render_submit() =~ link
     end
   end
+
+  describe "Index sorting of tables" do
+    setup ctx do
+      %{opportunity: opportunity1, program: program1} =
+        create_opportunity(%{program_attrs: %{name: "A Program"}, opportunity_attrs: %{}})
+
+      %{opportunity: opportunity2, program: program2} =
+        create_opportunity(%{program_attrs: %{name: "Z Program"}, opportunity_attrs: %{}})
+
+      ctx
+      |> login()
+      |> Map.put(:opportunities, [opportunity1, opportunity2])
+      |> Map.put(:programs, [program1, program2])
+    end
+
+    test "opportunities can be sorted by program", ctx do
+      {:ok, view, _html} = live(ctx.conn, ~p"/opportunities")
+
+      unsorted = get_rows(view, ".program-row-name")
+      assert unsorted == Enum.map(ctx.programs, fn x -> x.name end)
+
+      element(view, "[data-test-id=sort_program_name]") |> render_click()
+      sorted = get_rows(view, ".program-row-name")
+
+      assert sorted ==
+               Enum.sort_by(ctx.programs, fn x -> x.name end, :desc)
+               |> Enum.map(fn x -> x.name end)
+    end
+
+    defp get_rows(view, el_to_find) do
+      view
+      |> element("#opportunities")
+      |> render()
+      |> Floki.parse_fragment!()
+      |> Floki.find(el_to_find)
+      |> Enum.map(fn x -> Floki.text(x) |> String.trim() end)
+    end
+  end
 end
