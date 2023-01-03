@@ -34,16 +34,16 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
     test "Can duplicate a campaign", ctx do
       # get current week for the query param.
       d = LocalizedDateTime.today() |> Date.beginning_of_week()
-      week_str = "#{d.year}-#{d.month}-#{d.day}"
+      week_str = Date.to_iso8601(d)
 
-      {:ok, view, html} = live(ctx.conn, ~p"/campaigns/")
+      {:ok, view, _html} = live(ctx.conn, ~p"/campaigns/")
       view |> element("#duplicate-campaign-#{ctx.campaign.id}") |> render_click()
       assert_patched(view, ~p"/campaigns/#{ctx.campaign}/duplicate")
       view |> element("#duplicate-campaign-form") |> render_submit()
       assert_redirected(view, ~p"/campaigns?current_week=#{week_str}")
 
       # Revisit with a fresh view and ensure we have duplicates
-      {:ok, view, html} = live(ctx.conn, ~p"/campaigns/")
+      {:ok, view, _html} = live(ctx.conn, ~p"/campaigns/")
       rendered = render(view)
 
       campaign_rows =
