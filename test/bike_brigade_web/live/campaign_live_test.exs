@@ -38,7 +38,6 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
 
       {:ok, view, html} = live(ctx.conn, ~p"/campaigns/")
       view |> element("#duplicate-campaign-#{ctx.campaign.id}") |> render_click()
-      open_browser(view)
       assert_patched(view, ~p"/campaigns/#{ctx.campaign}/duplicate")
       view |> element("#duplicate-campaign-form") |> render_submit()
       assert_redirected(view, ~p"/campaigns?current_week=#{week_str}")
