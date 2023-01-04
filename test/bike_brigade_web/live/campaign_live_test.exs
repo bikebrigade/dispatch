@@ -54,13 +54,10 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
       assert(Enum.uniq(campaign_rows) != campaign_rows)
     end
 
-    @tag :skip
     test "Can delete a campaign", ctx do
-      # TODO: we can't complete this test until there is a liveview modal that handles deletion
-      # rather than window.alert - as window alert can't be interacted with in live view tests.
       {:ok, view, html} = live(ctx.conn, ~p"/campaigns/")
       assert html =~ CampaignHelpers.name(ctx.campaign)
-      view |> element("#delete-campaign-#{ctx.campaign.id}") |> render_click()
+      html = view |> element("#campaign-#{ctx.campaign.id} a", "Delete") |> render_click()
       refute html =~ CampaignHelpers.name(ctx.campaign)
     end
   end
