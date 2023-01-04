@@ -80,7 +80,16 @@
           </:actions>
         </.header>
 
-        <.table id="items" rows={@program.items}>
+        <ul>
+          <li :for={item_form <- inputs_for(f, :items)}>
+            <.input type="text" field={{item_form, :id}} />
+
+            <.input type="text" field={{item_form, :name}} />
+            <.input type="text" field={{item_form, :description}} />
+          </li>
+        </ul>
+
+        <%!--<.table id="items" rows={@program.items}>
           <:col :let={item} label="Name">
             <%= item.name %>
           </:col>
@@ -102,7 +111,7 @@
               Edit
             </.link>
           </:action>
-        </.table>
+        </.table>--%>
       </div>
 
       <.input

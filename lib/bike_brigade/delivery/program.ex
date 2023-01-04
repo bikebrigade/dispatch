@@ -48,7 +48,7 @@ defmodule BikeBrigade.Delivery.Program do
     belongs_to :lead, BikeBrigade.Accounts.User, on_replace: :nilify
     has_many :campaigns, Campaign, preload_order: [desc: :delivery_start]
 
-    has_many :items, Item
+    has_many :items, Item, on_replace: :delete_if_exists
     belongs_to :default_item, Item
 
     timestamps()
@@ -73,5 +73,6 @@ defmodule BikeBrigade.Delivery.Program do
     |> validate_required([:name, :start_date])
     |> foreign_key_constraint(:lead_id)
     |> cast_embed(:schedules)
+    |> cast_assoc(:items)
   end
 end
