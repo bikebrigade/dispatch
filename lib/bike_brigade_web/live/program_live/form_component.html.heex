@@ -83,30 +83,31 @@
         <.table id="items" rows={inputs_for(f, :items)}>
           <:col :let={item_form} label="Name">
             <.input type="hidden" field={{item_form, :id}} />
-            <%= if @editing_item == item_form.data.id do %>
-              <.input type="text" field={{item_form, :name}} />
-            <% else %>
-              <.input type="hidden" field={{item_form, :name}} />
+            <.input type="text" field={{item_form, :name}} />
+          </:col>
 
-              <%= input_value(item_form, :name) %>
-            <% end %>
-          </:col>
           <:col :let={item_form} label="Description" show_at={:large}>
-            <.input type="hidden" field={{item_form, :description}} />
-            <%= input_value(item_form, :description) %>
+            <.input type="text" field={{item_form, :description}} />
           </:col>
+
           <:col :let={item_form} label="Category">
-            <.input type="hidden" field={{item_form, :category}} />
-            <%= input_value(item_form, :category) %>
+            <.input
+              type="select"
+              field={{item_form, :category}}
+              options={Ecto.Enum.values(Delivery.Item, :category)}
+            />
           </:col>
 
           <:action :let={item_form}>
-            <.link
-              phx-click={JS.push("edit_item", value: %{id: item_form.data.id}, target: @myself)}
-              class="link"
+            <.button
+              color={:clear}
+              size={:xxsmall}
+              phx-click={JS.push("remove_item", value: %{id: item_form.data.id}, target: @myself)}
+              type="button"
             >
-              Edit
-            </.link>
+              <span class="sr-only">Close</span>
+              <Heroicons.x_mark solid class="w-6 h-6" />
+            </.button>
           </:action>
         </.table>
 

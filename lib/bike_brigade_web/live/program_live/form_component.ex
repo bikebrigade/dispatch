@@ -16,8 +16,7 @@ defmodule BikeBrigadeWeb.ProgramLive.FormComponent do
      |> assign(assigns)
      |> assign(:program, program)
      |> assign(:program_form, program_form)
-     |> assign(:changeset, changeset)
-     |> assign_new(:editing_item, fn -> nil end)}
+     |> assign(:changeset, changeset)}
   end
 
   @impl Phoenix.LiveComponent
@@ -46,8 +45,20 @@ defmodule BikeBrigadeWeb.ProgramLive.FormComponent do
   end
 
   @impl Phoenix.LiveComponent
-  def handle_event("edit_item", %{"id" => id}, socket) do
-    {:noreply, assign(socket, :editing_item, id)}
+  def handle_event("remove_item", %{"id" => id}, socket) do
+    changeset = socket.assigns.changeset
+
+    program = Ecto.Changeset.get_field(changeset, :program)
+
+    changeset =
+      changeset
+      |> Ecto.Changeset.change(
+        program:
+          program
+          |> Ecto.Changeset.change(items: Enum.reject(program.items, &(&1.id == id)))
+      )
+
+    {:noreply, assign(socket, :changeset, changeset)}
   end
 
   @impl Phoenix.LiveComponent
