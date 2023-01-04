@@ -37,7 +37,7 @@
           </:actions>
         </.header>
 
-        <div :for={{s, i} <- Enum.with_index(inputs_for(c, :schedules))} class="flex">
+        <div :for={{s, i} <- Enum.with_index(inputs_for(c, :schedules))} class="flex space-x-2">
           <.input
             type="select"
             field={{s, :weekday}}
