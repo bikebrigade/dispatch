@@ -1,7 +1,6 @@
 <div>
   <.flash kind={:info} title="Success!" flash={@flash} />
   <.flash kind={:error} title="Error!" flash={@flash} />
-  <.header><%= @title %></.header>
   <.simple_form
     :let={c}
     for={@changeset}
@@ -170,9 +169,5 @@
 
       <.input type="checkbox" field={{f, :active}} label="Active" />
     </div>
-
-    <:actions>
-      <.button type="submit" phx-disable-with="Saving...">Save</.button>
-    </:actions>
   </.simple_form>
 </div>
