@@ -80,13 +80,35 @@
           </:actions>
         </.header>
 
-        <ul>
-          <li :for={item_form <- inputs_for(f, :items)}>
+        <.table id="items" rows={inputs_for(f, :items)}>
+          <:col :let={item_form} label="Name">
             <.input type="hidden" field={{item_form, :id}} />
-            <.input type="text" field={{item_form, :name}} />
-            <.input type="text" field={{item_form, :description}} />
-          </li>
-        </ul>
+            <%= if @editing_item == item_form.data.id do %>
+              <.input type="text" field={{item_form, :name}} />
+            <% else %>
+              <.input type="hidden" field={{item_form, :name}} />
+
+              <%= input_value(item_form, :name) %>
+            <% end %>
+          </:col>
+          <:col :let={item_form} label="Description" show_at={:large}>
+            <.input type="hidden" field={{item_form, :description}} />
+            <%= input_value(item_form, :description) %>
+          </:col>
+          <:col :let={item_form} label="Category">
+            <.input type="hidden" field={{item_form, :category}} />
+            <%= input_value(item_form, :category) %>
+          </:col>
+
+          <:action :let={item_form}>
+            <.link
+              phx-click={JS.push("edit_item", value: %{id: item_form.data.id}, target: @myself)}
+              class="link"
+            >
+              Edit
+            </.link>
+          </:action>
+        </.table>
 
         <%!--<.table id="items" rows={@program.items}>
           <:col :let={item} label="Name">
