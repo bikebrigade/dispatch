@@ -82,8 +82,7 @@
 
         <ul>
           <li :for={item_form <- inputs_for(f, :items)}>
-            <.input type="text" field={{item_form, :id}} />
-
+            <.input type="hidden" field={{item_form, :id}} />
             <.input type="text" field={{item_form, :name}} />
             <.input type="text" field={{item_form, :description}} />
           </li>
