@@ -65,10 +65,9 @@
     program={@program}
     navigate={~p"/programs"}
   />
-   <:confirm form="opportunity-form" type="submit" phx-disable-with="Saving...">Save</:confirm>
+  <:confirm form="program-form" type="submit" phx-disable-with="Saving...">Save</:confirm>
   <:cancel>Cancel</:cancel>
 </.slideover>
-
 
 <.modal
   :if={@live_action in [:new_item, :edit_item]}
