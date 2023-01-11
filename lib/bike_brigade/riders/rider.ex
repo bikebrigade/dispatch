@@ -58,7 +58,7 @@ defmodule BikeBrigade.Riders.Rider do
     field :last_safety_check, :date
     field :internal_notes, :string
 
-    belongs_to :location, Location, on_replace: :delete
+    belongs_to :location, Location, on_replace: :delete_if_exists
 
     # TODO look into removing these virtuals
     field :distance, :integer, virtual: true
