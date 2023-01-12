@@ -88,8 +88,7 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
         {:ok, options} ->
           assign(socket, :options, options) |> assign_stats()
 
-        {:error, err} ->
-          dbg(err)
+        {:error, _err} ->
           put_flash(socket, :error, "Invalid options selected")
       end
 
