@@ -274,7 +274,11 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
     location.address || location.postal
   end
 
-  defp dump_coords(location) do
-    location.coords |> Geo.JSON.encode!() |> Jason.encode!()
+  defp dump_coords(%{coords: nil}) do
+    %Geo.Point{} |> Geo.JSON.encode!() |> Jason.encode!()
+  end
+
+  defp dump_coords(%{coords: coords}) do
+    coords |> Geo.JSON.encode!() |> Jason.encode!()
   end
 end
