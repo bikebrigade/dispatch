@@ -73,23 +73,24 @@
             What we deliver for this program
           </:subtitle>
           <:actions>
-            <.button size={:xsmall} patch={~p"/programs/#{@program}/items/new"}>
+            <.button size={:xsmall} phx-click={JS.push("add_item", target: @myself)}>
               New Item
             </.button>
           </:actions>
         </.header>
 
-        <.table id="items" rows={inputs_for(f, :items)}>
-          <:col :let={item_form} label="Name">
+        <.table id="items" rows={inputs_for(f, :items) |> Enum.with_index()}>
+          <:col :let={{item_form, i}} label="Name">
             <.input type="hidden" field={{item_form, :id}} />
+            <.input type="hidden" field={{item_form, :program_id}} />
             <.input type="text" field={{item_form, :name}} />
           </:col>
 
-          <:col :let={item_form} label="Description" show_at={:large}>
+          <:col :let={{item_form, i}} label="Description" show_at={:large}>
             <.input type="text" field={{item_form, :description}} />
           </:col>
 
-          <:col :let={item_form} label="Category">
+          <:col :let={{item_form, i}} label="Category">
             <.input
               type="select"
               field={{item_form, :category}}
@@ -97,11 +98,16 @@
             />
           </:col>
 
-          <:action :let={item_form}>
+          <:col :let={{item_form, i}} label="Hidden?">
+            <.input type="checkbox" field={{item_form, :hidden}} />
+          </:col>
+
+          <:action :let={{item_form, i}}>
             <.button
+              :if={item_form.data.id == nil}
               color={:clear}
               size={:xxsmall}
-              phx-click={JS.push("remove_item", value: %{id: item_form.data.id}, target: @myself)}
+              phx-click={JS.push("remove_item", value: %{index: i}, target: @myself)}
               type="button"
             >
               <span class="sr-only">Close</span>
