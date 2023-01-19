@@ -98,7 +98,7 @@
             />
           </:col>
 
-          <:col :let={{item_form, i}} label="Hidden?">
+          <:col :let={{item_form, i}} label="Archived?">
             <.input type="checkbox" field={{item_form, :hidden}} />
           </:col>
 
@@ -115,30 +115,6 @@
             </.button>
           </:action>
         </.table>
-
-        <%!--<.table id="items" rows={@program.items}>
-          <:col :let={item} label="Name">
-            <%= item.name %>
-          </:col>
-          <:col :let={item} label="Description" show_at={:large}>
-            <%= item.description %>
-          </:col>
-          <:col :let={item} label="Category">
-            <%= item.category %>
-          </:col>
-          <:col :let={item} label="Hidden" unstack_at={:large}>
-            <%= if item.hidden do %>
-              <div class="flex justify-center">
-                <Heroicons.eye_slash class="flex-shrink-0 w-6 h-6 mx-1 text-gray-600" />
-              </div>
-            <% end %>
-          </:col>
-          <:action :let={item}>
-            <.link patch={~p"/programs/#{@program}/items/#{item}/edit"} class="link">
-              Edit
-            </.link>
-          </:action>
-        </.table>--%>
       </div>
 
       <.input
