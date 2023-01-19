@@ -42,7 +42,7 @@ defmodule BikeBrigade.Delivery.Campaign do
 
     belongs_to :instructions_template, Messaging.Template, on_replace: :update
     belongs_to :program, Program
-    has_one :scheduled_message, Messaging.ScheduledMessage, on_replace: :delete
+    has_one :scheduled_message, Messaging.ScheduledMessage, on_replace: :delete_if_exists
 
     # todo possibly a has_many
     has_many :tasks, Task
