@@ -3,11 +3,80 @@ import Config
 # Set Endpoint and repo configs if we're in production
 case config_env() do
   :dev ->
+    DotenvParser.load_file(".env.local")
+
     if System.get_env("CODESPACES") == "true" do
       config :bike_brigade, BikeBrigade.Repo, hostname: "postgres"
     end
 
-  DotenvParser.load_file(".env.local")
+    case System.get_env("SLACK_OAUTH_TOKEN") do
+      nil ->
+        config :bike_brigade, :slack,
+          token: "token",
+          adapter: BikeBrigade.SlackApi.FakeSlack
+
+      token ->
+        config :bike_brigade, :slack,
+          token: token,
+          adapter: BikeBrigade.SlackApi.Http
+    end
+
+    case {System.get_env("TWILIO_ACCOUNT_SID"), System.get_env("TWILIO_AUTH_TOKEN"),
+          System.get_env("TWILIO_STATUS_CALLBACK")} do
+      {sid, token, url} when is_binary(sid) and is_binary(token) and is_binary(url) ->
+        config :ex_twilio,
+          account_sid: sid,
+          auth_token: token
+
+        config :bike_brigade, :sms_service,
+          adapter: BikeBrigade.SmsService.Twilio,
+          status_callback_url: url
+
+      {_, _, _} ->
+        config :bike_brigade, :sms_service,
+          adapter: BikeBrigade.SmsService.FakeSmsService,
+          status_callback_url: :local
+    end
+
+    case System.get_env("GOOGLE_MAPS_API_KEY") do
+      api_key when is_binary(api_key) and api_key != "" ->
+        config :bike_brigade, :geocoder, adapter: BikeBrigade.Geocoder.LibLatLonGeocoder
+
+      _ ->
+        config :bike_brigade, :geocoder,
+          adapter: {BikeBrigade.Geocoder.FakeGeocoder, [locations: :from_seeds]}
+    end
+
+    case System.get_env("GOOGLE_SERVICE_JSON") do
+      json when is_binary(json) and json != "" ->
+        config :bike_brigade, BikeBrigade.Google, credentials: json
+
+        case System.get_env("GOOGLE_STORAGE_BUCKET") do
+          nil ->
+            config :bike_brigade, :media_storage,
+              adapter: BikeBrigade.MediaStorage.LocalMediaStorage,
+              bucket: "bike-brigade-media"
+
+          bucket ->
+            config :bike_brigade, :media_storage,
+              adapter: BikeBrigade.MediaStorage.GoogleMediaStorage,
+              bucket: bucket
+        end
+
+      _no_json ->
+        config :bike_brigade, :media_storage,
+          adapter: BikeBrigade.MediaStorage.LocalMediaStorage,
+          bucket: "bike-brigade-media"
+    end
+
+    case System.get_env("MAILCHIMP_API_KEY") do
+      nil ->
+        config :bike_brigade, :mailchimp, adapter: BikeBrigade.MailchimpApi.FakeMailchimp
+
+      key ->
+        config :bike_brigade, :mailchimp, adapter: BikeBrigade.MailchimpApi.Http
+        config :mailchimp, api_key: key
+    end
 
   :prod ->
     app_env =
