@@ -49,10 +49,12 @@ defmodule BikeBrigade.Locations.Location do
     |> cast(params, @fields)
     |> validate_required([:coords, :city, :province, :country])
     |> validate_change(:coords, fn :coords, coords ->
-      if %Geo.Point{coordinates: {0, 0}} = coords do
-        [location: "location is invalid"]
-      else
-        []
+      case coords do
+        %Geo.Point{coordinates: {0, 0}} ->
+          [location: "location is invalid"]
+
+        _ ->
+          []
       end
     end)
   end
