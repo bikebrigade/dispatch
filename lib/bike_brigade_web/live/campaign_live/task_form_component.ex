@@ -66,7 +66,7 @@ defmodule BikeBrigadeWeb.CampaignLive.TaskFormComponent do
 
     changeset =
       task
-      |> Delivery.change_task(task_params, geocode: true)
+      |> Delivery.change_task(task_params, geocode: false)
       |> Map.put(:action, :validate)
 
     {:noreply, assign(socket, :changeset, changeset)}
@@ -83,7 +83,7 @@ defmodule BikeBrigadeWeb.CampaignLive.TaskFormComponent do
   end
 
   defp save_task(socket, :new, campaign, task_params) do
-    case Delivery.create_task_for_campaign(campaign, task_params, geocode: true) do
+    case Delivery.create_task_for_campaign(campaign, task_params, geocode: false) do
       {:ok, _task} ->
         {:noreply,
          socket
