@@ -30,20 +30,43 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
 
   @impl Phoenix.LiveComponent
   def mount(socket) do
-    {:ok, socket |> assign(:open, false)}
+    {:ok,
+     socket
+     |> assign(:location, %Location{})
+     |> assign(:open, false)}
   end
 
   @impl Phoenix.LiveComponent
-  def update(%{as: as, location: location} = assigns, socket) do
-    location = if is_nil(location), do: %Location{}, else: location
-    changeset = Location.changeset(location)
+  def update(%{field: {f, field}} = assigns, socket) do
+    as = input_name(f, field)
+    value = input_value(f, field)
+
+    {location, changeset} =
+      case value do
+        %Location{} = location ->
+          {location, Location.changeset(location)}
+
+        %Ecto.Changeset{} = changeset ->
+          location = Ecto.Changeset.apply_changes(changeset)
+          {location, changeset}
+
+        %{} = map ->
+          changeset = Location.changeset(
+            socket.assigns.location,
+            map
+          )
+          location = Ecto.Changeset.apply_changes(changeset)
+          {location, changeset}
+      end
+
     form = Phoenix.HTML.FormData.to_form(changeset, as: as)
 
     {:ok,
      socket
      |> assign(assigns)
+     |> assign(:as, as)
      |> assign(:location, location)
-     |> assign_new(:form, fn -> form end)}
+     |> assign(:form, form)}
   end
 
   @impl Phoenix.LiveComponent

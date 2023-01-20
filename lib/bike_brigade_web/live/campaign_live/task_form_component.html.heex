@@ -23,11 +23,11 @@
     >
       <.input type="text" field={{f, :dropoff_name}} label="Dropoff Name" />
       <.input type="tel" field={{f, :dropoff_phone}} label="Dropoff Phone" />
+
       <.live_component
         module={LiveLocation}
         id="location-form"
-        as={input_name(f, :dropoff_location)}
-        location={@task.dropoff_location}
+        field={{f, :dropoff_location}}
         label="Dropoff Location"
       />
 
