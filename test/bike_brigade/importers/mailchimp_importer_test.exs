@@ -94,7 +94,7 @@ defmodule BikeBrigade.Tasks.MailchimpImporterTest do
       assert r.name == "Morty"
 
       # The rider has a default location
-      assert r.location.address == "1 Front St"
+      assert r.location.address == "1 Front Street West"
 
       # We alert on slack
       call = FakeSlack.get_last_call()

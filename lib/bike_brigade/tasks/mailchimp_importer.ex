@@ -79,8 +79,21 @@ defmodule BikeBrigade.Tasks.MailchimpImporter do
     end
   end
 
+  @default_location %{
+    address: "1 Front Street West",
+    city: "Toronto",
+    coords: %Geo.Point{
+      coordinates: {-79.37761739999999, 43.6459904},
+      srid: nil,
+      properties: %{}
+    },
+    country: "Canada",
+    postal: "M5J 2X5",
+    province: "Ontario"
+  }
+
   def put_default_location(rider_attrs) do
-    Map.put(rider_attrs, :location, %{address: "1 Front St"})
+    Map.put(rider_attrs, :location, @default_location)
   end
 
   def tag_invalid_location(rider) do
