@@ -127,6 +127,7 @@ defmodule BikeBrigadeWeb.ProgramLive.ProgramForm do
       attrs =
         Map.from_struct(program)
         |> Map.put(:schedules, schedules)
+        |> Map.update!(:items, fn items -> Enum.map(items, &Map.from_struct/1) end)
 
       {:ok, attrs}
     end

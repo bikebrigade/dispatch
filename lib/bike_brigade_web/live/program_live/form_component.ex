@@ -45,6 +45,45 @@ defmodule BikeBrigadeWeb.ProgramLive.FormComponent do
   end
 
   @impl Phoenix.LiveComponent
+  def handle_event("add_item", _params, socket) do
+    changeset = socket.assigns.changeset
+
+    program =
+      Ecto.Changeset.get_field(changeset, :program)
+
+    changeset =
+      changeset
+      |> Ecto.Changeset.change(
+        program:
+          program
+          |> Ecto.Changeset.change(items: program.items ++ [%{program_id: program.id}])
+      )
+
+    {:noreply, assign(socket, :changeset, changeset)}
+  end
+
+  @impl Phoenix.LiveComponent
+  def handle_event("remove_item", %{"index" => index}, socket) do
+    changeset = socket.assigns.changeset
+    program = Ecto.Changeset.get_field(changeset, :program)
+
+    items =
+      program.items
+      |> List.delete_at(index)
+      |> Enum.map(&Map.from_struct/1)
+
+    changeset =
+      changeset
+      |> Ecto.Changeset.change(
+        program:
+          program
+          |> Delivery.Program.changeset(%{items: items})
+      )
+
+    {:noreply, assign(socket, :changeset, changeset)}
+  end
+
+  @impl Phoenix.LiveComponent
   def handle_event("validate", %{"program_form" => program_form_params}, socket) do
     changeset =
       socket.assigns.program_form

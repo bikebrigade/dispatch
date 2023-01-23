@@ -41,10 +41,11 @@
   </:action>
 </.table>
 
-<.modal
+<.slideover
   :if={@live_action == :edit}
   id="program-modal"
   show
+  wide
   on_cancel={JS.navigate(~p"/programs/#{@program}")}
 >
   <.live_component
@@ -55,7 +56,9 @@
     program={@program}
     navigate={~p"/programs/#{@program}"}
   />
-</.modal>
+  <:confirm form="program-form" type="submit" phx-disable-with="Saving...">Save</:confirm>
+  <:cancel>Cancel</:cancel>
+</.slideover>
 
 <.modal
   :if={@live_action == :new_campaign}
