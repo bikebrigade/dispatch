@@ -4,9 +4,10 @@ defmodule BikeBrigadeWeb.Layouts do
   embed_templates "layouts/*"
 
   attr :is_dispatcher, :boolean, default: false
+  attr :is_rider, :boolean, default: false
 
   attr :current_page, :atom,
-    values: [:programs, :campaigns, :opportunities, :riders, :stats, :users, :messages, :profile]
+    values: [:programs, :campaigns, :opportunities, :riders, :stats, :users, :messages, :itinerary, :profile]
 
   defp sidebar(assigns) do
     ~H"""
@@ -62,6 +63,14 @@ defmodule BikeBrigadeWeb.Layouts do
         </:icon>
         My Profile
       </.sidebar_link>
+
+      <.sidebar_link :if={@is_rider} selected={@current_page == :itinerary} navigate={~p"/itinerary"}>
+        <:icon>
+          <Heroicons.calendar_days />
+        </:icon>
+        Itinerary
+      </.sidebar_link>
+
       <.sidebar_link selected={@current_page == :logout} href={~p"/logout"} method="post">
         <:icon>
           <Heroicons.arrow_left_on_rectangle solid />
@@ -81,6 +90,7 @@ defmodule BikeBrigadeWeb.Layouts do
   defp sidebar_link(%{selected: true} = assigns) do
     ~H"""
     <.link
+      data-test-id="sidebar-link"
       class="flex items-center px-2 py-2 mb-1 text-base font-medium leading-6 text-gray-900 transition duration-150 ease-in-out bg-gray-100 rounded-md group focus:outline-none focus:bg-gray-200"
       {@rest}
     >
@@ -95,6 +105,7 @@ defmodule BikeBrigadeWeb.Layouts do
   defp sidebar_link(%{selected: false} = assigns) do
     ~H"""
     <.link
+      data-test-id="sidebar-link"
       class="flex items-center px-2 py-2 mb-1 text-base font-medium leading-6 text-gray-600 transition duration-150 ease-in-out rounded-md group hover:text-gray-900 hover:bg-gray-50 focus:outline-none focus:text-gray-900 focus:bg-gray-100"
       {@rest}
     >

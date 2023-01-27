@@ -62,10 +62,12 @@
             <img class="w-auto h-8" src={~p"/images/logo-black.png"} alt="Toronto Bike Brigade" />
             <h1 class="ml-2 font-semibold">Toronto Bike Brigade</h1>
           </div>
-          <nav class="px-2 mt-5 space-y-1">
+          <nav id="desktop-sidebar" class="px-2 mt-5 space-y-1">
             <.sidebar
               current_page={@page}
               is_dispatcher={@current_user.is_dispatcher}
+              is_rider={!is_nil(@current_user.rider_id)}
+
             />
           </nav>
         </div>
@@ -110,6 +112,7 @@
           <.sidebar
             current_page={@page}
             is_dispatcher={@current_user.is_dispatcher}
+            is_rider={!is_nil(@current_user.rider_id)}
           />
         </nav>
       </div>

@@ -17,10 +17,22 @@ defmodule BikeBrigadeWeb.ItineraryLiveTest do
       assert html =~ "Itinerary"
       assert html =~ "User is not associated with a rider!"
     end
+
+    test "Itinerary is not visible in the sidebar", %{conn: conn} do
+      {:ok, _index_live, html} = live(conn, ~p"/itinerary")
+    end
   end
 
   describe "Itinerary for User with associated Rider" do
     setup [:create_campaign, :login_as_rider]
+
+    test "'Itinerary' is visible in the sidebar", %{conn: conn} do
+      {:ok, index_live, html} = live(conn, ~p"/itinerary")
+
+      index_live
+      |> element("nav#desktop-sidebar")
+      |> render() =~ "Itinerary"
+    end
 
     test "doesn't show an error", %{conn: conn} do
       {:ok, _index_live, html} = live(conn, ~p"/itinerary")
