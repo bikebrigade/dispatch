@@ -51,12 +51,21 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
           {location, changeset}
 
         %{} = map ->
-          changeset = Location.changeset(
-            socket.assigns.location,
-            map
-          )
+          changeset =
+            Location.changeset(
+              socket.assigns.location,
+              map
+            )
+
           location = Ecto.Changeset.apply_changes(changeset)
           {location, changeset}
+
+        nil ->
+          location = %Location{}
+          changeset = Location.changeset(location)
+
+          {location, changeset
+        }
       end
 
     form = Phoenix.HTML.FormData.to_form(changeset, as: as)

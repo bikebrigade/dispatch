@@ -21,8 +21,7 @@
     <.live_component
       module={LiveLocation}
       id="location-form"
-      as={input_name(f, :location)}
-      location={@campaign.location}
+      field={{f, :location}}
       label="Pickup Location"
     />
 
