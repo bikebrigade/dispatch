@@ -26,7 +26,9 @@ defmodule BikeBrigadeWeb.LoginLive do
     end
 
     defp validate_user_exists(changeset, field) when is_atom(field) do
+      dbg()
       validate_change(changeset, field, fn _, phone ->
+        IO.inspect(Accounts.get_user_by_phone(phone), label: ">>> Accounts.get_user_by_phone(phone)")
         case Accounts.get_user_by_phone(phone) do
           nil -> [{field, "We can't find your number. Have you signed up for Bike Brigade?"}]
           _ -> []
