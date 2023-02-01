@@ -27,6 +27,13 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
       assert_redirected(view, "/programs/#{program.id}")
     end
 
+    test "New Program button goes to new program route", ctx do
+      {:ok, view, _html} = live(ctx.conn, ~p"/programs")
+
+      view |> element("a", "New Program") |> render_click()
+      assert_patched(view, "/programs/new")
+    end
+
     # Click on Edit
 
     test "redirects to edit program", %{conn: conn, program: program} do

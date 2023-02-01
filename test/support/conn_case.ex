@@ -77,6 +77,12 @@ defmodule BikeBrigadeWeb.ConnCase do
     %{rider: rider}
   end
 
+  def create_opportunity(%{program_attrs: program_attrs, opportunity_attrs: opportunity_attrs}) do
+    program = fixture(:program, program_attrs)
+    opportunity = fixture(:opportunity, Map.merge(%{program_id: program.id}, opportunity_attrs))
+    %{opportunity: opportunity, program: program}
+  end
+
   def create_opportunity(%{}) do
     program = fixture(:program)
     opportunity = fixture(:opportunity, %{program_id: program.id})

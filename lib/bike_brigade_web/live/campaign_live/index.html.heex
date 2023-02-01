@@ -81,7 +81,11 @@
             <div class="px-4 py-4">
               <div class="items-center justify-between md:flex">
                 <div class="flex items-center mb-2 space-x-1">
-                  <.link navigate={~p"/campaigns/#{c}"} class="text-sm font-medium link">
+                  <.link
+                    navigate={~p"/campaigns/#{c}"}
+                    class="text-sm font-medium link"
+                    data-test-group="campaign-name"
+                  >
                     <%= name(c) %>
                   </.link>
                 </div>
@@ -89,7 +93,12 @@
                   <.button size={:xsmall} color={:white} patch={~p"/campaigns/#{c}/edit"}>
                     Edit
                   </.button>
-                  <.button patch={~p"/campaigns/#{c}/duplicate"} size={:xsmall} color={:white}>
+                  <.button
+                    id={"duplicate-campaign-#{c.id}"}
+                    patch={~p"/campaigns/#{c}/duplicate"}
+                    size={:xsmall}
+                    color={:white}
+                  >
                     Duplicate
                   </.button>
                   <.button
