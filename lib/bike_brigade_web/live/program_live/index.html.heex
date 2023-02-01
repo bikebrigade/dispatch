@@ -48,12 +48,15 @@
   </:action>
 </.table>
 
-<.modal
+<.slideover
   :if={@live_action in [:new, :edit]}
   id="program-modal"
   show
+  wide
   on_cancel={JS.navigate(~p"/programs")}
 >
+  <:title><%= @page_title %></:title>
+
   <.live_component
     module={BikeBrigadeWeb.ProgramLive.FormComponent}
     id={@program.id || :new}
@@ -62,7 +65,9 @@
     program={@program}
     navigate={~p"/programs"}
   />
-</.modal>
+  <:confirm form="program-form" type="submit" phx-disable-with="Saving...">Save</:confirm>
+  <:cancel>Cancel</:cancel>
+</.slideover>
 
 <.modal
   :if={@live_action in [:new_item, :edit_item]}

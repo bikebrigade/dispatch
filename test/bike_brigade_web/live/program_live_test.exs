@@ -72,29 +72,45 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
     test "can add new item", %{conn: conn, program: program} do
       {:ok, view, html} = live(conn, ~p"/programs/#{program}/edit")
 
-      refute html =~ "Awesome food hamper"
+      # We don't have an item called Pasta
+      refute html =~ "Pasta"
+
+      # We have forms for only one item
+      assert view
+             |> has_element?("[name='program_form[program][items][0][name]']")
+
+      refute view
+             |> has_element?("[name='program_form[program][items][1][name]']")
 
       # Click on New Item
       view
       |> element("#program-form a", "New Item")
       |> render_click()
 
-      assert_patched(view, "/programs/#{program.id}/items/new")
+      # We have a form for a second item
+      assert view
+             |> has_element?("[name='program_form[program][items][1][name]']")
 
-      view
-      |> form("#item-form",
-        item: %{
-          name: "Food Hamper",
-          description: "Awesome food hamper",
-          category: "Food Hamper"
-        }
-      )
-      |> render_submit()
+      [item] = program.items
+
+      {:ok, _view, html} =
+        view
+        |> form("#program-form",
+          program_form: %{
+            program: %{
+              items: %{0 => %{id: item.id, name: "Pasta"}, 1 => %{name: "Soup"}}
+            }
+          }
+        )
+        |> render_submit()
+        |> follow_redirect(conn)
 
       # Open the edit page again to make sure we have the new item type
       {:ok, _view, html} = live(conn, ~p"/programs/#{program}/edit")
 
-      assert html =~ "Awesome food hamper"
+      assert html =~ "Pasta"
+      assert html =~ "Soup"
+
     end
   end
 end

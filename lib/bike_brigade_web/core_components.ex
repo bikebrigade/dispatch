@@ -1284,3 +1284,9 @@ defmodule BikeBrigadeWeb.CoreComponents do
     Phoenix.HTML.html_escape(val1) == Phoenix.HTML.html_escape(val2)
   end
 end
+
+# Impelemntation of Phoenix.Param for results of Enum.with_index(foo)
+
+defimpl Phoenix.Param, for: Tuple do
+  def to_param({term, _i}), do: Phoenix.Param.to_param(term)
+end
