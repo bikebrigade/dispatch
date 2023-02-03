@@ -803,6 +803,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
   attr :wide, :boolean, default: false
   attr :on_cancel, JS, default: %JS{}
   attr :on_confirm, JS, default: %JS{}
+  attr :disable_clickaway, :boolean, default: false
 
   slot :inner_block, required: true
   slot :title
@@ -851,7 +852,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
                 phx-mounted={@show && show_slideover(@id)}
                 phx-window-keydown={hide_slideover(@on_cancel, @id)}
                 phx-key="escape"
-                phx-click-away={hide_slideover(@on_cancel, @id)}
+                phx-click-away={unless @disable_clickaway, do: hide_slideover(@on_cancel, @id)}
                 class="flex flex-col h-full overflow-y-scroll bg-white shadow-xl"
               >
                 <div class="flex-1">
