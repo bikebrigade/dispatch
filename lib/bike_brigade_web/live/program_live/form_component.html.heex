@@ -80,17 +80,17 @@
         </.header>
 
         <.table id="items" rows={inputs_for(f, :items) |> Enum.with_index()}>
-          <:col :let={{item_form, i}} label="Name">
+          <:col :let={{item_form, _i}} label="Name">
             <.input type="hidden" field={{item_form, :id}} />
             <.input type="hidden" field={{item_form, :program_id}} />
             <.input type="text" field={{item_form, :name}} />
           </:col>
 
-          <:col :let={{item_form, i}} label="Description" show_at={:large}>
+          <:col :let={{item_form, _i}} label="Description" show_at={:large}>
             <.input type="text" field={{item_form, :description}} />
           </:col>
 
-          <:col :let={{item_form, i}} label="Category">
+          <:col :let={{item_form, _i}} label="Category">
             <.input
               type="select"
               field={{item_form, :category}}
@@ -98,7 +98,7 @@
             />
           </:col>
 
-          <:col :let={{item_form, i}} label="Archived?">
+          <:col :let={{item_form, _i}} label="Archived?">
             <.input type="checkbox" field={{item_form, :hidden}} />
           </:col>
 

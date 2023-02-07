@@ -13,10 +13,11 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   @selected_rider_color "#5850ec"
   @unselected_rider_color "#4a5568"
 
+  # Below is for when we add lines to the map
   # indigo-200
-  @pickup_line_color "#c7d2fe"
+  # @pickup_line_color "#c7d2fe"
   # indigo-400
-  @dropoff_line_color "#818cf8"
+  # @dropoff_line_color "#818cf8"
 
   @impl true
   def mount(_params, _session, socket) do
