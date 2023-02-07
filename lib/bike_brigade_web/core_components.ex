@@ -71,7 +71,13 @@ defmodule BikeBrigadeWeb.CoreComponents do
     assigns = assign(assigns, :button_base_classes, @button_base_classes)
 
     ~H"""
-    <.link class={@button_base_classes ++ [button_size(@size), button_color(@color), button_rounded(@rounded), @class]} {@rest}>
+    <.link
+      class={
+        @button_base_classes ++
+          [button_size(@size), button_color(@color), button_rounded(@rounded), @class]
+      }
+      {@rest}
+    >
       <%= render_slot(@inner_block) %>
     </.link>
     """
@@ -351,7 +357,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
       </div>
       <div class="ml-3 text-sm">
         <.label for={@id}><%= @label %></.label>
-        <p if={@help_text} id="comments-description" class="text-gray-500">
+        <p if={@help_text} id={"#{@id}-help"} class="text-gray-500">
           <%= @help_text %>
         </p>
       </div>
@@ -854,7 +860,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
                 phx-click-away={hide_slideover(@on_cancel, @id)}
                 class="flex flex-col h-full overflow-y-scroll bg-white shadow-xl"
               >
-                <div class="flex-1">
+                <div id={"#{@id}-content"} class="flex-1">
                   <!-- Header -->
                   <div class="px-4 py-6 bg-gray-50 sm:px-6">
                     <div class="flex items-start justify-between space-x-3">
@@ -974,7 +980,10 @@ defmodule BikeBrigadeWeb.CoreComponents do
   """
   attr :id, :string, required: true
   attr :rows, :list, required: true
-  attr :row_class, :string, default: "", doc: "optional css class to apply to each row, also useful for getting elements in tests."
+
+  attr :row_class, :string,
+    default: "",
+    doc: "optional css class to apply to each row, also useful for getting elements in tests."
 
   attr :checkboxes, :string, default: nil, doc: "form to use for checkboxes"
   attr :checkboxes_selected, MapSet, default: MapSet.new()
@@ -1068,8 +1077,9 @@ defmodule BikeBrigadeWeb.CoreComponents do
                 <tr
                   :for={row <- @rows}
                   id={"#{@id}-#{Phoenix.Param.to_param(row)}"}
-                  class={[@row_class,
-                    (if @checkboxes && MapSet.member?(@checkboxes_selected, row.id), do: "bg-gray-50")
+                  class={[
+                    @row_class,
+                    if(@checkboxes && MapSet.member?(@checkboxes_selected, row.id), do: "bg-gray-50")
                   ]}
                 >
                   <td :if={@checkboxes} class="relative w-12 px-4 sm:w-16 sm:px-8">
@@ -1220,7 +1230,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
       transition: {"transition-all transform ease-out duration-300", "opacity-0", "opacity-100"}
     )
     |> show("##{id}-container")
-    |> JS.focus_first(to: "##{id}-container")
+    |> JS.focus_first(to: "##{id}-content")
   end
 
   def hide_modal(js \\ %JS{}, id) do
@@ -1247,7 +1257,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
         "translate-x-0"
       }
     )
-    |> JS.focus_first(to: "##{id}-container")
+    |> JS.focus_first(to: "##{id}-content")
   end
 
   def hide_slideover(js \\ %JS{}, id) do
