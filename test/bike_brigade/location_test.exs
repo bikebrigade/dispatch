@@ -78,7 +78,7 @@ defmodule BikeBrigade.Locations.LocationTest do
                Location.change_location(%Location{}, :address, "11414")
                |> Ecto.Changeset.apply_action(:update)
 
-      assert {:ok, %{address: "", coords: %Geo.Point{}}} =
+      assert {:ok, %{address: "", coords: nil}} =
                Location.change_location(%Location{}, :address, "")
                |> Ecto.Changeset.apply_action(:update)
 
@@ -92,7 +92,7 @@ defmodule BikeBrigade.Locations.LocationTest do
                Location.change_location(%Location{}, :postal, "m62aaaa")
                |> Ecto.Changeset.apply_action(:update)
 
-      assert {:ok, %{postal: "m6a", coords: %Geo.Point{}}} =
+      assert {:ok, %{postal: "m6a", coords: nil}} =
                Location.change_location(%Location{}, :postal, "m6a")
                |> Ecto.Changeset.apply_action(:update)
 
@@ -112,7 +112,7 @@ defmodule BikeBrigade.Locations.LocationTest do
                Location.change_location(%Location{}, :smart_input, "924 Fake street")
                |> Ecto.Changeset.apply_action(:update)
 
-      assert {:ok, %{postal: "m6a", coords: %Geo.Point{}}} =
+      assert {:ok, %{postal: "m6a", coords: nil}} =
                Location.change_location(%Location{}, :smart_input, "m6a")
                |> Ecto.Changeset.apply_action(:update)
 

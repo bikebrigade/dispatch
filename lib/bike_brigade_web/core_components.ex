@@ -649,13 +649,13 @@ defmodule BikeBrigadeWeb.CoreComponents do
   attr :id, :string, required: true
   attr :class, :string, default: "h-full"
   attr :initial_layers, :list, default: []
-  attr :coords, Geo.Point, required: true
+  attr :coords, Geo.Point
   attr :lat, :float
   attr :lng, :float
 
   def map(assigns) do
     ~H"""
-    <div :if={@coords != %Geo.Point{}} class={@class}>
+    <div :if={@coords} class={@class}>
       <div
         phx-hook="LeafletMap"
         id={@id}

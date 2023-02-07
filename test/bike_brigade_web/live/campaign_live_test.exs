@@ -71,6 +71,19 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
       assert html =~ campaign.program.name
     end
 
+    @default_location %{
+      address: "1 Front Street West",
+      coords:
+        %Geo.Point{
+          coordinates: {-79.37761739999999, 43.6459904},
+          srid: nil,
+          properties: %{}
+        }
+        |> Geo.JSON.encode!()
+        |> Jason.encode!(),
+      postal: "M5J 2X5"
+    }
+
     test "can add a task", %{conn: conn, campaign: campaign} do
       {:ok, view, html} = live(conn, ~p"/campaigns/#{campaign}")
 
@@ -83,9 +96,9 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
       {:ok, _view, html} =
         view
         |> form("#task_form",
-          task: %{dropoff_name: "Recipient Mcgee", dropoff_location: %{address: "2758 Yonge St"}}
+          task: %{dropoff_name: "Recipient Mcgee"}
         )
-        |> render_submit()
+        |> render_submit(%{task: %{dropoff_location: @default_location}})
         # TODO: we should be patching here
         |> follow_redirect(conn)
 

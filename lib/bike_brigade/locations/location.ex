@@ -12,7 +12,7 @@ defmodule BikeBrigade.Locations.Location do
   @user_provided_fields [:address, :unit, :buzzer]
 
   schema "locations" do
-    field :coords, Geo.PostGIS.Geometry, default: %Geo.Point{}
+    field :coords, Geo.PostGIS.Geometry, default: nil
     field :address, :string
     field :city, :string, default: "Toronto"
     field :postal, :string
@@ -48,6 +48,15 @@ defmodule BikeBrigade.Locations.Location do
     struct
     |> cast(params, @fields)
     |> validate_required([:coords, :city, :province, :country])
+    |> validate_change(:coords, fn :coords, coords ->
+      case coords do
+        %Geo.Point{coordinates: {0, 0}} ->
+          [location: "location is invalid"]
+
+        _ ->
+          []
+      end
+    end)
   end
 
   # TODO remove this and replace with `change_location` / the new live location widget
