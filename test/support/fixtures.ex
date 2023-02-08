@@ -1,5 +1,6 @@
 defmodule BikeBrigade.Fixtures do
   alias BikeBrigade.{Accounts, Delivery, Riders, Messaging, Messaging, Repo}
+  alias BikeBrigade.Repo.Seeds.Toronto
 
   alias BikeBrigade.Repo.Seeds.Toronto
 
@@ -37,6 +38,13 @@ defmodule BikeBrigade.Fixtures do
   end
 
   def fixture(:campaign, attrs) do
+    # Create a program if we don't have one
+    attrs =
+      attrs
+      |> Map.put_new_lazy(:program_id, fn ->
+        fixture(:program).id
+      end)
+
     {:ok, campaign} =
       %{
         delivery_start: DateTime.utc_now(),
@@ -47,7 +55,7 @@ defmodule BikeBrigade.Fixtures do
       |> Delivery.create_campaign()
 
     campaign
-    |> Repo.preload(:program)
+    |> Repo.preload(program: [:items])
   end
 
   def fixture(:rider, attrs) do
@@ -76,6 +84,37 @@ defmodule BikeBrigade.Fixtures do
       |> Riders.create_rider()
 
     rider
+  end
+
+  def fixture(:task, attrs) do
+    {campaign, attrs} = Map.pop_lazy(attrs, :campaign, fn -> fixture(:campaign) end)
+    {rider, attrs} = Map.pop(attrs, :rider)
+
+    if rider do
+      # assign rider to campaign
+
+      Delivery.create_campaign_rider(%{
+        campaign_id: campaign.id,
+        rider_id: rider.id
+      })
+    end
+
+    rider_id = if rider, do: rider.id
+
+    # Create a task (possibly assigned to rider)
+    {:ok, task} =
+      Delivery.create_task_for_campaign(
+        campaign,
+        %{
+          dropoff_name: Faker.Person.first_name(),
+          dropoff_location: Toronto.random_location(),
+          task_items: [%{item_id: hd(campaign.program.items).id, count: 1}],
+          assigned_rider_id: rider_id
+        }
+        |> Map.merge(attrs)
+      )
+
+    task
   end
 
   def fixture(:opportunity, attrs) do
