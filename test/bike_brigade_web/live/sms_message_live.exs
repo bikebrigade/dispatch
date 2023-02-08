@@ -20,7 +20,7 @@ defmodule BikeBrigadeWeb.OpportunityLiveTest do
 
       assert_redirected(view, ~p"/messages/#{ctx.rider.id}")
 
-      {:ok, view, html} = live(ctx.conn, ~p"/messages/")
+      {:ok, _view, html} = live(ctx.conn, ~p"/messages/")
       assert html =~ "this is a test message"
     end
   end

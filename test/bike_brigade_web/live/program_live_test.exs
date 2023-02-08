@@ -100,7 +100,7 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
 
       [item] = program.items
 
-      {:ok, _view, html} =
+      {:ok, _view, _html} =
         view
         |> form("#program-form",
           program_form: %{
