@@ -543,7 +543,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
   attr :id, :any
   attr :name, :any
   attr :field, :any, doc: "a %Phoenix.HTML.Form{}/field name tuple, for example: {f, :email}"
-  attr :selected_user_id, :integer, default: nil
+  attr :selected_user_id, :integer
   attr :label, :string, default: nil
   attr :help_text, :string, default: nil
   attr :rest, :global, include: ~w(multi)
@@ -553,6 +553,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
       assigns
       |> assign_new(:name, fn -> Phoenix.HTML.Form.input_name(f, field) end)
       |> assign_new(:id, fn -> Phoenix.HTML.Form.input_id(f, field) end)
+      |> assign_new(:selected_user_id, fn -> Phoenix.HTML.Form.input_value(f, field) end)
 
     ~H"""
     <div phx-feedback-for={@name}>
