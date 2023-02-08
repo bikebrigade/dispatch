@@ -399,6 +399,11 @@ defmodule BikeBrigade.Delivery do
     Repo.delete(campaign)
   end
 
+  @campaign_message_directives ~w(rider_name program_name pickup_address delivery_date pickup_window delivery_details_url task_details task_count directions)
+  def campaign_message_directives do
+    @campaign_message_directives
+  end
+
   def send_campaign_messages(%Campaign{} = campaign) do
     campaign = Repo.preload(campaign, [:location, :instructions_template, :program])
     {riders, _} = campaign_riders_and_tasks(campaign)
@@ -490,14 +495,21 @@ defmodule BikeBrigade.Delivery do
 
     delivery_details_url = url(~p"/app/delivery/#{rider.delivery_url_token}")
 
+    campaign_date = LocalizedDateTime.to_date(campaign.delivery_start)
+
+    formatted_date =
+      "#{Calendar.strftime(campaign_date, "%a %b")} #{Inflex.ordinalize(campaign_date.day)}"
+
     assigns = %{
       rider_name: first_name(rider),
+      program_name: campaign.program.name,
       pickup_address: campaign.location,
       task_details: task_details,
       directions: directions,
       task_count: humanized_task_count(tasks),
       pickup_window: pickup_window,
-      delivery_details_url: delivery_details_url
+      delivery_details_url: delivery_details_url,
+      delivery_date: formatted_date
     }
 
     Mustache.render(message, assigns)

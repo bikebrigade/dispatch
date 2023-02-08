@@ -63,7 +63,7 @@
             type="textarea"
             field={{instructions_template_form, :body}}
             phx-hook="Autocomplete"
-            data-autocomplete={inspect(directives())}
+            data-autocomplete={inspect(Delivery.campaign_message_directives())}
             extra_class="h-80"
           />
         </div>
@@ -79,7 +79,10 @@
     </div>
     <p class="mt-3 text-xs">
       Available directives are:
-      <span :for={directive <- directives()} class="mr-1 font-serif bg-gray-100">
+      <span
+        :for={directive <- Delivery.campaign_message_directives()}
+        class="mr-1 font-serif bg-gray-100"
+      >
         {{{<%= directive %>}}}
       </span>
     </p>

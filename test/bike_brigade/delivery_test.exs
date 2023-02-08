@@ -27,7 +27,7 @@ defmodule BikeBrigade.DeliveryTest do
 
       message = """
       Hello Hannah,
-      Thanks for signing up for X at {{{pickup_address}}} at {{{pickup_window}}}.  You'll be delivering {{{task_count}}}
+      Thanks for signing up for {{program_name}} at {{{pickup_address}}} on {{{delivery_date}}} at {{{pickup_window}}}.  You'll be delivering {{{task_count}}}
 
       Here is your delivery link: {{{delivery_details_url}}}
 
@@ -41,10 +41,10 @@ defmodule BikeBrigade.DeliveryTest do
       directions_url =
         "https://www.google.com/maps/dir/?api=1&destination=#{to_uri(task.dropoff_location)}&origin=#{to_uri(rider.location)}&travelmode=bicycling&waypoints=#{to_uri(campaign.location)}"
 
-      assert Delivery.render_campaign_message_for_rider(campaign, message, rider) =~
+      assert Delivery.render_campaign_message_for_rider(campaign, message, rider) ==
                """
                Hello #{BikeBrigade.Riders.Helpers.first_name(rider)},
-               Thanks for signing up for X at #{task.pickup_location} at 10:00-11:00AM.  You'll be delivering 1 #{item_name(task)}
+               Thanks for signing up for ACME Delivery at #{task.pickup_location} on Sun Jan 1st at 10:00-11:00AM.  You'll be delivering 1 #{item_name(task)}
 
                Here is your delivery link: #{url(~p"/app/delivery/#{rider.delivery_url_token}")}
 
