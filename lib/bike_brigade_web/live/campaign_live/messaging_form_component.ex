@@ -146,10 +146,6 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
     end
   end
 
-  defp directives do
-    ~w(rider_name pickup_address pickup_window task_details task_count directions delivery_details_url)
-  end
-
   defp preview(campaign, changeset, selected_rider) do
     body = Ecto.Changeset.get_field(changeset, :instructions_template).body
 
