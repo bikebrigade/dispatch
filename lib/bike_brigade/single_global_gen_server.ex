@@ -13,6 +13,10 @@ defmodule BikeBrigade.SingleGlobalGenServer do
         {:via, Horde.Registry, {BikeBrigade.HordeRegistry, __MODULE__}}
       )
 
+      def name do
+        @name
+      end
+
       def start_link([]) do
         # When we are in non-distributed mode start us using Horde
         Horde.DynamicSupervisor.start_child(

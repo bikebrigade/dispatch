@@ -86,7 +86,6 @@ defmodule BikeBrigade.MixProject do
       {:esbuild, "~> 0.4.0", runtime: Mix.env() == :dev},
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
-      {:wallaby, "~> 0.29.1", runtime: false, only: :test},
       {:libcluster, "~> 3.3"},
       {:horde, "~> 0.8.6"},
       {:inflex, "~> 2.0.0"},
