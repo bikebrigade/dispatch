@@ -1,6 +1,6 @@
 defmodule BikeBrigade.Repo.Migrations.RiderDeletedAt do
   use Ecto.Migration
-  import BikeBrigade.MigrationUtils
+  # import BikeBrigade.MigrationUtils
 
 
   def change do

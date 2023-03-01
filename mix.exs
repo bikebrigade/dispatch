@@ -94,7 +94,11 @@ defmodule BikeBrigade.MixProject do
 
       # LiveBook Stuff
       {:kino, "~> 0.4.1"},
-      {:vega_lite, "~> 0.1.2"}
+      {:vega_lite, "~> 0.1.2"},
+
+
+      {:ecto_view_migrations, git: "https://github.com/mveytsman/ecto_view_migrations"}
+
     ]
   end
 
