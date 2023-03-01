@@ -51,7 +51,3 @@ config :bike_brigade, :media_storage,
 config :bike_brigade, :mailchimp, adapter: BikeBrigade.MailchimpApi.FakeMailchimp
 
 config :bike_brigade, :sandbox, Ecto.Adapters.SQL.Sandbox
-
-config :wallaby,
-  otp_app: :bike_brigade,
-  driver: Wallaby.Chrome
