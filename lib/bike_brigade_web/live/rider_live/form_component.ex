@@ -128,6 +128,7 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
   end
 
   defp save_rider(socket, :edit, rider_form_params) do
+    rider_form_params = Map.merge(%{"tags" => []}, rider_form_params)
     with {:ok, form} <-
            RiderForm.update_form(socket.assigns.form, rider_form_params),
          params = RiderForm.to_params(form),

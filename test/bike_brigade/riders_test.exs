@@ -37,6 +37,19 @@ defmodule BikeBrigade.RidersTest do
       assert is_nil(Repo.get(Location, location_id))
     end
 
+    test "can add and remove tags", %{rider: rider} do
+      assert Ecto.assoc_loaded?(rider.tags) == false
+      rider = rider |> Repo.preload(:tags)
+      assert rider.tags == []
+
+      {:ok, rider} = rider |> Riders.update_rider_with_tags(%{}, ["tag1", "tag2"])
+      assert Enum.count(rider.tags) == 2
+
+
+      {:ok, rider} = rider |> Riders.update_rider_with_tags(%{}, [])
+      assert Enum.count(rider.tags) == 0
+    end
+
     test "deletes associated tags", %{rider: rider} do
       rider
       |> Repo.preload(:tags)
