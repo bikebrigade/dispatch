@@ -6,7 +6,7 @@ defmodule BikeBrigade.MailchimpApi.Http do
   @count 100
 
   @impl MailchimpApi
-  def get_list(list_id, opted_in \\ nil) do
+  def get_list(list_id, opted_in \\ "2000-01-01 00:00:01") do
     with {:ok, account} <- Mailchimp.Account.get(),
          {:ok, list} <- Mailchimp.Account.get_list(account, list_id) do
       # Infinite sequence of offsets 0,100,200,...
@@ -15,12 +15,12 @@ defmodule BikeBrigade.MailchimpApi.Http do
       {members, status} =
         Enum.flat_map_reduce(offsets, :ok, fn offset, _status ->
           case Mailchimp.List.members(list, %{
-                 count: @count,
-                 offset: offset,
-                 fields:
-                   "members.email_address,members.id,members.status,members.merge_fields,members.timestamp_opt",
-                 since_timestamp_opt: opted_in
-               }) do
+            count: @count,
+            offset: offset,
+            fields:
+              "members.email_address,members.id,members.status,members.merge_fields,members.timestamp_opt",
+            since_timestamp_opt: opted_in
+          }) do
             {:ok, []} -> {:halt, :ok}
             {:ok, members} -> {members, :ok}
             {:error, err} -> {:error, err}
