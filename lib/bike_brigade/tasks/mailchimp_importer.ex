@@ -20,15 +20,18 @@ defmodule BikeBrigade.Tasks.MailchimpImporter do
   def sync_riders() do
     Repo.transaction(
       fn ->
-        last_synced =
+        timestamp =
           Repo.one(
             from i in Importer,
               where: i.name ==  ^@importer_name,
               lock: "FOR UPDATE SKIP LOCKED",
               select: fragment("(? ->> 'last_synced')::timestamp", i.data)
           )
-          |> NaiveDateTime.truncate(:second)
-          |> NaiveDateTime.to_string()
+
+          last_synced = case timestamp do
+            %NaiveDateTime{} -> NaiveDateTime.truncate(timestamp, :second) |> NaiveDateTime.to_string()
+            nil -> "2000-01-01 00:00:01"
+          end
 
         list_id = get_config(:list_id)
 

@@ -41,8 +41,9 @@ defmodule BikeBrigade.MailchimpApi.FakeMailchimp do
   end
 
   def handle_call({:get_list, list_id, opted_in}, _from, lists) do
-    case DateTime.from_iso8601(opted_in) do
-      {:ok, opted_in, _offset} ->
+    case NaiveDateTime.from_iso8601(opted_in) do
+      {:ok, opted_in} ->
+        opted_in = DateTime.from_naive!(opted_in, "Etc/UTC")
         members =
           for {_email, member} <- Map.get(lists, list_id, %{}),
               :gt == DateTime.compare(member[:inserted_at], opted_in) do
