@@ -23,10 +23,12 @@ defmodule BikeBrigade.Tasks.MailchimpImporter do
         last_synced =
           Repo.one(
             from i in Importer,
-              where: i.name == ^@importer_name,
+              where: i.name ==  ^@importer_name,
               lock: "FOR UPDATE SKIP LOCKED",
-              select: fragment("? ->> 'last_synced'", i.data)
+              select: fragment("(? ->> 'last_synced')::timestamp", i.data)
           )
+          |> NaiveDateTime.truncate(:second)
+          |> NaiveDateTime.to_string()
 
         list_id = get_config(:list_id)
 
