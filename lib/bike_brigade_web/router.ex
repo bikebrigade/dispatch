@@ -59,7 +59,7 @@ defmodule BikeBrigadeWeb.Router do
       error_callback: &__MODULE__.log_reverse_proxy_error/1
 
     def log_reverse_proxy_error(error) do
-      Logger.warn("ReverseProxyPlug network error: #{inspect(error)}")
+      Logger.warning("ReverseProxyPlug network error: #{inspect(error)}")
     end
   end
 

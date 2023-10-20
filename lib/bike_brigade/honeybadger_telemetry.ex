@@ -15,7 +15,7 @@ defmodule BikeBrigade.HoneybadgerTelemetry do
         :ok
 
       {:error, _} = error ->
-        Logger.warn("failed to attach to Phoenix events: #{inspect(error)}")
+        Logger.warning("failed to attach to Phoenix events: #{inspect(error)}")
 
         error
     end
