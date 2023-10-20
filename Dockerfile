@@ -1,7 +1,7 @@
 ###
 ### Fist Stage - Building the Release
 ###
-FROM hexpm/elixir:1.13.4-erlang-25.1.2.1-alpine-3.15.6 AS build
+FROM hexpm/elixir:1.15.7-erlang-26.1.1.0-alpine AS build
 
 # install build dependencies
 RUN apk add --no-cache build-base npm git gcompat
