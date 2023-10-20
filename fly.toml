@@ -1,41 +1,44 @@
+# fly.toml app configuration file generated for bike-brigade on 2023-05-14T22:10:47-04:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
 app = "bike-brigade"
-
+primary_region = "yyz"
 kill_signal = "SIGTERM"
-kill_timeout = 5
-
-[env]
-  APP_ENV = "production"
-
-[deploy]
-  release_command = "/app/bin/bike_brigade eval BikeBrigade.Release.migrate"
+kill_timeout = "5s"
 
 [experimental]
-  allowed_public_ports = []
-  auto_rollback = true
+auto_rollback = true
+
+[deploy]
+release_command = "/app/bin/bike_brigade eval BikeBrigade.Release.migrate"
+
+[env]
+APP_ENV = "production"
 
 [[services]]
-#  http_checks = []
-  internal_port = 4000
-  protocol = "tcp"
-#  script_checks = []
+protocol = "tcp"
+internal_port = 4000
+min_machines_running = 1
 
-  [services.concurrency]
-    hard_limit = 500
-    soft_limit = 100
+[[services.ports]]
+port = 80
+handlers = ["http"]
 
-  [[services.ports]]
-    handlers = ["http"]
-    port = 80
+[[services.ports]]
+port = 443
+handlers = ["tls", "http"]
+[services.concurrency]
+type = "connections"
+hard_limit = 500
+soft_limit = 100
 
-  [[services.ports]]
-    handlers = ["tls", "http"]
-    port = 443
-
-  [[services.tcp_checks]]
-    grace_period = "30s" # allow some time for startup
-    interval = "15s"
-    restart_limit = 6
-    timeout = "2s"
+[[services.tcp_checks]]
+interval = "15s"
+timeout = "2s"
+grace_period = "30s"
+restart_limit = 6
 
 [metrics]
 port = 4021
