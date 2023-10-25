@@ -228,7 +228,10 @@ defmodule BikeBrigade.Riders.RiderSearch do
   @spec apply_filter(Filter.t(), Ecto.Query.t()) :: Ecto.Query.t()
   defp apply_filter(%Filter{type: :name, search: search}, query) do
     query
-    |> where(ilike(as(:rider).name, ^"#{search}%") or ilike(as(:rider).name, ^"% #{search}%"))
+    |> where(
+      fragment("unaccent(?) ilike unaccent(?)", as(:rider).name, ^"%#{search}%") or
+      fragment("unaccent(?) ilike unaccent(?)", as(:rider).name, ^"% #{search}%")
+    )
   end
 
   defp apply_filter(%Filter{type: :phone, search: search}, query) do
@@ -239,8 +242,9 @@ defmodule BikeBrigade.Riders.RiderSearch do
   defp apply_filter(%Filter{type: :name_or_phone, search: search}, query) do
     query
     |> where(
-      ilike(as(:rider).name, ^"#{search}%") or ilike(as(:rider).name, ^"% #{search}%") or
-        like(as(:rider).phone, ^"%#{search}%")
+      fragment("unaccent(?) ilike unaccent(?)", as(:rider).name, ^"%#{search}%") or
+      fragment("unaccent(?) ilike unaccent(?)", as(:rider).name, ^"% #{search}%") or
+      like(as(:rider).phone, ^"%#{search}%")
     )
   end
 
