@@ -68,7 +68,9 @@
           <.link href={"mailto:#{email(@rider)}"} class="link"><%= email(@rider) %></.link>
         </span>
       </p>
-      <p :if={@current_user.is_dispatcher} class="text-sm !leading-relaxed xl:text-base">
+      <p :if={@current_user.is_dispatcher}
+         data-testid="dispatch-data-tags-and-capacity"
+         class="text-sm !leading-relaxed xl:text-base">
         <span class="">
           <Heroicons.briefcase
             mini
