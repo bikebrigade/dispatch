@@ -73,7 +73,28 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
     end
   end
 
-  describe "Show" do
+  describe "Show: rider logged-in" do
+    setup [:create_rider, :login_as_rider]
+
+    test "Logged in rider cannot see their tag or capacity", %{conn: conn} do
+      {:ok, _view, html} = live(conn, ~p"/profile")
+      refute html =~ "dispatch-data-tags-and-capacity"
+    end
+  end
+
+  describe "Edit: rider logged-in" do
+    setup [:create_rider, :login_as_rider]
+
+    test "Logged in rider cannot dispatch specific fields in slideover", %{conn: conn} do
+      {:ok, _view, html} = live(conn, ~p"/profile/edit")
+      refute html =~ "Send text-only delivery instructions"
+      refute html =~ "Flags"
+      refute html =~ "Last Safety Check"
+      refute html =~ "Notes (internal)"
+    end
+  end
+
+  describe "Show: Dispatch logged-in" do
     setup [:create_rider, :login]
 
     test "shows rider", %{conn: conn, rider: rider} do
@@ -81,7 +102,9 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
 
       assert html =~ rider.name
       assert html =~ rider.location.address
+      assert html =~ "dispatch-data-tags-and-capacity"
     end
+
 
     test "edit rider", %{conn: conn, rider: rider} do
       {:ok, view, _html} = live(conn, ~p"/riders/#{rider}/show/edit")
@@ -92,6 +115,14 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
 
       flash = assert_redirected(view, "/riders/#{rider.id}")
       assert flash["info"] == "Rider updated successfully"
+    end
+
+    test "Logged in dispatcher can see dispatch-specific fields", %{conn: conn, rider: rider} do
+      {:ok, _view, html} = live(conn, ~p"/riders/#{rider.id}/show/edit")
+      assert html =~ "Send text-only delivery instructions"
+      assert html =~ "Flags"
+      assert html =~ "Last Safety Check"
+      assert html =~ "Notes (internal)"
     end
   end
 end

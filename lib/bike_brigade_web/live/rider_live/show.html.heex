@@ -68,7 +68,9 @@
           <.link href={"mailto:#{email(@rider)}"} class="link"><%= email(@rider) %></.link>
         </span>
       </p>
-      <p class="text-sm !leading-relaxed xl:text-base">
+      <p :if={@current_user.is_dispatcher}
+         data-testid="dispatch-data-tags-and-capacity"
+         class="text-sm !leading-relaxed xl:text-base">
         <span class="">
           <Heroicons.briefcase
             mini
@@ -290,6 +292,7 @@
     id={@rider.id}
     action={@live_action}
     rider={@rider}
+    current_user={@current_user}
     navigate={if @live_action == :edit, do: ~p"/riders/#{@rider}", else: ~p"/profile"}
   />
   <:confirm form="rider-form" type="submit" phx-disable-with="Saving...">Save</:confirm>
