@@ -127,21 +127,9 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
     {:noreply, socket}
   end
 
-  defp save_rider(socket, :edit, rider_form_params) do
-    rider_form_params = Map.merge(%{"tags" => []}, rider_form_params)
-    with {:ok, form} <-
-           RiderForm.update_form(socket.assigns.form, rider_form_params),
-         params = RiderForm.to_params(form),
-         {:ok, _rider} <-
-           Riders.update_rider_with_tags(socket.assigns.rider, params, params[:tags]) do
-      {:noreply,
-       socket
-       |> put_flash(:info, "Rider updated successfully")
-       |> push_navigate(to: socket.assigns.navigate)}
-    else
-      _ -> {:noreply, assign(socket, :changeset, socket.assigns.changeset)}
-    end
-  end
+  defp save_rider(socket, :edit, rider_form_params), do: save_rider_edit_impl(socket, rider_form_params)
+  defp save_rider(socket, :edit_profile, rider_form_params), do: save_rider_edit_impl(socket, rider_form_params)
+
 
   defp save_rider(socket, :new, rider_params) do
     case Riders.create_rider_with_tags(rider_params, rider_params["tags"]) do
@@ -153,6 +141,23 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, changeset: changeset)}
+    end
+  end
+
+  defp save_rider_edit_impl(socket, rider_form_params) do
+    rider_form_params = Map.merge(%{"tags" => []}, rider_form_params)
+    with {:ok, form} <-
+            RiderForm.update_form(socket.assigns.form, rider_form_params),
+          params = RiderForm.to_params(form),
+          {:ok, _rider} <-
+            Riders.update_rider_with_tags(socket.assigns.rider, params, params[:tags]) do
+              # IO.inspect({form, params})
+        {:noreply,
+        socket
+        |> put_flash(:info, "Rider updated successfully")
+        |> push_navigate(to: socket.assigns.navigate)}
+    else
+      _ -> {:noreply, assign(socket, :changeset, socket.assigns.changeset)}
     end
   end
 end

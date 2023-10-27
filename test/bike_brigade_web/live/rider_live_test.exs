@@ -23,7 +23,7 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
 
     test "searching riders works", %{conn: conn} do
       fixture(:rider, %{name: "Béa"})
-      {:ok, index_live, html} = live(conn, ~p"/riders")
+      {:ok, index_live, _html} = live(conn, ~p"/riders")
 
       html = index_live
       |> element("#rider-search")
@@ -85,12 +85,30 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
   describe "Edit: rider logged-in" do
     setup [:create_rider, :login_as_rider]
 
-    test "Logged in rider cannot dispatch specific fields in slideover", %{conn: conn} do
+    test "Logged in rider cannot see dispatch-specific fields in slideover", %{conn: conn} do
       {:ok, _view, html} = live(conn, ~p"/profile/edit")
       refute html =~ "Send text-only delivery instructions"
       refute html =~ "Flags"
       refute html =~ "Last Safety Check"
       refute html =~ "Notes (internal)"
+    end
+
+
+    test "Logged in rider can edit their profile.", %{conn: conn, rider: rider} do
+      {:ok, view, html} = live(conn, ~p"/profile/edit")
+      assert html =~ rider.name
+
+      view
+      |> form("#rider-form", rider_form: %{"name" => "alex123"})
+      |> render_submit()
+
+      flash = assert_redirected(view, "/profile")
+      assert flash["info"] == "Rider updated successfully"
+
+      {:ok, view, html} = live(conn, ~p"/profile")
+      open_browser view
+      assert html =~ "alex123"
+
     end
   end
 
