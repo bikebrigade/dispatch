@@ -21,6 +21,19 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
       assert get_row_count.(index_live) == 20
     end
 
+    test "searching riders works", %{conn: conn} do
+      fixture(:rider, %{name: "Béa"})
+      {:ok, index_live, html} = live(conn, ~p"/riders")
+
+      html = index_live
+      |> element("#rider-search")
+      |> render_submit(%{value: "Bea"})
+
+      assert Floki.parse_fragment!(html) |> Floki.find(".rider-row") |> Enum.count() == 1
+      assert html =~ "Béa"
+
+    end
+
     test "bulk message with no riders selected", %{conn: conn, rider: rider} do
       {:ok, view, _html} = live(conn, ~p"/riders")
 
