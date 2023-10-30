@@ -36,9 +36,10 @@
           </:actions>
         </.header>
 
-        <div :for={{s, i} <- Enum.with_index(inputs_for(c, :schedules))} class="flex space-x-2">
+        <div :for={{s, i} <- Enum.with_index(inputs_for(c, :schedules))} class="flex flex-col space-x-0 space-y-2 md:flex-row md:items-center md:space-y-1 md:space-x-2">
           <.input
             type="select"
+            class="mt-8"
             field={{s, :weekday}}
             options={[
               Monday: :monday,
@@ -52,17 +53,18 @@
           />
           <.input type="time" field={{s, :start_time}} />
           <.input type="time" field={{s, :end_time}} />
-          <div class="justify-center ml-auto">
+          <div class="justify-center mt-1 ml-auto">
             <.button
               color={:clear}
-              size={:xxsmall}
+              size={:xsmall}
               phx-click={JS.push("remove_schedule", value: %{index: i}, target: @myself)}
               type="button"
             >
-              <span class="sr-only">Close</span>
+              <span class="md:hidden mr-2 text-gray-700">Remove Schedule</span>
               <Heroicons.x_mark solid class="w-6 h-6" />
             </.button>
           </div>
+          <hr class="mb-2 md:hidden"/>
         </div>
       </div>
 
