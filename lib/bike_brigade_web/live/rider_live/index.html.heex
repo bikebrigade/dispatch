@@ -1,5 +1,5 @@
-<div class="flex items-center justify-between ">
-  <div class="relative flex flex-col w-2/3">
+<div class="flex flex-col xl:flex-row xl:items-center xl:space-x-2 justify-between ">
+  <div class="relative flex flex-col w-full xl:w-2/3 mb-2 xl:mb-0">
     <form id="rider-search" phx-change="suggest" phx-submit="filter" phx-click-away="clear_search">
       <div class="relative flex items-baseline w-full px-1 py-0 bg-white border border-gray-300 rounded-md shadow-sm sm:text-sm focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500">
         <.filter_list filters={@rider_search.filters} />
@@ -28,7 +28,8 @@
       <button id="submit" type="submit" class="sr-only" />
     </form>
   </div>
-  <div class="inline-flex rounded-md shadow-sm">
+  <div class="flex justify-between">
+  <div class="inline-flex rounded-md shadow-sm mr-2">
     <button
       phx-click={JS.push("set_mode", value: %{mode: :list})}
       type="button"
@@ -48,12 +49,13 @@
       Map <Heroicons.map mini class="w-5 h-5 ml-1" />
     </button>
   </div>
-  <.button patch={~p"/riders/message"}>
+  <.button class="space-x-2" patch={~p"/riders/message"}>
     Bulk Message
     <%= if MapSet.size(@selected) > 0 do %>
       (<%= MapSet.size(@selected) %>)
     <% end %>
   </.button>
+  </div>
 </div>
 <form id="selected" phx-change="select_rider"/>
 <%= if @mode == :map do %>
