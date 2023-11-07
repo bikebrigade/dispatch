@@ -115,7 +115,6 @@ defmodule BikeBrigadeWeb.Router do
     live_session :dispatch, on_mount: {LiveHooks.Authentication, :require_dispatcher} do
       live "/riders", RiderLive.Index, :index
       live "/riders/new", RiderLive.Index, :new
-      live "/riders/:id/edit", RiderLive.Index, :edit
       live "/riders/message", RiderLive.Index, :message
       # this is mostly used for testing!
       live "/riders/map", RiderLive.Index, :map
