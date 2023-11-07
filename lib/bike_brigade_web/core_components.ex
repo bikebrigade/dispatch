@@ -718,7 +718,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
               phx-window-keydown={hide_modal(@on_cancel, @id)}
               phx-key="escape"
               phx-click-away={hide_modal(@on_cancel, @id)}
-              class="relative hidden transition bg-white shadow-lg rounded-2xl p-14 shadow-zinc-700/10 ring-1 ring-zinc-700/10"
+              class="relative hidden transition bg-white shadow-lg rounded-2xl p-6 md:p-14 shadow-zinc-700/10 ring-1 ring-zinc-700/10"
             >
               <div class="absolute top-6 right-5">
                 <button

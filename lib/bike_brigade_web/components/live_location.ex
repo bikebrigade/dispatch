@@ -64,8 +64,7 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
           location = %Location{}
           changeset = Location.changeset(location)
 
-          {location, changeset
-        }
+          {location, changeset}
       end
 
     form = Phoenix.HTML.FormData.to_form(changeset, as: as)
@@ -173,8 +172,8 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
           </button>
         </div>
         <div class={"#{if !@open, do: "hidden"} my-1 edit-mode"}>
-          <div class="flex space-x-1">
-            <div class="w-1/2">
+          <div class="flex flex-col md:flex-row items-baseline space-x-1">
+            <div class="w-full md:w-1/2">
               <label class="block text-xs font-medium leading-5 text-gray-700">
                 Address
               </label>
@@ -188,30 +187,32 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
               </div>
               <%= error_tag(@form, :address, show_field: false) %>
             </div>
-            <div class="w-1/4">
-              <label class="block text-xs font-medium leading-5 text-gray-700">
-                Unit
-              </label>
-              <div class="mt-1 rounded-md shadow-sm">
-                <%= text_input(@form, :unit,
-                  phx_change: "change",
-                  phx_target: @myself,
-                  class:
-                    "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-                ) %>
+            <div class="flex w-full md:w-1/2 items-baseline">
+              <div class="w-1/2 mr-1">
+                <label class="block text-xs font-medium leading-5 text-gray-700">
+                  Unit
+                </label>
+                <div class="mt-1 rounded-md shadow-sm">
+                  <%= text_input(@form, :unit,
+                    phx_change: "change",
+                    phx_target: @myself,
+                    class:
+                      "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+                  ) %>
+                </div>
               </div>
-            </div>
-            <div class="w-1/4">
-              <label class="block text-xs font-medium leading-5 text-gray-700">
-                Buzzer
-              </label>
-              <div class="mt-1 rounded-md shadow-sm">
-                <%= text_input(@form, :buzzer,
-                  phx_change: "change",
-                  phx_target: @myself,
-                  class:
-                    "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-                ) %>
+              <div class="mt-2 w-1/2">
+                <label class="block text-xs font-medium leading-5 text-gray-700">
+                  Buzzer
+                </label>
+                <div class="mt-1 rounded-md shadow-sm">
+                  <%= text_input(@form, :buzzer,
+                    phx_change: "change",
+                    phx_target: @myself,
+                    class:
+                      "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+                  ) %>
+                </div>
               </div>
             </div>
           </div>

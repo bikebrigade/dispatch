@@ -114,7 +114,7 @@ defmodule BikeBrigade.Tasks.MailchimpImporter do
 
   def notify_location_error(rider) do
     error_message = """
-      We had trouble with the address for #{rider.name}. Please edit manually: #{~p"/riders/#{rider}/edit"}, and don't forget to remove the `invalid_location` tag!
+      We had trouble with the address for #{rider.name}. Please edit manually: #{~p"/riders/#{rider}/show/edit"}, and don't forget to remove the `invalid_location` tag!
     """
 
     Task.start(Slack.Operations, :post_message!, [error_message])
