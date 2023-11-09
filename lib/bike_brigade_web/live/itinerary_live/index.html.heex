@@ -45,51 +45,55 @@
   </div>
 </nav>
 <%= if @campaign_riders != [] do %>
-  <div class="flex flex-col mt-8">
-    <%= for cr <- @campaign_riders do %>
-      <div class="flex w-full bg-white shadow my-1 rounded-md mb-4">
-        <ul role="list" class="w-full divide-y divide-gray-200">
-          <li id={"campaign-#{cr.campaign.id}"} class="mb-4">
-            <div class="px-4 py-4">
-              <div class="items-center justify-between md:flex">
-                <div class="flex items-center mb-2 space-x-1">
-                  <div class="font-bold"><%= name(cr.campaign) %></div>
-                </div>
-                <div class="flex-shrink-0 space-y-1 md:space-y-0 md:space-x-2 md:flex">
-                  <.button navigate={~p"/app/delivery/#{cr.token}"} size={:medium}>
-                    Details
-                  </.button>
-                </div>
+    <div :for={cr <- @campaign_riders} class="flex w-full bg-white shadow sm:my-1 sm:rounded-md">
+      <ul role="list" class="w-full divide-y divide-gray-200">
+        <li id={"campaign-#{cr.campaign.id}"}>
+          <div class="px-4 py-4">
+            <div class="items-center justify-between md:flex">
+              <div class="flex items-center mb-2 space-x-1">
+                <.link
+                  navigate={~p"/campaigns/#{cr.campaign}"}
+                  class="font-bold link"
+                >
+                  <%= name(cr.campaign) %>
+                </.link>
               </div>
-              <div class="mt-2 sm:flex sm:justify-between">
-                <div class="sm:flex">
-                  <p class="flex items-center text-sm text-gray-500">
-                    <Heroicons.clock
-                      aria-label="Pickup Time"
-                      class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
-                    />
-                    <%= pickup_window(cr.campaign) %>
-                  </p>
-                </div>
-              </div>
-              <.get_location campaign={cr.campaign} />
-              <div class="mt-2 sm:flex sm:justify-between">
-                <div class="sm:flex">
-                  <p class="flex items-center text-sm text-gray-500">
-                    <Heroicons.shopping_bag
-                      aria-label="Location"
-                      class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
-                    />
-                    <%= humanized_task_count(cr.campaign.tasks) %>
-                  </p>
-                </div>
+              <div class="flex-shrink-0 space-y-1 md:space-y-0 md:space-x-2 md:flex">
+                <.button
+                  navigate={~p"/app/delivery/#{cr.token}"}
+                  size={:medium}
+                >
+                  Details
+                </.button>
               </div>
             </div>
-          </li>
-        </ul>
-      </div>
-    <% end %>
-  </div>
+            <div class="mt-2 sm:flex sm:justify-between">
+              <div class="sm:flex">
+                <p class="flex items-center text-sm text-gray-500">
+                  <Heroicons.clock
+                    aria-label="Pickup Time"
+                    class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
+                  />
+                  <%= pickup_window(cr.campaign) %>
+                </p>
+              </div>
+            </div>
+            <.get_location campaign={cr.campaign} />
+            <div class="mt-2 sm:flex sm:justify-between">
+              <div class="sm:flex">
+                <p class="flex items-center text-sm text-gray-500">
+                  <Heroicons.shopping_bag
+                    aria-label="Location"
+                    class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
+                  />
+                  <%= humanized_task_count(cr.campaign.tasks) %>
+                </p>
+              </div>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
 <% else %>
   <div class="py-4 pl-4">No campaigns found for this day.</div>
 <% end %>
