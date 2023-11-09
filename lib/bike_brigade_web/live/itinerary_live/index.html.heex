@@ -1,5 +1,5 @@
 <nav
-  class="flex items-end justify-between px-4 py-3 mb-1 border-b-2 border-gray-200"
+  class="flex items-end justify-between px-4 py-3 border-b-2 border-gray-200 mb-4"
   aria-label="Pagination"
 >
   <div class="items-center block font-medium xl:flex">
@@ -45,7 +45,7 @@
   </div>
 </nav>
 <%= if @campaign_riders != [] do %>
-    <div :for={cr <- @campaign_riders} class="flex w-full bg-white shadow sm:my-1 sm:rounded-md">
+    <div :for={cr <- @campaign_riders} class="flex w-full bg-white shadow mb-2 md:mb-4 sm:rounded-md">
       <ul role="list" class="w-full divide-y divide-gray-200">
         <li id={"campaign-#{cr.campaign.id}"}>
           <div class="px-4 py-4">
