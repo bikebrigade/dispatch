@@ -7,7 +7,7 @@
     for={@changeset}
     id="add_rider_form"
     phx-target={@myself}
-    phx-submit="add_rider"
+    phx-submit="save"
     phx-change="validate"
     autocomplete="off"
   >
@@ -20,7 +20,10 @@
     </.radio_group>
     <:actions>
       <.button type="submit" phx-disable-with="Adding...">
-        Add
+        <%= case @action do  %>
+          <% :add_rider -> %> Add
+          <% :edit_rider -> %> Update
+        <% end %>
       </.button>
     </:actions>
   </.simple_form>

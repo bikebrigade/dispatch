@@ -85,7 +85,7 @@ defmodule BikeBrigadeWeb.Router do
     get "/", Plugs.RedirectUser,
       unauthenticated: [to: "/login"],
       dispatcher: [to: "/campaigns"],
-      default: [to: "/profile"]
+      default: [to: "/itinerary"]
   end
 
   scope "/", BikeBrigadeWeb do
@@ -106,7 +106,6 @@ defmodule BikeBrigadeWeb.Router do
     end
 
     post "/logout", Authentication, :logout
-
   end
 
   scope "/", BikeBrigadeWeb do
@@ -135,6 +134,7 @@ defmodule BikeBrigadeWeb.Router do
       live "/campaigns/:id/messaging", CampaignLive.Show, :messaging
       live "/campaigns/:id/bulk_message", CampaignLive.Show, :bulk_message
       live "/campaigns/:id/add_rider", CampaignLive.Show, :add_rider
+      live "/campaigns/:id/edit_rider/:rider_id", CampaignLive.Show, :edit_rider
       live "/campaigns/:id/tasks/new", CampaignLive.Show, :new_task
       live "/campaigns/:id/tasks/:task_id/edit", CampaignLive.Show, :edit_task
       live "/campaigns/:id/printable/assignments", PrintableLive.CampaignAssignments, :index

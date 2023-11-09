@@ -133,7 +133,7 @@
 </.modal>
 
 <.modal
-  :if={@live_action == :add_rider}
+  :if={@live_action in [:add_rider, :edit_rider]}
   id="campaign-modal"
   show
   on_cancel={JS.navigate(~p"/campaigns/#{@campaign}")}
@@ -141,6 +141,7 @@
   <.live_component
     module={BikeBrigadeWeb.CampaignLive.AddRiderFormComponent}
     id={@campaign.id}
+    rider={@rider}
     title={@page_title}
     action={@live_action}
     campaign={@campaign}

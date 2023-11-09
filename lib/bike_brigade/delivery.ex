@@ -170,6 +170,17 @@ defmodule BikeBrigade.Delivery do
 
   alias BikeBrigade.Delivery.CampaignRider
 
+  def get_campaign_rider_by_id(campaign_id, rider_id) do
+    CampaignRider |> Repo.get_by(campaign_id: campaign_id, rider_id: rider_id)
+  end
+
+  def update_campaign_rider(%CampaignRider{} = rider, attrs) do
+    rider
+    |> CampaignRider.changeset(attrs)
+    |> Repo.update()
+    |> broadcast(:campaign_updated)
+  end
+
   def get_campaign_rider!(token) do
     query =
       from cr in CampaignRider,
