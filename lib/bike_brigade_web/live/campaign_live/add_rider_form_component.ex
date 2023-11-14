@@ -3,6 +3,7 @@ defmodule BikeBrigadeWeb.CampaignLive.AddRiderFormComponent do
 
   alias BikeBrigade.Delivery
   alias BikeBrigade.Delivery.CampaignRider
+  alias BikeBrigade.Riders
 
   @impl Phoenix.LiveComponent
   def mount(socket) do
@@ -11,13 +12,28 @@ defmodule BikeBrigadeWeb.CampaignLive.AddRiderFormComponent do
     {:ok, assign(socket, :changeset, changeset)}
   end
 
-  def update(%{rider: rider} = assigns, socket) do
+  # Update in the case that no rider is currently passed in.
+  def update(%{rider: rider = %{rider_id: nil}} = assigns, socket) do
     changeset = Delivery.CampaignRider.changeset(rider)
+
     {:ok,
      socket
      |> assign(assigns)
-     |> assign(:changeset, changeset)
-     }
+     # we pass nil here if we are Adding a new rider
+     |> assign(:selected_rider, nil)
+     |> assign(:changeset, changeset)}
+  end
+
+  # Update where a rider get fetched and pre-populates the rider search
+  def update(%{rider: rider} = assigns, socket) do
+    changeset = Delivery.CampaignRider.changeset(rider)
+    selected_rider = Riders.get_rider!(rider.rider_id)
+
+    {:ok,
+     socket
+     |> assign(assigns)
+     |> assign(:selected_rider, selected_rider)
+     |> assign(:changeset, changeset)}
   end
 
   @impl Phoenix.LiveComponent
@@ -69,9 +85,10 @@ defmodule BikeBrigadeWeb.CampaignLive.AddRiderFormComponent do
     case Delivery.update_campaign_rider(socket.assigns.rider, params) do
       {:ok, _rider} ->
         {:noreply,
-        socket
-        |> put_flash(:info, "rider update successfully")
-        |> push_navigate(to: socket.assigns.navigate)}
+         socket
+         |> put_flash(:info, "rider update successfully")
+         |> push_navigate(to: socket.assigns.navigate)}
+
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, :changeset, changeset)}
     end
