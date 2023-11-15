@@ -1,4 +1,4 @@
-defmodule BikeBrigadeWeb.CampaignLive.AddRiderFormComponent do
+defmodule BikeBrigadeWeb.CampaignLive.CampaignRiderFormComponent do
   use BikeBrigadeWeb, :live_component
 
   alias BikeBrigade.Delivery
