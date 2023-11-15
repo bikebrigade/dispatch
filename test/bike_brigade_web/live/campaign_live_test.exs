@@ -122,16 +122,54 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
       # Make sure we actually selected the rider
       assert has_element?(
                view,
-               ~s|#add_rider_form_rider_id input[name="campaign_rider[rider_id]"][value="#{rider.id}"]|
+               ~s|#campaign_rider_form_rider_id input[name="campaign_rider[rider_id]"][value="#{rider.id}"]|
              )
 
       {:ok, _view, html} =
         view
-        |> form("#add_rider_form")
+        |> form("#campaign_rider_form")
         |> render_submit()
         |> follow_redirect(conn)
 
       assert html =~ rider.name
+    end
+
+    test "Can edit campaign rider", %{conn: conn, campaign: campaign, rider: rider} do
+      {:ok, view, _html} = live(conn, ~p"/campaigns/#{campaign}")
+      starting_form_data = %{
+        "enter_building" => "false",
+        "pickup_window" => "1-10",
+        "rider_capacity" => "15",
+        "rider_id" => rider.id
+      }
+
+      edit_form_data = %{
+        "enter_building" => "true",
+        "pickup_window" => "1-11",
+        "rider_capacity" => "113",
+        "rider_id" => rider.id
+
+      }
+
+      # First add a rider with the starting form data.
+      view |> element("a", "Add Rider") |> render_click()
+      view |> select_rider(rider)
+      view |> submit_campaign_rider_form(starting_form_data, conn)
+
+      # reload view -> check form values for capacity show up
+      {:ok, view, html} = live(conn, ~p"/campaigns/#{campaign}")
+      assert html =~ "0 / 15"
+
+      # click rider -> Edit Rider -> fill in Form with updated values.
+      view |> element( "a", rider.name) |> render_click()
+      view |> element("a", "Edit Rider") |> render_click()
+      view |> submit_campaign_rider_form(edit_form_data, conn)
+
+      # open edit form directly and see that the value prepopulate the form.
+      {:ok, view, _html} = live(conn, ~p"/campaigns/#{campaign}/edit_rider/#{rider}")
+      assert has_element?(view, ~s|[data-test-rider-capacity=113]|)
+      assert has_element?(view, ~s|[data-test-rider-window=1-11]|)
+
     end
   end
 
@@ -189,13 +227,20 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
   defp select_rider(view, rider) do
     # Find a rider
     view
-    |> element("#add_rider_form_rider_id input")
+    |> element("#campaign_rider_form_rider_id input")
     |> render_keyup(%{value: rider.name})
 
     view
-    |> element("#add_rider_form_rider_id a")
+    |> element("#campaign_rider_form_rider_id a")
     |> render_click()
 
     view
+  end
+
+  defp submit_campaign_rider_form(view, form_vals, conn) do
+      view
+      |> form("#campaign_rider_form", campaign_rider: form_vals)
+      |> render_submit()
+      |> follow_redirect(conn)
   end
 end
