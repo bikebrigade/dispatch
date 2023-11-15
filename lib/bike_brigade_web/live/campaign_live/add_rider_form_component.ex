@@ -48,7 +48,11 @@ defmodule BikeBrigadeWeb.CampaignLive.AddRiderFormComponent do
 
   @impl Phoenix.LiveComponent
   def handle_event("save", %{"campaign_rider" => cr_params}, socket) do
-    handle_save_impl(cr_params, socket, socket.assigns.action)
+    if !Map.has_key?(cr_params, "rider_id") do
+        {:noreply, socket |> put_flash(:error, "Rider is required")}
+      else
+        handle_save_impl(cr_params, socket, socket.assigns.action)
+    end
   end
 
   def handle_save_impl(params, socket, :add_rider) do
@@ -71,21 +75,11 @@ defmodule BikeBrigadeWeb.CampaignLive.AddRiderFormComponent do
       {:ok, _rider} ->
         {:noreply,
          socket
-         |> put_flash(:info, "rider update successfully")
+         |> put_flash(:info, "Campaign rider updated.")
          |> push_navigate(to: socket.assigns.navigate)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, :changeset, changeset)}
     end
-  end
-
-  def handle_event(
-        "add_rider",
-        _params,
-        socket
-      ) do
-    {:noreply,
-     socket
-     |> put_flash(:error, "rider is required")}
   end
 end
