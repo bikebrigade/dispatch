@@ -13,6 +13,7 @@ defmodule BikeBrigadeWeb.CampaignLive.AddRiderFormComponent do
   end
 
   # Update in the case that no rider is currently passed in.
+  @impl Phoenix.LiveComponent
   def update(%{rider: rider = %{rider_id: nil}} = assigns, socket) do
     changeset = Delivery.CampaignRider.changeset(rider)
 
