@@ -23,7 +23,7 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
 
     test "searching riders works", %{conn: conn} do
       fixture(:rider, %{name: "Béa"})
-      {:ok, index_live, html} = live(conn, ~p"/riders")
+      {:ok, index_live, _html} = live(conn, ~p"/riders")
 
       html = index_live
       |> element("#rider-search")
@@ -85,12 +85,52 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
   describe "Edit: rider logged-in" do
     setup [:create_rider, :login_as_rider]
 
-    test "Logged in rider cannot dispatch specific fields in slideover", %{conn: conn} do
+    test "Logged in rider cannot see dispatch-specific fields in slideover", %{conn: conn} do
       {:ok, _view, html} = live(conn, ~p"/profile/edit")
       refute html =~ "Send text-only delivery instructions"
       refute html =~ "Flags"
       refute html =~ "Last Safety Check"
       refute html =~ "Notes (internal)"
+    end
+
+    test "Logged in rider can edit their profile.", %{conn: conn, rider: rider} do
+      {:ok, view, html} = live(conn, ~p"/profile/edit")
+      assert html =~ rider.name
+
+      view
+      |> form("#rider-form", rider_form: %{"name" => "alex123"})
+      |> render_submit()
+
+      flash = assert_redirected(view, "/profile")
+      assert flash["info"] == "Rider updated successfully"
+
+      {:ok, _view, html} = live(conn, ~p"/profile")
+      assert html =~ "alex123"
+    end
+
+    test "Logged in rider cannot edit admin fields.", %{conn: conn, rider: rider} do
+      {:ok, view, html} = live(conn, ~p"/profile/edit")
+      assert html =~ rider.name
+      error_msg_regex = ~r/could not find non-disabled input, select or textarea/
+
+      assert_raise ArgumentError, error_msg_regex, fn ->
+        view |> form("#rider-form", rider_form: %{"internal_notes" => "notes!"}) |> render_submit()
+      end
+
+      assert_raise ArgumentError,  error_msg_regex, fn ->
+        view |> form("#rider-form", rider_form: %{"last_safety_check" => "2023-11-21"}) |> render_submit()
+      end
+
+      assert_raise ArgumentError,  error_msg_regex, fn ->
+        view
+        |> form("#rider-form", rider_form: %{"text_based_itinerary" => "false"}) |> render_submit()
+      end
+
+      assert_raise ArgumentError,  error_msg_regex, fn ->
+        view
+        |> form("#rider-form", rider_form: %{"tags" => ["foo"]})
+        |> render_submit()
+      end
     end
   end
 
@@ -103,6 +143,20 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
       assert html =~ rider.name
       assert html =~ rider.location.address
       assert html =~ "dispatch-data-tags-and-capacity"
+    end
+
+
+    test "Logged in dispatcher can edit admin-only fields.", %{conn: conn, rider: rider} do
+      {:ok, view, html} = live(conn, ~p"/riders/#{rider}/show/edit")
+      assert html =~ rider.name
+
+        view
+        |> form("#rider-form", rider_form: %{
+              "name" => "alex123",
+              "internal_notes" => "notes!",
+              "last_safety_check" => "2023-11-21",
+              "text_based_itinerary" => "false"})
+        |> render_submit()
     end
 
 
