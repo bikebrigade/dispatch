@@ -457,7 +457,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
       phx-key="escape"
     >
       <p class="text-sm text-gray-500">Press Tab to cycle suggestions</p>
-      <div class="grid grid-cols-2 gap-1">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-1">
         <div>
           <%= if @suggestions.name do %>
             <h3 class="my-1 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
