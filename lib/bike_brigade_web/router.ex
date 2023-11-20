@@ -85,7 +85,7 @@ defmodule BikeBrigadeWeb.Router do
     get "/", Plugs.RedirectUser,
       unauthenticated: [to: "/login"],
       dispatcher: [to: "/campaigns"],
-      default: [to: "/profile"]
+      default: [to: "/itinerary"]
   end
 
   scope "/", BikeBrigadeWeb do
@@ -106,7 +106,6 @@ defmodule BikeBrigadeWeb.Router do
     end
 
     post "/logout", Authentication, :logout
-
   end
 
   scope "/", BikeBrigadeWeb do
