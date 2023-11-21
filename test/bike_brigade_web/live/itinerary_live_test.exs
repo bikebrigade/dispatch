@@ -33,7 +33,7 @@ defmodule BikeBrigadeWeb.ItineraryLiveTest do
       {:ok, _index_live, html} = live(conn, ~p"/itinerary")
 
       assert html =~ "Itinerary"
-      assert html =~ Calendar.strftime(LocalizedDateTime.today(), "%A %B %-d, %Y")
+      assert html =~ Calendar.strftime(LocalizedDateTime.today(), "%a %B %-d, %Y")
       assert html =~ "No campaigns found for this day."
     end
 
@@ -49,7 +49,7 @@ defmodule BikeBrigadeWeb.ItineraryLiveTest do
 
       previous_day = Date.add(LocalizedDateTime.today(), -1)
 
-      assert html =~ Calendar.strftime(previous_day, "%A %B %-d, %Y")
+      assert html =~ Calendar.strftime(previous_day, "%a %B %-d, %Y")
     end
 
     test "can go to next day", %{conn: conn} do
@@ -64,7 +64,7 @@ defmodule BikeBrigadeWeb.ItineraryLiveTest do
 
       next_day = Date.add(LocalizedDateTime.today(), 1)
 
-      assert html =~ Calendar.strftime(next_day, "%A %B %-d, %Y")
+      assert html =~ Calendar.strftime(next_day, "%a %B %-d, %Y")
     end
 
     test "displays itinerary with campaigns", %{
