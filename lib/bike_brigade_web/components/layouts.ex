@@ -64,6 +64,12 @@ defmodule BikeBrigadeWeb.Layouts do
       </.sidebar_link>
       <!-- Rider Specific links -->
       <div :if={!@is_dispatcher}>
+        <.sidebar_link selected={@current_page == :campaigns_signup} navigate={~p"/campaigns/signup"}>
+          <:icon>
+            <Heroicons.inbox />
+          </:icon>
+          Campaigns
+        </.sidebar_link>
         <.sidebar_link selected={@current_page == :itinerary} href={~p"/itinerary"}>
           <:icon>
             <Heroicons.calendar_days solid />
