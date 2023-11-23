@@ -78,25 +78,50 @@
             <div class="px-4 py-4">
               <div class="items-center justify-between md:flex">
                 <div class="flex items-center mb-2 space-x-1">
-                  <.link
-                    navigate={~p"/campaigns/#{c}"}
-                    class="text-sm font-medium link"
+                  <p
+                    class="text-sm font-medium"
                     data-test-group="campaign-name"
                   >
                     <%= name(c) %>
-                  </.link>
+                  </p>
                 </div>
                 <div class="flex-shrink-0 space-y-1 md:space-y-0 md:space-x-2 md:flex">
-                  <.button size={:xsmall} color={:white} patch={~p"/campaigns/#{c}/edit"}>
-                    Signup
-                  </.button>
+                  <%= case campaign_is_in_past(c) do %>
+                    <%= true -> %>
+                      <.button
+                        size={:xsmall}
+                        color={:disabled}>
+                        Completed
+                      </.button>
+
+                    <%= false -> %>
+
+                      <.button
+                        :if={!campaign_is_in_past(c)}
+                        size={:xsmall}
+                        color={:primary}
+                        navigate={~p"/campaigns/signup/#{c}/"}>
+                        Signup
+                      </.button>
+                  <% end %>
+
+
                 </div>
               </div>
               <div class="mt-2 sm:flex sm:justify-between">
                 <div class="flex flex-col md:flex-row justify-between w-full">
                   <p class="flex items-center mt-0 text-sm text-gray-700">
                     <Icons.maki_bicycle_share class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-500" />
-                    <span class={campaign_full_class?(c)}>
+
+                    <%#
+                      REVIEW: Right now we are showing "num_riders / num_tasks"
+                      But that doesnt actually show how many tasks are actually assigned.
+                      We could leave this as is, OR, preload the tasks with campaigns
+                      and check how many are actually assigned OR maybe we could
+                      update the CampaignStats view to have a "tasks_assigned" column?
+                      %>
+
+                    <span>
                     <%= c.stats.signed_up_rider_count %> Riders /
                     <%= c.stats.task_count %> Deliveries
                     </span>

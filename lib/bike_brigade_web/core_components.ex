@@ -119,6 +119,9 @@ defmodule BikeBrigadeWeb.CoreComponents do
 
       :black ->
         "border-gray-300 text-white bg-black hover:bg-white hover:text-black"
+
+      :disabled ->
+        "border-gray-300 text-neutral-900 bg-neutral-100 cursor-not-allowed"
     end
   end
 

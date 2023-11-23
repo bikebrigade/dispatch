@@ -58,12 +58,13 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
     |> Enum.reverse()
   end
 
-  defp campaign_full_class?(campaign) do
-    if campaign.stats.signed_up_rider_count == campaign.stats.task_count do
-      "text-green-500"
-      else
-      "text-red-400"
-    end
+  defp campaign_is_in_past(campaign) do
+    date_now = DateTime.utc_now()
 
+    case DateTime.compare(campaign.delivery_end, date_now) do
+      :gt -> false
+      :eq -> false
+      :lt -> true
+    end
   end
 end
