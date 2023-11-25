@@ -5,8 +5,6 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
   alias BikeBrigade.LocalizedDateTime
 
   alias BikeBrigade.Delivery
-  alias BikeBrigade.Delivery.Campaign
-  alias BikeBrigade.Messaging.SmsMessage
 
   import BikeBrigadeWeb.CampaignHelpers
 

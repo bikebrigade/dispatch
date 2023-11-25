@@ -30,7 +30,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
 
   attr :color, :atom,
     default: :primary,
-    values: [:primary, :secondary, :white, :green, :red, :lightred, :clear, :black]
+    values: [:primary, :secondary, :white, :green, :red, :lightred, :clear, :black, :disabled]
 
   attr :rounded, :atom,
     default: :normal,

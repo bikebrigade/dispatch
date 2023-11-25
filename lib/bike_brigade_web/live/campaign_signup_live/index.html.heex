@@ -87,15 +87,14 @@
                 </div>
                 <div class="flex-shrink-0 space-y-1 md:space-y-0 md:space-x-2 md:flex">
                   <%= case campaign_is_in_past(c) do %>
-                    <%= true -> %>
+                    <% true -> %>
                       <.button
                         size={:xsmall}
                         color={:disabled}>
                         Completed
                       </.button>
 
-                    <%= false -> %>
-
+                    <% false -> %>
                       <.button
                         :if={!campaign_is_in_past(c)}
                         size={:xsmall}
