@@ -269,7 +269,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   def handle_event("remove_rider", %{"rider_id" => rider_id}, socket) do
     rider = get_rider(socket, rider_id)
 
-    Delivery.remove_rider_from_campaign(socket.assigns.campaign, rider)
+    Delivery.remove_rider_from_campaign(socket.assigns.campaign, rider.id)
 
     {:noreply, socket}
   end

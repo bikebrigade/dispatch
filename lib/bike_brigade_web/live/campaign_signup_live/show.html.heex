@@ -10,7 +10,7 @@
 
 <section>
   <.table id="tasks" rows={@tasks}>
-    <:col :let={task} label="Pickup time">
+    <:col :let={_task} label="Pickup time">
       <%= pickup_window(@campaign) %>
     </:col>
     <:col :let={task} label="Delivery Size">
@@ -24,7 +24,6 @@
     <:action :let={task}>
       <%= if task.assigned_rider do %>
         <span
-
           :if={task.assigned_rider.id != @current_rider_id}
           class="mr-2"> <%= split_first_name(task.assigned_rider.name) %></span>
 
@@ -40,7 +39,6 @@
       <% end %>
 
       <%= if is_nil(task.assigned_rider) do %>
-
         <.button
           color={:primary}
           size={:xsmall}
