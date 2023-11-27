@@ -113,19 +113,11 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
     end
   end
 
-  @impl Phoenix.LiveView
-  def handle_info({:task_updated, updated_task}, socket)
-      when belongs_to_campaign?(socket.assigns.campaign, updated_task) do
-    {:noreply, socket |> assign_campaign(socket.assigns.campaign)}
-  end
+  ## -- Callbacks to handle Delivery broadcasts --
 
-  @impl true
+  @impl Phoenix.LiveView
   def handle_info({:campaign_rider_created, %CampaignRider{campaign_id: campaign_id}}, socket) do
     %{campaign: campaign} = socket.assigns
-
-    # REVIEW: in campaign_live/show.ex we are pushing leaflet; do we want to do that here despite
-    # there not actually being a map on this view? I suppose if we did, that would live update the map
-    # on the dispatcher side, should they be looking at campaign_live/show when someone signs up.
     if campaign_id == campaign.id do
       {:noreply, assign_campaign(socket, campaign)}
     else
@@ -133,11 +125,36 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
     end
   end
 
-  # REVIEW: not sure if this needs the pattern match like sit does in campaign_signup/show
-  def handle_info({:campaign_rider_deleted, _}, socket) do
-    campaign = socket.assigns.campaign
-    {:noreply, assign_campaign(socket, campaign)}
+  def handle_info({:campaign_rider_deleted, %CampaignRider{campaign_id: campaign_id}}, socket) do
+    %{campaign: campaign} = socket.assigns
+    if campaign_id == campaign.id do
+      {:noreply, assign_campaign(socket, campaign)}
+    else
+      {:noreply, socket}
+    end
   end
+
+
+  def handle_info({:task_updated, updated_task}, socket)
+      when belongs_to_campaign?(socket.assigns.campaign, updated_task) do
+    {:noreply, socket |> assign_campaign(socket.assigns.campaign)}
+  end
+
+  def handle_info({:task_created, updated_task}, socket)
+      when belongs_to_campaign?(socket.assigns.campaign, updated_task) do
+    {:noreply, socket |> assign_campaign(socket.assigns.campaign)}
+  end
+
+  def handle_info({:task_deleted, updated_task}, socket)
+      when belongs_to_campaign?(socket.assigns.campaign, updated_task) do
+    {:noreply, socket |> assign_campaign(socket.assigns.campaign)}
+  end
+
+
+  # noop for when tasks aren't connected to the current campaign.
+  def handle_info({:task_deleted, _}, socket), do: {:noreply, socket}
+  def handle_info({:task_updated, _}, socket), do: {:noreply, socket}
+  def handle_info({:task_created, _}, socket), do: {:noreply, socket}
 
   ## lil helpers
 

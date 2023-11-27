@@ -24,8 +24,6 @@ defmodule BikeBrigadeWeb.CampaignLive.New do
 
   @impl Phoenix.LiveView
   def handle_event("validate", %{"campaign" => campaign_params}, socket) do
-    IO.inspect(campaign_params)
-
     changeset =
       socket.assigns.campaign
       |> Delivery.change_campaign(campaign_params)
