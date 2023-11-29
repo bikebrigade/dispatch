@@ -14,6 +14,14 @@
         <p class="mt-1 text-sm text-gray-500">
           <%= Calendar.strftime(@campaign_date, "%A, %b %d") %>
         </p>
+
+      <.link
+        patch={~p"/itinerary"}
+        aria-label="Go to ride itinerary"
+        class="mt-1 text-sm text-indigo-600"
+      >
+        View all rides on your itinerary →
+      </.link>
       </div>
       <div class="flex-shrink-0">
         <div class="flex justify-end flex-1">

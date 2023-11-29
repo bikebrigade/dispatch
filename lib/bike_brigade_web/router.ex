@@ -95,13 +95,13 @@ defmodule BikeBrigadeWeb.Router do
     post "/login", Authentication, :login
   end
 
+  # this scope is for authenticated users that aren't dispatchers (ie: riders).
   scope "/", BikeBrigadeWeb do
     pipe_through [:browser, :require_authenticated_user, :set_honeybadger_context]
 
     live_session :user, on_mount: LiveHooks.Authentication do
       live "/profile", RiderLive.Show, :profile
       live "/profile/edit", RiderLive.Show, :edit_profile
-
       live "/itinerary", ItineraryLive.Index, :index
     end
 
