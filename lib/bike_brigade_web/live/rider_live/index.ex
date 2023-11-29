@@ -452,7 +452,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     <dialog
       id="suggestion-list"
       open={@open}
-      class="absolute z-10 w-full p-2 mt-0 overflow-y-auto bg-white border rounded shadow-xl top-100 max-h-fit"
+      class="absolute z-10 w-full xl:w-[130%] p-2 mt-0 overflow-y-auto bg-white border rounded shadow-xl top-100 max-h-fit"
       phx-window-keydown="clear_search"
       phx-key="escape"
     >
