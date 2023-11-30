@@ -109,20 +109,18 @@
               </div>
               <div class="mt-2 sm:flex sm:justify-between">
                 <div class="flex flex-col md:flex-row justify-between w-full">
+
                   <p class="flex items-center mt-0 text-sm text-gray-700">
                     <Icons.maki_bicycle_share class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-500" />
 
-                    <%#
-                      REVIEW: Right now we are showing "num_riders / num_tasks"
-                      But that doesnt actually show how many tasks are actually assigned.
-                      We could leave this as is, OR, preload the tasks with campaigns
-                      and check how many are actually assigned OR maybe we could
-                      update the CampaignStats view to have a "tasks_assigned" column?
-                      %>
+                    <%# REVIEW: I've added a preload for :tasks to campaigns so
+                      that we can see how many tasks have an assigned rider.
+                      AFAICT, this data isn't available on the campaign stats
+                      view. %>
 
                     <span>
-                    <%= c.stats.signed_up_rider_count %> Riders /
-                    <%= c.stats.task_count %> Deliveries
+                    <%= c.tasks |> Enum.filter(fn t -> t.assigned_rider_id end) |> Enum.count() %> /
+                    <%= Enum.count(c.tasks) %> Tasks filled
                     </span>
                   </p>
 
