@@ -452,12 +452,12 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     <dialog
       id="suggestion-list"
       open={@open}
-      class="absolute z-10 w-full p-2 mt-0 overflow-y-auto bg-white border rounded shadow-xl top-100 max-h-fit"
+      class="absolute z-10 w-full xl:w-[130%] p-2 mt-0 overflow-y-auto bg-white border rounded shadow-xl top-100 max-h-fit"
       phx-window-keydown="clear_search"
       phx-key="escape"
     >
       <p class="text-sm text-gray-500">Press Tab to cycle suggestions</p>
-      <div class="grid grid-cols-2 gap-1">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-1">
         <div>
           <%= if @suggestions.name do %>
             <h3 class="my-1 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
