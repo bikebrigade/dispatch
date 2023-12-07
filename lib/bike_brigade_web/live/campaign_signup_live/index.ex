@@ -19,6 +19,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
      |> assign(:page, :campaigns)
      |> assign(:page_title, "Campaign Signup List")
      |> assign(:current_week, current_week)
+     |> assign(:campaign_task_counts, Delivery.get_total_tasks_and_open_tasks(current_week))
      |> assign(:campaigns, fetch_campaigns(current_week))}
   end
 
@@ -64,5 +65,21 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
       :eq -> false
       :lt -> true
     end
+  end
+
+  defp get_filled_tasks(c_id, campaign_task_count) do
+    campaign_task_count[c_id][:filled_tasks]
+  end
+
+  defp get_total_tasks(c_id, campaign_task_count) do
+    campaign_task_count[c_id][:total_tasks]
+  end
+
+  defp campaign_tasks_fully_assigned?(c_id, campaign_task_count) do
+    campaign_task_count[c_id][:filled_tasks] ==  campaign_task_count[c_id][:total_tasks]
+  end
+
+  defp signup_btn_visible?(camp, campaign_task_count) do
+    !campaign_is_in_past(camp) and !campaign_tasks_fully_assigned?(camp.id, campaign_task_count)
   end
 end

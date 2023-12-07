@@ -96,9 +96,10 @@
 
                     <% false -> %>
                       <.button
-                        :if={!campaign_is_in_past(c)}
+                        :if={signup_btn_visible?(c, @campaign_task_counts)}
                         size={:xsmall}
                         color={:primary}
+
                         navigate={~p"/campaigns/signup/#{c}/"}>
                         Signup
                       </.button>
@@ -112,15 +113,9 @@
 
                   <p class="flex items-center mt-0 text-sm text-gray-700">
                     <Icons.maki_bicycle_share class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-500" />
-
-                    <%# REVIEW: I've added a preload for :tasks to campaigns so
-                      that we can see how many tasks have an assigned rider.
-                      AFAICT, this data isn't available on the campaign stats
-                      view. %>
-
                     <span>
-                    <%= c.tasks |> Enum.filter(fn t -> t.assigned_rider_id end) |> Enum.count() %> /
-                    <%= Enum.count(c.tasks) %> Tasks filled
+                      <%= get_filled_tasks(c.id, @campaign_task_counts) %> /
+                      <%= get_total_tasks(c.id, @campaign_task_counts) %> Tasks filled
                     </span>
                   </p>
 
