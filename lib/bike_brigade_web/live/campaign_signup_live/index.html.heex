@@ -86,23 +86,32 @@
                   </p>
                 </div>
                 <div class="flex-shrink-0 space-y-1 md:space-y-0 md:space-x-2 md:flex">
-                  <%= case campaign_is_in_past(c) do %>
-                    <% true -> %>
+                  <%= cond do %>
+                    <% campaign_is_in_past(c) -> %>
                       <.button
                         size={:xsmall}
                         color={:disabled}>
                         Completed
                       </.button>
 
-                    <% false -> %>
+                    <% campaign_tasks_fully_assigned?(c.id, @campaign_task_counts) -> %>
                       <.button
-                        :if={signup_btn_visible?(c, @campaign_task_counts)}
+                        size={:xsmall}
+                        color={:primary}
+
+                        navigate={~p"/campaigns/signup/#{c}/"}>
+                        Full assigned
+                      </.button>
+
+                    <% true -> %>
+                    <.button
                         size={:xsmall}
                         color={:primary}
 
                         navigate={~p"/campaigns/signup/#{c}/"}>
                         Signup
                       </.button>
+
                   <% end %>
 
 

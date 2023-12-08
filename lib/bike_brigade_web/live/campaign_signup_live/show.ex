@@ -25,13 +25,9 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
   def handle_params(%{"id" => id} = params, _url, socket) do
     id = String.to_integer(id)
     campaign = Delivery.get_campaign!(id)
-    # {riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
 
     {:noreply,
      socket
-     # |> assign(:campaign, campaign)
-     # |> assign(:tasks, tasks)
-     # |> assign(:riders, riders)
      |> assign_campaign(campaign)
      |> apply_action(socket.assigns.live_action, params)}
   end
@@ -134,6 +130,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
     end
   end
 
+  ## TODO: use nifty macro trick to remove all this boilerplate.
 
   def handle_info({:task_updated, updated_task}, socket)
       when belongs_to_campaign?(socket.assigns.campaign, updated_task) do

@@ -196,15 +196,21 @@ defmodule BikeBrigade.Delivery do
       select: %{
         campaign_id: c.id,
         total_tasks: count(t.id),
-        filled_tasks: sum(fragment("CASE WHEN ? IS NULL THEN 0 ELSE 1 END", t.assigned_rider_id))
+        filled_tasks: sum(fragment("CASE WHEN ? IS NULL THEN 0 ELSE 1 END", t.assigned_rider_id)),
+        rider_ids: fragment("array_agg(?::text)", t.assigned_rider_id)
       }
 
 
     Repo.all(query)
     |> Enum.into(
       %{},
-    fn x -> {x.campaign_id, %{total_tasks: x.total_tasks, filled_tasks: x.filled_tasks}} end
+    fn x -> {x.campaign_id, %{
+                rider_ids: x.rider_ids,
+                total_tasks: x.total_tasks,
+                filled_tasks: x.filled_tasks}} end
     )
+    |> IO.inspect
+
   end
 
 

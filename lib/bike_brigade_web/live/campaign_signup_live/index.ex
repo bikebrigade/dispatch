@@ -10,9 +10,16 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
+
+    if connected?(socket) do
+      Delivery.subscribe()
+    end
+
     current_week =
       LocalizedDateTime.today()
       |> Date.beginning_of_week()
+
+    campaigns = fetch_campaigns(current_week)
 
     {:ok,
      socket
@@ -20,13 +27,27 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
      |> assign(:page_title, "Campaign Signup List")
      |> assign(:current_week, current_week)
      |> assign(:campaign_task_counts, Delivery.get_total_tasks_and_open_tasks(current_week))
-     |> assign(:campaigns, fetch_campaigns(current_week))}
+     |> assign(:campaigns, campaigns)}
   end
 
   @impl true
   def handle_params(params, _url, socket) do
     {:noreply, apply_action(socket, socket.assigns.live_action, params)}
   end
+
+  # -- Delivery callbacks
+
+  @impl Phoenix.LiveView
+  @broadcasted_infos [:task_created, :task_deleted, :task_updated, :campaign_rider_created, :campaign_rider_deleted]
+  def handle_info({event, entity}, socket) when event in @broadcasted_infos do
+    if entity_in_campaigns?(socket, entity.campaign_id) do
+      {:noreply, refetch_and_assign_data(socket)}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  ## -- End Delivery callbacks
 
 
   defp apply_action(socket, :index, params) do
@@ -37,7 +58,8 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
 
           assign(socket,
             current_week: week,
-            campaigns: fetch_campaigns(week)
+            campaigns: fetch_campaigns(week),
+            campaign_task_counts: Delivery.get_total_tasks_and_open_tasks(week)
           )
 
         _ ->
@@ -50,11 +72,18 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
 
   defp fetch_campaigns(current_week) do
     Delivery.list_campaigns(current_week,
-      preload: [:program, :stats, :latest_message, :scheduled_message, :tasks]
+      preload: [:program, :stats, :latest_message, :scheduled_message]
     )
     |> Enum.reverse()
     |> Utils.ordered_group_by(&LocalizedDateTime.to_date(&1.delivery_start))
     |> Enum.reverse()
+  end
+
+  defp refetch_and_assign_data(socket) do
+    week = socket.assigns.current_week
+    socket
+    |> assign(:campaign_task_counts, Delivery.get_total_tasks_and_open_tasks(week))
+    |> assign(:campaigns, fetch_campaigns(week))
   end
 
   defp campaign_is_in_past(campaign) do
@@ -81,5 +110,13 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
 
   defp signup_btn_visible?(camp, campaign_task_count) do
     !campaign_is_in_past(camp) and !campaign_tasks_fully_assigned?(camp.id, campaign_task_count)
+  end
+
+  # Use this to determine if we need to refetch data to update the liveview.
+  # ex: dispatcher changes riders/tasks, or another rider signs up -> refetch.
+  defp entity_in_campaigns?(socket, entity_campaign_id) do
+    socket.assigns.campaigns
+    |> Enum.flat_map(fn {_date, campaigns} -> campaigns end)
+    |> Enum.find(false, fn c -> c.id == entity_campaign_id end)
   end
 end
