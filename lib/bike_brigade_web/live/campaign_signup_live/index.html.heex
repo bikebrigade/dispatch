@@ -100,21 +100,17 @@
                         color={:primary}
 
                         navigate={~p"/campaigns/signup/#{c}/"}>
-                        Full assigned
+                        Campaign Filled
                       </.button>
 
                     <% true -> %>
                     <.button
                         size={:xsmall}
                         color={:primary}
-
                         navigate={~p"/campaigns/signup/#{c}/"}>
-                        Signup
+                        <%= get_signup_text(c.id, @current_user.rider_id, @campaign_task_counts) %>
                       </.button>
-
                   <% end %>
-
-
                 </div>
               </div>
               <div class="mt-2 sm:flex sm:justify-between">
@@ -123,8 +119,8 @@
                   <p class="flex items-center mt-0 text-sm text-gray-700">
                     <Icons.maki_bicycle_share class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-500" />
                     <span>
-                      <%= get_filled_tasks(c.id, @campaign_task_counts) %> /
-                      <%= get_total_tasks(c.id, @campaign_task_counts) %> Tasks filled
+                      <%= @campaign_task_counts[c.id][:filled_tasks] %> /
+                      <%= @campaign_task_counts[c.id][:total_tasks] %> Tasks filled
                     </span>
                   </p>
 
