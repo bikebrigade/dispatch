@@ -38,10 +38,14 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
     |> assign(:page_title, "Campaign Signup")
   end
 
-  defp apply_action(socket, :rider_signup, params) do
+  defp apply_action(socket, :rider_signup, %{"task_id" => task_id}) do
+    #TODO: what happens when someone puts "a string" into the url for the task id?
+    # Answer: it crashes
+    task_id = String.to_integer(task_id)
+    task = Delivery.get_task(task_id)
     socket
     |> assign(:page_title, "Signup for this delivery")
-    |> assign(:task_id, params["task_id"])
+    |> assign(:task, task)
   end
 
   defp apply_action(socket, _, _), do: socket

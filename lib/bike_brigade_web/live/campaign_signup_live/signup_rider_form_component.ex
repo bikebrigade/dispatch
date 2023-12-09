@@ -23,14 +23,14 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.SignupRiderFormComponent do
 
   @impl Phoenix.LiveComponent
   def handle_event("rider_signup", %{"campaign_rider" => cr_params}, socket) do
-    %{rider_id: rider_id, task_id: task_id, campaign: campaign} = socket.assigns
+    %{rider_id: rider_id, task: task, campaign: campaign} = socket.assigns
     attrs = Map.put(cr_params, "campaign_id", campaign.id)
 
 
     case Delivery.create_campaign_rider(attrs) do
       {:ok, _cr} ->
-        {:ok, _task} = Delivery.update_task(task_id, %{assigned_rider_id: rider_id})
-        {:noreply, socket}
+        {:ok, _task} = Delivery.update_task(task, %{assigned_rider_id: rider_id})
+        {:noreply, socket |> push_redirect(to: ~p"/campaigns/signup/#{campaign}")}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, :changeset, changeset)}
