@@ -24,28 +24,37 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
 
   @impl true
   def handle_params(%{"id" => id} = params, _url, socket) do
-    id = String.to_integer(id)
-    campaign = Delivery.get_campaign!(id)
-
-    {:noreply,
-     socket
-     |> assign_campaign(campaign)
-     |> apply_action(socket.assigns.live_action, params)}
+    with {num, ""} <- Integer.parse(id),
+         campaign when not is_nil(campaign) <- Delivery.get_campaign(num) do
+      {:noreply,
+       socket
+       |> assign_campaign(campaign)
+       |> apply_action(socket.assigns.live_action, params)}
+    else
+      _ ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "Invalid campaign id.")
+         |> redirect(to: ~p"/campaigns/signup/")}
+    end
   end
 
   defp apply_action(socket, :new, _) do
-    socket
-    |> assign(:page_title, "Campaign Signup")
+    socket |> assign(:page_title, "Campaign Signup")
   end
 
   defp apply_action(socket, :rider_signup, %{"task_id" => task_id}) do
-    #TODO: what happens when someone puts "a string" into the url for the task id?
-    # Answer: it crashes
-    task_id = String.to_integer(task_id)
-    task = Delivery.get_task(task_id)
-    socket
-    |> assign(:page_title, "Signup for this delivery")
-    |> assign(:task, task)
+    with {num, ""} <- Integer.parse(task_id),
+         task when not is_nil(task) <- Delivery.get_task(num) do
+      socket
+      |> assign(:page_title, "Signup for this delivery")
+      |> assign(:task, task)
+    else
+      _ ->
+        socket
+        |> put_flash(:error, "Invalid task id.")
+        |> redirect(to: ~p"/campaigns/signup/#{socket.assigns.campaign}")
+    end
   end
 
   defp apply_action(socket, _, _), do: socket
@@ -80,9 +89,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
         {:noreply, socket}
 
       {:error, _e} ->
-        {:noreply,
-         socket |> put_flash(:error, "Unable to add you to this campaign.")}
-
+        {:noreply, socket |> put_flash(:error, "Unable to add you to this campaign.")}
     end
   end
 
@@ -125,6 +132,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
   @impl Phoenix.LiveView
   def handle_info({:campaign_rider_created, %CampaignRider{campaign_id: campaign_id}}, socket) do
     %{campaign: campaign} = socket.assigns
+
     if campaign_id == campaign.id do
       {:noreply, assign_campaign(socket, campaign)}
     else
@@ -134,6 +142,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
 
   def handle_info({:campaign_rider_deleted, %CampaignRider{campaign_id: campaign_id}}, socket) do
     %{campaign: campaign} = socket.assigns
+
     if campaign_id == campaign.id do
       {:noreply, assign_campaign(socket, campaign)}
     else
@@ -157,7 +166,6 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
       when belongs_to_campaign?(socket.assigns.campaign, updated_task) do
     {:noreply, socket |> assign_campaign(socket.assigns.campaign)}
   end
-
 
   # noop for when tasks aren't connected to the current campaign.
   def handle_info({:task_deleted, _}, socket), do: {:noreply, socket}

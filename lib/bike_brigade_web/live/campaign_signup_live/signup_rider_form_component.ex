@@ -24,7 +24,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.SignupRiderFormComponent do
   @impl Phoenix.LiveComponent
   def handle_event("rider_signup", %{"campaign_rider" => cr_params}, socket) do
     %{rider_id: rider_id, task: task, campaign: campaign} = socket.assigns
-    attrs = Map.put(cr_params, "campaign_id", campaign.id)
+    attrs = Map.merge(cr_params, %{"campaign_id" => campaign.id, "rider_id" => rider_id})
 
 
     case Delivery.create_campaign_rider(attrs) do
