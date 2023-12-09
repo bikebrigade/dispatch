@@ -43,11 +43,8 @@
           color={:primary}
           size={:xsmall}
           class="w-28"
-          phx-click={
-            JS.push("assign_task",
-              value: %{task_id: task.id, rider_id: @current_rider_id}
-            )
-          }
+          patch={~p"/campaigns/signup/#{@campaign}/task/#{task.id}"}
+
           >
           Signup
         </.button>
@@ -62,14 +59,16 @@
   :if={@live_action == :rider_signup}
   id="rider-signup-modal"
   show
-  on_cancel={JS.navigate(~p"/campaigns/#{@campaign}")}
+  on_cancel={JS.navigate(~p"/campaigns/signup/#{@campaign}")}
 >
   <.live_component
-    module={BikeBrigadeWeb.CampaignSignupLive.Index}
+    module={BikeBrigadeWeb.CampaignSignupLive.SignupRiderFormComponent}
     id={@campaign.id}
     title={@page_title}
     action={@live_action}
     campaign={@campaign}
-    navigate={~p"/campaigns/#{@campaign}"}
+    task_id={@task_id}
+    rider-id={@current_user.rider_id}
+    navigate={~p"/campaigns/signup/#{@campaign}"}
   />
 </.modal>

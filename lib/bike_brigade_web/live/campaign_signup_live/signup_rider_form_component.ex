@@ -1,4 +1,4 @@
-defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
+defmodule BikeBrigadeWeb.CampaignSignupLive.SignupRiderFormComponent do
   use BikeBrigadeWeb, :live_component
 
   alias BikeBrigade.Delivery
@@ -23,27 +23,24 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
 
   @impl Phoenix.LiveComponent
   def handle_event("rider_signup", %{"campaign_rider" => cr_params}, socket) do
-    campaign = socket.assigns.campaign
+    %{rider_id: rider_id, task_id: task_id, campaign: campaign} = socket.assigns
     attrs = Map.put(cr_params, "campaign_id", campaign.id)
+
 
     case Delivery.create_campaign_rider(attrs) do
       {:ok, _cr} ->
-        {:noreply,
-         socket
-         |> push_redirect(to: ~p"/campaigns/#{campaign}")}
+        {:ok, _task} = Delivery.update_task(task_id, %{assigned_rider_id: rider_id})
+        {:noreply, socket}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, :changeset, changeset)}
     end
   end
 
-  def handle_event(
-        "rider_signup",
-        _params,
-        socket
-      ) do
+  def handle_event("rider_signup", _params, socket) do
     {:noreply,
      socket
      |> put_flash(:error, "rider is required")}
   end
+
 end

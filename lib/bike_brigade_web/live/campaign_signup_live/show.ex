@@ -38,9 +38,10 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
     |> assign(:page_title, "Campaign Signup")
   end
 
-  defp apply_action(socket, :rider_signup, _) do
+  defp apply_action(socket, :rider_signup, params) do
     socket
     |> assign(:page_title, "Signup for this delivery")
+    |> assign(:task_id, params["task_id"])
   end
 
   defp apply_action(socket, _, _), do: socket
