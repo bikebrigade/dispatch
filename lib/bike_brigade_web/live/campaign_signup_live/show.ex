@@ -15,6 +15,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
     {:ok,
      socket
      |> assign(:page, :campaign_signup)
+     |> assign(:page_title, "Signup for deliveries")
      |> assign(:current_rider_id, socket.assigns.current_user.rider_id)
      |> assign(:campaign, nil)
      |> assign(:riders, nil)
@@ -35,6 +36,11 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
   defp apply_action(socket, :new, _) do
     socket
     |> assign(:page_title, "Campaign Signup")
+  end
+
+  defp apply_action(socket, :rider_signup, _) do
+    socket
+    |> assign(:page_title, "Signup for this delivery")
   end
 
   defp apply_action(socket, _, _), do: socket
@@ -130,7 +136,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
     end
   end
 
-  ## TODO: use nifty macro trick to remove all this boilerplate.
+  ## TODO: use pattern match with when guard to do this all in one (like in index)
 
   def handle_info({:task_updated, updated_task}, socket)
       when belongs_to_campaign?(socket.assigns.campaign, updated_task) do

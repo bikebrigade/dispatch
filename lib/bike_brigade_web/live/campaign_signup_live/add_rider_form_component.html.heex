@@ -1,0 +1,27 @@
+<div>
+  <.flash kind={:info} title="Success!" flash={@flash} />
+  <.flash kind={:error} title="Error!" flash={@flash} />
+  <.header><%= @title %></.header>
+  <.simple_form
+    :let={f}
+    for={@changeset}
+    id="rider_signup_form"
+    phx-target={@myself}
+    phx-submit="rider_signup"
+    phx-change="validate"
+    autocomplete="off"
+  >
+    <.rider_select field={{f, :rider_id}} label="Rider" />
+    <.input type="number" field={{f, :rider_capacity}} label="Capacity" />
+    <.input type="text" field={{f, :pickup_window}} label="Pickup Window" />
+    <.radio_group field={{f, :enter_building}} label="Enter buildings?">
+      <:radio value={true} label="Yes" />
+      <:radio value={false} label="No" />
+    </.radio_group>
+    <:actions>
+      <.button type="submit" phx-disable-with="Adding...">
+        Add
+      </.button>
+    </:actions>
+  </.simple_form>
+</div>

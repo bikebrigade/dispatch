@@ -56,3 +56,20 @@
     </:action>
   </.table>
 </section>
+
+
+<.modal
+  :if={@live_action == :rider_signup}
+  id="rider-signup-modal"
+  show
+  on_cancel={JS.navigate(~p"/campaigns/#{@campaign}")}
+>
+  <.live_component
+    module={BikeBrigadeWeb.CampaignSignupLive.Index}
+    id={@campaign.id}
+    title={@page_title}
+    action={@live_action}
+    campaign={@campaign}
+    navigate={~p"/campaigns/#{@campaign}"}
+  />
+</.modal>
