@@ -29,6 +29,7 @@
 
         <.button
           :if={task.assigned_rider.id == @current_rider_id}
+          id={"task-#{task.id}"}
           phx-click={JS.push("unassign_task", value: %{task_id: task.id})}
           color={:red}
           size={:xsmall}
@@ -40,6 +41,7 @@
 
       <%= if is_nil(task.assigned_rider) do %>
         <.button
+          id={"task-#{task.id}"}
           color={:primary}
           size={:xsmall}
           class="w-28"

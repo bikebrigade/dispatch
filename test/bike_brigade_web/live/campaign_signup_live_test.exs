@@ -112,23 +112,33 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       res = login_as_rider(ctx)
       campaign = fixture(:campaign, %{program_id: program.id})
 
-      tasks = [
-        fixture(:task, %{campaign: campaign, rider: res.rider}),
-        fixture(:task, %{campaign: campaign, rider: nil}),
-        fixture(:task, %{campaign: campaign, rider: nil})
-      ]
+      task = fixture(:task, %{campaign: campaign, rider: nil})
 
-      Map.merge(res, %{program: program, campaign: campaign, tasks: tasks})
+      Map.merge(res, %{program: program, campaign: campaign, task: task})
     end
 
     test "we can signup for a task", ctx do
-      {:ok, _live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
+      {:ok, live, _html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
+      live |> element("#task-#{ctx.task.id}") |> render_click()
+      assert_patched(live, ~p"/campaigns/signup/#{ctx.campaign.id}/task/#{ctx.task.id}")
 
-      # click on first task's Signup button"
-      # confirm we navigate to new route
-      # confirm we can render submit
-      # confirm we can revisit the route and that "unassign me" is present on the same task id btn.
+      {:ok, live, _} =
+        live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/task/#{ctx.task.id}")
 
+      live
+      |> form("#rider_signup_form",
+        campaign_rider: %{
+          "rider_capacity" => "1",
+          "pickup_window" => "10-12"
+        }
+      )
+      |> render_submit()
+
+      # Revisit the route after successful form submission
+      {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}")
+      open_browser(live)
+
+      assert html =~ "Unassign me"
     end
 
     test "we see pertinent task information", ctx do
@@ -140,11 +150,16 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       end
     end
 
-    test "Invalid route for task shows flash and redirects", ctx do
+    test "Invalid route for campaign shows flash and redirects", ctx do
       assert {:error,
               {:redirect,
                %{flash: %{"error" => "Invalid campaign id."}, to: "/campaigns/signup/"}}} =
                live(ctx.conn, ~p"/campaigns/signup/foo/")
+    end
+
+    test "Invalid route for campaign-task shows flash and redirects", ctx do
+      res = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/task/foo")
+      assert {:error, {:redirect, %{flash: %{"error" => "Invalid task id."}, to: _}}} = res
     end
 
     test "Ride can unassign themselves", ctx do

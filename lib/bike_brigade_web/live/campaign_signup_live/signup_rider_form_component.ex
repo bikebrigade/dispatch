@@ -26,10 +26,9 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.SignupRiderFormComponent do
     %{rider_id: rider_id, task: task, campaign: campaign} = socket.assigns
     attrs = Map.merge(cr_params, %{"campaign_id" => campaign.id, "rider_id" => rider_id})
 
-
     case Delivery.create_campaign_rider(attrs) do
       {:ok, _cr} ->
-        {:ok, _task} = Delivery.update_task(task, %{assigned_rider_id: rider_id})
+        {:ok, task} = Delivery.update_task(task, %{assigned_rider_id: rider_id})
         {:noreply, socket |> push_redirect(to: ~p"/campaigns/signup/#{campaign}")}
 
       {:error, %Ecto.Changeset{} = changeset} ->
