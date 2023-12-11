@@ -168,6 +168,54 @@ defmodule BikeBrigade.Delivery do
     |> Repo.preload(preload)
   end
 
+  @doc """
+  Fetches how many open vs filled tasks there are (optionally, by week)
+  and groups them by campaign ID.
+  Written in order to show how "full" a campaign is.
+  """
+  def get_total_tasks_and_open_tasks(week \\ nil) do
+    query =
+      from t in Task,
+        as: :task,
+        join: c in assoc(t, :campaign),
+        as: :campaign
+
+    query =
+      if week do
+        start_date = LocalizedDateTime.new!(week, ~T[00:00:00])
+        end_date = Date.add(week, 6) |> LocalizedDateTime.new!(~T[23:59:59])
+
+        query
+        |> where([campaign: c], c.delivery_start >= ^start_date and c.delivery_start <= ^end_date)
+      else
+        query
+      end
+
+    query =
+      from [task: t, campaign: c] in query,
+        group_by: c.id,
+        select: %{
+          campaign_id: c.id,
+          total_tasks: count(t.id),
+          filled_tasks:
+            sum(fragment("CASE WHEN ? IS NULL THEN 0 ELSE 1 END", t.assigned_rider_id)),
+          rider_ids: fragment("array_agg(?::text)", t.assigned_rider_id)
+        }
+
+    Repo.all(query)
+    |> Enum.into(
+      %{},
+      fn x ->
+        {x.campaign_id,
+         %{
+           rider_ids: x.rider_ids,
+           total_tasks: x.total_tasks,
+           filled_tasks: x.filled_tasks
+         }}
+      end
+    )
+  end
+
   alias BikeBrigade.Delivery.CampaignRider
 
   def get_campaign_rider!(token) do
