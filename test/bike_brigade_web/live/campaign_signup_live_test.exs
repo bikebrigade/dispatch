@@ -2,9 +2,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
   use BikeBrigadeWeb.ConnCase, only: []
 
   import Phoenix.LiveViewTest
-  # alias BikeBrigadeWeb.CampaignHelpers
-  # alias BikeBrigade.LocalizedDateTime
-  #
+
   @week_in_sec 604_900
 
   describe "Index - General" do
@@ -44,7 +42,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       assert has_element?(live, "#campaign-#{campaign.id}")
     end
 
-    test "It displays a campaign in a previous week", ctx do
+    test "It displays a campaign in a previous week; button says 'Completed'", ctx do
       campaign =
         fixture(:campaign, %{
           program_id: ctx.program.id,
@@ -57,8 +55,9 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       refute has_element?(live, "#campaign-#{campaign.id}")
 
       week_ago = Date.utc_today() |> Date.add(-7)
-      {:ok, live, _html} = live(ctx.conn, ~p"/campaigns/signup?current_week=#{week_ago}")
+      {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup?current_week=#{week_ago}")
       assert has_element?(live, "#campaign-#{campaign.id}")
+      assert html =~ "Completed"
     end
   end
 
@@ -77,6 +76,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       fixture(:task, %{campaign: campaign, rider: nil})
 
       {:ok, _live, html} = live(ctx.conn, ~p"/campaigns/signup")
+
       # HACK to cleanup html with tons of whitespace.
       # Could also just use Floki to find the element and test it's there.
       normalized_html = html |> String.split() |> Enum.join(" ")
@@ -103,19 +103,55 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       {:ok, _live, html} = live(ctx.conn, ~p"/campaigns/signup")
       assert html =~ "Signed up for 2 deliveries"
     end
-
-    test "'completed' and cannot be clicked when a campaign is in the past" do
-    end
   end
 
   describe "Show" do
-    test "Signup flow works" do
+    setup ctx do
+      program = fixture(:program, %{name: "ACME Delivery"})
+
+      res = login_as_rider(ctx)
+      campaign = fixture(:campaign, %{program_id: program.id})
+
+      tasks = [
+        fixture(:task, %{campaign: campaign, rider: res.rider}),
+        fixture(:task, %{campaign: campaign, rider: nil}),
+        fixture(:task, %{campaign: campaign, rider: nil})
+      ]
+
+      Map.merge(res, %{program: program, campaign: campaign, tasks: tasks})
     end
 
-    test "Invalid route for task shows flash" do
+    test "we can signup for a task", ctx do
+      {:ok, _live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
+
+      # click on first task's Signup button"
+      # confirm we navigate to new route
+      # confirm we can render submit
+      # confirm we can revisit the route and that "unassign me" is present on the same task id btn.
+
     end
 
-    test "Ride can unassign themselves" do
+    test "we see pertinent task information", ctx do
+      {:ok, _live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
+
+      for t <- ctx.tasks do
+        assert html =~ t.dropoff_name
+        assert html =~ t.dropoff_location.address
+      end
+    end
+
+    test "Invalid route for task shows flash and redirects", ctx do
+      assert {:error,
+              {:redirect,
+               %{flash: %{"error" => "Invalid campaign id."}, to: "/campaigns/signup/"}}} =
+               live(ctx.conn, ~p"/campaigns/signup/foo/")
+    end
+
+    test "Ride can unassign themselves", ctx do
+      {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}")
+      assert html =~ "Unassign me"
+      element(live, "a", "Unassign me") |> render_click()
+      refute render(live) =~ "Unassign me"
     end
   end
 end
