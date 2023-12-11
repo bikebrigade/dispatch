@@ -2,7 +2,6 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
   use BikeBrigadeWeb, :live_view
 
   import BikeBrigadeWeb.CampaignHelpers
-  # import BikeBrigade.Utils, only: [replace_if_updated: 2]
   alias BikeBrigade.Delivery
   alias BikeBrigade.Delivery.CampaignRider
 
