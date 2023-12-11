@@ -539,14 +539,14 @@ defmodule BikeBrigade.Delivery do
     end
   end
 
-  def remove_rider_from_campaign(campaign, rider) do
-    if cr = Repo.get_by(CampaignRider, campaign_id: campaign.id, rider_id: rider.id) do
+  def remove_rider_from_campaign(campaign, rider_id) do
+    if cr = Repo.get_by(CampaignRider, campaign_id: campaign.id, rider_id: rider_id) do
       delete_campaign_rider(cr)
     end
 
     tasks =
       from(t in Task,
-        where: t.campaign_id == ^campaign.id and t.assigned_rider_id == ^rider.id
+        where: t.campaign_id == ^campaign.id and t.assigned_rider_id == ^rider_id
       )
       |> Repo.all()
 
