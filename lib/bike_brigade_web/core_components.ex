@@ -30,7 +30,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
 
   attr :color, :atom,
     default: :primary,
-    values: [:primary, :secondary, :white, :green, :red, :lightred, :clear, :black]
+    values: [:primary, :secondary, :white, :green, :red, :lightred, :clear, :black, :disabled]
 
   attr :rounded, :atom,
     default: :normal,
@@ -119,6 +119,9 @@ defmodule BikeBrigadeWeb.CoreComponents do
 
       :black ->
         "border-gray-300 text-white bg-black hover:bg-white hover:text-black"
+
+      :disabled ->
+        "border-gray-300 text-neutral-900 bg-neutral-100 cursor-not-allowed"
     end
   end
 
