@@ -1,9 +1,10 @@
 defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
   use BikeBrigadeWeb.ConnCase, only: []
+  alias BikeBrigade.LocalizedDateTime
 
   import Phoenix.LiveViewTest
 
-  @week_in_sec 604_900
+  @week_in_sec 604_800
 
   describe "Index - General" do
     setup ctx do
@@ -29,15 +30,15 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       campaign =
         fixture(:campaign, %{
           program_id: ctx.program.id,
-          delivery_start: DateTime.utc_now() |> DateTime.add(@week_in_sec),
+          delivery_start: LocalizedDateTime.now() |> DateTime.add(@week_in_sec),
           delivery_end:
-            DateTime.utc_now() |> DateTime.add(@week_in_sec) |> DateTime.add(60, :second)
+            LocalizedDateTime.now() |> DateTime.add(@week_in_sec) |> DateTime.add(60, :second)
         })
 
       {:ok, live, _html} = live(ctx.conn, ~p"/campaigns/signup")
       refute has_element?(live, "#campaign-#{campaign.id}")
 
-      week_ahead = Date.utc_today() |> Date.add(7)
+      week_ahead = LocalizedDateTime.now() |> Date.add(7)
       {:ok, live, _html} = live(ctx.conn, ~p"/campaigns/signup?current_week=#{week_ahead}")
       assert has_element?(live, "#campaign-#{campaign.id}")
     end
@@ -46,15 +47,15 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       campaign =
         fixture(:campaign, %{
           program_id: ctx.program.id,
-          delivery_start: DateTime.utc_now() |> DateTime.add(-@week_in_sec),
+          delivery_start: LocalizedDateTime.now() |> DateTime.add(-@week_in_sec),
           delivery_end:
-            DateTime.utc_now() |> DateTime.add(-@week_in_sec) |> DateTime.add(60, :second)
+            LocalizedDateTime.now() |> DateTime.add(-@week_in_sec) |> DateTime.add(60, :second)
         })
 
       {:ok, live, _html} = live(ctx.conn, ~p"/campaigns/signup")
       refute has_element?(live, "#campaign-#{campaign.id}")
 
-      week_ago = Date.utc_today() |> Date.add(-7)
+      week_ago = LocalizedDateTime.now() |> Date.add(-7)
       {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup?current_week=#{week_ago}")
       assert has_element?(live, "#campaign-#{campaign.id}")
       assert html =~ "Completed"
@@ -102,6 +103,67 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
 
       {:ok, _live, html} = live(ctx.conn, ~p"/campaigns/signup")
       assert html =~ "Signed up for 2 deliveries"
+    end
+  end
+
+  describe "Show" do
+    setup ctx do
+      program = fixture(:program, %{name: "ACME Delivery"})
+
+      res = login_as_rider(ctx)
+      campaign = fixture(:campaign, %{program_id: program.id})
+
+      task = fixture(:task, %{campaign: campaign, rider: nil})
+
+      Map.merge(res, %{program: program, campaign: campaign, task: task})
+    end
+
+    test "Rider can signup for a task", ctx do
+      {:ok, live, _html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
+      live |> element("#task-#{ctx.task.id}") |> render_click()
+      assert_patched(live, ~p"/campaigns/signup/#{ctx.campaign.id}/task/#{ctx.task.id}")
+
+      {:ok, live, _} =
+        live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/task/#{ctx.task.id}")
+
+      live
+      |> form("#rider_signup_form",
+        campaign_rider: %{
+          "rider_capacity" => "1",
+          "pickup_window" => "10-12"
+        }
+      )
+      |> render_submit()
+
+      # Revisit the route after successful form submission
+      {:ok, _live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}")
+      assert html =~ "Unassign me"
+    end
+
+    test "we see pertinent task information", ctx do
+      {:ok, _live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
+      assert html =~ ctx.task.dropoff_name
+      assert html =~ ctx.task.dropoff_location.address
+    end
+
+    test "Invalid route for campaign shows flash and redirects", ctx do
+      assert {:error,
+              {:redirect,
+               %{flash: %{"error" => "Invalid campaign id."}, to: "/campaigns/signup/"}}} =
+               live(ctx.conn, ~p"/campaigns/signup/foo/")
+    end
+
+    test "Invalid route for campaign-task shows flash and redirects", ctx do
+      res = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/task/foo")
+      assert {:error, {:redirect, %{flash: %{"error" => "Invalid task id."}, to: _}}} = res
+    end
+
+    test "Rider can unassign themselves", ctx do
+      fixture(:task, %{campaign: ctx.campaign, rider: ctx.rider})
+      {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}")
+      assert html =~ "Unassign me"
+      element(live, "a", "Unassign me") |> render_click()
+      refute render(live) =~ "Unassign me"
     end
   end
 end
