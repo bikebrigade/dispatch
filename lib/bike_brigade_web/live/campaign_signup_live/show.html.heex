@@ -17,7 +17,7 @@
       <.get_delivery_size task={task}/>
     </:col>
     <:col :let={task} label="Recipient"><%= task.dropoff_name %></:col>
-    <:col :let={task} label="Dropoff Location"><%= task.dropoff_location.address %></:col>
+    <:col :let={task} label="Dropoff Neighbourhood"><%= Locations.neighborhood(task.dropoff_location) %></:col>
     <:col :let={task} label="Notes"><%= task.delivery_status_notes %>
       <.truncated_riders_notes note={task.rider_notes || "--"}/>
     </:col>
@@ -45,9 +45,8 @@
           color={:primary}
           size={:xsmall}
           class="w-28"
-          patch={~p"/campaigns/signup/#{@campaign}/task/#{task.id}"}
-
-          >
+          replace
+          patch={~p"/campaigns/signup/#{@campaign}/task/#{task.id}"}>
           Signup
         </.button>
 

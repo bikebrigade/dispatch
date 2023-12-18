@@ -65,8 +65,7 @@
                     <% campaign_tasks_fully_assigned?(c.id, @campaign_task_counts) -> %>
                       <.button
                         size={:xsmall}
-                        color={:primary}
-
+                        color={:secondary}
                         navigate={~p"/campaigns/signup/#{c}/"}>
                         Campaign Filled
                       </.button>

@@ -24,7 +24,6 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
      |> assign(:page, :campaigns)
      |> assign(:page_title, "Campaign Signup List")
      |> assign(:current_week, current_week)
-     # REVIEW: rename this to `campaign_meta` ?
      |> assign(:campaign_task_counts, Delivery.get_total_tasks_and_open_tasks(current_week))
      |> assign(:campaigns, campaigns)}
   end
@@ -84,6 +83,9 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
     |> Enum.reverse()
   end
 
+  # TODO HACK: right now everytime something about a task, or campaign rider
+  # changes (add, edit, delete), we refetch all tasks and campaign riders.
+  # This may eventually become a problem.
   defp refetch_and_assign_data(socket) do
     week = socket.assigns.current_week
 
@@ -104,8 +106,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
 
   defp get_signup_text(campaign_id, rider_id, campaign_task_counts) do
     count_tasks_for_current_rider =
-      campaign_task_counts[campaign_id].rider_ids
-      |> Enum.count(fn i -> i == Integer.to_string(rider_id) end)
+      campaign_task_counts[campaign_id].rider_ids_counts[rider_id] || 0
 
     cond do
       count_tasks_for_current_rider > 0 ->

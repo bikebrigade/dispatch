@@ -37,7 +37,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
     values: [:none, :small, :normal, :medium, :full]
 
   attr :class, :string, default: nil
-  attr :rest, :global, include: ~w(href patch navigate disabled)
+  attr :rest, :global, include: ~w(href patch navigate disabled replace)
   slot :inner_block, required: true
 
   @button_base_classes [

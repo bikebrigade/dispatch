@@ -4,7 +4,6 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
 
   import Phoenix.LiveViewTest
 
-  @week_in_sec 604_800
 
   describe "Index - General" do
     setup ctx do
@@ -30,9 +29,9 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       campaign =
         fixture(:campaign, %{
           program_id: ctx.program.id,
-          delivery_start: LocalizedDateTime.now() |> DateTime.add(@week_in_sec),
+          delivery_start: LocalizedDateTime.now() |> DateTime.add(7, :day),
           delivery_end:
-            LocalizedDateTime.now() |> DateTime.add(@week_in_sec) |> DateTime.add(60, :second)
+            LocalizedDateTime.now() |> DateTime.add(7, :day) |> DateTime.add(60, :second)
         })
 
       {:ok, live, _html} = live(ctx.conn, ~p"/campaigns/signup")
@@ -47,9 +46,9 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       campaign =
         fixture(:campaign, %{
           program_id: ctx.program.id,
-          delivery_start: LocalizedDateTime.now() |> DateTime.add(-@week_in_sec),
+          delivery_start: LocalizedDateTime.now() |> DateTime.add(-7, :day),
           delivery_end:
-            LocalizedDateTime.now() |> DateTime.add(-@week_in_sec) |> DateTime.add(60, :second)
+            LocalizedDateTime.now() |> DateTime.add(-7, :day) |> DateTime.add(60, :second)
         })
 
       {:ok, live, _html} = live(ctx.conn, ~p"/campaigns/signup")
@@ -143,7 +142,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
     test "we see pertinent task information", ctx do
       {:ok, _live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
       assert html =~ ctx.task.dropoff_name
-      assert html =~ ctx.task.dropoff_location.address
+      assert html =~ BikeBrigade.Locations.neighborhood(ctx.task.dropoff_location)
     end
 
     test "Invalid route for campaign shows flash and redirects", ctx do

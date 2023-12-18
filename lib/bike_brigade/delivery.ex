@@ -199,7 +199,7 @@ defmodule BikeBrigade.Delivery do
           total_tasks: count(t.id),
           filled_tasks:
             sum(fragment("CASE WHEN ? IS NULL THEN 0 ELSE 1 END", t.assigned_rider_id)),
-          rider_ids: fragment("array_agg(?::text)", t.assigned_rider_id)
+          rider_ids: fragment("array_agg(?)", t.assigned_rider_id)
         }
 
     Repo.all(query)
@@ -208,7 +208,7 @@ defmodule BikeBrigade.Delivery do
       fn x ->
         {x.campaign_id,
          %{
-           rider_ids: x.rider_ids,
+           rider_ids_counts: Enum.frequencies(x.rider_ids),
            total_tasks: x.total_tasks,
            filled_tasks: x.filled_tasks
          }}

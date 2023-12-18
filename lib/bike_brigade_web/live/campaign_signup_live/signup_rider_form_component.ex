@@ -29,7 +29,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.SignupRiderFormComponent do
     case Delivery.create_campaign_rider(attrs) do
       {:ok, _cr} ->
         {:ok, _task} = Delivery.update_task(task, %{assigned_rider_id: rider_id})
-        {:noreply, socket |> push_redirect(to: ~p"/campaigns/signup/#{campaign}")}
+        {:noreply, socket |> push_patch(to: ~p"/campaigns/signup/#{campaign}", replace: true)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, :changeset, changeset)}

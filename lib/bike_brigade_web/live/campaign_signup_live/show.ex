@@ -3,6 +3,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
 
   import BikeBrigadeWeb.CampaignHelpers
   alias BikeBrigade.Delivery
+  alias BikeBrigade.Locations
 
   @impl true
   def mount(_params, _session, socket) do
@@ -122,7 +123,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
   @impl Phoenix.LiveView
   def handle_info({event, entity}, socket) when event in @broadcasted_infos do
     campaign = socket.assigns.campaign
-    # if a task or a campaign rider changes (ie, if any of hte broadcasted_infos)
+    # if a task or a campaign rider changes (ie, if any of the broadcasted_infos)
     # launches from elsewhere, check if the entity's respective campaign id matches
     # the id of the campaign in the current view; if so, refetch the data.
     if entity.campaign_id == campaign.id do
