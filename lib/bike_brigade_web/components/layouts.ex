@@ -62,6 +62,16 @@ defmodule BikeBrigadeWeb.Layouts do
         </:icon>
         My Profile
       </.sidebar_link>
+      <!-- Rider Specific links -->
+      <div :if={!@is_dispatcher}>
+        <.sidebar_link selected={@current_page == :itinerary} href={~p"/itinerary"}>
+          <:icon>
+            <Heroicons.calendar_days solid />
+          </:icon>
+          Itinerary
+        </.sidebar_link>
+      </div>
+
       <.sidebar_link selected={@current_page == :logout} href={~p"/logout"} method="post">
         <:icon>
           <Heroicons.arrow_left_on_rectangle solid />
