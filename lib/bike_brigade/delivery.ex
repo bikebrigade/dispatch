@@ -174,12 +174,6 @@ defmodule BikeBrigade.Delivery do
     CampaignRider |> Repo.get_by(campaign_id: campaign_id, rider_id: rider_id)
   end
 
-  def update_campaign_rider(%CampaignRider{} = rider, attrs) do
-    rider
-    |> CampaignRider.changeset(attrs)
-    |> Repo.update()
-    |> broadcast(:campaign_updated)
-  end
 
   def get_campaign_rider!(token) do
     query =
@@ -209,6 +203,13 @@ defmodule BikeBrigade.Delivery do
       conflict_target: [:rider_id, :campaign_id]
     )
     |> broadcast(:campaign_rider_created)
+  end
+
+  def update_campaign_rider(%CampaignRider{} = rider, attrs) do
+    rider
+    |> CampaignRider.changeset(attrs)
+    |> Repo.update()
+    |> broadcast(:campaign_rider_updated)
   end
 
   def delete_campaign_rider(%CampaignRider{} = campaign_rider) do

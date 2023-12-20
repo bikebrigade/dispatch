@@ -352,9 +352,9 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
 
   @impl true
   def handle_info(
-        {:campaign_rider_created, %CampaignRider{campaign_id: campaign_id, rider_id: rider_id}},
+        {ev, %CampaignRider{campaign_id: campaign_id, rider_id: rider_id}},
         socket
-      ) do
+      ) when ev in [:campaign_rider_created, :campaign_rider_updated] do
     %{campaign: campaign} = socket.assigns
 
     if campaign_id == campaign.id do
