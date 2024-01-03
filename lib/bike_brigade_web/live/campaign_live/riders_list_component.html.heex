@@ -135,12 +135,12 @@
                   Resend
                 </.button>
               <% end %>
-              <.button
-                navigate={~p"/messages/#{rider}"}
-                color={:secondary}
-                size={:xsmall}
-              >
+              <.button navigate={~p"/messages/#{rider}"} color={:secondary} size={:xsmall}>
                 Message
+              </.button>
+
+              <.button patch={~p"/campaigns/#{@campaign}/edit_rider/#{rider}"} size={:xsmall}>
+                Edit Rider
               </.button>
             </div>
             <div class="mt-1">

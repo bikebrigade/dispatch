@@ -508,7 +508,8 @@ defmodule BikeBrigadeWeb.CoreComponents do
   attr :label, :string, default: nil
   attr :help_text, :string, default: nil
   attr :multi, :boolean, default: false
-  attr :rest, :global, include: ~w(selected_rider selected_riders)
+  attr :selected_rider, :any, default: nil
+  attr :rest, :global, include: ~w(selected_riders)
 
   def rider_select(%{field: {f, field}} = assigns) do
     assigns
@@ -530,6 +531,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
         module={RiderSelectionComponent}
         id={@id}
         input_name={@name}
+        selected_rider={@selected_rider}
         multi={@multi}
         {@rest}
       />

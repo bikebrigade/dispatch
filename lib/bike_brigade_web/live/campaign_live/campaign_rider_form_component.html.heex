@@ -5,22 +5,38 @@
   <.simple_form
     :let={f}
     for={@changeset}
-    id="add_rider_form"
+    id="campaign_rider_form"
     phx-target={@myself}
-    phx-submit="add_rider"
+    phx-submit="save"
     phx-change="validate"
     autocomplete="off"
   >
-    <.rider_select field={{f, :rider_id}} label="Rider" />
-    <.input type="number" field={{f, :rider_capacity}} label="Capacity" />
-    <.input type="text" field={{f, :pickup_window}} label="Pickup Window" />
+    <.rider_select 
+    field={{f, :rider_id}} 
+    selected_rider={@selected_rider}
+    label="Rider" />
+
+    <.input
+      type="number"
+      field={{f, :rider_capacity}}
+      data-test-rider-capacity={f.data.rider_capacity}
+      label="Capacity" />
+
+    <.input
+      type="text"
+      field={{f, :pickup_window}}
+      data-test-rider-window={f.data.pickup_window}
+      label="Pickup Window" />
     <.radio_group field={{f, :enter_building}} label="Enter buildings?">
       <:radio value={true} label="Yes" />
       <:radio value={false} label="No" />
     </.radio_group>
     <:actions>
       <.button type="submit" phx-disable-with="Adding...">
-        Add
+        <%= case @action do  %>
+          <% :add_rider -> %> Add
+          <% :edit_rider -> %> Update
+        <% end %>
       </.button>
     </:actions>
   </.simple_form>
