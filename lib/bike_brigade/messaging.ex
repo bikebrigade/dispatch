@@ -40,6 +40,7 @@ defmodule BikeBrigade.Messaging do
               order_by: [desc: m.sent_at],
               limit: 1
           ),
+        on: true,
         order_by: [desc: latest_message.sent_at],
         select: {r, latest_message}
 
