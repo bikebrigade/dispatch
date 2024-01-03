@@ -62,7 +62,7 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
       form
       |> cast(
         attrs,
-        @shared_permitted_keys() ++
+        @shared_permitted_keys ++
           [:last_safety_check, :internal_notes, :text_based_itinerary, :tags]
       )
       |> cast_embed(:flags)
@@ -70,7 +70,7 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
 
     # `:edit_profile` - the rider is editing their own profile.
     def changeset_impl(form, :edit_profile, attrs) do
-      form |> cast(attrs, @shared_permitted_keys())
+      form |> cast(attrs, @shared_permitted_keys)
     end
 
     def from_rider(%Rider{} = rider) do
