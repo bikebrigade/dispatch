@@ -1,0 +1,112 @@
+<nav
+  class="flex flex-col md:flex-row md:items-center justify-between px-4 py-3 mb-4 border-b-2 border-gray-200"
+  aria-label="Pagination"
+>
+  <div class="flex-1">
+    <p class="font-medium xl:flex">
+      <span class="mr-2">Showing week of</span>
+      <time datetime={@current_week} class="font-medium">
+        <%= Calendar.strftime(@current_week, "%B %-d, %Y") %>
+      </time>
+    </p>
+  </div>
+  <div class="flex justify-between mt-4 md:mt-0 align-end">
+    <span class="relative z-0 inline-flex rounded-md shadow-sm">
+      <.link
+        patch={~p"/campaigns/signup?current_week=#{Date.add(@current_week, -7)}"}
+        class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+      >
+        <Heroicons.chevron_left solid class="w-5 h-5" />
+      </.link>
+      <.link
+        patch={~p"/campaigns/signup?current_week=#{Date.beginning_of_week(LocalizedDateTime.today())}"}
+        class="relative items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 sm:inline-flex hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+      >
+        Today
+      </.link>
+
+      <.link
+        patch={~p"/campaigns/signup?current_week=#{Date.add(@current_week, 7)}"}
+        class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+      >
+        <Heroicons.chevron_right solid class="w-5 h-5" />
+      </.link>
+    </span>
+  </div>
+</nav>
+<%= if @campaigns != [] do %>
+  <%= for {date, campaigns} <- @campaigns do %>
+    <div class="flex flex-col md:flex-row w-full bg-white shadow sm:my-1 sm:rounded-md">
+      <div class="w-32 py-4 pl-4">
+        <.date date={date} />
+      </div>
+      <ul role="list" class="w-full divide-y divide-gray-200">
+        <%= for c <- campaigns do %>
+          <li id={"campaign-#{c.id}"}>
+            <div class="px-4 py-4">
+              <div class="items-center justify-between md:flex">
+                <div class="flex items-center mb-2 space-x-1">
+                  <p
+                    class="text-sm font-medium"
+                    data-test-group="campaign-name"
+                  >
+                    <%= name(c) %>
+                  </p>
+                </div>
+                <div class="flex-shrink-0 space-y-1 md:space-y-0 md:space-x-2 md:flex">
+                  <%= cond do %>
+                    <% campaign_is_in_past(c) -> %>
+                      <.button
+                        size={:xsmall}
+                        color={:disabled}>
+                        Completed
+                      </.button>
+
+                    <% campaign_tasks_fully_assigned?(c.id, @campaign_task_counts) -> %>
+                      <.button
+                        size={:xsmall}
+                        color={:secondary}
+                        navigate={~p"/campaigns/signup/#{c}/"}>
+                        Campaign Filled
+                      </.button>
+
+                    <% true -> %>
+                    <.button
+                        size={:xsmall}
+                        color={:primary}
+                        navigate={~p"/campaigns/signup/#{c}/"}>
+                        <%= get_signup_text(c.id, @current_user.rider_id, @campaign_task_counts) %>
+                      </.button>
+                  <% end %>
+                </div>
+              </div>
+              <div class="mt-2 sm:flex sm:justify-between">
+                <div class="flex flex-col md:flex-row justify-between w-full">
+
+                  <p class="flex items-center mt-0 text-sm text-gray-700">
+                    <Icons.maki_bicycle_share class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-500" />
+                    <span>
+                      <%= @campaign_task_counts[c.id][:filled_tasks] %> /
+                      <%= @campaign_task_counts[c.id][:total_tasks] %> Tasks filled
+                    </span>
+                  </p>
+
+                  <p class="flex items-center text-sm text-gray-700">
+                    <Heroicons.clock
+                      mini
+                      aria-label="Pickup Time"
+                      class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-500"
+                    />
+                    Pickup time: <%= pickup_window(c) %>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+<% else %>
+  <div class="py-4 pl-4">No campaigns found</div>
+<% end %>
