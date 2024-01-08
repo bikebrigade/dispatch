@@ -1,12 +1,20 @@
 defmodule BikeBrigadeWeb.Layouts do
   use BikeBrigadeWeb, :html
 
+  def rider_links() do
+    [
+      %{name: "Campaigns", link: ~p"/campaigns/signup", icon: :inbox, current_page: :campaigns_signup},
+      %{name: "Itinerary", link: ~p"/itinerary", icon: :calendar_days, current_page: :itinerary}
+    ]
+  end
+
   embed_templates "layouts/*"
 
   attr :is_dispatcher, :boolean, default: false
+  attr :is_rider, :boolean, default: false
 
   attr :current_page, :atom,
-    values: [:programs, :campaigns, :opportunities, :riders, :stats, :users, :messages, :profile]
+    values: [:programs, :campaigns, :opportunities, :riders, :stats, :users, :messages, :profile, :campaigns_signup]
 
   defp sidebar(assigns) do
     ~H"""
@@ -56,35 +64,81 @@ defmodule BikeBrigadeWeb.Layouts do
         </.sidebar_link>
       </div>
 
-      <.sidebar_link selected={@current_page == :profile} navigate={~p"/profile"}>
-        <:icon>
-          <Heroicons.user_circle />
-        </:icon>
-        My Profile
-      </.sidebar_link>
-      <!-- Rider Specific links -->
-      <div :if={!@is_dispatcher}>
-        <.sidebar_link selected={@current_page == :campaigns_signup} navigate={~p"/campaigns/signup"}>
+      <.rider_links is_rider={@is_rider} is_dispatcher={@is_dispatcher} current_page={@current_page} />
+
+      <div class="pb-2 mb-2">
+        <.sidebar_link selected={@current_page == :profile} navigate={~p"/profile"}>
           <:icon>
-            <Heroicons.inbox />
+            <Heroicons.user_circle />
           </:icon>
-          Campaigns
+          My Profile
         </.sidebar_link>
-        <.sidebar_link selected={@current_page == :itinerary} href={~p"/itinerary"}>
+
+        <.sidebar_link selected={@current_page == :logout} href={~p"/logout"} method="post">
           <:icon>
-            <Heroicons.calendar_days solid />
+            <Heroicons.arrow_left_on_rectangle solid />
           </:icon>
-          Itinerary
+          Log out
         </.sidebar_link>
       </div>
+    </div>
+    """
+  end
 
-      <.sidebar_link selected={@current_page == :logout} href={~p"/logout"} method="post">
+  @doc """
+  Responsible for rendering the "rider" links, for dispatchers who are both riders and dispatchers.
+  """
+  def rider_links(%{is_dispatcher: true, is_rider: true} = assigns) do
+    ~H"""
+    <div class="mb-1 rounded-md border border-gray-200">
+      <.sidebar_fold summary="Rider Links">
         <:icon>
-          <Heroicons.arrow_left_on_rectangle solid />
+          <Heroicons.arrow_down solid />
         </:icon>
-        Log out
+        <div :for={link <- rider_links()}>
+          <.sidebar_link selected={@current_page == link.current_page} navigate={link.link}>
+            <:icon>
+              <BikeBrigadeWeb.Components.Icons.dynamic_icon name={link.icon} />
+            </:icon>
+            <%= link.name %>
+          </.sidebar_link>
+        </div>
+      </.sidebar_fold>
+    </div>
+    """
+  end
+
+  def rider_links(%{is_dispatcher: true, is_rider: false} = assigns) do
+    ~H"""
+    <div></div>
+    """
+  end
+
+  def rider_links(assigns) do
+    ~H"""
+    <div :for={link <- rider_links()}>
+      <.sidebar_link class="bg-red-400" selected={@current_page == link.current_page} navigate={link.link}>
+        <:icon>
+          <BikeBrigadeWeb.Components.Icons.dynamic_icon name={link.icon} />
+        </:icon>
+        <%= link.name %>
       </.sidebar_link>
     </div>
+    """
+  end
+
+  def sidebar_fold(assigns) do
+    ~H"""
+    <details open class="rounded-md [&_.arrow-icon]:open:-rotate-180">
+      <summary class=" cursor-pointer select-none flex items-center px-2 py-2 text-base font-medium leading-6 text-gray-600 transition duration-150 ease-in-out rounded-md group focus:outline-none focus:text-gray-900 focus:bg-gray-100">
+        <span class="arrow-icon w-6 h-6 mr-4 text-gray-500 transition duration-150 ease-in-out group-hover:text-gray-500 group-focus:text-gray-600">
+          <%= render_slot(@icon) %>
+        </span>
+        Rider Links
+      </summary>
+
+      <%= render_slot(@inner_block) %>
+    </details>
     """
   end
 

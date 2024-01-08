@@ -21,7 +21,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
 
     {:ok,
      socket
-     |> assign(:page, :campaigns)
+     |> assign(:page, :campaigns_signup)
      |> assign(:page_title, "Campaign Signup List")
      |> assign(:current_week, current_week)
      |> assign(:campaign_task_counts, Delivery.get_total_tasks_and_open_tasks(current_week))
