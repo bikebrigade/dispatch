@@ -1,8 +1,8 @@
 <nav
-  class="flex flex-col md:flex-row md:items-end md:justify-between px-4 py-3 border-b-2 border-gray-200 mb-4"
+  class="flex items-center justify-between px-4 py-3 mb-4 border-b-2 border-gray-200"
   aria-label="Pagination"
 >
-  <div class="items-center block font-medium xl:flex">
+  <div class="items-center block text-sm xl:flex">
     <p>
       Itinerary for <%= Calendar.strftime(@date, "%a %B %-d, %Y") %>
     </p>
@@ -92,5 +92,5 @@
       </ul>
     </div>
 <% else %>
-  <div class="py-4 pl-4">No campaigns found for this day.</div>
+  <div class="pt-1 pl-4">No campaigns found for this day.</div>
 <% end %>
