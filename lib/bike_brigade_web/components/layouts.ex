@@ -91,7 +91,7 @@ defmodule BikeBrigadeWeb.Layouts do
   def rider_links(%{is_dispatcher: true, is_rider: true} = assigns) do
     ~H"""
     <div class="mb-1 rounded-md border border-gray-200">
-      <.sidebar_fold summary="Rider Links">
+      <.sidebar_section name="Rider Links">
         <:icon>
           <Heroicons.arrow_down solid />
         </:icon>
@@ -103,7 +103,7 @@ defmodule BikeBrigadeWeb.Layouts do
             <%= link.name %>
           </.sidebar_link>
         </div>
-      </.sidebar_fold>
+      </.sidebar_section>
     </div>
     """
   end
@@ -127,18 +127,15 @@ defmodule BikeBrigadeWeb.Layouts do
     """
   end
 
-  def sidebar_fold(assigns) do
+  def sidebar_section(assigns) do
     ~H"""
-    <details open class="rounded-md [&_.arrow-icon]:open:-rotate-180">
-      <summary class=" cursor-pointer select-none flex items-center px-2 py-2 text-base font-medium leading-6 text-gray-600 transition duration-150 ease-in-out rounded-md group focus:outline-none focus:text-gray-900 focus:bg-gray-100">
-        <span class="arrow-icon w-6 h-6 mr-4 text-gray-500 transition duration-150 ease-in-out group-hover:text-gray-500 group-focus:text-gray-600">
-          <%= render_slot(@icon) %>
-        </span>
-        Rider Links
-      </summary>
+    <div open class="rounded-md [&_.arrow-icon]:open:-rotate-180">
+      <div class="select-none flex items-center px-2 py-2 text-base font-medium leading-6 text-gray-600 transition duration-150 ease-in-out rounded-md group focus:outline-none focus:text-gray-900 focus:bg-gray-100">
+        <%= @name %>
+      </div>
 
       <%= render_slot(@inner_block) %>
-    </details>
+    </div>
     """
   end
 
