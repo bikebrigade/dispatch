@@ -3,8 +3,8 @@
   aria-label="Pagination"
 >
   <div class="flex-1">
-    <p class="font-medium xl:flex">
-      <span class="mr-2">Showing week of</span>
+    <p class="text-sm text-gray-700">
+      Showing week of
       <time datetime={@current_week} class="font-medium">
         <%= Calendar.strftime(@current_week, "%B %-d, %Y") %>
       </time>
@@ -108,5 +108,5 @@
     </div>
   <% end %>
 <% else %>
-  <div class="py-4 pl-4">No campaigns found</div>
+  <div class="pt-1 pl-4">No campaigns found</div>
 <% end %>
