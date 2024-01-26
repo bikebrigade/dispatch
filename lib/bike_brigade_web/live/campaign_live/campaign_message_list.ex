@@ -17,7 +17,6 @@ defmodule BikeBrigadeWeb.CampaignLive.CampaignMessageList do
 
   alias BikeBrigadeWeb.Components.ConversationComponent
 
-
   def mount(socket) do
     {:ok, socket}
   end
@@ -27,24 +26,25 @@ defmodule BikeBrigadeWeb.CampaignLive.CampaignMessageList do
     rider_ids =
       assigns.riders
       |> Map.values()
-      |> Enum.map(&(&1.id))
+      |> Enum.map(& &1.id)
 
     conversations = Messaging.list_sms_for_campaign(rider_ids)
 
     rider =
       cond do
+        # TODO: why did I do this?
         selected_rider = Map.get(assigns.riders, assigns.selected_rider_id) -> selected_rider
+        Enum.count(conversations) == 0 -> nil
         [{selected_rider, _} | _] = conversations -> selected_rider
         true -> nil
-    end
+      end
 
-    {:ok, socket
-    |> assign(:selected_rider, rider)
-    |> assign(:live_action, assigns.live_action)
-    |> assign(:conversations, conversations)
-    |> assign(:current_user, assigns.current_user)
-    |> assign(:campaign_id, assigns.campaign.id)
-    }
+    {:ok,
+     socket
+     |> assign(:selected_rider, rider)
+     |> assign(:live_action, assigns.live_action)
+     |> assign(:conversations, conversations)
+     |> assign(:current_user, assigns.current_user)
+     |> assign(:campaign_id, assigns.campaign.id)}
   end
-
 end
