@@ -55,9 +55,13 @@
       </ul>
     </div>
 
-    <div class="hidden md:flex relative inline-block dropdown">
-      <.button patch={~p"/campaigns/#{@campaign}/messaging/riders/"} class="btn w-32 my-3 mr-3">
-        <span class="mr-2">Text Riders</span>
+    <div class="md:flex relative inline-block dropdown">
+      <.button
+        :if={Enum.count(@riders) > 0}
+        patch={~p"/campaigns/#{@campaign}/messaging/riders/"}
+        class="btn w-32 my-3 mr-3"
+      >
+        Text Riders
       </.button>
     </div>
     <div class="flex w-full md:justify-end">
@@ -204,9 +208,7 @@
     navigate={~p"/campaigns/#{@campaign}"}
   />
 </.modal>
-
 <!-- Shows messaging "templating" window for scheduling delivery messages. -->
-
 <.slideover
   :if={@live_action == :messaging}
   id="messaging"
@@ -225,10 +227,7 @@
     navigate={~p"/campaigns/#{@campaign}"}
   />
 </.slideover>
-
-
 <!-- Show message list for all riders -->
-
 <.slideover
   :if={@live_action == :campaign_message_list}
   id="messaging-riders"
@@ -250,4 +249,3 @@
     navigate={~p"/campaigns/#{@campaign}"}
   />
 </.slideover>
-
