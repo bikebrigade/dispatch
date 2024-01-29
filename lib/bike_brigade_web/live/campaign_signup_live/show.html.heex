@@ -41,12 +41,12 @@
 
       <%= if is_nil(task.assigned_rider) do %>
         <.button
+          phx-click="signup_rider"
           id={"task-#{task.id}"}
           color={:primary}
           size={:xsmall}
           class="w-28"
-          replace
-          patch={~p"/campaigns/signup/#{@campaign}/task/#{task.id}"}>
+          >
           Sign up
         </.button>
 
