@@ -186,13 +186,14 @@ defmodule BikeBrigade.Riders.RiderSearch do
     tags_query =
       from(t in Tag,
         join: r in assoc(t, :riders),
-        where: r.id == parent_as(:rider).id,
-        select: %{tags: fragment("array_agg(?)", t.name)}
+        select: %{rider_id: r.id, tags: fragment("array_agg(?)", t.name)},
+        group_by: r.id
       )
 
     from(r in Rider,
       as: :rider,
-      left_lateral_join: t in subquery(tags_query),
+      left_join: t in subquery(tags_query),
+      on: r.id == t.rider_id,
       as: :tags,
       left_join: l in assoc(r, :latest_campaign),
       as: :latest_campaign
@@ -230,7 +231,7 @@ defmodule BikeBrigade.Riders.RiderSearch do
     query
     |> where(
       fragment("unaccent(?) ilike unaccent(?)", as(:rider).name, ^"%#{search}%") or
-      fragment("unaccent(?) ilike unaccent(?)", as(:rider).name, ^"% #{search}%")
+        fragment("unaccent(?) ilike unaccent(?)", as(:rider).name, ^"% #{search}%")
     )
   end
 
@@ -243,14 +244,16 @@ defmodule BikeBrigade.Riders.RiderSearch do
     query
     |> where(
       fragment("unaccent(?) ilike unaccent(?)", as(:rider).name, ^"%#{search}%") or
-      fragment("unaccent(?) ilike unaccent(?)", as(:rider).name, ^"% #{search}%") or
-      like(as(:rider).phone, ^"%#{search}%")
+        fragment("unaccent(?) ilike unaccent(?)", as(:rider).name, ^"% #{search}%") or
+        like(as(:rider).phone, ^"%#{search}%")
     )
   end
 
   defp apply_filter(%Filter{type: :program, id: id}, query) do
     query
-    |> join(:inner, [rider: r], rs in RiderStats, on: rs.rider_id == r.id and rs.program_id == ^id)
+    |> join(:inner, [rider: r], rs in RiderStats,
+      on: rs.rider_id == r.id and rs.program_id == ^id
+    )
   end
 
   defp apply_filter(%Filter{type: :tag, search: tag}, query) do

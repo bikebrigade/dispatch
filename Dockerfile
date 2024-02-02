@@ -1,7 +1,7 @@
 ###
 ### Fist Stage - Building the Release
 ###
-FROM hexpm/elixir:1.13.4-erlang-25.1.2.1-alpine-3.15.6 AS build
+FROM hexpm/elixir:1.15.7-erlang-26.1.2-alpine-3.17.5 AS build
 
 # install build dependencies
 RUN apk add --no-cache build-base npm git gcompat
@@ -55,7 +55,7 @@ RUN mix do compile, release
 ###
 
 # prepare release docker image
-FROM alpine:3.14 AS app
+FROM alpine:3.17 AS app
 RUN apk add --no-cache libstdc++ openssl ncurses-libs
 
 WORKDIR /app
