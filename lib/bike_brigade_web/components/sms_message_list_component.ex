@@ -17,46 +17,18 @@ defmodule BikeBrigadeWeb.Components.SMSMessageListComponent do
 
   def preview_message(_), do: "unknown message"
 
-  attr :sms_list, :any, required: true
-
-  @doc """
-  A helper component to determine where clicking on a rider in an sms list takes us
-  we render the sms list in different capacities; this allows deciding to which sms
-  instance clicking a rider would take us to.
-  """
-  def message_link(assigns) do
-    route =
-      case assigns.sms_list do
-        {"/messages"} ->
-          ~p"/messages/#{assigns.rider_id}"
-
-        {"/campaigns", campaign_id} ->
-          ~p"/campaigns/#{campaign_id}/messaging/riders/#{assigns.rider_id}"
-      end
-
-    assigns = assign(assigns, :route, route)
-
-    ~H"""
-    <.link
-      patch={@route}
-      class=" px-2 py-1 border-b hover:bg-gray-100 block transition duration-150 ease-in-out  focus:outline-none"
-    >
-      <%= render_slot(@inner_block) %>
-    </.link>
-    """
-  end
-
   @doc """
   Renders a list of sms messages
 
   ## Examples
       <.sms_message_list
-      conversations={@conversations}
-      >
+        rider_link_fn={fn rider_id -> ~p"your/route" end}
+        conversations={@conversations}
+      />
   """
 
   attr :conversations, :list, required: true
-  attr :sms_list, :any, required: true
+  attr :rider_link_fn, :any, required: true
 
   def sms_message_list(assigns) do
     ~H"""
@@ -71,7 +43,10 @@ defmodule BikeBrigadeWeb.Components.SMSMessageListComponent do
         id={"conversation-list-item:#{rider.id}"}
         data-rider-id={rider.id}
       >
-        <.message_link sms_list={@sms_list} rider_id={rider.id}>
+        <.link
+          patch={@rider_link_fn.(rider.id)}
+          class="px-2 py-1 border-b hover:bg-gray-100 block transition duration-150 ease-in-out  focus:outline-none"
+        >
           <div class="flex items-center px-2 py-2">
             <div class="flex items-center flex-1 min-w-0">
               <div class="flex-shrink-0 hidden mr-4 lg:block">
@@ -118,7 +93,7 @@ defmodule BikeBrigadeWeb.Components.SMSMessageListComponent do
               <% end %>
             </div>
           </div>
-        </.message_link>
+        </.link>
       </li>
     </ul>
     """

@@ -6,7 +6,12 @@
   <% else %>
     <div data-test-campaign-message-list class="flex h-[calc(100vh-8rem)]">
       <div class="bg-white md:w-4/12 w-full shadow border border-gray-200 rounded-lg mr-4">
-        <.sms_message_list sms_list={{"/campaigns", @campaign_id}} conversations={@conversations} />
+        <.sms_message_list
+          rider_link_fn={
+            fn rider_id -> ~p"/campaigns/#{@campaign_id}/messaging/riders/#{rider_id}" end
+          }
+          conversations={@conversations}
+        />
       </div>
 
       <div class="flex md:w-8/12 max-h-[calc(100vh-8rem)] rounded border border-gray-200">

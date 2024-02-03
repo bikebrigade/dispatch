@@ -28,11 +28,10 @@ defmodule BikeBrigadeWeb.CampaignLive.CampaignMessageList do
       |> Map.values()
       |> Enum.map(& &1.id)
 
-    conversations = Messaging.list_sms_for_campaign(rider_ids)
+    conversations = Messaging.list_sms_conversations_for_riders(rider_ids)
 
     rider =
       cond do
-        # TODO: why did I do this?
         selected_rider = Map.get(assigns.riders, assigns.selected_rider_id) -> selected_rider
         Enum.count(conversations) == 0 -> nil
         [{selected_rider, _} | _] = conversations -> selected_rider

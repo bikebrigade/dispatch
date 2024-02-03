@@ -52,19 +52,20 @@
         </div>
       </div>
       <.sms_message_list
-        sms_list={{"/messages"}}
-        conversations={@conversations}/>
+        rider_link_fn={fn rider_id -> ~p"/messages/#{rider_id}" end}
+        conversations={@conversations}
+      />
     </div>
   </div>
   <div class="flex md:w-8/12 lg:8/12 max-h-[calc(100vh-3rem)] max-h-[calc(100vh-6rem)] sm:max-h-[calc(100vh-6.75rem)] md:max-h-[calc(100vh-3rem)]">
-  <.live_component
-    :if={@selected_rider}
-    module={ConversationComponent}
-    id={@selected_rider.id}
-    rider={@selected_rider}
-    live_action={@live_action}
-    current_user={@current_user}
-  />
+    <.live_component
+      :if={@selected_rider}
+      module={ConversationComponent}
+      id={@selected_rider.id}
+      rider={@selected_rider}
+      live_action={@live_action}
+      current_user={@current_user}
+    />
   </div>
   <div
     :if={@latest_campaign_tasks != []}

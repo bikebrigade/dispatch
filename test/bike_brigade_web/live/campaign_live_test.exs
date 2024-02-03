@@ -173,7 +173,6 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
 
     test "'Text Riders' button is not visible without riders.", %{conn: conn, campaign: campaign} do
       {:ok, view, _html} = live(conn, ~p"/campaigns/#{campaign}")
-      open_browser view
       refute view |> element("a", "Text Riders") |> has_element?()
     end
   end
@@ -181,13 +180,13 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
   describe "Show with riders" do
     setup [:create_campaign_with_riders, :login]
 
-    test "'Text Riders' button is visible when campaign has riders", %{conn: conn, campaign: campaign} do
+    test "'Text Riders' button is visible when campaign has riders", %{
+      conn: conn,
+      campaign: campaign
+    } do
       {:ok, view, _html} = live(conn, ~p"/campaigns/#{campaign}")
-      open_browser view
       assert view |> element("a", "Text Riders") |> has_element?()
-    #   assert has_element?(view, ~s|[data-test-campaign-message-list]|)
     end
-
   end
 
   # Still a work in progress
