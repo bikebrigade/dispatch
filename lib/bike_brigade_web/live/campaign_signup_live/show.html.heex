@@ -41,7 +41,7 @@
 
       <%= if is_nil(task.assigned_rider) do %>
         <.button
-          phx-click="signup_rider"
+          phx-click={JS.push("signup_rider", value: %{task_id: task.id, rider_id: @current_rider_id})}
           id={"task-#{task.id}"}
           color={:primary}
           size={:xsmall}
