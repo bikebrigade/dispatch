@@ -118,24 +118,10 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
     end
 
     test "Rider can signup for a task", ctx do
-      {:ok, live, _html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
-      live |> element("#task-#{ctx.task.id}") |> render_click()
-      assert_patched(live, ~p"/campaigns/signup/#{ctx.campaign.id}/task/#{ctx.task.id}")
-
-      {:ok, live, _} =
-        live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/task/#{ctx.task.id}")
-
-      live
-      |> form("#rider_signup_form",
-        campaign_rider: %{
-          "rider_capacity" => "1",
-          "pickup_window" => "10-12"
-        }
-      )
-      |> render_submit()
-
-      # Revisit the route after successful form submission
-      {:ok, _live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}")
+      {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
+      assert html =~ "Sign up"
+      refute html =~ "Unassign me"
+      html = live |> element("#task-#{ctx.task.id}") |> render_click()
       assert html =~ "Unassign me"
     end
 
