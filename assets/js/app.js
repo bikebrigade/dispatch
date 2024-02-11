@@ -7,8 +7,10 @@ import topbar from "topbar"
 import { LiveSocket } from "phoenix_live_view"
 import "@ryangjchandler/alpine-clipboard"
 import "alpinejs"
+import "./pull_to_refresh";
 
 import hooks from './hooks';
+import pull_to_refresh from "./pull_to_refresh"
 let Hooks = hooks
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 
@@ -75,3 +77,6 @@ window.showPII = () => {
   const style = document.getElementById('pii-style');
   style && style.remove();
 }
+
+
+pull_to_refresh();

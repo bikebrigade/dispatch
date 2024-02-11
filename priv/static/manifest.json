@@ -1,0 +1,16 @@
+{
+  "name": "The Bike Brigade",
+  "short_name": "Bike Brigade",
+  "description": "Rider application for The Bike Brigade",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "images/pwa-icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

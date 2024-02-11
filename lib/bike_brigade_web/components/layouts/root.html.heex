@@ -10,6 +10,9 @@
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
     <link rel="icon" href={if BikeBrigade.Utils.dev?(), do: ~p"/favicon_dev.png", else:  ~p"/favicon.png"} />
+    <meta name="mobile-wep-app-capable" content="yes">
+    <meta name="apple-mobile-wep-app-capable" content="yes">
+    <link rel="manifest" href={~p"/manifest.json"}/>
     <script defer type="text/javascript" src={~p"/assets/app.js"}>
     </script>
   </head>

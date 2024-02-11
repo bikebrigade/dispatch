@@ -17,7 +17,7 @@ defmodule BikeBrigadeWeb do
   and import those modules here.
   """
 
-  def static_paths, do: ~w(assets fonts images favicon.png favicon_dev.png robots.txt)
+  def static_paths, do: ~w(assets fonts images favicon.png favicon_dev.png robots.txt manifest.json)
 
   def router do
     quote do
