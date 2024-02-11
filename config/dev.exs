@@ -60,7 +60,9 @@ config :bike_brigade, BikeBrigadeWeb.Endpoint,
       ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
       ~r"lib/bike_brigade_web/(live|views)/.*(ex)$",
-      ~r"lib/bike_brigade_web/templates/.*(eex)$"
+      ~r"lib/bike_brigade_web/templates/.*(eex)$",
+      ~r"lib/bike_brigade_mobile/(live|views)/.*(ex)$",
+      ~r"lib/bike_brigade_mobile/templates/.*(eex)$"
     ]
   ]
 
