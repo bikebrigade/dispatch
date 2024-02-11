@@ -117,7 +117,10 @@ defmodule BikeBrigadeWeb.Layouts do
   def rider_links(assigns) do
     ~H"""
     <div :for={link <- rider_links()}>
-      <.sidebar_link class="bg-red-400" selected={@current_page == link.current_page} navigate={link.link}>
+      <.sidebar_link
+        selected={@current_page == link.current_page}
+        navigate={link.link}
+      >
         <:icon>
           <BikeBrigadeWeb.Components.Icons.dynamic_icon name={link.icon} />
         </:icon>
@@ -212,27 +215,59 @@ defmodule BikeBrigadeWeb.Layouts do
   end
 
   def rider_tabbar(assigns) do
-    a_class = "flex flex-1 flex-col items-center py-2 text-gray-600 hover:text-gray-900 focus:text-gray-900"
+    a_class =
+      "flex flex-1 flex-col items-center py-2 text-gray-600 hover:text-gray-900 focus:text-gray-900"
+
     assigns = assign(assigns, :a_class, a_class)
+
     ~H"""
     <div class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 pb-8 flex justify-around md:hidden">
-      <a href={~p"/m/home"} class={@a_class} >
-        <Heroicons.home class="w-8" />
+      <.rider_mobile_tab href={~p"/m/home"} selected={@current_page == "Home"} >
+        <:icon><Heroicons.home class="w-8" solid={@current_page == "Home"} /></:icon>
         <span class="text-xs">Home</span>
-      </a>
-      <a href="#" class={@a_class} >
-        <Heroicons.briefcase class="w-8" />
+      </.rider_mobile_tab>
+
+      <.rider_mobile_tab selected={@current_page == "Campaigns"}>
+        <:icon><Heroicons.briefcase class="w-8" /></:icon>
         <span class="text-xs">Campaigns</span>
-      </a>
-      <a href="#" class={@a_class} >
-      <Heroicons.chart_bar class="w-8" />
-        <span class="text-xs">Stats</span>
-      </a>
-      <a href="#" class={@a_class} >
-        <Heroicons.cog class="w-8" />
+      </.rider_mobile_tab>
+
+      <.rider_mobile_tab selected={@current_page == "Settings"}>
+        <:icon><Heroicons.cog_6_tooth class="w-8" /></:icon>
         <span class="text-xs">Settings</span>
-      </a>
+      </.rider_mobile_tab>
+
     </div>
+    """
+  end
+
+  attr :selected, :boolean
+  attr :rest, :global, include: ~w(href patch navigate method)
+
+  slot(:inner_block, required: true)
+  slot(:icon, required: true)
+
+  defp rider_mobile_tab(%{selected: true} = assigns) do
+    ~H"""
+    <.link
+      class="flex flex-1 flex-col items-center py-2 text-gray-800"
+      {@rest}
+    >
+      <span class=""><%= render_slot(@icon) %></span>
+      <%= render_slot(@inner_block) %>
+    </.link>
+    """
+  end
+
+  defp rider_mobile_tab(%{selected: false} = assigns) do
+    ~H"""
+    <.link
+      class="flex flex-1 flex-col items-center py-2 text-gray-800"
+      {@rest}
+    >
+      <span class=""><%= render_slot(@icon) %></span>
+      <%= render_slot(@inner_block) %>
+    </.link>
     """
   end
 end
