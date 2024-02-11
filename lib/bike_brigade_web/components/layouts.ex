@@ -210,4 +210,28 @@ defmodule BikeBrigadeWeb.Layouts do
     )
     |> JS.hide(to: "#mobile-menu-container", transition: {"", "", ""}, time: 300)
   end
+
+  def rider_tabbar(assigns) do
+    a_class = "flex flex-1 flex-col items-center py-2 text-gray-600 hover:text-gray-900 focus:text-gray-900"
+    ~H"""
+    <div class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 pb-8 flex justify-around">
+      <a href="#" class={a_class} >
+        <Heroicons.home class="w-8" />
+        <span class="text-xs">Home</span>
+      </a>
+      <a href="#" class={a_class} >
+        <Heroicons.briefcase class="w-8" />
+        <span class="text-xs">Campaigns</span>
+      </a>
+      <a href="#" class={a_class} >
+      <Heroicons.chart_bar class="w-8" />
+        <span class="text-xs">Stats</span>
+      </a>
+      <a href="#" class={a_class} >
+        <Heroicons.cog class="w-8" />
+        <span class="text-xs">Settings</span>
+      </a>
+    </div>
+    """
+  end
 end
