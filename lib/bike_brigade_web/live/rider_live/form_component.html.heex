@@ -61,8 +61,8 @@
     />
 
     <.input
-      type="textarea"
       :if={@current_user.is_dispatcher}
+      type="textarea"
       field={{f, :internal_notes}}
       label="Notes (internal)"
       help_text="These are for Bike Brigade dispatchers, and not shared with riders"
@@ -95,14 +95,16 @@
         </p>
       </div>
 
-      <div :for={flag_form <- inputs_for(f, :flags)} class="mt-4 space-y-4">
-        <.input
-          type="checkbox"
-          field={{flag_form, :opt_in_to_new_number}}
-          label="Use toll-free number for texting"
-          help_text="Use 1-855 number when messaging this rider. Note that Freedom mobile has issues with sending picture messages to this number, so this should be turned off for Freedom users, switching them to the 647 number."
-        />
-      </div>
+      <.inputs_for :let={flag_form} field={f[:flags]}>
+        <div class="mt-4 space-y-4">
+          <.input
+            type="checkbox"
+            field={{flag_form, :opt_in_to_new_number}}
+            label="Use toll-free number for texting"
+            help_text="Use 1-855 number when messaging this rider. Note that Freedom mobile has issues with sending picture messages to this number, so this should be turned off for Freedom users, switching them to the 647 number."
+          />
+        </div>
+      </.inputs_for>
     </div>
   </.simple_form>
 </div>

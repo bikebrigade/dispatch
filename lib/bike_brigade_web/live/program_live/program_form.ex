@@ -1,7 +1,6 @@
 defmodule BikeBrigadeWeb.ProgramLive.ProgramForm do
   use BikeBrigade.Schema
   import Ecto.Changeset
-
   alias BikeBrigade.Delivery.Program
 
   alias Crontab.CronExpression

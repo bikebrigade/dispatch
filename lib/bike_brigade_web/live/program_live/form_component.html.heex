@@ -9,149 +9,157 @@
     phx-change="validate"
     phx-submit="save"
   >
-    <div :for={f <- inputs_for(c, :program)} class="space-y-4">
-      <.input type="text" field={{f, :name}} label="Name" placeholder="Program name" />
-      <.input
-        type="textarea"
-        field={{f, :campaign_blurb}}
-        label="Campaign Blurb (please keep generic to be used on ongoing basis - 2 sentences)"
-      />
-      <.input type="textarea" field={{f, :description}} label="About (internal description)" />
-      <.input type="date" field={{f, :start_date}} label="Start Date" placeholder="YYYY-MM-DD" />
+    <.inputs_for :let={f} field={c[:program]}>
+      <div class="space-y-4">
+        <.input type="text" field={{f, :name}} label="Name" placeholder="Program name" />
+        <.input
+          type="textarea"
+          field={{f, :campaign_blurb}}
+          label="Campaign Blurb (please keep generic to be used on ongoing basis - 2 sentences)"
+        />
+        <.input type="textarea" field={{f, :description}} label="About (internal description)" />
+        <.input type="date" field={{f, :start_date}} label="Start Date" placeholder="YYYY-MM-DD" />
 
-      <div class="space-y-1">
-        <.header small>
-          Schedules
-          <:subtitle>
-            When deliveries for this program happen
-          </:subtitle>
-          <:actions>
-            <.button
-              phx-click={JS.push("add_schedule", target: @myself)}
-              type="button"
-              size={:xsmall}
-            >
-              Add Schedule
-            </.button>
-          </:actions>
-        </.header>
+        <div class="space-y-1">
+          <.header small>
+            Schedules
+            <:subtitle>
+              When deliveries for this program happen
+            </:subtitle>
+            <:actions>
+              <.button
+                phx-click={JS.push("add_schedule", target: @myself)}
+                type="button"
+                size={:xsmall}
+              >
+                Add Schedule
+              </.button>
+            </:actions>
+          </.header>
 
-        <div :for={{s, i} <- Enum.with_index(inputs_for(c, :schedules))} class="flex flex-col space-x-0 space-y-2 md:flex-row md:items-center md:space-y-1 md:space-x-2">
-          <.input
-            type="select"
-            class="mt-8"
-            field={{s, :weekday}}
-            options={[
-              Monday: :monday,
-              Tuesday: :tuesday,
-              Wednesday: :wednesday,
-              Thursday: :thursday,
-              Friday: :friday,
-              Saturday: :saturday,
-              Sunday: :sunday
-            ]}
-          />
-          <.input type="time" field={{s, :start_time}} />
-          <.input type="time" field={{s, :end_time}} />
-          <div class="justify-center mt-1 ml-auto">
-            <.button
-              color={:clear}
-              size={:xsmall}
-              phx-click={JS.push("remove_schedule", value: %{index: i}, target: @myself)}
-              type="button"
-            >
-              <span class="md:hidden mr-2 text-gray-700">Remove Schedule</span>
-              <Heroicons.x_mark solid class="w-6 h-6" />
-            </.button>
-          </div>
-          <hr class="mb-2 md:hidden"/>
+          <.inputs_for :let={s} field={c[:schedules]}>
+            <div class="flex flex-col space-x-0 space-y-2 md:flex-row md:items-center md:space-y-1 md:space-x-2">
+              <.input
+                type="select"
+                class="mt-8"
+                field={{s, :weekday}}
+                options={[
+                  Monday: :monday,
+                  Tuesday: :tuesday,
+                  Wednesday: :wednesday,
+                  Thursday: :thursday,
+                  Friday: :friday,
+                  Saturday: :saturday,
+                  Sunday: :sunday
+                ]}
+              />
+              <.input type="time" field={{s, :start_time}} />
+              <.input type="time" field={{s, :end_time}} />
+              <div class="justify-center mt-1 ml-auto">
+                <.button
+                  color={:clear}
+                  size={:xsmall}
+                  phx-click={
+                    JS.push("remove_schedule", value: %{index: s.index}, target: @myself)
+                  }
+                  type="button"
+                >
+                  <span class="mr-2 text-gray-700 md:hidden">Remove Schedule</span>
+                  <Heroicons.x_mark solid class="w-6 h-6" />
+                </.button>
+              </div>
+              <hr class="mb-2 md:hidden" />
+            </div>
+          </.inputs_for>
         </div>
+
+        <div :if={@action == :edit} class="my-2">
+          <.header small>
+            Items
+            <:subtitle>
+              What we deliver for this program
+            </:subtitle>
+            <:actions>
+              <.button size={:xsmall} phx-click={JS.push("add_item", target: @myself)}>
+                New Item
+              </.button>
+            </:actions>
+          </.header>
+
+          <.table id="items" rows={f.impl.to_form(f.source, f, :items, [])}>
+            <:col :let={item_form} label="Name">
+              <.input type="hidden" field={{item_form, :id}} />
+              <.input type="hidden" field={{item_form, :program_id}} />
+              <.input type="text" field={{item_form, :name}} />
+            </:col>
+
+            <:col :let={item_form} label="Description" show_at={:large}>
+              <.input type="text" field={{item_form, :description}} />
+            </:col>
+
+            <:col :let={item_form} label="Category">
+              <.input
+                type="select"
+                field={{item_form, :category}}
+                options={Ecto.Enum.values(Delivery.Item, :category)}
+              />
+            </:col>
+
+            <:col :let={item_form} label="Archived?">
+              <.input type="checkbox" field={{item_form, :hidden}} />
+            </:col>
+
+            <:action :let={item_form}>
+              <.button
+                :if={item_form.data.id == nil}
+                color={:clear}
+                size={:xxsmall}
+                phx-click={
+                  JS.push("remove_item", value: %{index: item_form.index}, target: @myself)
+                }
+                type="button"
+              >
+                <span class="sr-only">Close</span>
+                <Heroicons.x_mark solid class="w-6 h-6" />
+              </.button>
+            </:action>
+          </.table>
+        </div>
+
+        <.input
+          type="text"
+          field={{f, :contact_name}}
+          label="Contact Name"
+          placeholder="Point of contact's name"
+        />
+        <.input
+          type="email"
+          field={{f, :contact_email}}
+          label="Contact Email"
+          placeholder="Point of contact's name"
+        />
+        <.input
+          type="tel"
+          field={{f, :contact_phonel}}
+          label="Contact Phone"
+          placeholder="Point of contact's phone"
+        />
+
+        <.user_select
+          field={{f, :lead_id}}
+          label="Program Lead"
+          placeholder="Point of contact's phone"
+        />
+
+        <.input
+          type="select"
+          field={{f, :spreadsheet_layout}}
+          label="Spreadsheet Layout"
+          options={[Foodshare: :foodshare, "Mutual Aid Parkdale": :map]}
+        />
+
+        <.input type="checkbox" field={{f, :active}} label="Active" />
       </div>
-
-      <div :if={@action == :edit} class="my-2">
-        <.header small>
-          Items
-          <:subtitle>
-            What we deliver for this program
-          </:subtitle>
-          <:actions>
-            <.button size={:xsmall} phx-click={JS.push("add_item", target: @myself)}>
-              New Item
-            </.button>
-          </:actions>
-        </.header>
-
-        <.table id="items" rows={inputs_for(f, :items) |> Enum.with_index()}>
-          <:col :let={{item_form, _i}} label="Name">
-            <.input type="hidden" field={{item_form, :id}} />
-            <.input type="hidden" field={{item_form, :program_id}} />
-            <.input type="text" field={{item_form, :name}} />
-          </:col>
-
-          <:col :let={{item_form, _i}} label="Description" show_at={:large}>
-            <.input type="text" field={{item_form, :description}} />
-          </:col>
-
-          <:col :let={{item_form, _i}} label="Category">
-            <.input
-              type="select"
-              field={{item_form, :category}}
-              options={Ecto.Enum.values(Delivery.Item, :category)}
-            />
-          </:col>
-
-          <:col :let={{item_form, _i}} label="Archived?">
-            <.input type="checkbox" field={{item_form, :hidden}} />
-          </:col>
-
-          <:action :let={{item_form, i}}>
-            <.button
-              :if={item_form.data.id == nil}
-              color={:clear}
-              size={:xxsmall}
-              phx-click={JS.push("remove_item", value: %{index: i}, target: @myself)}
-              type="button"
-            >
-              <span class="sr-only">Close</span>
-              <Heroicons.x_mark solid class="w-6 h-6" />
-            </.button>
-          </:action>
-        </.table>
-      </div>
-
-      <.input
-        type="text"
-        field={{f, :contact_name}}
-        label="Contact Name"
-        placeholder="Point of contact's name"
-      />
-      <.input
-        type="email"
-        field={{f, :contact_email}}
-        label="Contact Email"
-        placeholder="Point of contact's name"
-      />
-      <.input
-        type="tel"
-        field={{f, :contact_phonel}}
-        label="Contact Phone"
-        placeholder="Point of contact's phone"
-      />
-
-      <.user_select
-        field={{f, :lead_id}}
-        label="Program Lead"
-        placeholder="Point of contact's phone"
-      />
-
-      <.input
-        type="select"
-        field={{f, :spreadsheet_layout}}
-        label="Spreadsheet Layout"
-        options={[Foodshare: :foodshare, "Mutual Aid Parkdale": :map]}
-      />
-
-      <.input type="checkbox" field={{f, :active}} label="Active" />
-    </div>
+    </.inputs_for>
   </.simple_form>
 </div>

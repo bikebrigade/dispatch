@@ -40,29 +40,27 @@
             </.link>
           </:subtitle>
         </.header>
-        <div
-          :for={{g, i} <- Enum.with_index(inputs_for(f, :task_items))}
-          class="flex items-center mt-1 space-x-2"
-        >
-          <%= hidden_inputs_for(g) %>
-          <div class="w-16"><.input type="number" field={{g, :count}} /></div>
-          <.input
-            type="select"
-            field={{g, :item_id}}
-            options={item_options(@campaign.program.items)}
-          />
-          <div :if={i > 0} class="flex items-center justify-center">
-            <.button
-              phx-click={JS.push("remove_item", value: %{index: i}, target: @myself)}
-              type="button"
-              color={:clear}
-              size={:xxsmall}
-            >
-              <span class="sr-only">Close</span>
-              <Heroicons.x_mark solid class="w-6 h-6" />
-            </.button>
+        <.inputs_for :let={g} field={f[:task_items]}>
+          <div class="flex items-center mt-1 space-x-2">
+            <div class="w-16"><.input type="number" field={{g, :count}} /></div>
+            <.input
+              type="select"
+              field={{g, :item_id}}
+              options={item_options(@campaign.program.items)}
+            />
+            <div :if={g.index > 0} class="flex items-center justify-center">
+              <.button
+                phx-click={JS.push("remove_item", value: %{index: g.index}, target: @myself)}
+                type="button"
+                color={:clear}
+                size={:xxsmall}
+              >
+                <span class="sr-only">Close</span>
+                <Heroicons.x_mark solid class="w-6 h-6" />
+              </.button>
+            </div>
           </div>
-        </div>
+        </.inputs_for>
 
         <.link navigate={~p"/programs/#{@campaign.program.id}/edit"} class="text-xs link">
           Set up program's delivery items

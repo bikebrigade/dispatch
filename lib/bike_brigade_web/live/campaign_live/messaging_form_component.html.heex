@@ -54,19 +54,17 @@
           <% end %>
           <.message_length_indicator length={@message_length} />
         </div>
-        <div
-          :for={instructions_template_form <- inputs_for(f, :instructions_template)}
-          class="mt-1 rounded-md shadow-sm"
-        >
-          <%= hidden_inputs_for(instructions_template_form) %>
-          <.input
-            type="textarea"
-            field={{instructions_template_form, :body}}
-            phx-hook="Autocomplete"
-            data-autocomplete={inspect(Delivery.campaign_message_directives())}
-            extra_class="h-80"
-          />
-        </div>
+        <.inputs_for :let={instructions_template_form} field={f[:instructions_template]}>
+          <div class="mt-10 rounded-md shadow-sm">
+            <.input
+              type="textarea"
+              field={{instructions_template_form, :body}}
+              phx-hook="Autocomplete"
+              data-autocomplete={inspect(Delivery.campaign_message_directives())}
+              extra_class="h-80"
+            />
+          </div>
+        </.inputs_for>
       </div>
       <div class="w-1/2">
         <label class="block text-sm font-medium leading-5 text-gray-700">
@@ -192,71 +190,68 @@
         <% end %>
       </div>
     </div>
-    <div
-      :for={sm <- inputs_for(f, :scheduled_message)}
-      class="flex pt-2 mt-3 border-t border-gray-200 "
-      x-data="{ scheduling: false }"
-    >
-      <div class="flex items-center w-1/2">
-        <%= hidden_inputs_for(sm) %>
-        <div class="hidden mt-1 rounded-md shadow-sm show-if-scheduling">
-          <%= if dt = Ecto.Changeset.get_field(sm.source, :send_at) do %>
-            <%= datetime_local_input(sm, :send_at,
-              id: "hacky-input-1",
-              value: LocalizedDateTime.localize(dt),
-              phx_debounce: "blur",
-              class:
-                "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-            ) %>
-          <% else %>
-            <%= datetime_local_input(sm, :send_at,
-              id: "hacky-input-2",
-              value: nil,
-              phx_debounce: "blur",
-              class:
-                "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-            ) %>
-          <% end %>
-        </div>
-        <div class="flex flex-col w-full space-y-0.5 text-sm font-medium text-gray-700 hide-if-scheduling">
-          <%= if @campaign.latest_message do %>
-            <div>Last Messaged at <%= datetime(@campaign.latest_message.sent_at) %></div>
-          <% end %>
+    <.inputs_for :let={sm} field={f[:scheduled_message]}>
+      <div class="flex pt-2 mt-3 border-t border-gray-200 " x-data="{ scheduling: false }">
+        <div class="flex items-center w-1/2">
+          <div class="hidden mt-1 rounded-md shadow-sm show-if-scheduling">
+            <%= if dt = Ecto.Changeset.get_field(sm.source, :send_at) do %>
+              <%= datetime_local_input(sm, :send_at,
+                id: "hacky-input-1",
+                value: LocalizedDateTime.localize(dt),
+                phx_debounce: "blur",
+                class:
+                  "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+              ) %>
+            <% else %>
+              <%= datetime_local_input(sm, :send_at,
+                id: "hacky-input-2",
+                value: nil,
+                phx_debounce: "blur",
+                class:
+                  "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+              ) %>
+            <% end %>
+          </div>
+          <div class="flex flex-col w-full space-y-0.5 text-sm font-medium text-gray-700 hide-if-scheduling">
+            <%= if @campaign.latest_message do %>
+              <div>Last Messaged at <%= datetime(@campaign.latest_message.sent_at) %></div>
+            <% end %>
 
-          <%= if (send_at = input_value(sm, :send_at)) && send_at != "" do %>
-            <div>
-              Scheduled to be sent at <%= datetime(send_at) %>
-            </div>
-          <% end %>
+            <%= if (send_at = input_value(sm, :send_at)) && send_at != "" do %>
+              <div>
+                Scheduled to be sent at <%= datetime(send_at) %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+        <div class="flex justify-end w-1/2 space-x-2">
+          <.button phx-click={show_scheduling()} class="ml-3 hide-if-scheduling" color={:green}>
+            <%= case input_value(sm, :send_at) do %>
+              <% %DateTime{} -> %>
+                Edit schedule
+              <% _ -> %>
+                Schedule
+            <% end %>
+          </.button>
+          <.button
+            phx-click={JS.push("send", target: @myself)}
+            data-confirm="Are you sure?"
+            class="hide-if-scheduling"
+          >
+            Send Now
+          </.button>
+          <.button type="submit" phx-click={hide_scheduling()} color={:secondary} class="ml-3">
+            Save
+          </.button>
+          <.button
+            phx-click={JS.push("delete_schedule", target: @myself) |> hide_scheduling()}
+            color={:red}
+            class="hidden ml-3 show-if-scheduling"
+          >
+            Delete Schedule
+          </.button>
         </div>
       </div>
-      <div class="flex justify-end w-1/2 space-x-2">
-        <.button phx-click={show_scheduling()} class="ml-3 hide-if-scheduling" color={:green}>
-          <%= case input_value(sm, :send_at) do %>
-            <% %DateTime{} -> %>
-              Edit schedule
-            <% _ -> %>
-              Schedule
-          <% end %>
-        </.button>
-        <.button
-          phx-click={JS.push("send", target: @myself)}
-          data-confirm="Are you sure?"
-          class="hide-if-scheduling"
-        >
-          Send Now
-        </.button>
-        <.button type="submit" phx-click={hide_scheduling()} color={:secondary} class="ml-3">
-          Save
-        </.button>
-        <.button
-          phx-click={JS.push("delete_schedule", target: @myself) |> hide_scheduling()}
-          color={:red}
-          class="hidden ml-3 show-if-scheduling"
-        >
-          Delete Schedule
-        </.button>
-      </div>
-    </div>
+    </.inputs_for>
   </.form>
 </div>
