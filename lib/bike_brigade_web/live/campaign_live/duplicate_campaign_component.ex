@@ -14,30 +14,33 @@ defmodule BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent do
       <.header><%= @title %></.header>
       <.simple_form
         :let={f}
-        for={:duplicate_form}
+        for={%{}}
+        as={:duplicate_form}
         id="duplicate-campaign-form"
         phx-target={@myself}
         phx-submit="duplicate"
       >
-        <div :for={d <- inputs_for(f, :date_time_form)} class="flex my-2 mt-4 space-x-2">
-          <.input
-            type="date"
-            field={{d, :delivery_date}}
-            label="New Delivery Date"
-            value={LocalizedDateTime.to_date(@campaign.delivery_start)}
-          />
-          <.input
-            type="time"
-            field={{d, :start_time}}
-            label="Start"
-            value={LocalizedDateTime.to_time(@campaign.delivery_start)}
-          />
-          <.input
-            type="time"
-            field={{d, :end_time}}
-            label="End"
-            value={LocalizedDateTime.to_time(@campaign.delivery_end)}
-          />
+        <div class="flex my-2 mt-4 space-x-2">
+          <.inputs_for :let={d} field={f[:date_time_form]}>
+            <.input
+              type="date"
+              field={{d, :delivery_date}}
+              label="New Delivery Date"
+              value={LocalizedDateTime.to_date(@campaign.delivery_start)}
+            />
+            <.input
+              type="time"
+              field={{d, :start_time}}
+              label="Start"
+              value={LocalizedDateTime.to_time(@campaign.delivery_start)}
+            />
+            <.input
+              type="time"
+              field={{d, :end_time}}
+              label="End"
+              value={LocalizedDateTime.to_time(@campaign.delivery_end)}
+            />
+          </.inputs_for>
         </div>
 
         <.input type="checkbox" checked field={{f, :duplicate_deliveries}} label="Copy Deliveries" />
