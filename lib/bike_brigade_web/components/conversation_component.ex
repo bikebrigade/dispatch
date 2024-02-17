@@ -1,4 +1,4 @@
-defmodule BikeBrigadeWeb.SmsMessageLive.ConversationComponent do
+defmodule BikeBrigadeWeb.Components.ConversationComponent do
   use BikeBrigadeWeb, :live_component
 
   alias BikeBrigade.{Messaging, MediaStorage, SmsService, Messaging.SmsMessage}

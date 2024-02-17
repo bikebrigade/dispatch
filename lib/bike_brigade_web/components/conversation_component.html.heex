@@ -2,7 +2,6 @@
   id={"conversation-component:#{@rider.id}"}
   class={[
     "sm:flex-1 px-1 flex-col bg-white shadow sm:rounded-lg sm:flex",
-    "max-h-[calc(100vh-6rem)] sm:max-h-[calc(100vh-6.75rem)] md:max-h-[calc(100vh-3rem)]",
     unless(@live_action == :show, do: "hidden", else: "flex")
   ]}
 >
