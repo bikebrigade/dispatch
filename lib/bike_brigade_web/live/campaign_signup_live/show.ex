@@ -118,7 +118,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
       # this is arbitrary and not actually used by dispatchers anymore.
       "rider_capacity" => "1",
       # this will need to be configurable at some point, for campaigns that have pickup time edge cases.
-      "pickup_window" => "no time specififed",
+      "pickup_window" => pickup_window(campaign),
       "enter_building" => true,
       "campaign_id" => campaign.id,
       "rider_id" => rider_id
