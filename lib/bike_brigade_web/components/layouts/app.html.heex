@@ -177,6 +177,7 @@
             Reconnecting.... <Heroicons.arrow_path class="inline w-3 h-3 ml-1 animate-spin" />
           </.flash>
           <%= @inner_content %>
+          <div id="rider-mobile-only-spacer" class="h-16" :if={@current_user.rider_id && not @current_user.is_dispatcher}/>
           <.rider_tabbar
             :if={@current_user.rider_id && not @current_user.is_dispatcher}
             current_page={@page}

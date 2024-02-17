@@ -218,17 +218,19 @@ defmodule BikeBrigadeWeb.Layouts do
     a_class =
       "flex flex-1 flex-col items-center py-2 text-gray-600 hover:text-gray-900 focus:text-gray-900"
 
+      IO.inspect(assigns.current_page == :campaigns_signup, label: ">>>>>>>")
     assigns = assign(assigns, :a_class, a_class)
 
     ~H"""
-    <div class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 pb-8 flex justify-around md:hidden">
+    <div class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 pb-6 flex justify-around md:hidden">
+    <%# should be :home not "Home" %>
       <.rider_mobile_tab href={~p"/m/home"} selected={@current_page == "Home"} >
         <:icon><Heroicons.home class="w-8" solid={@current_page == "Home"} /></:icon>
         <span class="text-xs">Home</span>
       </.rider_mobile_tab>
 
-      <.rider_mobile_tab selected={@current_page == "Campaigns"}>
-        <:icon><Heroicons.briefcase class="w-8" /></:icon>
+      <.rider_mobile_tab href={~p"/campaigns/signup"} selected={@current_page == :campaigns_signup}>
+        <:icon><Heroicons.briefcase class="w-8" solid={@current_page == :campaigns_signup} /></:icon>
         <span class="text-xs">Campaigns</span>
       </.rider_mobile_tab>
 

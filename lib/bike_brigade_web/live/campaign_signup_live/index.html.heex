@@ -34,9 +34,10 @@
     </span>
   </div>
 </nav>
+
 <%= if @campaigns != [] do %>
   <%= for {date, campaigns} <- @campaigns do %>
-    <div class="flex flex-col md:flex-row w-full bg-white shadow sm:my-1 sm:rounded-md">
+    <div class="flex flex-col md:flex-row w-full bg-white shadow sm:my-1 sm:rounded-md mb-4 md:mb-0">
       <div class="w-32 py-4 pl-4">
         <.date date={date} />
       </div>
