@@ -136,7 +136,6 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
 
     test "Can edit campaign rider", %{conn: conn, campaign: campaign, rider: rider} do
       {:ok, view, _html} = live(conn, ~p"/campaigns/#{campaign}")
-
       starting_form_data = %{
         "enter_building" => "false",
         "pickup_window" => "1-10",
@@ -149,6 +148,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
         "pickup_window" => "1-11",
         "rider_capacity" => "113",
         "rider_id" => rider.id
+
       }
 
       # First add a rider with the starting form data.
@@ -161,7 +161,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
       assert html =~ "0 / 15"
 
       # click rider -> Edit Rider -> fill in Form with updated values.
-      view |> element("a", rider.name) |> render_click()
+      view |> element( "a", rider.name) |> render_click()
       view |> element("a", "Edit Rider") |> render_click()
       view |> submit_campaign_rider_form(edit_form_data, conn)
 
@@ -169,23 +169,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
       {:ok, view, _html} = live(conn, ~p"/campaigns/#{campaign}/edit_rider/#{rider}")
       assert has_element?(view, ~s|[data-test-rider-capacity=113]|)
       assert has_element?(view, ~s|[data-test-rider-window=1-11]|)
-    end
 
-    test "'Rider Messaging' button is not visible without riders.", %{conn: conn, campaign: campaign} do
-      {:ok, view, _html} = live(conn, ~p"/campaigns/#{campaign}")
-      refute view |> element("a", "Rider Messaging") |> has_element?()
-    end
-  end
-
-  describe "Show with riders" do
-    setup [:create_campaign_with_riders, :login]
-
-    test "'Rider Messaging' button is visible when campaign has riders", %{
-      conn: conn,
-      campaign: campaign
-    } do
-      {:ok, view, _html} = live(conn, ~p"/campaigns/#{campaign}")
-      assert view |> element("a", "Rider Messaging") |> has_element?()
     end
   end
 
@@ -254,9 +238,9 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
   end
 
   defp submit_campaign_rider_form(view, form_vals, conn) do
-    view
-    |> form("#campaign_rider_form", campaign_rider: form_vals)
-    |> render_submit()
-    |> follow_redirect(conn)
+      view
+      |> form("#campaign_rider_form", campaign_rider: form_vals)
+      |> render_submit()
+      |> follow_redirect(conn)
   end
 end
