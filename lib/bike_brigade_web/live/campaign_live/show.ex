@@ -128,20 +128,6 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
     |> assign(:page_title, "Message Riders for Campaign")
   end
 
-  defp apply_action(socket, :campaign_message_list, params) do
-    with {:ok, rider_id_str} <- Map.fetch(params, "rider_id"),
-         {rider_id, _} <- Integer.parse(rider_id_str) do
-      socket
-      |> assign(:page_title, "Campaign Messages")
-      |> assign(:selected_rider_chat_id, rider_id)
-    else
-      _ ->
-        socket
-        |> assign(:page_title, "Campaign Messages")
-        |> assign(:selected_rider_chat_id, nil)
-    end
-  end
-
   defp apply_action(socket, _, _), do: socket
 
   @impl true
