@@ -54,6 +54,16 @@
         </li>
       </ul>
     </div>
+
+    <div class="md:flex relative inline-block dropdown">
+      <.button
+        :if={Enum.count(@riders) > 0}
+        patch={~p"/campaigns/#{@campaign}/messaging/riders/"}
+        class="btn w-40 my-3 mr-3"
+      >
+        Rider Messaging
+      </.button>
+    </div>
     <div class="flex w-full md:justify-end">
       <div class="flex space-x-1">
         <.button color={:white} patch={~p"/campaigns/#{@campaign}/show/edit"}>
@@ -198,7 +208,7 @@
     navigate={~p"/campaigns/#{@campaign}"}
   />
 </.modal>
-
+<!-- Shows messaging "templating" window for scheduling delivery messages. -->
 <.slideover
   :if={@live_action == :messaging}
   id="messaging"
@@ -214,6 +224,28 @@
     id={@campaign.id}
     campaign={@campaign}
     riders={@riders}
+    navigate={~p"/campaigns/#{@campaign}"}
+  />
+</.slideover>
+<!-- Show message list for all riders -->
+<.slideover
+  :if={@live_action == :campaign_message_list}
+  id="messaging-riders"
+  show
+  wide
+  on_cancel={JS.patch(~p"/campaigns/#{@campaign}")}
+>
+  <:title>
+    Campaign Message List
+  </:title>
+  <.live_component
+    module={BikeBrigadeWeb.CampaignLive.CampaignMessageList}
+    id={@campaign.id}
+    campaign={@campaign}
+    current_user={@current_user}
+    riders={@riders}
+    live_action={@live_action}
+    selected_rider_id={@selected_rider_chat_id}
     navigate={~p"/campaigns/#{@campaign}"}
   />
 </.slideover>
