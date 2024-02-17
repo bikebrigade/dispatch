@@ -26,16 +26,6 @@ defmodule BikeBrigade.Messaging do
     Repo.all(SmsMessage)
   end
 
-  # Private function to get the latest message subquery
-  defp get_latest_message_subquery() do
-    subquery(
-      from m in SmsMessage,
-        where: m.rider_id == parent_as(:rider).id,
-        order_by: [desc: m.sent_at],
-        limit: 1
-    )
-  end
-
   @doc """
   Returns pairs of riders and the last message, sorted by last message sent
   """
@@ -43,7 +33,13 @@ defmodule BikeBrigade.Messaging do
     query =
       from r in Rider,
         as: :rider,
-        inner_lateral_join: latest_message in ^get_latest_message_subquery(),
+        inner_lateral_join:
+          latest_message in subquery(
+            from m in SmsMessage,
+              where: m.rider_id == parent_as(:rider).id,
+              order_by: [desc: m.sent_at],
+              limit: 1
+          ),
         on: true,
         order_by: [desc: latest_message.sent_at],
         select: {r, latest_message}
@@ -54,25 +50,6 @@ defmodule BikeBrigade.Messaging do
       else
         query
       end
-
-    Repo.all(query)
-  end
-
-  @doc """
-  Used to fetch sms conversations from riders who are riding for a specific
-  campaign. It uses a left_lateral_join (as opposed to the inner_lateral_join in
-  `list_sms_conversastions`) because we need to return all riders from the
-  passed in list, even if they have no sms history (albeit unlikely)).
-  """
-  def list_sms_conversations_for_riders(rider_ids) do
-    query =
-      from r in Rider,
-        as: :rider,
-        left_lateral_join: latest_message in ^get_latest_message_subquery(),
-        on: true,
-        order_by: [desc: latest_message.sent_at],
-        select: {r, latest_message},
-        where: r.id in ^rider_ids
 
     Repo.all(query)
   end

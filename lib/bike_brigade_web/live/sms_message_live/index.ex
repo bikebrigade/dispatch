@@ -1,14 +1,17 @@
 defmodule BikeBrigadeWeb.SmsMessageLive.Index do
   use BikeBrigadeWeb, :live_view
 
-  alias BikeBrigadeWeb.Components.ConversationComponent
-  alias BikeBrigade.{Presence, Messaging, Delivery, Riders, Riders.RiderSearch}
+  alias BikeBrigadeWeb.SmsMessageLive.ConversationComponent
+  alias BikeBrigade.Presence
+  alias BikeBrigade.Messaging
 
-  import BikeBrigadeWeb.Components.SMSMessageListComponent
+  alias BikeBrigade.Delivery
+
+  alias BikeBrigade.Riders
+  alias BikeBrigade.Riders.RiderSearch
+
+  import BikeBrigadeWeb.MessagingHelpers
   import BikeBrigadeWeb.CampaignHelpers, only: [request_type: 1]
-
-  defdelegate campaign_name(campaign), to: CampaignHelpers, as: :name
-  defdelegate pickup_window(campaign, rider), to: CampaignHelpers
 
   @impl true
   def mount(_params, _session, socket) do
