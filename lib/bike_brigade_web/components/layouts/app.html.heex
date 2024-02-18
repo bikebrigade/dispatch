@@ -1,5 +1,4 @@
 <% is_dispatcher_and_not_rider = @current_user.is_dispatcher or is_nil(@current_user.rider_id) %>
-<% is_rider_and_not_dispatcher = !@current_user.is_dispatcher and @current_user.rider_id %>
 <div>
   <!-- Off-canvas menu for mobile, show/hide based on off-canvas menu state. -->
   <div
