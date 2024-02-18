@@ -111,14 +111,6 @@ defmodule BikeBrigadeWeb.Router do
     post "/logout", Authentication, :logout
   end
 
-  scope "/m", BikeBrigadeMobile do
-    pipe_through [:browser, :require_authenticated_user, :set_honeybadger_context]
-
-    live_session :rider, on_mount: BikeBrigadeWeb.LiveHooks.Authentication do
-      live "/home", HomeLive.Index, :index
-    end
-  end
-
   scope "/", BikeBrigadeWeb do
     pipe_through [:browser, :require_dispatcher, :set_honeybadger_context]
 

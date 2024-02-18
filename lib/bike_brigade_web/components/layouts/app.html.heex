@@ -178,7 +178,7 @@
           </.flash>
           <%= @inner_content %>
           <div id="rider-mobile-only-spacer" class="h-16" :if={@current_user.rider_id && not @current_user.is_dispatcher}/>
-          <.rider_tabbar
+          <.rider_mobile_tabbar
             :if={@current_user.rider_id && not @current_user.is_dispatcher}
             current_page={@page}
           />
