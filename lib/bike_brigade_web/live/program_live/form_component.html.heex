@@ -86,7 +86,7 @@
             </:actions>
           </.header>
 
-          <.table id="items" rows={f.impl.to_form(f.source, f, :items, [])}>
+          <.table id="items" rows={Phoenix.HTML.FormData.to_form(f.source, f, :items, [])}>
             <:col :let={item_form} label="Name">
               <.input type="hidden" field={{item_form, :id}} />
               <.input type="hidden" field={{item_form, :program_id}} />
