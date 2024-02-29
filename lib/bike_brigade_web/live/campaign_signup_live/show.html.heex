@@ -41,35 +41,16 @@
 
       <%= if is_nil(task.assigned_rider) do %>
         <.button
+          phx-click={JS.push("signup_rider", value: %{task_id: task.id, rider_id: @current_rider_id})}
           id={"task-#{task.id}"}
           color={:primary}
           size={:xsmall}
           class="w-28"
-          replace
-          patch={~p"/campaigns/signup/#{@campaign}/task/#{task.id}"}>
-          Signup
+          >
+          Sign up
         </.button>
 
       <% end %>
     </:action>
   </.table>
 </section>
-
-
-<.modal
-  :if={@live_action == :rider_signup}
-  id="rider-signup-modal"
-  show
-  on_cancel={JS.navigate(~p"/campaigns/signup/#{@campaign}")}
->
-  <.live_component
-    module={BikeBrigadeWeb.CampaignSignupLive.SignupRiderFormComponent}
-    id={@campaign.id}
-    title={@page_title}
-    action={@live_action}
-    campaign={@campaign}
-    task={@task}
-    rider_id={@current_user.rider_id}
-    navigate={~p"/campaigns/signup/#{@campaign}"}
-  />
-</.modal>

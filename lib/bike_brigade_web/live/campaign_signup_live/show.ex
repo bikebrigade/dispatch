@@ -110,6 +110,30 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
     {:noreply, socket}
   end
 
+  def handle_event("signup_rider", %{"rider_id" => rider_id, "task_id" => task_id}, socket) do
+    %{campaign: campaign, tasks: tasks} = socket.assigns
+    task = Enum.find(tasks, fn task -> task.id == task_id end)
+
+    attrs = %{
+      # this is arbitrary and not actually used by dispatchers anymore.
+      "rider_capacity" => "1",
+      # this will need to be configurable at some point, for campaigns that have pickup time edge cases.
+      "pickup_window" => pickup_window(campaign),
+      "enter_building" => true,
+      "campaign_id" => campaign.id,
+      "rider_id" => rider_id
+    }
+
+    case Delivery.create_campaign_rider(attrs) do
+      {:ok, _cr} ->
+        {:ok, _task} = Delivery.update_task(task, %{assigned_rider_id: rider_id})
+        {:noreply, socket |> push_patch(to: ~p"/campaigns/signup/#{campaign}", replace: true)}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:noreply, assign(socket, :changeset, changeset)}
+    end
+  end
+
   ## -- Callbacks to handle Delivery broadcasts --
 
   @broadcasted_infos [
