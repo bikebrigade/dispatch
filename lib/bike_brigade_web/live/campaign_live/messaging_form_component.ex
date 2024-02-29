@@ -17,10 +17,12 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
 
     # TODO this is a smell, and frankly is happening because instructions template shouldn't be its own table :(
     {changeset, message_length} =
-      if campaign.instructions_template do
-        {Delivery.change_campaign(campaign), String.length(campaign.instructions_template.body)}
-      else
-        {Delivery.change_campaign(campaign, %{instructions_template: %{body: ""}}), 0}
+      case campaign do
+        %{instructions_template: %{body: body}} when not is_nil(body) ->
+          {Delivery.change_campaign(campaign), String.length(body)}
+
+        _ ->
+          {Delivery.change_campaign(campaign, %{instructions_template: %{body: ""}}), 0}
       end
 
     selected_rider =
