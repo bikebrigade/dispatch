@@ -3,6 +3,7 @@ defmodule BikeBrigadeWeb.Components.ConversationComponent do
 
   alias BikeBrigade.{Messaging, MediaStorage, SmsService, Messaging.SmsMessage}
 
+  alias BikeBrigadeWeb.CampaignHelpers
   defdelegate campaign_name(campaign), to: CampaignHelpers, as: :name
 
   @impl Phoenix.LiveComponent
@@ -125,7 +126,6 @@ defmodule BikeBrigadeWeb.Components.ConversationComponent do
   def error_to_string(:too_large), do: "Too large"
   def error_to_string(:too_many_files), do: "You have selected too many files"
   def error_to_string(:not_accepted), do: "You have selected an unacceptable file type"
-
 
   def media_type(%SmsMessage.MediaItem{content_type: content_type}) do
     String.split(content_type, "/")

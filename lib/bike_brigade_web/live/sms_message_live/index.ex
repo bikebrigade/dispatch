@@ -7,6 +7,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
   import BikeBrigadeWeb.Components.SMSMessageListComponent
   import BikeBrigadeWeb.CampaignHelpers, only: [request_type: 1]
 
+  alias BikeBrigadeWeb.CampaignHelpers
   defdelegate campaign_name(campaign), to: CampaignHelpers, as: :name
   defdelegate pickup_window(campaign, rider), to: CampaignHelpers
 

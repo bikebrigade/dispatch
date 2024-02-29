@@ -3,6 +3,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.ConversationComponent do
 
   alias BikeBrigade.{Messaging, MediaStorage, SmsService, Messaging.SmsMessage}
 
+  alias BikeBrigadeWeb.CampaignHelpers
   defdelegate campaign_name(campaign), to: CampaignHelpers, as: :name
 
   @impl Phoenix.LiveComponent
