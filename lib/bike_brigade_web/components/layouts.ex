@@ -117,7 +117,10 @@ defmodule BikeBrigadeWeb.Layouts do
   def rider_links(assigns) do
     ~H"""
     <div :for={link <- rider_links()}>
-      <.sidebar_link class="bg-red-400" selected={@current_page == link.current_page} navigate={link.link}>
+      <.sidebar_link
+        selected={@current_page == link.current_page}
+        navigate={link.link}
+      >
         <:icon>
           <BikeBrigadeWeb.Components.Icons.dynamic_icon name={link.icon} />
         </:icon>

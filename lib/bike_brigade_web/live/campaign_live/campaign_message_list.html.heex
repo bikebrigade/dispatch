@@ -1,0 +1,28 @@
+<div>
+  <%= if is_nil(@selected_rider) do %>
+    <div>
+      No riders have been added to this campaign. Add some riders to be able to send messages.
+    </div>
+  <% else %>
+    <div data-test-campaign-message-list class="flex h-[calc(100vh-8rem)]">
+      <div class="bg-white md:w-4/12 w-full shadow border border-gray-200 rounded-lg mr-4">
+        <.sms_message_list
+          rider_link_fn={
+            fn rider_id -> ~p"/campaigns/#{@campaign_id}/messaging/riders/#{rider_id}" end
+          }
+          conversations={@conversations}
+        />
+      </div>
+
+      <div class="flex md:w-8/12 max-h-[calc(100vh-8rem)] rounded border border-gray-200">
+        <.live_component
+          module={ConversationComponent}
+          id={@selected_rider.id}
+          live_action={@live_action}
+          current_user={@current_user}
+          rider={@selected_rider}
+        />
+      </div>
+    </div>
+  <% end %>
+</div>

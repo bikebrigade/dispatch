@@ -72,6 +72,12 @@ defmodule BikeBrigadeWeb.ConnCase do
     %{campaign: campaign, program: program}
   end
 
+  def create_campaign_with_riders(%{}) do
+    program = fixture(:program)
+    {campaign, riders} = fixture(:campaign_with_riders, %{})
+    %{campaign: campaign, program: program, riders: riders}
+  end
+
   def create_rider(%{}) do
     rider = fixture(:rider)
     %{rider: rider}
