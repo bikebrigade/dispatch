@@ -51,6 +51,8 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
             LocalizedDateTime.now() |> DateTime.add(-7, :day) |> DateTime.add(60, :second)
         })
 
+      fixture(:task, %{campaign: campaign, rider: nil})
+
       {:ok, live, _html} = live(ctx.conn, ~p"/campaigns/signup")
       refute has_element?(live, "#campaign-#{campaign.id}")
 
@@ -58,6 +60,12 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup?current_week=#{week_ago}")
       assert has_element?(live, "#campaign-#{campaign.id}")
       assert html =~ "Completed"
+    end
+
+    test "Campaigns with no tasks display correct copy", ctx do
+      fixture(:campaign, %{program_id: ctx.program.id,})
+      {:ok, _live, html} = live(ctx.conn, ~p"/campaigns/signup")
+      assert html =~ "Campaign not ready for signup"
     end
   end
 
@@ -80,7 +88,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       # HACK to cleanup html with tons of whitespace.
       # Could also just use Floki to find the element and test it's there.
       normalized_html = html |> String.split() |> Enum.join(" ")
-      assert normalized_html =~ "1 / 2 Tasks filled"
+      assert normalized_html =~ "1 Available"
     end
 
     test "'signup' when rider hasn't signed up and there are open tasks", ctx do
@@ -121,7 +129,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
       assert html =~ "Sign up"
       refute html =~ "Unassign me"
-      html = live |> element("#task-#{ctx.task.id}") |> render_click()
+      html = live |> element("#signup-btn-desktop-sign-up-task-#{ctx.task.id}") |> render_click()
       assert html =~ "Unassign me"
     end
 
@@ -144,10 +152,10 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
     end
 
     test "Rider can unassign themselves", ctx do
-      fixture(:task, %{campaign: ctx.campaign, rider: ctx.rider})
+      task = fixture(:task, %{campaign: ctx.campaign, rider: ctx.rider})
       {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}")
       assert html =~ "Unassign me"
-      element(live, "a", "Unassign me") |> render_click()
+      element(live, "a#signup-btn-desktop-unassign-task-#{task.id}") |> render_click()
       refute render(live) =~ "Unassign me"
     end
   end

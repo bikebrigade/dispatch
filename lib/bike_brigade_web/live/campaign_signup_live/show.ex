@@ -218,6 +218,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
         <.button
           :if={@task.assigned_rider.id == @current_rider_id}
           phx-click={JS.push("unassign_task", value: %{task_id: @task.id})}
+          id={"#{@id}-unassign-task-#{@task.id}"}
           color={:red}
           size={:xsmall}
           class="w-full md:w-28"
@@ -230,11 +231,12 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
         <.button
           phx-click={JS.push("signup_rider", value: %{task_id: @task.id, rider_id: @current_rider_id})}
           color={:secondary}
+          id={"#{@id}-sign-up-task-#{@task.id}"}
           size={:xsmall}
           class="w-full md:w-28"
           replace
         >
-          Signup
+          Sign up
         </.button>
       <% end %>
     </div>
