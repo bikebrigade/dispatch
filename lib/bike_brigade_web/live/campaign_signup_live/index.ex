@@ -94,38 +94,100 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
     |> assign(:campaigns, fetch_campaigns(week))
   end
 
-  defp campaign_is_in_past(campaign) do
-    date_now = DateTime.utc_now()
-
-    case DateTime.compare(campaign.delivery_end, date_now) do
-      :gt -> false
-      :eq -> false
-      :lt -> true
-    end
-  end
-
-  defp get_signup_text(campaign_id, rider_id, campaign_task_counts) do
-    count_tasks_for_current_rider =
-      campaign_task_counts[campaign_id].rider_ids_counts[rider_id] || 0
-
-    cond do
-      count_tasks_for_current_rider > 0 ->
-        "Signed up for #{count_tasks_for_current_rider} deliveries"
-
-      true ->
-        "Sign up"
-    end
-  end
-
-  defp campaign_tasks_fully_assigned?(c_id, campaign_task_count) do
-    campaign_task_count[c_id][:filled_tasks] == campaign_task_count[c_id][:total_tasks]
-  end
-
   # Use this to determine if we need to refetch data to update the liveview.
   # ex: dispatcher changes riders/tasks, or another rider signs up -> refetch.
   defp entity_in_campaigns?(socket, entity_campaign_id) do
     socket.assigns.campaigns
     |> Enum.flat_map(fn {_date, campaigns} -> campaigns end)
     |> Enum.find(false, fn c -> c.id == entity_campaign_id end)
+  end
+
+  attr :filled_tasks, :integer, required: true
+  attr :total_tasks, :integer, required: true
+  attr :campaign, :any, required: true
+
+  defp tasks_filled_text(assigns) do
+    copy =
+      if assigns.filled_tasks == nil do
+        "N/A"
+      else
+        "#{assigns.total_tasks - assigns.filled_tasks} Available"
+      end
+
+    assigns = assign(assigns, :copy, copy)
+
+    ~H"""
+    <p class="flex flex-col md:flex-row items-center mt-0 text-sm text-gray-700">
+      <Icons.maki_bicycle_share class="flex-shrink-0 mb-2 mr-1.5 h-8 w-8 md:h-5 md:w-5 md:mb-0 text-gray-500" />
+      <span class="flex space-x-2 font-bold md:font-normal">
+        <span><%= @copy %></span>
+      </span>
+    </p>
+    """
+  end
+
+  attr :campaign, :any, required: true
+  attr :rider_id, :integer, required: true
+  attr :campaign_task_counts, :any, required: true
+
+  defp signup_button(assigns) do
+    c = assigns.campaign
+    filled_tasks = assigns.campaign_task_counts[c.id][:filled_tasks]
+    total_tasks = assigns.campaign_task_counts[c.id][:total_tasks]
+    date_now = DateTime.utc_now()
+    campaign_tasks_fully_assigned? = filled_tasks == total_tasks
+    campaign_not_ready_for_signup? = is_nil(total_tasks)
+
+    current_rider_task_count =
+      if is_nil(total_tasks) do
+        0
+      else
+        assigns.campaign_task_counts[c.id].rider_ids_counts[assigns.rider_id] || 0
+      end
+
+    campaign_in_past =
+      case DateTime.compare(assigns.campaign.delivery_end, date_now) do
+        :gt -> false
+        :eq -> false
+        :lt -> true
+      end
+
+    # Define map for button properties
+    button_properties = %{
+      in_past: {:disabled, "Completed"},
+      not_ready: {:disabled, "Campaign not ready for signup"},
+      fully_assigned: {:secondary, "Campaign Filled"},
+      rider_is_assigned: {:secondary, "Signed up for #{current_rider_task_count} deliveries"},
+      default: {:secondary, "Sign up"}
+    }
+
+    buttonType =
+      cond do
+        current_rider_task_count > 0 -> :rider_is_assigned
+        campaign_not_ready_for_signup? -> :not_ready
+        campaign_tasks_fully_assigned? -> :fully_assigned
+        campaign_in_past -> :in_past
+        true -> :default
+      end
+
+    # Extract button properties based on buttonType
+    {button_color, signup_text} = Map.fetch!(button_properties, buttonType)
+
+    assigns =
+      assigns
+      |> assign(:signup_text, signup_text)
+      |> assign(:button_color, button_color)
+      |> assign(:c, c)
+
+    ~H"""
+    <.button
+      size={:small}
+      class="w-full rounded-none md:rounded-sm"
+      color={@button_color}
+      navigate={~p"/campaigns/signup/#{@c}/"}
+    >
+      <%= @signup_text %>
+    </.button>
+    """
   end
 end
