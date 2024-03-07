@@ -207,4 +207,38 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
       """
     end
   end
+
+  defp signup_button(assigns) do
+    ~H"""
+    <div>
+      <%= if @task.assigned_rider do %>
+        <span :if={@task.assigned_rider.id != @current_rider_id} class="mr-2">
+          <%= split_first_name(@task.assigned_rider.name) %>
+        </span>
+
+        <.button
+          :if={@task.assigned_rider.id == @current_rider_id}
+          phx-click={JS.push("unassign_task", value: %{task_id: @task.id})}
+          color={:red}
+          size={:xsmall}
+          class="w-full md:w-28"
+        >
+          Unassign me
+        </.button>
+      <% end %>
+
+      <%= if is_nil(@task.assigned_rider) do %>
+        <.button
+          phx-click={JS.push("signup_rider", value: %{task_id: @task.id, rider_id: @current_rider_id})}
+          color={:secondary}
+          size={:xsmall}
+          class="w-full md:w-28"
+          replace
+        >
+          Signup
+        </.button>
+      <% end %>
+    </div>
+    """
+  end
 end
