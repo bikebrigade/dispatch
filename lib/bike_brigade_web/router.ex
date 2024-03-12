@@ -106,6 +106,7 @@ defmodule BikeBrigadeWeb.Router do
       live "/campaigns/signup", CampaignSignupLive.Index, :index
       live "/campaigns/signup/:id", CampaignSignupLive.Show, :new
       live "/campaigns/signup/:id/task/:task_id", CampaignSignupLive.Show, :rider_signup
+      live "/leaderboard", StatsLive.Leaderboard, :show
     end
 
     post "/logout", Authentication, :logout
