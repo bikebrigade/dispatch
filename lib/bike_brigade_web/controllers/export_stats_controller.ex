@@ -6,11 +6,11 @@ defmodule BikeBrigadeWeb.ExportStatsController do
 
   def leaderboard(conn, params) do
     stats = fetch_stats(params)
-
     headers = ~W(Rider Email  Phone Campaigns Deliveries Distance)
 
     rows =
-      for {rider, campaigns, deliveries, distance} <- stats do
+      for %{rider: rider, campaigns: campaigns, deliveries: deliveries, distance: distance} <-
+            stats do
         [rider.name, rider.email, rider.phone, campaigns, deliveries, distance]
       end
 
