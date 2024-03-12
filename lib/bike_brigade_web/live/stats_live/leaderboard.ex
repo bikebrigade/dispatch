@@ -182,15 +182,23 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
     ~p"/stats/leaderboard/download?#{params}"
   end
 
-  defp rider_name(%{rider: %{anonymous_in_leaderboard: true}} = assigns) do
-    ~H"""
-    <div>Anonymous Rider</div>
-    """
-  end
+  defp display_rider(%{rider: rider, current_rider: current_rider} = assigns) do
+    is_anonymous = rider.anonymous_in_leaderboard
+    is_current_rider = current_rider && rider.id == current_rider.id
 
-  defp rider_name(%{rider: %{anonymous_in_leaderboard: false}} = assigns) do
+    name =
+      cond do
+        is_anonymous && is_current_rider -> "Anonymous Rider (you)"
+        is_anonymous -> "Anonymous Rider"
+        true -> rider.name
+      end
+
+    class = if is_current_rider, do: "bg-yellow-200 p-1", else: "p-1"
+
+    assigns = assign(assigns, name: name, class: class)
+
     ~H"""
-    <div><%= @rider.name %></div>
+    <span class={@class}><%= @name %></span>
     """
   end
 end
