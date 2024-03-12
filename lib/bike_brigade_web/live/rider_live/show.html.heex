@@ -68,9 +68,11 @@
           <.link href={"mailto:#{email(@rider)}"} class="link"><%= email(@rider) %></.link>
         </span>
       </p>
-      <p :if={@current_user.is_dispatcher}
-         data-testid="dispatch-data-tags-and-capacity"
-         class="text-sm !leading-relaxed xl:text-base">
+      <p
+        :if={@current_user.is_dispatcher}
+        data-testid="dispatch-data-tags-and-capacity"
+        class="text-sm !leading-relaxed xl:text-base"
+      >
         <span class="">
           <Heroicons.briefcase
             mini
@@ -167,90 +169,88 @@
 <!-- Grid container -->
 <div class="grid grid-cols-2 mt-10 gap-x-4 gap-y-8 sm:grid-cols-12 md:gap-x-6 lg:gap-x-8 lg:gap-y-12">
   <!-- Grid left col -->
-  <!-- Hide this for now as it may be confusing -->
-  <%= if @live_action in [:show, :edit]  do %>
-    <div class="col-span-12 sm:col-span-7 md:col-span-8">
-      <div class="flex items-end justify-between">
+  <div class="col-span-12 sm:col-span-7 md:col-span-8">
+    <div class="flex items-end justify-between">
+      <h2 class="text-sm font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">
+        Schedule
+      </h2>
+      <div class="flex">
+        <span class="relative z-0 inline-flex rounded-md shadow-sm">
+          <button
+            type="button"
+            phx-click={JS.push("prev_schedule", value: %{period: 3})}
+            class="relative items-center hidden px-2 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 md:inline-flex rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+          >
+            <Heroicons.chevron_left solid class="w-5 h-5" />
+          </button>
+          <button
+            type="button"
+            phx-click={JS.push("prev_schedule", value: %{period: 2})}
+            class="relative inline-flex items-center px-2 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 md:hidden rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+          >
+            <Heroicons.chevron_left solid class="w-5 h-5" />
+          </button>
+          <button
+            type="button"
+            phx-click={JS.push("next_schedule", value: %{period: 3})}
+            class="relative items-center hidden px-2 py-1 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 md:inline-flex rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+          >
+            <Heroicons.chevron_right solid class="w-5 h-5" />
+          </button>
+          <button
+            type="button"
+            phx-click={JS.push("next_schedule", value: %{period: 2})}
+            class="relative inline-flex items-center px-2 py-1 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 md:hidden rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+          >
+            <Heroicons.chevron_right solid class="w-5 h-5" />
+          </button>
+        </span>
+      </div>
+    </div>
+    <div class="px-4 py-5 my-5 bg-white rounded-lg shadow sm:p-6">
+      <div class="grid grid-cols-2 gap-4 md:grid-cols-3">
+        <%= for {date, campaigns} <- @schedule do %>
+          <div class="px-3 border-r last:border-0 first:hidden first:md:block">
+            <h4 class="mb-4 font-bold">
+              <%= if date == @today, do: "Today", else: format_date(date) %>
+            </h4>
+            <%= if !Enum.empty?(campaigns) do %>
+              <%= for {campaign, task_count} <- campaigns do %>
+                <div class="mb-3">
+                  <span class="text-sm text-gray-500"><%= pickup_window(campaign) %></span>
+                  <p class="font-bold leading-snug">
+                    <.link navigate={~p"/campaigns/#{campaign}"} class="link">
+                      <%= campaign.program.name %>
+                    </.link>
+                  </p>
+                  <p class="text-gray-900">
+                    <%= task_count %> <%= Inflex.inflect("delivery", task_count) %>
+                  </p>
+                </div>
+              <% end %>
+            <% else %>
+              <p>None</p>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+    <!-- Don't show notes in the riders profile -->
+    <%= if @live_action in [:show, :edit]  do %>
+      <div class="flex items-end justify-between pt-5">
         <h2 class="text-sm font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">
-          Schedule
+          Notes
         </h2>
-        <div class="flex">
-          <span class="relative z-0 inline-flex rounded-md shadow-sm">
-            <button
-              type="button"
-              phx-click={JS.push("prev_schedule", value: %{period: 3})}
-              class="relative items-center hidden px-2 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 md:inline-flex rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-            >
-              <Heroicons.chevron_left solid class="w-5 h-5" />
-            </button>
-            <button
-              type="button"
-              phx-click={JS.push("prev_schedule", value: %{period: 2})}
-              class="relative inline-flex items-center px-2 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 md:hidden rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-            >
-              <Heroicons.chevron_left solid class="w-5 h-5" />
-            </button>
-            <button
-              type="button"
-              phx-click={JS.push("next_schedule", value: %{period: 3})}
-              class="relative items-center hidden px-2 py-1 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 md:inline-flex rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-            >
-              <Heroicons.chevron_right solid class="w-5 h-5" />
-            </button>
-            <button
-              type="button"
-              phx-click={JS.push("next_schedule", value: %{period: 2})}
-              class="relative inline-flex items-center px-2 py-1 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 md:hidden rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-            >
-              <Heroicons.chevron_right solid class="w-5 h-5" />
-            </button>
-          </span>
-        </div>
       </div>
       <div class="px-4 py-5 my-5 bg-white rounded-lg shadow sm:p-6">
-        <div class="grid grid-cols-2 gap-4 md:grid-cols-3">
-          <%= for {date, campaigns} <- @schedule do %>
-            <div class="px-3 border-r last:border-0 first:hidden first:md:block">
-              <h4 class="mb-4 font-bold">
-                <%= if date == @today, do: "Today", else: format_date(date) %>
-              </h4>
-              <%= if !Enum.empty?(campaigns) do %>
-                <%= for {campaign, task_count} <- campaigns do %>
-                  <div class="mb-3">
-                    <span class="text-sm text-gray-500"><%= pickup_window(campaign) %></span>
-                    <p class="font-bold leading-snug">
-                      <.link navigate={~p"/campaigns/#{campaign}"} class="link">
-                        <%= campaign.program.name %>
-                      </.link>
-                    </p>
-                    <p class="text-gray-900">
-                      <%= task_count %> <%= Inflex.inflect("delivery", task_count) %>
-                    </p>
-                  </div>
-                <% end %>
-              <% else %>
-                <p>None</p>
-              <% end %>
-            </div>
-          <% end %>
-        </div>
+        <%= if @rider.internal_notes do %>
+          <%= @rider.internal_notes %>
+        <% else %>
+          N/A
+        <% end %>
       </div>
-      <%= if @live_action in [:show, :edit]  do %>
-        <div class="flex items-end justify-between pt-5">
-          <h2 class="text-sm font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">
-            Notes
-          </h2>
-        </div>
-        <div class="px-4 py-5 my-5 bg-white rounded-lg shadow sm:p-6">
-          <%= if @rider.internal_notes do %>
-            <%= @rider.internal_notes %>
-          <% else %>
-            N/A
-          <% end %>
-        </div>
-      <% end %>
-    </div>
-  <% end %>
+    <% end %>
+  </div>
   <!-- Grid right col -->
   <div class="flex flex-col col-span-12 sm:relative sm:col-span-5 md:col-span-4 h-80">
     <h2 class="pt-3 text-sm font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">
