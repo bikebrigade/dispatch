@@ -57,6 +57,7 @@ defmodule BikeBrigade.Riders.Rider do
     field :signed_up_on, :utc_datetime
     field :last_safety_check, :date
     field :internal_notes, :string
+    field :anonymous_in_leaderboard, :boolean
 
     belongs_to :location, Location, on_replace: :delete_if_exists
 
@@ -115,7 +116,8 @@ defmodule BikeBrigade.Riders.Rider do
       :mailchimp_status,
       :last_safety_check,
       :internal_notes,
-      :text_based_itinerary
+      :text_based_itinerary,
+      :anonymous_in_leaderboard
     ])
     |> cast_embed(:flags)
     |> cast_assoc(:location)

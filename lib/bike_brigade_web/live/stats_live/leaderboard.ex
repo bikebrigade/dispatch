@@ -154,4 +154,16 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
 
     ~p"/stats/leaderboard/download?#{params}"
   end
+
+  defp rider_name(%{rider: %{anonymous_in_leaderboard: true}} = assigns) do
+    ~H"""
+    <div>Anonymous Rider</div>
+    """
+  end
+
+  defp rider_name(%{rider: %{anonymous_in_leaderboard: false}} = assigns) do
+    ~H"""
+    <div><%= @rider.name %></div>
+    """
+  end
 end
