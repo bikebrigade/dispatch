@@ -188,8 +188,8 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
 
     name =
       cond do
-        is_anonymous && is_current_rider -> "Anonymous Rider (you)"
-        is_anonymous -> "Anonymous Rider"
+        is_anonymous && is_current_rider -> "Anonymous (you)"
+        is_anonymous -> "Anonymous"
         true -> rider.name
       end
 

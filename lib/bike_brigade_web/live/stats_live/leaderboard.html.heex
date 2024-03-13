@@ -5,14 +5,14 @@
   tab={:leaderboard}
 />
 
-<div class="flex flex-col mt-8">
+<div class="flex flex-col md:mt-8">
   <.form
     :let={f}
     for={Options.changeset(@options)}
     phx-submit="update_options"
     phx-change="update_options"
   >
-    <div class="flex items-end justify-between">
+    <div class="flex items-center justify-between mb-4">
       <h3 class="text-lg font-medium leading-6 text-gray-900">
         <%= if @options.period == :all_time do %>
           All Time
@@ -50,15 +50,20 @@
             <.input type="date" field={{f, :end_date}} label="End Date" />
           </div>
         </div>
-        <.button :if={@current_user.is_dispatcher} target="_blank" href={download_path(@options)}>
+        <.button
+          :if={@current_user.is_dispatcher}
+          class="hidden md:block"
+          target="_blank"
+          href={download_path(@options)}
+        >
           Download
         </.button>
       </div>
     </div>
   </.form>
-  <div :if={@current_rider}>
+  <div :if={@current_rider} class="">
     <%= if @current_rider.anonymous_in_leaderboard  do %>
-      You're shown in the leaderboard as "Anonymous Rider"
+      You're shown in the leaderboard as "Anonymous"
       <.button size={:xsmall} color={:secondary} class="ml-2" phx-click="toggle_rider_anon">
         Show my name
       </.button>
@@ -69,7 +74,7 @@
       </.button>
     <% end %>
   </div>
-  <div class="hidden md:block mt-3 overflow-x-auto align-middle sm:-mx-6 lg:-mx-8 sm:px-6 lg:px-8">
+  <div class="hidden mt-3 overflow-x-auto align-middle md:block sm:-mx-6 lg:-mx-8 sm:px-6 lg:px-8">
     <.table
       id="leaderboard"
       rows={@stats}
@@ -98,18 +103,18 @@
   </div>
 
   <div id="mobile-leaderboard" class="md:hidden">
-    <ul class="divide-y-2 p-4">
+    <ul class="py-2 divide-y-2">
       <li :for={stat <- @stats} class="py-4">
         <div class="">
           <div class="grid grid-cols-3">
-            <span>
-              <.display_rider rider={stat.rider} current_rider={@current_rider} />
-            </span>
+            <.display_rider rider={stat.rider} current_rider={@current_rider} />
             <span class="text-center">
               <%= round_distance(stat.distance) %> km
             </span>
 
-            <span class="text-right"> <%= stat.deliveries %> <%= Inflex.inflect("delivery", stat.deliveries) %>  </span>
+            <span class="text-right">
+              <%= stat.deliveries %> <%= Inflex.inflect("delivery", stat.deliveries) %>
+            </span>
           </div>
         </div>
       </li>
