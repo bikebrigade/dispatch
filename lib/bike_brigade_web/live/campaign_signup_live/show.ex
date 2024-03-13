@@ -208,9 +208,23 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
     end
   end
 
+  @doc"""
+    Shows one of the following:
+    - A "Sign up" button if the campaign is eligible for signing up
+    - A "Unassign me" button if a rider is assigned to a task and wants to unassign themselves
+    - The first name of other riders who have signed up for tasks.
+  """
+
+
+  attr :task, :any, required: true
+
+  attr :campaign, :any, required: true
+  attr :current_rider_id, :integer, required: true
+  attr :id, :string, required: true
   defp signup_button(assigns) do
     ~H"""
     <div>
+
       <%= if @task.assigned_rider do %>
         <span :if={@task.assigned_rider.id != @current_rider_id} class="mr-2">
           <%= split_first_name(@task.assigned_rider.name) %>
@@ -228,7 +242,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
         </.button>
       <% end %>
 
-      <%= if is_nil(@task.assigned_rider) do %>
+      <%= if task_eligible_for_signup(@task, @campaign) do %>
         <.button
           phx-click={JS.push("signup_rider", value: %{task_id: @task.id, rider_id: @current_rider_id})}
           color={:secondary}
@@ -242,5 +256,10 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
       <% end %>
     </div>
     """
+  end
+
+  defp task_eligible_for_signup(task, campaign) do
+    # campaign not in past, assigned rider not nil.
+    task.assigned_rider == nil && !campaign_in_past(campaign)
   end
 end

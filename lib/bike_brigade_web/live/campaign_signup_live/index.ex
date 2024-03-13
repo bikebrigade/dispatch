@@ -99,7 +99,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
   defp entity_in_campaigns?(socket, entity_campaign_id) do
     socket.assigns.campaigns
     |> Enum.flat_map(fn {_date, campaigns} -> campaigns end)
-    |> Enum.find(false, fn c -> c.id == entity_campaign_id end)
+    |> Enum.any?(fn c -> c.id == entity_campaign_id end)
   end
 
   attr :filled_tasks, :integer, required: true
@@ -134,7 +134,6 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
     c = assigns.campaign
     filled_tasks = assigns.campaign_task_counts[c.id][:filled_tasks]
     total_tasks = assigns.campaign_task_counts[c.id][:total_tasks]
-    date_now = DateTime.utc_now()
     campaign_tasks_fully_assigned? = filled_tasks == total_tasks
     campaign_not_ready_for_signup? = is_nil(total_tasks)
 
@@ -145,46 +144,38 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
         assigns.campaign_task_counts[c.id].rider_ids_counts[assigns.rider_id] || 0
       end
 
-    campaign_in_past =
-      case DateTime.compare(assigns.campaign.delivery_end, date_now) do
-        :gt -> false
-        :eq -> false
-        :lt -> true
-      end
+    campaign_in_past = campaign_in_past(assigns.campaign)
 
     # Define map for button properties
-    button_properties = %{
-      in_past: {:disabled, "Completed"},
-      not_ready: {:disabled, "Campaign not ready for signup"},
-      fully_assigned: {:secondary, "Campaign Filled"},
-      rider_is_assigned: {:secondary, "Signed up for #{current_rider_task_count} deliveries"},
-      default: {:secondary, "Sign up"}
-    }
-
     buttonType =
       cond do
-        current_rider_task_count > 0 -> :rider_is_assigned
-        campaign_not_ready_for_signup? -> :not_ready
-        campaign_tasks_fully_assigned? -> :fully_assigned
-        campaign_in_past -> :in_past
-        true -> :default
-      end
+        campaign_in_past ->
+          %{color: :disabled, text: "Completed"}
 
-    # Extract button properties based on buttonType
-    {button_color, signup_text} = Map.fetch!(button_properties, buttonType)
+        current_rider_task_count > 0 ->
+          %{color: :secondary, text: "Signed up for #{current_rider_task_count} deliveries"}
+
+        campaign_not_ready_for_signup? ->
+          %{color: :disabled, text: "Campaign not ready for signup"}
+
+        campaign_tasks_fully_assigned? ->
+          %{color: :secondary, text: "Campaign Filled"}
+
+        true ->
+          %{color: :secondary, text: "Sign up"}
+      end
 
     assigns =
       assigns
-      |> assign(:signup_text, signup_text)
-      |> assign(:button_color, button_color)
-      |> assign(:c, c)
+      |> assign(:signup_text, Map.get(buttonType, :text))
+      |> assign(:button_color, Map.get(buttonType, :color))
 
     ~H"""
     <.button
       size={:small}
       class="w-full rounded-none md:rounded-sm"
       color={@button_color}
-      navigate={~p"/campaigns/signup/#{@c}/"}
+      navigate={~p"/campaigns/signup/#{@campaign}/"}
     >
       <%= @signup_text %>
     </.button>

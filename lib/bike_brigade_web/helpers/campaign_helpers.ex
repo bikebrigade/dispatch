@@ -112,6 +112,16 @@ defmodule BikeBrigadeWeb.CampaignHelpers do
     end
   end
 
+  def campaign_in_past(campaign) do
+    date_now = DateTime.utc_now()
+
+    case DateTime.compare(campaign.delivery_end, date_now) do
+      :gt -> false
+      :eq -> false
+      :lt -> true
+    end
+  end
+
   # TODO this could be better
   defp print_item(task_item) do
     "#{task_item.count} #{Inflex.inflect(task_item.item.name, task_item.count)}"
