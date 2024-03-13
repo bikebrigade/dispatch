@@ -12,37 +12,19 @@
     phx-submit="update_options"
     phx-change="update_options"
   >
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="text-lg font-medium leading-6 text-gray-900">
+    <div class={[
+      "flex flex-col md:flex-row items-center md:items-end justify-between mb-4",
+      if(@options.period == :all_time, do: "md:mt-16")
+    ]}>
+      <h3 class="text-lg font-medium mb-4 leading-6 text-gray-900">
         <%= if @options.period == :all_time do %>
           All Time
         <% else %>
-          <%= @options.start_date %> to <%= @options.end_date %>
+          <%= @options.start_date %> - <%= @options.end_date %>
         <% end %>
       </h3>
-      <div class="flex items-end space-x-3">
-        <div>
-          <span
-            x-data={~s({period: "#{@options.period}"})}
-            class="relative z-0 inline-flex rounded-md shadow-sm"
-          >
-            <label
-              x-bind:class="{'bg-gray-200': period === 'all_time', 'bg-white': period != 'all_time'}"
-              class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 cursor-pointer rounded-l-md hover:bg-gray-200 focus-within:z-10 focus-within:outline-none focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500"
-            >
-              <%= radio_button(f, :period, :all_time, class: "sr-only", x_model: "period") %>
-              <div>All Time</div>
-            </label>
-            <label
-              x-bind:class="{ 'bg-gray-200': period === 'select', 'bg-white': period != 'select'}"
-              class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 border border-gray-300 cursor-pointer rounded-r-md hover:bg-gray-200 focus-within:z-10 focus-within:outline-none focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500"
-            >
-              <%= radio_button(f, :period, :select, class: "sr-only", x_model: "period") %>
-              <div>Select Dates</div>
-            </label>
-          </span>
-        </div>
-        <div :if={@options.period == :select} class="flex items-end space-x-1">
+      <div class={["flex flex-col md:flex-row md:pt-12 items-center md:items-end space-x-3 md:ml-auto md:mr-2"]}>
+        <div :if={@options.period == :select} class="flex items-end space-x-1 mt-6 md:mt-0">
           <div class="w-45">
             <.input type="date" field={{f, :start_date}} label="Start Date" />
           </div>
@@ -59,16 +41,37 @@
           Download
         </.button>
       </div>
+      <div class="mt-4 md:mt-0">
+        <span
+          x-data={~s({period: "#{@options.period}"})}
+          class="relative z-0 inline-flex rounded-md shadow-sm"
+        >
+          <label
+            x-bind:class="{'bg-gray-200': period === 'all_time', 'bg-white': period != 'all_time'}"
+            class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 cursor-pointer rounded-l-md hover:bg-gray-200 focus-within:z-10 focus-within:outline-none focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500"
+          >
+            <%= radio_button(f, :period, :all_time, class: "sr-only", x_model: "period") %>
+            <div>All Time</div>
+          </label>
+          <label
+            x-bind:class="{ 'bg-gray-200': period === 'select', 'bg-white': period != 'select'}"
+            class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 border border-gray-300 cursor-pointer rounded-r-md hover:bg-gray-200 focus-within:z-10 focus-within:outline-none focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500"
+          >
+            <%= radio_button(f, :period, :select, class: "sr-only", x_model: "period") %>
+            <div>Select Dates</div>
+          </label>
+        </span>
+      </div>
     </div>
   </.form>
-  <div :if={@current_rider} class="">
+  <div :if={@current_rider} class="text-center my-2 md:text-left">
     <%= if @current_rider.anonymous_in_leaderboard  do %>
-      You're shown in the leaderboard as "Anonymous"
+      <span class="italic">You are anonymous</span>
       <.button size={:xsmall} color={:secondary} class="ml-2" phx-click="toggle_rider_anon">
         Show my name
       </.button>
     <% else %>
-      You're shown in the leaderboard as "<%= @current_rider.name %>"
+      <span class="italic"> Your name is visible</span>
       <.button size={:xsmall} color={:secondary} class="ml-2" phx-click="toggle_rider_anon">
         Hide my name
       </.button>
