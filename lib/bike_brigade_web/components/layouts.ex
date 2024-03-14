@@ -15,7 +15,7 @@ defmodule BikeBrigadeWeb.Layouts do
   attr :is_rider, :boolean, default: false
 
   attr :current_page, :atom,
-    values: [:programs, :campaigns, :opportunities, :riders, :stats, :users, :messages, :profile, :campaigns_signup]
+    values: [:programs, :campaigns, :opportunities, :riders, :stats, :users, :messages, :profile, :campaigns_signup, :leaderboard]
 
   defp sidebar(assigns) do
     ~H"""
