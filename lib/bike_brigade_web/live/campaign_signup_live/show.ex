@@ -121,7 +121,8 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
       "pickup_window" => pickup_window(campaign),
       "enter_building" => true,
       "campaign_id" => campaign.id,
-      "rider_id" => rider_id
+      "rider_id" => rider_id,
+      "rider_signed_up" => true
     }
 
     case Delivery.create_campaign_rider(attrs) do
