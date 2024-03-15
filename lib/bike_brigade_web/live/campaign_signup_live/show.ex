@@ -231,7 +231,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
         </span>
 
         <.button
-          :if={@task.assigned_rider.id == @current_rider_id}
+          :if={task_eligigle_for_unassign(@task, @campaign, @current_rider_id)}
           phx-click={JS.push("unassign_task", value: %{task_id: @task.id})}
           id={"#{@id}-unassign-task-#{@task.id}"}
           color={:red}
@@ -261,5 +261,10 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
   defp task_eligible_for_signup(task, campaign) do
     # campaign not in past, assigned rider not nil.
     task.assigned_rider == nil && !campaign_in_past(campaign)
+  end
+
+  # determine if a rider is eligible to "unassign" themselves
+  defp task_eligigle_for_unassign(task, campaign, current_rider_id) do
+    task.assigned_rider.id == current_rider_id && !campaign_in_past(campaign)
   end
 end
