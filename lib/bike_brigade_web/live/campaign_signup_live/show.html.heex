@@ -10,10 +10,9 @@
   </:subtitle>
 </.header>
 
-<% sorted_tasks = Enum.sort_by(@tasks, & &1.id) %>
 <!-- Desktop Table of tasks -->
 <section class="hidden md:block">
-  <.table id="tasks" rows={sorted_tasks}>
+  <.table id="tasks" rows={@tasks}>
     <:col :let={_task} label="Pickup time">
       <%= pickup_window(@campaign) %>
     </:col>
@@ -38,7 +37,7 @@
 </section>
 <!-- Mobile list of tasks -->
 <ul class="flex flex-col text-xs md:hidden">
-  <li :for={t <- sorted_tasks} class="w-full mb-8">
+  <li :for={t <- @tasks} class="w-full mb-8">
     <div class="flex px-4 py-3 font-bold bg-slate-200 justify-between">
       <span><%= t.dropoff_name %></span>
       <span>Pickup: <%= pickup_window(@campaign) %></span>
