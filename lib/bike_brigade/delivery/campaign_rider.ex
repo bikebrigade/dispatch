@@ -15,6 +15,7 @@ defmodule BikeBrigade.Delivery.CampaignRider do
     field :pickup_window, :string
     field :enter_building, :boolean, default: false
     field :token, :string
+    field :rider_signed_up, :boolean, default: false
 
     timestamps()
   end
@@ -27,7 +28,8 @@ defmodule BikeBrigade.Delivery.CampaignRider do
       :rider_capacity,
       :notes,
       :pickup_window,
-      :enter_building
+      :enter_building,
+      :rider_signed_up
     ])
     |> maybe_gen_token()
     # TODO this required validation for :campaign_id may be not needed
