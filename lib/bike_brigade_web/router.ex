@@ -103,6 +103,7 @@ defmodule BikeBrigadeWeb.Router do
       live "/profile", RiderLive.Show, :profile
       live "/profile/edit", RiderLive.Show, :edit_profile
       live "/itinerary", ItineraryLive.Index, :index
+      live "/home", RiderHomeLive.Index, :index
       live "/campaigns/signup", CampaignSignupLive.Index, :index
       live "/campaigns/signup/:id", CampaignSignupLive.Show, :new
       live "/campaigns/signup/:id/task/:task_id", CampaignSignupLive.Show, :rider_signup
