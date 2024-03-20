@@ -1,49 +1,47 @@
-
 <%= if @campaign_riders != [] do %>
-    <div  class="flex w-full bg-white shadow mb-2 md:mb-4 sm:rounded-md">
-
-    <ul :for={cr <- @campaign_riders} role="list" class="divide-y divide-gray-100 px-2">
-    <.link  navigate={~p"/app/delivery/#{cr.token}"} >
-      <li id={"campaign-#{cr.campaign.id}"} class="flex items-center justify-between gap-x-6 py-2">
-        <div class="min-w-0">
-          <div class="flex items-start gap-x-3">
-            <p class="text-sm font-semibold leading-6 text-gray-900">
-            <%= name(cr.campaign) %>
-            </p>
-            <%!-- TODO: optional badge to show "done" "in-progess" etc (see tailwind component "stacked-lists")  --%>
-            <%!-- https://tailwindui.com/components/application-ui/lists/stacked-lists --%>
-            <%!-- <p class="rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset text-yellow-800 bg-yellow-50 ring-yellow-600/20">Archived</p> --%>
+  <div class="flex w-full mb-2 bg-white shadow md:mb-4 sm:rounded-md">
+    <ul :for={cr <- @campaign_riders} role="list" class="w-full px-4 divide-y divide-gray-100">
+      <.link navigate={~p"/app/delivery/#{cr.token}"}>
+        <li
+          id={"campaign-#{cr.campaign.id}"}
+          class="flex items-center justify-between py-2 gap-x-6"
+        >
+          <div class="min-w-0">
+            <div class="flex items-start gap-x-3">
+              <p class="text-sm font-semibold leading-6 text-gray-900">
+                <%= name(cr.campaign) %> (<%= delivery_count(cr.campaign.tasks) %>)
+              </p>
+              <%!-- TODO: optional badge to show "done" "in-progess" etc (see tailwind component "stacked-lists")  --%>
+              <%!-- https://tailwindui.com/components/application-ui/lists/stacked-lists --%>
+              <%!-- <p class="rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset text-yellow-800 bg-yellow-50 ring-yellow-600/20">Archived</p> --%>
+            </div>
+            <div class="flex items-center mt-1 text-xs leading-5 text-gray-500 gap-x-2">
+              <.get_location campaign={cr.campaign} />
+              <svg viewBox="0 0 2 2" class="h-0.5 w-0.5 fill-current">
+                <circle cx="1" cy="1" r="1" />
+              </svg>
+              <.get_pickup_window campaign={cr.campaign} />
+            </div>
           </div>
-          <div class="mt-1 flex items-center gap-x-2 text-xs leading-5 text-gray-500">
-            <p class="whitespace-nowrap">Due on <time datetime="2023-06-10T00:00Z">June 10, 2023</time></p>
-            <svg viewBox="0 0 2 2" class="h-0.5 w-0.5 fill-current">
-              <circle cx="1" cy="1" r="1" />
-            </svg>
-          </div>
-        </div>
-        <div class="flex flex-none items-center gap-x-4">
-          <div class="relative flex-none">
+          <div class="flex items-center flex-none gap-x-4">
+            <div class="relative flex-none">
+              <.button navigate={~p"/app/delivery/#{cr.token}"} size={:small} color={:secondary}>
+                <Heroicons.chevron_right class="w-5 h-5" solid />
+              </.button>
 
-          <.button
-            navigate={~p"/app/delivery/#{cr.token}"}
-            size={:medium}
-          >
-            <Heroicons.chevron_right class="w-4 h-4" solid />
-          </.button>
-
-            <%!-- <div class="absolute right-0 z-10 mt-2 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="options-menu-4-button" tabindex="-1">
+              <%!-- <div class="absolute right-0 z-10 w-32 py-2 mt-2 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-gray-900/5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="options-menu-4-button" tabindex="-1">
               <!-- Active: "bg-gray-50", Not Active: "" -->
               <a href="#" class="block px-3 py-1 text-sm leading-6 text-gray-900" role="menuitem" tabindex="-1" id="options-menu-4-item-0">Edit<span class="sr-only">, Marketing site redesign</span></a>
               <a href="#" class="block px-3 py-1 text-sm leading-6 text-gray-900" role="menuitem" tabindex="-1" id="options-menu-4-item-1">Move<span class="sr-only">, Marketing site redesign</span></a>
               <a href="#" class="block px-3 py-1 text-sm leading-6 text-gray-900" role="menuitem" tabindex="-1" id="options-menu-4-item-2">Delete<span class="sr-only">, Marketing site redesign</span></a>
             </div> --%>
+            </div>
           </div>
-        </div>
-      </li>
+        </li>
       </.link>
     </ul>
 
-      <%!-- <ul role="list" class="w-full divide-y divide-gray-200">
+    <%!-- <ul role="list" class="w-full divide-y divide-gray-200">
         <li id={"campaign-#{cr.campaign.id}"}>
           <div class="px-4 py-4">
             <div class="items-center justify-between md:flex">
@@ -87,7 +85,7 @@
           </div>
         </li>
       </ul> --%>
-    </div>
+  </div>
 <% else %>
   <div class="pt-1 pl-4">No campaigns found for this day.</div>
 <% end %>

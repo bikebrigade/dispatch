@@ -6,17 +6,17 @@ defmodule BikeBrigadeWeb.RiderHomeLive.Index do
 
   import BikeBrigadeWeb.CampaignHelpers
 
-  import BikeBrigade.Utils, only: [humanized_task_count: 1]
+  alias BikeBrigade.Utils
 
   @impl true
   def mount(_params, _session, socket) do
     today = LocalizedDateTime.today()
+
     {:ok,
      socket
      |> assign(:page, :home)
      |> assign(:page_title, "Home")
-     |> load_itinerary(today)
-    }
+     |> load_itinerary(today)}
   end
 
   @impl true
@@ -54,16 +54,22 @@ defmodule BikeBrigadeWeb.RiderHomeLive.Index do
 
   defp get_location(assigns) do
     ~H"""
-    <div class="mt-2 sm:flex sm:justify-between">
-      <div class="sm:flex">
-        <p class="flex items-center text-sm text-gray-500">
-          <Heroicons.map_pin
-            aria-label="Location"
-            class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
-          />
-          <%= @campaign.location.address %>
-        </p>
-      </div>
+    <div class="sm:flex sm:justify-between">
+      <p class="flex items-center">
+        <Heroicons.map_pin aria-label="Location" class="flex-shrink-0 w-4 h-4 mr-1 text-gray-400" />
+        <%= @campaign.location.address %>
+      </p>
+    </div>
+    """
+  end
+
+  defp get_pickup_window(assigns) do
+    ~H"""
+    <div class="sm:flex sm:justify-between">
+      <p class="flex items-center">
+        <Heroicons.clock aria-label="Pickup Time" class="flex-shrink-0 w-4 h-4 mr-1 text-gray-400" />
+        <%= pickup_window(@campaign) %>
+      </p>
     </div>
     """
   end
@@ -72,5 +78,12 @@ defmodule BikeBrigadeWeb.RiderHomeLive.Index do
     campaign_riders
     |> Enum.map(fn cr -> length(cr.campaign.tasks) end)
     |> Enum.sum()
+  end
+
+  # Note Utils has a `humanized_task_count/1` which is similar but breaks
+  # things down by delivery type
+  defp delivery_count(tasks) do
+    task_count = Utils.task_count(tasks)
+    "#{task_count} #{Inflex.inflect("delivery", task_count)}"
   end
 end
