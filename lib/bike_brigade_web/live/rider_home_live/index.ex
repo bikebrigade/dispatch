@@ -27,16 +27,6 @@ defmodule BikeBrigadeWeb.RiderHomeLive.Index do
     {:noreply, socket}
   end
 
-  # defp apply_action(socket, :index, params) do
-  #   date =
-  #     case params do
-  #       %{"date" => date} -> Date.from_iso8601!(date)
-  #       _ -> LocalizedDateTime.today()
-  #     end
-
-  #   load_itinerary(socket, date)
-  # end
-
   defp load_itinerary(socket, date) do
     rider_id = socket.assigns.current_user.rider_id
 

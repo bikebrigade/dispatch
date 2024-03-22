@@ -59,10 +59,10 @@
     </.button>
   </div>
 <% else %>
- <%!-- Empty state - Rider has no campaigns for today. --%>
+  <%!-- Empty state - Rider has no campaigns for today. --%>
   <div class="bg-emerald-900 bg-opacity-30 border-dashed border border-emerald-900 rounded-md p-4 justify-center">
     <div class="pt-1 pl-4 text-center mb-8">You do not have any deliveries today.</div>
-    <img src={~p"/images/cyclist-empty-state.svg"}/>
+    <img src={~p"/images/cyclist-empty-state.svg"} />
     <.button
       navigate={~p"/campaigns/signup"}
       size={:small}
@@ -73,3 +73,9 @@
     </.button>
   </div>
 <% end %>
+
+<div class="bg-green-200 bg-opacity-30 border-dashed border border-green-700 rounded-md p-4 justify-center mt-4">
+  In the last seven days, <%= @stats.riders %> riders of the Bike Brigade
+  have delivered <%= @stats.tasks %> items across <%= @stats.campaigns %> campaigns,
+  totalling <%= round_distance(@stats.distance) %> km!
+</div>

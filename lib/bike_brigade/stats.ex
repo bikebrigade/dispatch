@@ -235,7 +235,7 @@ defmodule BikeBrigade.Stats do
     today = LocalizedDateTime.today()
     week_ago = Date.add(today, -7)
 
-    Repo.all(
+    Repo.one(
       from r in subquery(leaderboard_subquery(week_ago, today)),
         select: %{
           riders: count(r.rider_id, :distinct),
