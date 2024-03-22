@@ -145,11 +145,12 @@ defmodule BikeBrigadeWeb.CoreComponents do
 
   """
   attr :date, Date, required: true
+  attr :class, :string, default: ""
   attr :rest, :global, include: ~w(href patch navigate)
 
   def date(%{rest: rest} = assigns) when is_clickable(rest) do
     ~H"""
-    <.link class="inline-flex border border-gray-400 rounded hover:bg-indigo-50" {@rest}>
+    <.link class={"inline-flex border border-gray-400 rounded hover:bg-indigo-50 #{@class}"} {@rest}>
       <.date_inner date={@date} />
     </.link>
     """
@@ -157,7 +158,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
 
   def date(assigns) do
     ~H"""
-    <div class="inline-flex border border-gray-400 rounded" {@rest}>
+    <div class={"inline-flex border border-gray-400 rounded #{@class}"} {@rest}>
       <.date_inner date={@date} />
     </div>
     """
@@ -1139,7 +1140,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
                     :if={@action != []}
                     class="py-4 pl-2 pr-4 text-sm font-medium text-right sm:pr-6"
                   >
-                    <span :for={action <- @action} class="ml-1">
+                    <span :for={action <- @action} class="ml-1 flex">
                       <%= render_slot(action, row) %>
                     </span>
                   </td>

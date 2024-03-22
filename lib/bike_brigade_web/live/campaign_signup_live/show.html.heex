@@ -1,56 +1,73 @@
-<.header>
-  <%= @campaign.program.name %> - <%= campaign_date(@campaign) %>
+<.header class="text-center mt-4 mb-8 md:text-left">
+  <div class="hidden md:flex">
+    <%= @campaign.program.name %> - <%= campaign_date(@campaign) %>
+  </div>
+  <div class="text-xl flex flex-col mb-4 md:hidden"><%= @campaign.program.name %></div>
+  <div class="text-sm mt-2 md:hidden">Deliveries for <%= campaign_date(@campaign) %></div>
   <:subtitle>
-    <span class="font-bold"><%= @campaign.location.address %></span>
-    <span :if={@campaign.program.campaign_blurb}>
-      - <%= @campaign.program.campaign_blurb %>
-    </span>
+    <span class="text-sm font-bold">Pickup: <%= @campaign.location.address %></span>
+    <span :if={@campaign.program.campaign_blurb}>- <%= @campaign.program.campaign_blurb %></span>
   </:subtitle>
 </.header>
 
-<section>
+<!-- Desktop Table of tasks -->
+<section class="hidden md:block">
   <.table id="tasks" rows={@tasks}>
     <:col :let={_task} label="Pickup time">
       <%= pickup_window(@campaign) %>
     </:col>
     <:col :let={task} label="Delivery Size">
-      <.get_delivery_size task={task}/>
+      <.get_delivery_size task={task} />
     </:col>
     <:col :let={task} label="Recipient"><%= task.dropoff_name %></:col>
-    <:col :let={task} label="Dropoff Neighbourhood"><%= Locations.neighborhood(task.dropoff_location) %></:col>
-    <:col :let={task} label="Notes"><%= task.delivery_status_notes %>
-      <.truncated_riders_notes note={task.rider_notes || "--"}/>
+    <:col :let={task} label="Dropoff Neighbourhood">
+      <%= Locations.neighborhood(task.dropoff_location) %>
     </:col>
+    <:col :let={task} label="Notes"><%= task.delivery_status_notes %>
+      <.truncated_riders_notes note={task.rider_notes || "--"} /></:col>
     <:action :let={task}>
-      <%= if task.assigned_rider do %>
-        <span
-          :if={task.assigned_rider.id != @current_rider_id}
-          class="mr-2"> <%= split_first_name(task.assigned_rider.name) %></span>
-
-        <.button
-          :if={task.assigned_rider.id == @current_rider_id}
-          id={"task-#{task.id}"}
-          phx-click={JS.push("unassign_task", value: %{task_id: task.id})}
-          color={:red}
-          size={:xsmall}
-          class="w-28">
-          Unassign me
-        </.button>
-
-      <% end %>
-
-      <%= if is_nil(task.assigned_rider) do %>
-        <.button
-          phx-click={JS.push("signup_rider", value: %{task_id: task.id, rider_id: @current_rider_id})}
-          id={"task-#{task.id}"}
-          color={:primary}
-          size={:xsmall}
-          class="w-28"
-          >
-          Sign up
-        </.button>
-
-      <% end %>
+      <.signup_button
+        id="signup-btn-desktop"
+        campaign={@campaign}
+        task={task}
+        current_rider_id={@current_rider_id}
+      />
     </:action>
   </.table>
 </section>
+<!-- Mobile list of tasks -->
+<ul class="flex flex-col text-xs md:hidden">
+  <li :for={t <- @tasks} class="w-full mb-8">
+    <div class="flex px-4 py-3 font-bold bg-slate-200 justify-between">
+      <span><%= t.dropoff_name %></span>
+      <span>Pickup: <%= pickup_window(@campaign) %></span>
+    </div>
+    <div class="flex flex-col bg-white shadow">
+      <div class="flex py-2 border-b p-4 items-center">
+        <span class="pr-2 ">Delivery size:</span>
+        <span class="italic">
+          <.get_delivery_size task={t} />
+        </span>
+      </div>
+
+      <div class="flex flex-col justify-center px-4 py-2 border-b">
+        <span>Dropoff Neighbourhood:</span>
+        <span><%= Locations.neighborhood(t.dropoff_location) %></span>
+      </div>
+
+      <div :if={t.rider_notes} class="flex flex-col justify-center px-4 py-2 border-b-2">
+        <span>Notes:</span>
+        <span><%= t.rider_notes %></span>
+      </div>
+
+      <div class="flex flex-col justify-center px-4 py-2 border-b-2">
+        <.signup_button
+          id="signup-btn-mobile"
+          campaign={@campaign}
+          task={t}
+          current_rider_id={@current_rider_id}
+        />
+      </div>
+    </div>
+  </li>
+</ul>

@@ -332,6 +332,7 @@ defmodule BikeBrigade.Delivery do
         select: t
       )
       |> task_load_location()
+      |> order_by(:id)
       |> Repo.all()
       |> Repo.preload([:pickup_location, :dropoff_location, task_items: [:item]])
 
