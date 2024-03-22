@@ -3,6 +3,7 @@ defmodule BikeBrigadeWeb.RiderHomeLive.Index do
 
   alias BikeBrigade.LocalizedDateTime
   alias BikeBrigade.Riders
+  alias BikeBrigade.Stats
 
   import BikeBrigadeWeb.CampaignHelpers
 
@@ -16,6 +17,7 @@ defmodule BikeBrigadeWeb.RiderHomeLive.Index do
      socket
      |> assign(:page, :home)
      |> assign(:page_title, "Home")
+     |> assign(:stats, Stats.home_stats())
      |> load_itinerary(today)}
   end
 
@@ -72,12 +74,6 @@ defmodule BikeBrigadeWeb.RiderHomeLive.Index do
       </p>
     </div>
     """
-  end
-
-  defp get_task_count(campaign_riders) do
-    campaign_riders
-    |> Enum.map(fn cr -> length(cr.campaign.tasks) end)
-    |> Enum.sum()
   end
 
   # Note Utils has a `humanized_task_count/1` which is similar but breaks

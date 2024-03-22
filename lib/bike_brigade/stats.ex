@@ -155,7 +155,7 @@ defmodule BikeBrigade.Stats do
       )
       when sort_by in [:rider_name, :campaigns, :deliveries, :distance] and
              sort_order in [:desc, :asc] do
-    leaderboard_aggregates()
+    leaderboard_subquery()
     |> make_leaderboard(sort_by, sort_order)
     |> Repo.all()
   end
@@ -168,7 +168,7 @@ defmodule BikeBrigade.Stats do
       )
       when sort_by in [:rider_name, :campaigns, :deliveries, :distance] and
              sort_order in [:desc, :asc] do
-    leaderboard_aggregates(start_date, end_date)
+    leaderboard_subquery(start_date, end_date)
     |> make_leaderboard(sort_by, sort_order)
     |> Repo.all()
   end
@@ -189,12 +189,12 @@ defmodule BikeBrigade.Stats do
                   distance: st_distance(pl.coords, dl.coords)
                 }
 
-  defp leaderboard_aggregates() do
+  defp leaderboard_subquery() do
     from r in @base_query,
       where: as(:campaign).delivery_start <= ^LocalizedDateTime.now()
   end
 
-  defp leaderboard_aggregates(%Date{} = start_date, %Date{} = end_date) do
+  defp leaderboard_subquery(%Date{} = start_date, %Date{} = end_date) do
     from r in @base_query,
       where:
         as(:campaign).delivery_start >=
@@ -226,5 +226,24 @@ defmodule BikeBrigade.Stats do
         deliveries: count(a.task_id, :distinct),
         distance: sum(a.distance)
       }
+  end
+
+  @doc """
+    Stat data for the rider home.
+  """
+  def home_stats() do
+    today = LocalizedDateTime.today()
+    week_ago = Date.add(today, -7)
+
+    Repo.all(
+      from r in subquery(leaderboard_subquery(week_ago, today)),
+        select: %{
+          riders: count(r.rider_id, :distinct),
+          tasks: count(r.task_id, :distinct),
+          campaigns: count(r.campaign_id, :distinct),
+          distance: sum(r.distance) #todo(ty): convert to kilometers in memory (there's a util, do it on the frontend),
+        }
+    )
+    |> IO.inspect()
   end
 end
