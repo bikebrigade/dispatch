@@ -59,5 +59,16 @@
     </.button>
   </div>
 <% else %>
-  <div class="pt-1 pl-4">No campaigns found for this day.</div>
+  <div class="bg-emerald-900 bg-opacity-30 border-dashed border border-emerald-900 rounded-md p-4 justify-center">
+    <div class="pt-1 pl-4 text-center mb-8">You do not have any deliveries today.</div>
+    <img src={~p"/images/cyclist-empty-state.svg"}/>
+    <.button
+      navigate={~p"/campaigns/signup"}
+      size={:small}
+      color={:secondary}
+      class="w-full rounded-none"
+    >
+      Sign up for more deliveries ->
+    </.button>
+  </div>
 <% end %>
