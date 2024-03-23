@@ -75,6 +75,8 @@ defmodule BikeBrigadeWeb.RiderHomeLive.Index do
 
   defp num_unassigned_tasks_and_campaigns(urgent_campaigns) do
     # formats a string so that we see: "program 1, program 2, and program 3" (ie, we want that 'and') in there.
+    campaign_ids = urgent_campaigns |> Enum.map(&(&1.id))
+
     campaign_names = urgent_campaigns
     |> Enum.map(&(&1.program.name))
     |> case do
@@ -92,6 +94,6 @@ defmodule BikeBrigadeWeb.RiderHomeLive.Index do
     |> Enum.flat_map(&(&1.tasks))
     |> Enum.count(fn task -> task.assigned_rider_id == nil end)
 
-    {deliveries_without_riders, campaign_names}
+    {deliveries_without_riders, campaign_names, campaign_ids}
   end
 end

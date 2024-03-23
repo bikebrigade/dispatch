@@ -28,7 +28,13 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
      |> assign(:campaigns, campaigns)}
   end
 
+
   @impl true
+  def handle_params(%{"campaign_ids" => campaign_ids}, _url, socket) do
+    campaigns = fetch_campaigns(socket.assigns.current_week, [campaign_ids: campaign_ids])
+    {:noreply, assign(socket, :campaigns, campaigns)}
+  end
+
   def handle_params(params, _url, socket) do
     {:noreply, apply_action(socket, socket.assigns.live_action, params)}
   end
@@ -74,9 +80,10 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
     |> assign(:campaign, nil)
   end
 
-  defp fetch_campaigns(current_week) do
+  defp fetch_campaigns(current_week, opts \\ []) do
     Delivery.list_campaigns(current_week,
-      preload: [:program, :stats, :latest_message, :scheduled_message]
+      preload: [:program, :stats, :latest_message, :scheduled_message],
+      campaign_ids: opts[:campaign_ids]
     )
     |> Enum.reverse()
     |> Utils.ordered_group_by(&LocalizedDateTime.to_date(&1.delivery_start))

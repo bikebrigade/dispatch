@@ -147,6 +147,9 @@ defmodule BikeBrigade.Delivery do
 
   def list_campaigns(week \\ nil, opts \\ []) do
     preload = Keyword.get(opts, :preload, [:program])
+    # sometimes we just want to fetch campaigns with specific ids
+    # (such as when we need to display campaigns that urgently need a rider)
+    campaign_ids = Keyword.get(opts, :campaign_ids, nil)
 
     query =
       from c in Campaign,
@@ -163,6 +166,13 @@ defmodule BikeBrigade.Delivery do
       else
         query
       end
+
+    query = if campaign_ids do
+      query
+      |> where([campaign: c], c.id in ^campaign_ids)
+    else
+      query
+    end
 
     Repo.all(query)
     |> Repo.preload(preload)

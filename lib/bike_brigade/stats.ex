@@ -233,15 +233,16 @@ defmodule BikeBrigade.Stats do
   """
   def home_stats() do
     today = LocalizedDateTime.today()
-    week_ago = Date.add(today, -7)
+    yesterday = Date.add(today, -1)
+    week_ago = Date.add(yesterday, -7)
 
     Repo.one(
-      from r in subquery(leaderboard_subquery(week_ago, today)),
+      from r in subquery(leaderboard_subquery(week_ago, yesterday)),
         select: %{
           riders: count(r.rider_id, :distinct),
           tasks: count(r.task_id, :distinct),
           campaigns: count(r.campaign_id, :distinct),
-          distance: sum(r.distance) #todo(ty): convert to kilometers in memory (there's a util, do it on the frontend),
+          distance: sum(r.distance)
         }
     )
   end
