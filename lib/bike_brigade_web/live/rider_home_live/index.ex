@@ -6,25 +6,22 @@ defmodule BikeBrigadeWeb.RiderHomeLive.Index do
   alias BikeBrigade.Stats
 
   import BikeBrigadeWeb.CampaignHelpers
+  import BikeBrigade.Riders.Helpers, only: [first_name: 1]
 
   alias BikeBrigade.Utils
 
   @impl true
   def mount(_params, _session, socket) do
     today = LocalizedDateTime.today()
+    rider_id = socket.assigns.current_user.rider_id
 
     {:ok,
      socket
      |> assign(:page, :home)
      |> assign(:page_title, "Home")
      |> assign(:stats, Stats.home_stats())
+     |> assign(:rider, Riders.get_rider!(rider_id))
      |> load_itinerary(today)}
-  end
-
-  @impl true
-  def handle_params(params, _url, socket) do
-    # {:noreply, apply_action(socket, socket.assigns.live_action, params)}
-    {:noreply, socket}
   end
 
   defp load_itinerary(socket, date) do
