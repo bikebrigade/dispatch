@@ -50,8 +50,8 @@
       </ul>
     </div>
     <.button
-      navigate={~p"/campaigns/signup"}
       :if={!has_urgent_campaigns?(@urgent_campaigns)}
+      navigate={~p"/campaigns/signup"}
       size={:small}
       color={:secondary}
       class="w-full rounded-none"
@@ -75,7 +75,10 @@
   </div>
 <% end %>
 
-<div :if={has_urgent_campaigns?(@urgent_campaigns)} class="bg-red-200 bg-opacity-20 border-dashed border border-red-700 rounded-md p-4 justify-center mt-4">
+<div
+  :if={has_urgent_campaigns?(@urgent_campaigns)}
+  class="bg-red-200 bg-opacity-20 border-dashed border border-red-700 rounded-md p-4 justify-center mt-4"
+>
   <% {deliveries, programs, campaign_ids} = num_unassigned_tasks_and_campaigns(@urgent_campaigns) %>
   <div class="flex items-center gap-x-2">
     <span class="text-2xl mr-1">🚨</span>
@@ -85,8 +88,8 @@
     </div>
   </div>
   <div class="text-sm mt-2">
-    <span class="font-semibold"><%= programs %></span> are looking for riders today.
-
+    <span class="font-semibold"><%= programs %></span>
+    are looking for riders today.
     <.button
       navigate={~p"/campaigns/signup?#{%{campaign_ids: campaign_ids}}"}
       size={:small}
@@ -103,14 +106,14 @@
     <span class="text-2xl mr-1">🎉</span>
     <span class="text-sm font-semibold">In the last 7 days at The Bike Brigade:</span>
   </div>
-<div class="text-sm mt-2">
-  <span class="font-semibold"><%= @stats.riders %> riders </span>
-  have delivered
-  <span class="font-semibold"> <%= @stats.tasks %> items </span> for
-  <span class="font-semibold"><%= @stats.campaigns %> programs</span>,
-  covering about
-  <span class="font-semibold">
-   <%= if @stats.distance && @stats.distance > 0, do: round_distance(@stats.distance), else: 0 %> km</span>
-   of road!
+  <div class="text-sm mt-2">
+    <span class="font-semibold"><%= @stats.riders %> riders</span>
+    have delivered <span class="font-semibold"><%= @stats.tasks %> items</span>
+    for <span class="font-semibold"><%= @stats.campaigns %> programs</span>,
+    covering about
+    <span class="font-semibold">
+      <%= if @stats.distance && @stats.distance > 0, do: round_distance(@stats.distance), else: 0 %> km
+    </span>
+    of road!
   </div>
 </div>
