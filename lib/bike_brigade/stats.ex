@@ -244,6 +244,5 @@ defmodule BikeBrigade.Stats do
           distance: sum(r.distance) #todo(ty): convert to kilometers in memory (there's a util, do it on the frontend),
         }
     )
-    |> IO.inspect()
   end
 end

@@ -168,6 +168,28 @@ defmodule BikeBrigade.Delivery do
     |> Repo.preload(preload)
   end
 
+
+  @doc """
+    Gets campaigns that are happening today and have unassigned tasks.
+    Used on the rider's home page to let riders know about campaigns that could use the help.
+  """
+  def list_urgent_campaigns() do
+    today = LocalizedDateTime.today()
+    start_of_today = LocalizedDateTime.new!(today, ~T[00:00:00])
+    end_of_today = LocalizedDateTime.new!(today, ~T[23:59:59])
+
+    query =
+      from c in Campaign,
+        distinct: [asc: c.id],
+        join: t in assoc(c, :tasks),
+        where: c.delivery_start <= ^end_of_today and c.delivery_start >= ^start_of_today,
+        select: c
+
+    Repo.all(query)
+    |> Repo.preload([:program, :tasks])
+    |> Enum.filter(fn c -> Enum.any?(c.tasks, fn t -> is_nil(t.assigned_rider_id) end) end)
+  end
+
   @doc """
   Fetches how many open vs filled tasks there are (optionally, by week)
   and groups them by campaign ID.
@@ -221,7 +243,6 @@ defmodule BikeBrigade.Delivery do
   def get_campaign_rider_by_id(campaign_id, rider_id) do
     CampaignRider |> Repo.get_by(campaign_id: campaign_id, rider_id: rider_id)
   end
-
 
   def get_campaign_rider!(token) do
     query =

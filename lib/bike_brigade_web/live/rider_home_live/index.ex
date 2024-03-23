@@ -1,9 +1,7 @@
 defmodule BikeBrigadeWeb.RiderHomeLive.Index do
   use BikeBrigadeWeb, :live_view
 
-  alias BikeBrigade.LocalizedDateTime
-  alias BikeBrigade.Riders
-  alias BikeBrigade.Stats
+  alias BikeBrigade.{Delivery, Riders, Stats, LocalizedDateTime}
 
   import BikeBrigadeWeb.CampaignHelpers
   import BikeBrigade.Riders.Helpers, only: [first_name: 1]
@@ -21,6 +19,7 @@ defmodule BikeBrigadeWeb.RiderHomeLive.Index do
      |> assign(:page_title, "Home")
      |> assign(:stats, Stats.home_stats())
      |> assign(:rider, Riders.get_rider!(rider_id))
+     |> assign(:urgent_campaigns, Delivery.list_urgent_campaigns())
      |> load_itinerary(today)}
   end
 
@@ -68,5 +67,31 @@ defmodule BikeBrigadeWeb.RiderHomeLive.Index do
   defp delivery_count(tasks) do
     task_count = Utils.task_count(tasks)
     "#{task_count} #{Inflex.inflect("delivery", task_count)}"
+  end
+
+  defp has_urgent_campaigns?(urgent_campaigns) do
+    Enum.count(urgent_campaigns) > 0
+  end
+
+  defp num_unassigned_tasks_and_campaigns(urgent_campaigns) do
+    # formats a string so that we see: "program 1, program 2, and program 3" (ie, we want that 'and') in there.
+    campaign_names = urgent_campaigns
+    |> Enum.map(&(&1.program.name))
+    |> case do
+      [name] -> name
+      names -> names
+               |> Enum.reverse()
+               |> Enum.drop(1)
+               |> Enum.reverse()
+               |> Enum.join(", ")
+               |> Kernel.<>(", and ")
+               |> Kernel.<>(List.last(names))
+    end
+
+    deliveries_without_riders = urgent_campaigns
+    |> Enum.flat_map(&(&1.tasks))
+    |> Enum.count(fn task -> task.assigned_rider_id == nil end)
+
+    {deliveries_without_riders, campaign_names}
   end
 end
