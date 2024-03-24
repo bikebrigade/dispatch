@@ -65,6 +65,7 @@
     <div class="pt-1 text-center mb-8">You do not have any deliveries today.</div>
     <img src={~p"/images/cyclist-empty-state.svg"} />
     <.button
+      id="no-campaigns-signup-btn"
       navigate={~p"/campaigns/signup"}
       size={:small}
       color={:secondary}
@@ -75,6 +76,7 @@
   </div>
 <% end %>
 
+<%!-- Urgent Campaigns --%>
 <div
   :if={has_urgent_campaigns?(@urgent_campaigns)}
   class="bg-red-200 bg-opacity-20 border-dashed border border-red-700 rounded-md p-4 justify-center mt-4"
@@ -88,9 +90,9 @@
     </div>
   </div>
   <div class="text-sm mt-2">
-    <span class="font-semibold"><%= programs %></span>
-    are looking for riders today.
+    <span class=""><%= programs %> are looking for riders today.</span>
     <.button
+      id={"urgent-campaigns-signup-btn"}
       navigate={~p"/campaigns/signup?#{%{campaign_ids: campaign_ids}}"}
       size={:small}
       color={:primary}
@@ -101,12 +103,13 @@
   </div>
 </div>
 
+<%!-- Weekly Stats --%>
 <div class="bg-green-200 bg-opacity-30 border-dashed border border-green-700 rounded-md p-4 justify-center mt-4">
   <div class="flex items-center gap-x-2">
     <span class="text-2xl mr-1">🎉</span>
     <span class="text-sm font-semibold">In the last 7 days at The Bike Brigade:</span>
   </div>
-  <div class="text-sm mt-2">
+  <div id="week-stats" class="text-sm mt-2">
     <span class="font-semibold"><%= @stats.riders %> riders</span>
     have delivered <span class="font-semibold"><%= @stats.tasks %> items</span>
     for <span class="font-semibold"><%= @stats.campaigns %> programs</span>,

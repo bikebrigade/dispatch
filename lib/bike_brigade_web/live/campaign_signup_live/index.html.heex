@@ -43,9 +43,9 @@
         </div>
       </div>
 
-      <ul role="list" class="w-full divide-y divide-gray-200">
+      <ul id="campaign-list" role="list" class="w-full divide-y divide-gray-200">
         <%= for c <- campaigns do %>
-          <li id={"campaign-#{c.id}"} class="bg-white shadow mb-8 border last:mb-0">
+          <li id={"campaign-#{c.id}"} class="campaign-item bg-white shadow mb-8 border last:mb-0">
             <div class="flex items-center space-x-1 px-4 py-2 bg-slate-100">
               <div
                 class="flex items-center justify-between w-full text-sm"

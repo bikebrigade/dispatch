@@ -86,7 +86,7 @@ defmodule BikeBrigadeWeb.RiderHomeLive.Index do
                |> Enum.drop(1)
                |> Enum.reverse()
                |> Enum.join(", ")
-               |> Kernel.<>(", and ")
+               |> Kernel.<>(" and ")
                |> Kernel.<>(List.last(names))
     end
 
