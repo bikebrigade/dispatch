@@ -9,7 +9,7 @@
     <div class="flex flex-col w-full  md:mb-4 sm:rounded-md max-h-[30vh] overflow-scroll">
       <ul :for={cr <- @campaign_riders} role="list" class="w-full divide-y divide-gray-300">
         <.link navigate={~p"/app/delivery/#{cr.token}"}>
-          <%!-- The following markup is loosley based on https://tailwindui.com/components/application-ui/lists/stacked-lists --%>
+          <%!-- The following markup is loosely based on https://tailwindui.com/components/application-ui/lists/stacked-lists --%>
           <li
             id={"campaign-#{cr.campaign.id}"}
             class="flex items-center justify-between py-3 gap-x-6 px-4"
@@ -61,18 +61,23 @@
   </div>
 <% else %>
   <%!-- Empty state - Rider has no campaigns for today. --%>
-  <div class="bg-emerald-900 bg-opacity-30 border-dashed border border-emerald-900 rounded-md p-4 justify-center">
-    <div class="pt-1 text-center mb-8">You do not have any deliveries today.</div>
-    <img src={~p"/images/cyclist-empty-state.svg"} />
-    <.button
-      id="no-campaigns-signup-btn"
-      navigate={~p"/campaigns/signup"}
-      size={:small}
-      color={:secondary}
-      class="w-full rounded-none"
-    >
-      Sign up for more deliveries ->
-    </.button>
+
+  <div class="bg-white w-full rounded border md:py-12">
+    <div class="border rounded-md p-4 justify-center md:max-w-[400px] md:mx-auto md:bg-opacity-0 md:border-none ">
+      <div class="pt-1 text-center mb-8 text-gray-500 text-sm">
+        You do not have any deliveries today.
+      </div>
+      <img src={~p"/images/cyclist-empty-state.svg"} />
+      <.button
+        id="no-campaigns-signup-btn"
+        navigate={~p"/campaigns/signup"}
+        size={:small}
+        color={:secondary}
+        class="w-full rounded-none"
+      >
+        Sign up for more deliveries ->
+      </.button>
+    </div>
   </div>
 <% end %>
 
@@ -92,7 +97,7 @@
   <div class="text-sm mt-2">
     <span class=""><%= programs %> are looking for riders today.</span>
     <.button
-      id={"urgent-campaigns-signup-btn"}
+      id="urgent-campaigns-signup-btn"
       navigate={~p"/campaigns/signup?#{%{campaign_ids: campaign_ids}}"}
       size={:small}
       color={:primary}

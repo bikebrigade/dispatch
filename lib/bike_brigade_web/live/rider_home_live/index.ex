@@ -75,24 +75,29 @@ defmodule BikeBrigadeWeb.RiderHomeLive.Index do
 
   defp num_unassigned_tasks_and_campaigns(urgent_campaigns) do
     # formats a string so that we see: "program 1, program 2, and program 3" (ie, we want that 'and') in there.
-    campaign_ids = urgent_campaigns |> Enum.map(&(&1.id))
+    campaign_ids = urgent_campaigns |> Enum.map(& &1.id)
 
-    campaign_names = urgent_campaigns
-    |> Enum.map(&(&1.program.name))
-    |> case do
-      [name] -> name
-      names -> names
-               |> Enum.reverse()
-               |> Enum.drop(1)
-               |> Enum.reverse()
-               |> Enum.join(", ")
-               |> Kernel.<>(" and ")
-               |> Kernel.<>(List.last(names))
-    end
+    campaign_names =
+      urgent_campaigns
+      |> Enum.map(& &1.program.name)
+      |> case do
+        [name] ->
+          name
 
-    deliveries_without_riders = urgent_campaigns
-    |> Enum.flat_map(&(&1.tasks))
-    |> Enum.count(fn task -> task.assigned_rider_id == nil end)
+        names ->
+          names
+          |> Enum.reverse()
+          |> Enum.drop(1)
+          |> Enum.reverse()
+          |> Enum.join(", ")
+          |> Kernel.<>(" and ")
+          |> Kernel.<>(List.last(names))
+      end
+
+    deliveries_without_riders =
+      urgent_campaigns
+      |> Enum.flat_map(& &1.tasks)
+      |> Enum.count(fn task -> task.assigned_rider_id == nil end)
 
     {deliveries_without_riders, campaign_names, campaign_ids}
   end
