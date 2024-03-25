@@ -1,8 +1,9 @@
 <nav
+  :if={@showing_urgent_campaigns == false}
   class="flex flex-col md:flex-row md:items-center justify-between md:px-4 md:py-3 md:mb-4 md:border-b-2 md:border-gray-200 md:justify-end"
   aria-label="Pagination"
 >
-  <div class="flex justify-between md:my-4 align-end">
+  <div  class="flex justify-between md:my-4 align-end">
     <span class="relative z-0 w-full inline-flex rounded-md shadow-sm">
       <.link
         patch={~p"/campaigns/signup?current_week=#{Date.add(@current_week, -7)}"}
@@ -31,6 +32,10 @@
 </nav>
 
 <%= if @campaigns != [] do %>
+  <div :if={@showing_urgent_campaigns} class="bg-red-300 p-2 rounded bg-opacity-40">
+    These deliveries need riders in the next 48 hours:
+  </div>
+
   <%= for {date, campaigns} <- @campaigns do %>
     <div class="flex flex-col lg:flex-row w-full sm:my-1 sm:rounded-md mb-4 md:mb-0 lg:mb-8">
       <div class="flex w-full lg:w-40 justify-center  py-4 my-4 lg:py-0 lg:my-0">

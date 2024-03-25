@@ -22,9 +22,10 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
     {:ok,
      socket
      |> assign(:page, :campaigns_signup)
-     |> assign(:page_title, "Campaign Signup List")
+     |> assign(:page_title, "Delivery Sign Up")
      |> assign(:current_week, current_week)
      |> assign(:campaign_task_counts, Delivery.get_total_tasks_and_open_tasks(current_week))
+     |> assign(:showing_urgent_campaigns, false)
      |> assign(:campaigns, campaigns)}
   end
 
@@ -32,7 +33,11 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
   @impl true
   def handle_params(%{"campaign_ids" => campaign_ids}, _url, socket) do
     campaigns = fetch_campaigns(socket.assigns.current_week, [campaign_ids: campaign_ids])
-    {:noreply, assign(socket, :campaigns, campaigns)}
+    {:noreply,
+      socket
+      |> assign(:campaigns, campaigns)
+      |> assign(:showing_urgent_campaigns, true)
+    }
   end
 
   def handle_params(params, _url, socket) do
