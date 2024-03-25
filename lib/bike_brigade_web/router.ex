@@ -85,7 +85,7 @@ defmodule BikeBrigadeWeb.Router do
     get "/", Plugs.RedirectUser,
       unauthenticated: [to: "/login"],
       dispatcher: [to: "/campaigns"],
-      default: [to: "/itinerary"]
+      default: [to: "/home"]
   end
 
   scope "/", BikeBrigadeWeb do
