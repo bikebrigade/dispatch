@@ -16,7 +16,6 @@ defmodule BikeBrigadeWeb.RiderHomeLiveTest do
       assert html =~ "You do not have any deliveries today."
       assert html =~ "/images/cyclist-empty-state.svg"
       assert html =~ "no-campaigns-signup-btn"
-      open_browser(live)
     end
 
     test "it shows a call to action for campaigns that need riders TODAY; goes to correct view", ctx do
@@ -36,19 +35,27 @@ defmodule BikeBrigadeWeb.RiderHomeLiveTest do
           delivery_end: LocalizedDateTime.now() |> DateTime.add(1, :hour)
         })
 
+      campaign3 =
+        fixture(:campaign, %{
+          program_id: program.id,
+          delivery_start: LocalizedDateTime.now() |> DateTime.add(1, :day),
+          delivery_end: LocalizedDateTime.now() |> DateTime.add(1, :day) |> DateTime.add(1, :hour)
+        })
+
       fixture(:task, %{campaign: campaign, rider: nil})
       fixture(:task, %{campaign: campaign, rider: nil})
       fixture(:task, %{campaign: campaign2, rider: nil})
+      fixture(:task, %{campaign: campaign3, rider: nil})
 
       {:ok, live, html} = live(ctx.conn, ~p"/home")
-      assert html =~ "3 Unassigned tasks"
-      assert html =~ "ACME Delivery and ABC Foodbank are looking for riders today."
+      assert html =~ "4 Unassigned deliveries"
+      assert html =~ "ACME Delivery and ABC Foodbank are looking for riders for the next 48 hours."
 
       live
       |> element("#urgent-campaigns-signup-btn")
       |> render_click()
 
-      expected_redirect = ~p"/campaigns/signup?campaign_ids[]=#{campaign.id}&campaign_ids[]=#{campaign2.id}"
+      expected_redirect = ~p"/campaigns/signup?campaign_ids[]=#{campaign.id}&campaign_ids[]=#{campaign2.id}&campaign_ids[]=#{campaign3.id}"
       assert_redirected(live, expected_redirect)
 
       {:ok, live, html} = live(ctx.conn, expected_redirect)
@@ -59,7 +66,7 @@ defmodule BikeBrigadeWeb.RiderHomeLiveTest do
       # assert that only 2 campaigns - the ones with unfilled tasks are showing up.
       assert Floki.parse_document!(html)
       |> Floki.find(".campaign-item")
-      |> Enum.count()  == 2
+      |> Enum.count()  == 3
     end
 
     test "it shows the riders itinerary when they have deliveries for today, with a sign up button",
