@@ -25,6 +25,7 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
       field :internal_notes, :string
       field :text_based_itinerary, :boolean
       field :tags, {:array, :string}
+      field :anonymous_in_leaderboard, :boolean
 
       embeds_one :flags, Rider.Flags, on_replace: :update
       belongs_to :location, Location, on_replace: :update
@@ -36,7 +37,8 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
       :email,
       :phone,
       :capacity,
-      :max_distance
+      :max_distance,
+      :anonymous_in_leaderboard
     ]
 
     @doc """

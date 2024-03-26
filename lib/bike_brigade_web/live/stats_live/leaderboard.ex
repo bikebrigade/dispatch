@@ -5,6 +5,8 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
 
   alias BikeBrigade.LocalizedDateTime
 
+  alias BikeBrigade.Riders
+
   defmodule Options do
     # This pattern is from  https://mattpruitt.com/articles/phoenix-forms-with-ecto-embedded-schema
     # evaluating about using it more
@@ -68,11 +70,16 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
   def mount(_params, _session, socket) do
     options = Options.default()
 
+    current_rider =
+      if socket.assigns.current_user.rider_id,
+        do: Riders.get_rider!(socket.assigns.current_user.rider_id)
+
     {:ok,
      socket
-     |> assign(:page, :stats)
-     |> assign(:page_title, "Stats")
+     |> assign(:page, :leaderboard)
+     |> assign(:page_title, "Leaderboard")
      |> assign(:options, options)
+     |> assign(:current_rider, current_rider)
      |> assign_stats()}
   end
 
@@ -101,6 +108,26 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
       case Options.update(socket.assigns.options, options_params) do
         {:ok, options} -> assign(socket, :options, options) |> assign_stats()
         {:error, _} -> put_flash(socket, :error, "Invalid options selected")
+      end
+
+    {:noreply, socket}
+  end
+
+  @impl Phoenix.LiveView
+  def handle_event("toggle_rider_anon", _params, socket) do
+    %{current_rider: current_rider} = socket.assigns
+
+    socket =
+      case Riders.update_rider(current_rider, %{
+             anonymous_in_leaderboard: !current_rider.anonymous_in_leaderboard
+           }) do
+        {:ok, rider} ->
+          socket
+          |> assign(:current_rider, rider)
+          |> assign_stats()
+
+        {:error, _error} ->
+          socket |> put_flash(:error, "Unable to update leaderboard visibility")
       end
 
     {:noreply, socket}
@@ -153,5 +180,25 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
       end
 
     ~p"/stats/leaderboard/download?#{params}"
+  end
+
+  defp display_rider(%{rider: rider, current_rider: current_rider} = assigns) do
+    is_anonymous = rider.anonymous_in_leaderboard
+    is_current_rider = current_rider && rider.id == current_rider.id
+
+    name =
+      cond do
+        is_anonymous && is_current_rider -> "Anonymous (you)"
+        is_anonymous -> "Anonymous"
+        true -> rider.name
+      end
+
+    class = if is_current_rider, do: "bg-yellow-200 p-1", else: "p-1"
+
+    assigns = assign(assigns, name: name, class: class)
+
+    ~H"""
+    <span class={@class}><%= @name %></span>
+    """
   end
 end

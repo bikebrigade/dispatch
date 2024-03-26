@@ -4,7 +4,8 @@ defmodule BikeBrigadeWeb.Layouts do
   def rider_links() do
     [
       %{name: "Campaigns", link: ~p"/campaigns/signup", icon: :inbox, current_page: :campaigns_signup},
-      %{name: "Itinerary", link: ~p"/itinerary", icon: :calendar_days, current_page: :itinerary}
+      %{name: "Itinerary", link: ~p"/itinerary", icon: :calendar_days, current_page: :itinerary},
+      %{name: "Leaderboard", link: ~p"/leaderboard", icon: :trophy, current_page: :leaderboard}
     ]
   end
 
@@ -14,7 +15,7 @@ defmodule BikeBrigadeWeb.Layouts do
   attr :is_rider, :boolean, default: false
 
   attr :current_page, :atom,
-    values: [:programs, :campaigns, :opportunities, :riders, :stats, :users, :messages, :profile, :campaigns_signup]
+    values: [:programs, :campaigns, :opportunities, :riders, :stats, :users, :messages, :profile, :campaigns_signup, :leaderboard]
 
   defp sidebar(assigns) do
     ~H"""
@@ -90,7 +91,7 @@ defmodule BikeBrigadeWeb.Layouts do
   """
   def rider_links(%{is_dispatcher: true, is_rider: true} = assigns) do
     ~H"""
-    <div class="mb-1 rounded-md border border-gray-200">
+    <div class="mb-1 border border-gray-200 rounded-md">
       <.sidebar_section name="Rider Links">
         <:icon>
           <Heroicons.arrow_down solid />
@@ -130,7 +131,7 @@ defmodule BikeBrigadeWeb.Layouts do
   def sidebar_section(assigns) do
     ~H"""
     <div open class="rounded-md [&_.arrow-icon]:open:-rotate-180">
-      <div class="select-none flex items-center px-2 py-2 text-base font-medium leading-6 text-gray-600 transition duration-150 ease-in-out rounded-md group focus:outline-none focus:text-gray-900 focus:bg-gray-100">
+      <div class="flex items-center px-2 py-2 text-base font-medium leading-6 text-gray-600 transition duration-150 ease-in-out rounded-md select-none group focus:outline-none focus:text-gray-900 focus:bg-gray-100">
         <%= @name %>
       </div>
 
