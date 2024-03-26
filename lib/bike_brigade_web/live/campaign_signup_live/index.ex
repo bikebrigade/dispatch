@@ -40,7 +40,10 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
   end
 
   def handle_params(params, _url, socket) do
-    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+    {:noreply,
+      socket
+      |> assign(:showing_urgent_campaigns, false)
+      |> apply_action(socket.assigns.live_action, params)}
   end
 
   # -- Delivery callbacks
@@ -124,7 +127,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
       else
         case assigns.total_tasks - assigns.filled_tasks do
           0 -> {"text-gray-600", "Fully Assigned"}
-          _ -> {"text-red-500", "#{assigns.total_tasks - assigns.filled_tasks} Available"}
+          _ -> {"text-red-400", "#{assigns.total_tasks - assigns.filled_tasks} Available"}
         end
       end
 

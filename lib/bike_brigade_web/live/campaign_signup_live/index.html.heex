@@ -3,7 +3,7 @@
   class="flex flex-col md:flex-row md:items-center justify-between md:px-4 md:py-3 md:mb-4 md:border-b-2 md:border-gray-200 md:justify-end"
   aria-label="Pagination"
 >
-  <div  class="flex justify-between md:my-4 align-end">
+  <div class="flex justify-between md:my-4 align-end">
     <span class="relative z-0 w-full inline-flex rounded-md shadow-sm">
       <.link
         patch={~p"/campaigns/signup?current_week=#{Date.add(@current_week, -7)}"}
@@ -17,8 +17,7 @@
         }
         class="w-full text-center relative items-center px-4 py-2  text-sm font-medium text-gray-700 bg-white border border-gray-300  hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
       >
-
-      Week of <%= Calendar.strftime(@current_week, "%B %-d") %>
+        Week of <%= Calendar.strftime(@current_week, "%B %-d") %>
       </.link>
 
       <.link
@@ -29,6 +28,18 @@
       </.link>
     </span>
   </div>
+</nav>
+
+<%!-- Nav only for urgent list of campaigns --%>
+<nav :if={@showing_urgent_campaigns}>
+  <.button
+    size={:small}
+    class="w-full rounded-none md:rounded-sm mb-2"
+    color={:secondary}
+    navigate={~p"/campaigns/signup"}
+  >
+    View all available deliveries ⏎
+  </.button>
 </nav>
 
 <%= if @campaigns != [] do %>
@@ -103,5 +114,7 @@
     </div>
   <% end %>
 <% else %>
-  <div class="flex items-center justify-center h-96 w-4/5 mx-auto text-center">No campaigns set up yet for the week of <%= Calendar.strftime(@current_week, "%B %-d") %>.</div>
+  <div class="flex items-center justify-center h-96 w-4/5 mx-auto text-center">
+    No campaigns set up yet for the week of <%= Calendar.strftime(@current_week, "%B %-d") %>.
+  </div>
 <% end %>

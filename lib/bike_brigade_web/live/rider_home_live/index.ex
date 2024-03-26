@@ -4,7 +4,6 @@ defmodule BikeBrigadeWeb.RiderHomeLive.Index do
   alias BikeBrigade.{Delivery, Riders, Stats, LocalizedDateTime}
 
   import BikeBrigadeWeb.CampaignHelpers
-  import BikeBrigade.Riders.Helpers, only: [first_name: 1]
 
   alias BikeBrigade.Utils
 
@@ -81,19 +80,7 @@ defmodule BikeBrigadeWeb.RiderHomeLive.Index do
       urgent_campaigns
       |> Enum.map(& &1.program.name)
       |> Enum.uniq()
-      |> case do
-        [name] ->
-          name
-
-        names ->
-          names
-          |> Enum.reverse()
-          |> Enum.drop(1)
-          |> Enum.reverse()
-          |> Enum.join(", ")
-          |> Kernel.<>(" and ")
-          |> Kernel.<>(List.last(names))
-      end
+      |> Utils.join()
 
     deliveries_without_riders =
       urgent_campaigns
