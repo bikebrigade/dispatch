@@ -195,10 +195,27 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
 
     class = if is_current_rider, do: "bg-yellow-200 p-1", else: "p-1"
 
-    assigns = assign(assigns, name: name, class: class)
+    assigns =
+      assign(assigns,
+        name: name,
+        class: class,
+        is_anonymous: is_anonymous,
+        is_current_rider: is_current_rider
+      )
 
     ~H"""
-    <span class={@class}><%= @name %></span>
+    <div class="flex flex-col sm:flex-row">
+      <span class={@class}><%= @name %></span>
+      <.button
+        :if={is_current_rider}
+        size={:xsmall}
+        color={:secondary}
+        class="mt-1 ml-0 sm:ml-1 sm:mt-0"
+        phx-click="toggle_rider_anon"
+      >
+        <%= if @is_anonymous, do: "Show", else: "Hide" %> me
+      </.button>
+    </div>
     """
   end
 end
