@@ -6,7 +6,7 @@
       </span>
       <span class="text-2xl mr-2.5 self-center align-top">🚲</span>
     </div>
-    <div class="flex flex-col w-full  md:mb-4 sm:rounded-md max-h-[30vh] overflow-scroll">
+    <div class="flex flex-col w-full  md:mb-4 sm:rounded-md">
       <ul :for={cr <- @campaign_riders} role="list" class="w-full divide-y divide-gray-300">
         <.link navigate={~p"/app/delivery/#{cr.token}"}>
           <%!-- The following markup is loosely based on https://tailwindui.com/components/application-ui/lists/stacked-lists --%>
@@ -91,11 +91,11 @@
     <span class="text-2xl mr-1">🚨</span>
     <div class="flex justify-between w-full">
       <span class="text-sm font-semibold">Riders Needed!</span>
-      <span class="text-sm font-semibold"><%= deliveries %> Unassigned tasks</span>
+      <span class="text-sm font-semibold"><%= deliveries %> Unassigned deliveries</span>
     </div>
   </div>
   <div class="text-sm mt-2">
-    <span class=""><%= programs %> are looking for riders today.</span>
+    <span class=""><%= programs %> are looking for riders for the next 48 hours.</span>
     <.button
       id="urgent-campaigns-signup-btn"
       navigate={~p"/campaigns/signup?#{%{campaign_ids: campaign_ids}}"}

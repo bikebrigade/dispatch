@@ -80,6 +80,7 @@ defmodule BikeBrigadeWeb.RiderHomeLive.Index do
     campaign_names =
       urgent_campaigns
       |> Enum.map(& &1.program.name)
+      |> Enum.uniq()
       |> case do
         [name] ->
           name

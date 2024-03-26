@@ -4,7 +4,7 @@ defmodule BikeBrigadeWeb.Layouts do
   def rider_links() do
     [
       %{name: "Home", link: ~p"/home", icon: :home, current_page: :home},
-      %{name: "Campaigns", link: ~p"/campaigns/signup", icon: :inbox, current_page: :campaigns_signup},
+      %{name: "Delivery Signup", link: ~p"/campaigns/signup", icon: :inbox, current_page: :campaigns_signup},
       %{name: "Itinerary", link: ~p"/itinerary", icon: :calendar_days, current_page: :itinerary},
       %{name: "Leaderboard", link: ~p"/leaderboard", icon: :trophy, current_page: :leaderboard}
     ]

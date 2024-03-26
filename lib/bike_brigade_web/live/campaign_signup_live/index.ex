@@ -29,15 +29,14 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
      |> assign(:campaigns, campaigns)}
   end
 
-
   @impl true
   def handle_params(%{"campaign_ids" => campaign_ids}, _url, socket) do
-    campaigns = fetch_campaigns(socket.assigns.current_week, [campaign_ids: campaign_ids])
+    campaigns = fetch_campaigns(socket.assigns.current_week, campaign_ids: campaign_ids)
+
     {:noreply,
-      socket
-      |> assign(:campaigns, campaigns)
-      |> assign(:showing_urgent_campaigns, true)
-    }
+     socket
+     |> assign(:campaigns, campaigns)
+     |> assign(:showing_urgent_campaigns, true)}
   end
 
   def handle_params(params, _url, socket) do
@@ -119,20 +118,26 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
   attr :campaign, :any, required: true
 
   defp tasks_filled_text(assigns) do
-    copy =
+    {class, copy} =
       if assigns.filled_tasks == nil do
-        "N/A"
+        {"", "N/A"}
       else
-        "#{assigns.total_tasks - assigns.filled_tasks} Available"
+        case assigns.total_tasks - assigns.filled_tasks do
+          0 -> {"text-gray-600", "Fully Assigned"}
+          _ -> {"text-red-500", "#{assigns.total_tasks - assigns.filled_tasks} Available"}
+        end
       end
 
-    assigns = assign(assigns, :copy, copy)
+    assigns =
+      assigns
+      |> assign(:class, class)
+      |> assign(:copy, copy)
 
     ~H"""
     <p class="flex flex-col md:flex-row items-center mt-0 text-sm text-gray-700">
       <Icons.maki_bicycle_share class="flex-shrink-0 mb-2 mr-1.5 h-8 w-8 md:h-5 md:w-5 md:mb-0 text-gray-500" />
       <span class="flex space-x-2 font-bold md:font-normal">
-        <span><%= @copy %></span>
+        <span class={@class}><%= @copy %></span>
       </span>
     </p>
     """

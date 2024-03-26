@@ -186,13 +186,13 @@ defmodule BikeBrigade.Delivery do
   def list_urgent_campaigns() do
     today = LocalizedDateTime.today()
     start_of_today = LocalizedDateTime.new!(today, ~T[00:00:00])
-    end_of_today = LocalizedDateTime.new!(today, ~T[23:59:59])
+    end_of_tomorrow = Date.add(today, 1) |> LocalizedDateTime.new!(~T[23:59:59])
 
     query =
       from c in Campaign,
         distinct: [asc: c.id],
         join: t in assoc(c, :tasks),
-        where: c.delivery_start <= ^end_of_today and c.delivery_start >= ^start_of_today,
+        where: c.delivery_start <= ^end_of_tomorrow and c.delivery_start >= ^start_of_today,
         select: c
 
     Repo.all(query)
