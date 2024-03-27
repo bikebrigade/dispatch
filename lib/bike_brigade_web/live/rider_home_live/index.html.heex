@@ -1,0 +1,127 @@
+<%= if @campaign_riders != [] do %>
+  <div class="bg-white shadow border">
+    <div class="text-sm flex items-center justify-between font-semibold border-b border-neutral-100 py-1 px-4">
+      <span>
+        Today's Deliveries
+      </span>
+      <span class="text-2xl mr-2.5 self-center align-top">🚲</span>
+    </div>
+    <div class="flex flex-col w-full  md:mb-4 sm:rounded-md">
+      <ul :for={cr <- @campaign_riders} role="list" class="w-full divide-y divide-gray-300">
+        <.link navigate={~p"/app/delivery/#{cr.token}"}>
+          <%!-- The following markup is loosely based on https://tailwindui.com/components/application-ui/lists/stacked-lists --%>
+          <li
+            id={"campaign-#{cr.campaign.id}"}
+            class="flex items-center justify-between py-3 gap-x-6 px-4"
+          >
+            <div class="min-w-0">
+              <div class="flex items-start gap-x-3">
+                <p class="text-sm font-semibold leading-6 text-gray-900">
+                  <span><%= name(cr.campaign) %></span>
+                  <span :if={Utils.task_count(cr.campaign.tasks) > 1}>
+                    (<%= delivery_count(cr.campaign.tasks) %>)
+                  </span>
+                </p>
+                <%!-- TODO: optional badge to show "done" "in-progess" etc (see tailwind component "stacked-lists")  --%>
+                <%!-- https://tailwindui.com/components/application-ui/lists/stacked-lists --%>
+                <%!-- <p class="rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset text-yellow-800 bg-yellow-50 ring-yellow-600/20">Archived</p> --%>
+              </div>
+              <div class="flex items-center mt-1 text-xs leading-5 text-gray-500 gap-x-2">
+                <.get_location campaign={cr.campaign} />
+                <svg viewBox="0 0 2 2" class="h-0.5 w-0.5 fill-current">
+                  <circle cx="1" cy="1" r="1" />
+                </svg>
+                <.get_pickup_window campaign={cr.campaign} />
+              </div>
+            </div>
+            <div class="flex items-center flex-none gap-x-4">
+              <div class="relative flex-none">
+                <.button
+                  navigate={~p"/app/delivery/#{cr.token}"}
+                  size={:xsmall}
+                  color={:secondary}
+                >
+                  <Heroicons.chevron_right class="w-5 h-5" solid />
+                </.button>
+              </div>
+            </div>
+          </li>
+        </.link>
+      </ul>
+    </div>
+    <.button
+      :if={!has_urgent_campaigns?(@urgent_campaigns)}
+      navigate={~p"/campaigns/signup"}
+      size={:small}
+      color={:secondary}
+      class="w-full rounded-none"
+    >
+      Sign up for more deliveries ->
+    </.button>
+  </div>
+<% else %>
+  <%!-- Empty state - Rider has no campaigns for today. --%>
+
+  <div class="bg-white w-full rounded border md:py-12">
+    <div class="border rounded-md p-4 justify-center md:max-w-[400px] md:mx-auto md:bg-opacity-0 md:border-none ">
+      <div class="pt-1 text-center mb-8 text-gray-500 text-sm">
+        You do not have any deliveries today.
+      </div>
+      <img src={~p"/images/cyclist-empty-state.svg"} />
+      <.button
+        id="no-campaigns-signup-btn"
+        navigate={~p"/campaigns/signup"}
+        size={:small}
+        color={:secondary}
+        class="w-full rounded-none"
+      >
+        Sign up for more deliveries ->
+      </.button>
+    </div>
+  </div>
+<% end %>
+
+<%!-- Urgent Campaigns --%>
+<div
+  :if={has_urgent_campaigns?(@urgent_campaigns)}
+  class="bg-red-200 bg-opacity-20 border-dashed border border-red-700 rounded-md p-4 justify-center mt-4"
+>
+  <% {deliveries, programs, campaign_ids} = num_unassigned_tasks_and_campaigns(@urgent_campaigns) %>
+  <div class="flex items-center gap-x-2">
+    <span class="text-2xl mr-1">🚨</span>
+    <div class="flex justify-between w-full">
+      <span class="text-sm font-semibold">Riders Needed!</span>
+      <span class="text-sm font-semibold"><%= deliveries %> Unassigned deliveries</span>
+    </div>
+  </div>
+  <div class="text-sm mt-2">
+    <span class=""><%= programs %> are looking for riders for the next 48 hours.</span>
+    <.button
+      id="urgent-campaigns-signup-btn"
+      navigate={~p"/campaigns/signup?#{%{campaign_ids: campaign_ids}}"}
+      size={:small}
+      color={:primary}
+      class=" mt-2 w-full rounded-none"
+    >
+      Sign up for deliveries ->
+    </.button>
+  </div>
+</div>
+
+<%!-- Weekly Stats --%>
+<div class="bg-green-200 bg-opacity-30 border-dashed border border-green-700 rounded-md p-4 justify-center mt-4">
+  <div class="flex items-center gap-x-2">
+    <span class="text-2xl mr-1">🎉</span>
+    <span class="text-sm font-semibold">In the last 7 days at The Bike Brigade:</span>
+  </div>
+  <div id="week-stats" class="text-sm mt-2">
+    <span class="font-semibold"><%= @stats.riders %> riders</span>
+    have delivered <span class="font-semibold"><%= @stats.tasks %> items</span>
+    for <span class="font-semibold"><%= @stats.campaigns %> programs</span>,
+    covering about
+    <span class="font-semibold">
+      <%= if @stats.distance && @stats.distance > 0, do: round_distance(@stats.distance), else: 0 %> km
+    </span>
+    of road!
+  </div>
+</div>

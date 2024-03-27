@@ -1,4 +1,5 @@
 <nav
+  :if={@showing_urgent_campaigns == false}
   class="flex flex-col md:flex-row md:items-center justify-between md:px-4 md:py-3 md:mb-4 md:border-b-2 md:border-gray-200 md:justify-end"
   aria-label="Pagination"
 >
@@ -16,8 +17,7 @@
         }
         class="w-full text-center relative items-center px-4 py-2  text-sm font-medium text-gray-700 bg-white border border-gray-300  hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
       >
-
-      Week of <%= Calendar.strftime(@current_week, "%B %-d") %>
+        Week of <%= Calendar.strftime(@current_week, "%B %-d") %>
       </.link>
 
       <.link
@@ -30,7 +30,23 @@
   </div>
 </nav>
 
+<%!-- Nav only for urgent list of campaigns --%>
+<nav :if={@showing_urgent_campaigns}>
+  <.button
+    size={:small}
+    class="w-full rounded-none md:rounded-sm mb-2"
+    color={:secondary}
+    navigate={~p"/campaigns/signup"}
+  >
+    View all available deliveries ⏎
+  </.button>
+</nav>
+
 <%= if @campaigns != [] do %>
+  <div :if={@showing_urgent_campaigns} class="bg-red-300 p-2 rounded bg-opacity-40">
+    These deliveries need riders in the next 48 hours:
+  </div>
+
   <%= for {date, campaigns} <- @campaigns do %>
     <div class="flex flex-col lg:flex-row w-full sm:my-1 sm:rounded-md mb-4 md:mb-0 lg:mb-8">
       <div class="flex w-full lg:w-40 justify-center  py-4 my-4 lg:py-0 lg:my-0">
@@ -43,9 +59,9 @@
         </div>
       </div>
 
-      <ul role="list" class="w-full divide-y divide-gray-200">
+      <ul id="campaign-list" role="list" class="w-full divide-y divide-gray-200">
         <%= for c <- campaigns do %>
-          <li id={"campaign-#{c.id}"} class="bg-white shadow mb-8 border last:mb-0">
+          <li id={"campaign-#{c.id}"} class="campaign-item bg-white shadow mb-8 border last:mb-0">
             <div class="flex items-center space-x-1 px-4 py-2 bg-slate-100">
               <div
                 class="flex items-center justify-between w-full text-sm"
@@ -98,5 +114,7 @@
     </div>
   <% end %>
 <% else %>
-  <div class="flex items-center justify-center h-96 w-4/5 mx-auto text-center">No campaigns set up yet for the week of <%= Calendar.strftime(@current_week, "%B %-d") %>.</div>
+  <div class="flex items-center justify-center h-96 w-4/5 mx-auto text-center">
+    No campaigns set up yet for the week of <%= Calendar.strftime(@current_week, "%B %-d") %>.
+  </div>
 <% end %>
