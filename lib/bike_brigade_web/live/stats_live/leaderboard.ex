@@ -207,7 +207,7 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
     <div class="flex flex-col sm:flex-row">
       <span class={@class}><%= @name %></span>
       <.button
-        :if={is_current_rider}
+        :if={@is_current_rider}
         size={:xsmall}
         color={:secondary}
         class="mt-1 ml-0 sm:ml-1 sm:mt-0"
