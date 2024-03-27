@@ -197,7 +197,6 @@ defmodule BikeBrigade.Delivery do
 
     Repo.all(query)
     |> Repo.preload([:program, :tasks])
-    |> Enum.filter(fn c -> Enum.any?(c.tasks, fn t -> is_nil(t.assigned_rider_id) end) end)
   end
 
   @doc """
