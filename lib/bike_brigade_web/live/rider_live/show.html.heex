@@ -105,8 +105,7 @@
             No tags
           <% else %>
             <span class="inline-flex flex-wrap">
-              <%= for tag <- List.duplicate(hd(@rider.tags), 100) do %>
-
+              <%= for tag <- @rider.tags do %>
                 <span class="before:content-[','] first:before:content-['']">
                   <.link navigate={~p"/riders?#{%{filters: ["tag:#{tag.name}"]}}"} class="link">
                     <%= tag.name %>
