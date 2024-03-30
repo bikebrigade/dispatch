@@ -22,15 +22,28 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
     {:ok,
      socket
      |> assign(:page, :campaigns_signup)
-     |> assign(:page_title, "Campaign Signup List")
+     |> assign(:page_title, "Delivery Sign Up")
      |> assign(:current_week, current_week)
      |> assign(:campaign_task_counts, Delivery.get_total_tasks_and_open_tasks(current_week))
+     |> assign(:showing_urgent_campaigns, false)
      |> assign(:campaigns, campaigns)}
   end
 
   @impl true
+  def handle_params(%{"campaign_ids" => campaign_ids}, _url, socket) do
+    campaigns = fetch_campaigns(socket.assigns.current_week, campaign_ids: campaign_ids)
+
+    {:noreply,
+     socket
+     |> assign(:campaigns, campaigns)
+     |> assign(:showing_urgent_campaigns, true)}
+  end
+
   def handle_params(params, _url, socket) do
-    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+    {:noreply,
+      socket
+      |> assign(:showing_urgent_campaigns, false)
+      |> apply_action(socket.assigns.live_action, params)}
   end
 
   # -- Delivery callbacks
@@ -74,9 +87,10 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
     |> assign(:campaign, nil)
   end
 
-  defp fetch_campaigns(current_week) do
+  defp fetch_campaigns(current_week, opts \\ []) do
     Delivery.list_campaigns(current_week,
-      preload: [:program, :stats, :latest_message, :scheduled_message]
+      preload: [:program, :stats, :latest_message, :scheduled_message],
+      campaign_ids: opts[:campaign_ids]
     )
     |> Enum.reverse()
     |> Utils.ordered_group_by(&LocalizedDateTime.to_date(&1.delivery_start))
@@ -107,20 +121,26 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
   attr :campaign, :any, required: true
 
   defp tasks_filled_text(assigns) do
-    copy =
+    {class, copy} =
       if assigns.filled_tasks == nil do
-        "N/A"
+        {"", "N/A"}
       else
-        "#{assigns.total_tasks - assigns.filled_tasks} Available"
+        case assigns.total_tasks - assigns.filled_tasks do
+          0 -> {"text-gray-600", "Fully Assigned"}
+          _ -> {"text-red-400", "#{assigns.total_tasks - assigns.filled_tasks} Available"}
+        end
       end
 
-    assigns = assign(assigns, :copy, copy)
+    assigns =
+      assigns
+      |> assign(:class, class)
+      |> assign(:copy, copy)
 
     ~H"""
     <p class="flex flex-col md:flex-row items-center mt-0 text-sm text-gray-700">
       <Icons.maki_bicycle_share class="flex-shrink-0 mb-2 mr-1.5 h-8 w-8 md:h-5 md:w-5 md:mb-0 text-gray-500" />
       <span class="flex space-x-2 font-bold md:font-normal">
-        <span><%= @copy %></span>
+        <span class={@class}><%= @copy %></span>
       </span>
     </p>
     """

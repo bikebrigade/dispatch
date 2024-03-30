@@ -3,7 +3,8 @@ defmodule BikeBrigadeWeb.Layouts do
 
   def rider_links() do
     [
-      %{name: "Campaigns", link: ~p"/campaigns/signup", icon: :inbox, current_page: :campaigns_signup},
+      %{name: "Home", link: ~p"/home", icon: :home, current_page: :home},
+      %{name: "Delivery Signup", link: ~p"/campaigns/signup", icon: :inbox, current_page: :campaigns_signup},
       %{name: "Itinerary", link: ~p"/itinerary", icon: :calendar_days, current_page: :itinerary},
       %{name: "Leaderboard", link: ~p"/leaderboard", icon: :trophy, current_page: :leaderboard}
     ]
@@ -118,7 +119,7 @@ defmodule BikeBrigadeWeb.Layouts do
   def rider_links(assigns) do
     ~H"""
     <div :for={link <- rider_links()}>
-      <.sidebar_link class="bg-red-400" selected={@current_page == link.current_page} navigate={link.link}>
+      <.sidebar_link selected={@current_page == link.current_page} navigate={link.link}>
         <:icon>
           <BikeBrigadeWeb.Components.Icons.dynamic_icon name={link.icon} />
         </:icon>

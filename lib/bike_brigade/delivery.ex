@@ -147,6 +147,9 @@ defmodule BikeBrigade.Delivery do
 
   def list_campaigns(week \\ nil, opts \\ []) do
     preload = Keyword.get(opts, :preload, [:program])
+    # sometimes we just want to fetch campaigns with specific ids
+    # (such as when we need to display campaigns that urgently need a rider)
+    campaign_ids = Keyword.get(opts, :campaign_ids, nil)
 
     query =
       from c in Campaign,
@@ -164,8 +167,36 @@ defmodule BikeBrigade.Delivery do
         query
       end
 
+    query = if campaign_ids do
+      query
+      |> where([campaign: c], c.id in ^campaign_ids)
+    else
+      query
+    end
+
     Repo.all(query)
     |> Repo.preload(preload)
+  end
+
+
+  @doc """
+    Gets campaigns that are happening today and have unassigned tasks.
+    Used on the rider's home page to let riders know about campaigns that could use the help.
+  """
+  def list_urgent_campaigns() do
+    today = LocalizedDateTime.today()
+    start_of_today = LocalizedDateTime.new!(today, ~T[00:00:00])
+    end_of_tomorrow = Date.add(today, 1) |> LocalizedDateTime.new!(~T[23:59:59])
+
+    query =
+      from c in Campaign,
+        distinct: [asc: c.id],
+        join: t in assoc(c, :tasks),
+        where: c.delivery_start <= ^end_of_tomorrow and c.delivery_start >= ^start_of_today and is_nil(t.assigned_rider_id),
+        select: c
+
+    Repo.all(query)
+    |> Repo.preload([:program, :tasks])
   end
 
   @doc """
@@ -221,7 +252,6 @@ defmodule BikeBrigade.Delivery do
   def get_campaign_rider_by_id(campaign_id, rider_id) do
     CampaignRider |> Repo.get_by(campaign_id: campaign_id, rider_id: rider_id)
   end
-
 
   def get_campaign_rider!(token) do
     query =
