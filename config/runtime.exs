@@ -136,7 +136,7 @@ case config_env() do
     case app_env do
       :production ->
         config :bike_brigade, BikeBrigadeWeb.Endpoint,
-          url: [host: "dispatch.bikebrigade.ca", port: 80]
+          url: [host: "dispatch.bikebrigade.ca", port: 443, scheme: "https"]
 
         config :bike_brigade, BikeBrigade.Messaging.Slack.Operations,
           channel_id: "C016VGHETS4",
