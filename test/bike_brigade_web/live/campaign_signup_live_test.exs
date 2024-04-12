@@ -43,13 +43,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
     end
 
     test "It displays a campaign in a previous week; button says 'Completed'", ctx do
-      campaign =
-        fixture(:campaign, %{
-          program_id: ctx.program.id,
-          delivery_start: LocalizedDateTime.now() |> DateTime.add(-7, :day),
-          delivery_end:
-            LocalizedDateTime.now() |> DateTime.add(-7, :day) |> DateTime.add(60, :second)
-        })
+      campaign = make_campaign_in_past(ctx.program.id)
 
       fixture(:task, %{campaign: campaign, rider: nil})
 
@@ -63,7 +57,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
     end
 
     test "Campaigns with no tasks display correct copy", ctx do
-      fixture(:campaign, %{program_id: ctx.program.id,})
+      fixture(:campaign, %{program_id: ctx.program.id})
       {:ok, _live, html} = live(ctx.conn, ~p"/campaigns/signup")
       assert html =~ "Campaign not ready for signup"
     end
@@ -133,6 +127,16 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       assert html =~ "Unassign me"
     end
 
+    test "Rider cannot signup for a task in the past", ctx do
+      campaign = make_campaign_in_past(ctx.program.id)
+      task = fixture(:task, %{campaign: campaign, rider: nil})
+
+      {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup/#{campaign.id}/")
+
+      assert html =~ "Campaign over"
+      assert live |> has_element?("#signup-btn-mobile-task-over-#{task.id}")
+    end
+
     test "we see pertinent task information", ctx do
       {:ok, _live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
       assert html =~ ctx.task.dropoff_name
@@ -158,5 +162,13 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       element(live, "a#signup-btn-desktop-unassign-task-#{task.id}") |> render_click()
       refute render(live) =~ "Unassign me"
     end
+  end
+
+  defp make_campaign_in_past(program_id) do
+    fixture(:campaign, %{
+      program_id: program_id,
+      delivery_start: LocalizedDateTime.now() |> DateTime.add(-7, :day),
+      delivery_end: LocalizedDateTime.now() |> DateTime.add(-7, :day) |> DateTime.add(60, :second)
+    })
   end
 end
