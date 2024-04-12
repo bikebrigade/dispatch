@@ -154,6 +154,7 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
     save_rider_edit_impl(socket, rider_form_params)
   end
 
+  # TODO: this can probably be deleted: we don't really create riders from the form?
   defp save_rider(socket, :new, rider_params) do
     case Riders.create_rider_with_tags(rider_params, rider_params["tags"]) do
       {:ok, _rider} ->
