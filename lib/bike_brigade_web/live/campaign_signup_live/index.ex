@@ -127,7 +127,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
           {"text-gray-600", "N/A"}
 
         campaign_in_past(assigns.campaign) ->
-          {"text-gray-600", "N/A"}
+          {"text-gray-600", "Campaign over"}
 
         assigns.total_tasks - assigns.filled_tasks == 0 ->
           {"text-gray-600", "Fully Assigned"}
