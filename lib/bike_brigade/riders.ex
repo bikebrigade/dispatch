@@ -7,6 +7,7 @@ defmodule BikeBrigade.Riders do
   alias BikeBrigade.Repo
   alias BikeBrigade.LocalizedDateTime
 
+  alias BikeBrigade.Accounts
   alias BikeBrigade.Riders.{Rider, Tag}
   alias BikeBrigade.Delivery.{Campaign, CampaignRider}
 
@@ -185,8 +186,21 @@ defmodule BikeBrigade.Riders do
     |> broadcast(:rider_created)
   end
 
-  # TODO: make it pretty
+  @doc """
+  Create a rider with the ability to log in (an associated User)
+  """
 
+  def create_rider_with_user(attrs \\ %{}, opts \\ []) do
+    with {:ok, rider} <- create_rider(attrs, opts),
+         {:ok, user} <- Accounts.create_user_for_rider(rider) do
+      {:ok, rider}
+    else
+      {:error, changeset} -> {:error, changeset}
+    end
+  end
+
+  # TODO: make it pretty
+  # TODO This may not be needed, i think it's only used when creating riders from a form input which we don't seem to do?
   def create_rider_with_tags(attrs \\ %{}, tags \\ [], opts \\ []) do
     %Rider{}
     |> Rider.changeset(attrs)

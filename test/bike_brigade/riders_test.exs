@@ -1,6 +1,8 @@
 defmodule BikeBrigade.RidersTest do
   use BikeBrigade.DataCase
 
+  alias BikeBrigade.Utils
+  alias BikeBrigade.LocalizedDateTime
   alias BikeBrigade.Riders
   alias BikeBrigade.Riders.Rider
 
@@ -8,6 +10,32 @@ defmodule BikeBrigade.RidersTest do
   alias BikeBrigade.Accounts.User
   alias BikeBrigade.Locations.Location
   alias BikeBrigade.Messaging.SmsMessage
+
+  describe "creating riders" do
+    test "creates a rider with a user" do
+      location = BikeBrigade.Repo.Seeds.Toronto.random_location()
+
+      assert {:ok, rider} =
+               Riders.create_rider_with_user(%{
+                 address: location.address,
+                 capacity: Utils.random_enum(Riders.Rider.CapacityEnum),
+                 email: Faker.Internet.email(),
+                 location: location,
+                 max_distance: 20,
+                 name: "Test Rider",
+                 phone: "+16474567890",
+                 postal: location.postal,
+                 pronouns: Enum.random(~w(He/Him She/Her They/Them)),
+                 signed_up_on: LocalizedDateTime.now()
+               })
+
+      assert rider.name == "Test Rider"
+      assert rider.phone == "+16474567890"
+
+      user = Accounts.get_user_by_phone("+16474567890")
+      assert user.rider_id == rider.id
+    end
+  end
 
   describe "removing riders" do
     setup do
@@ -44,7 +72,6 @@ defmodule BikeBrigade.RidersTest do
 
       {:ok, rider} = rider |> Riders.update_rider_with_tags(%{}, ["tag1", "tag2"])
       assert Enum.count(rider.tags) == 2
-
 
       {:ok, rider} = rider |> Riders.update_rider_with_tags(%{}, [])
       assert Enum.count(rider.tags) == 0

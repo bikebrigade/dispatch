@@ -1,6 +1,7 @@
 defmodule BikeBrigade.Tasks.MailchimpImporter do
   import Ecto.Query, warn: false
   import BikeBrigade.Utils, only: [get_config: 1, with_default: 2]
+  alias BikeBrigade.Accounts
   alias BikeBrigade.Repo
   alias BikeBrigade.Locations.Location
   alias BikeBrigade.Tasks.Importer
@@ -80,7 +81,7 @@ defmodule BikeBrigade.Tasks.MailchimpImporter do
         Riders.update_rider(rider, rider_attrs)
 
       nil ->
-        Riders.create_rider(rider_attrs)
+        Riders.create_rider_with_user(rider_attrs)
     end
   end
 
