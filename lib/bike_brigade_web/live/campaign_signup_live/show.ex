@@ -254,6 +254,17 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
           Sign up
         </.button>
       <% end %>
+
+      <%= if campaign_in_past(@campaign) do %>
+        <.button
+          color={:secondary}
+          id={"#{@id}-task-over-#{@task.id}"}
+          size={:xsmall}
+          class="w-full md:w-28 cursor-not-allowed bg-neutral-100 text-neutral-800"
+        >
+          Campaign over
+        </.button>
+      <% end %>
     </div>
     """
   end
