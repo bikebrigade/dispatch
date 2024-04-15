@@ -21,7 +21,8 @@ defmodule BikeBrigade.Delivery.Campaign do
     :details,
     :rider_spreadsheet_id,
     :rider_spreadsheet_layout,
-    :program_id
+    :program_id,
+    :public,
   ]
 
   @embedded_fields [
@@ -32,6 +33,9 @@ defmodule BikeBrigade.Delivery.Campaign do
     field :delivery_start, :utc_datetime
     field :delivery_end, :utc_datetime
     field :details, :string
+
+    # Make campaigns private for now by default
+    field :public, :boolean, default: false
 
     # TODO remove
     field :rider_spreadsheet_id, :string

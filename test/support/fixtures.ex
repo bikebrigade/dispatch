@@ -49,7 +49,8 @@ defmodule BikeBrigade.Fixtures do
       %{
         delivery_start: DateTime.utc_now(),
         delivery_end: DateTime.utc_now() |> DateTime.add(60, :second),
-        location: Toronto.random_location()
+        location: Toronto.random_location(),
+        public: true
       }
       |> Map.merge(attrs)
       |> Delivery.create_campaign()
@@ -58,23 +59,35 @@ defmodule BikeBrigade.Fixtures do
     |> Repo.preload(program: [:items])
   end
 
+  def fixture(:campaign_private, attrs) do
+    attrs =
+      %{public: false}
+      |> Map.merge(attrs)
+
+    fixture(:campaign, attrs)
+  end
+
   def fixture(:campaign_with_riders, attrs) do
     campaign = fixture(:campaign)
 
-    riders = for _i <- 1..7 do
-      fixture(:rider)
-    end
+    riders =
+      for _i <- 1..7 do
+        fixture(:rider)
+      end
+
     Enum.each(riders, fn rider ->
       Delivery.create_campaign_rider(%{
-            campaign_id: campaign.id,
-            rider_id: rider.id
-            })
+        campaign_id: campaign.id,
+        rider_id: rider.id
+      })
     end)
+
     {campaign, riders}
   end
 
   def fixture(:rider, attrs) do
     location = Toronto.random_location()
+
     {:ok, rider} =
       %{
         name: fake_name(),

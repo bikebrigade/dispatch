@@ -90,7 +90,8 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
   defp fetch_campaigns(current_week, opts \\ []) do
     Delivery.list_campaigns(current_week,
       preload: [:program, :stats, :latest_message, :scheduled_message],
-      campaign_ids: opts[:campaign_ids]
+      campaign_ids: opts[:campaign_ids],
+      public: true
     )
     |> Enum.reverse()
     |> Utils.ordered_group_by(&LocalizedDateTime.to_date(&1.delivery_start))
@@ -137,7 +138,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
       |> assign(:copy, copy)
 
     ~H"""
-    <p class="flex flex-col md:flex-row items-center mt-0 text-sm text-gray-700">
+    <p class="flex flex-col items-center mt-0 text-sm text-gray-700 md:flex-row">
       <Icons.maki_bicycle_share class="flex-shrink-0 mb-2 mr-1.5 h-8 w-8 md:h-5 md:w-5 md:mb-0 text-gray-500" />
       <span class="flex space-x-2 font-bold md:font-normal">
         <span class={@class}><%= @copy %></span>

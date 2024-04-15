@@ -151,6 +151,9 @@ defmodule BikeBrigade.Delivery do
     # (such as when we need to display campaigns that urgently need a rider)
     campaign_ids = Keyword.get(opts, :campaign_ids, nil)
 
+    public = Keyword.get(opts, :public, nil)
+
+
     query =
       from c in Campaign,
         as: :campaign,
@@ -170,6 +173,13 @@ defmodule BikeBrigade.Delivery do
     query = if campaign_ids do
       query
       |> where([campaign: c], c.id in ^campaign_ids)
+    else
+      query
+    end
+
+    query = if !is_nil(public)  do
+      query
+      |> where([campaign: c], c.public == ^public)
     else
       query
     end
