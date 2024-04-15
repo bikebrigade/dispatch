@@ -65,6 +65,10 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
     end
   end
 
+  @impl Phoenix.LiveView
+  @doc "silently ignore other kinds of messages"
+  def handle_info(_, socket), do: {:noreply, socket}
+
   ## -- End Delivery callbacks
 
   defp apply_action(socket, :index, params) do
@@ -137,7 +141,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
       |> assign(:copy, copy)
 
     ~H"""
-    <p class="flex flex-col md:flex-row items-center mt-0 text-sm text-gray-700">
+    <p class="flex flex-col items-center mt-0 text-sm text-gray-700 md:flex-row">
       <Icons.maki_bicycle_share class="flex-shrink-0 mb-2 mr-1.5 h-8 w-8 md:h-5 md:w-5 md:mb-0 text-gray-500" />
       <span class="flex space-x-2 font-bold md:font-normal">
         <span class={@class}><%= @copy %></span>
