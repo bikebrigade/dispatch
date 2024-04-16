@@ -14,7 +14,8 @@ defmodule BikeBrigade.Repo.Seeds.Seeder do
       Accounts.create_user_as_admin(%{
         name: "Dispatcher McGee",
         phone: "647-555-5555",
-        email: "dispatcher@example.com"
+        email: "dispatcher@example.com",
+        is_dispatcher: true
       })
 
     user

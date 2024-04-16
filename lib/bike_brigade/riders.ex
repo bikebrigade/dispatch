@@ -192,7 +192,7 @@ defmodule BikeBrigade.Riders do
 
   def create_rider_with_user(attrs \\ %{}, opts \\ []) do
     with {:ok, rider} <- create_rider(attrs, opts),
-         {:ok, user} <- Accounts.create_user_for_rider(rider) do
+         {:ok, _user} <- Accounts.create_user_for_rider(rider) do
       {:ok, rider}
     else
       {:error, changeset} -> {:error, changeset}

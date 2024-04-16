@@ -4,19 +4,14 @@ defmodule BikeBrigadeWeb.CampaignLive.CampaignMessageList do
   with the riders for a specific campaign.
   """
   use BikeBrigadeWeb, :live_component
-  alias BikeBrigadeWeb.CampaignHelpers
-
-  alias BikeBrigade.LocalizedDateTime
 
   alias BikeBrigade.Messaging
-  alias BikeBrigade.Delivery
 
-  import BikeBrigade.Utils, only: [humanized_task_count: 1]
-  import BikeBrigadeWeb.DeliveryHelpers
   import BikeBrigadeWeb.Components.SMSMessageListComponent
 
   alias BikeBrigadeWeb.Components.ConversationComponent
 
+  @impl true
   def mount(socket) do
     {:ok, socket}
   end

@@ -65,6 +65,10 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
     end
   end
 
+  @impl Phoenix.LiveView
+  @doc "silently ignore other kinds of messages"
+  def handle_info(_, socket), do: {:noreply, socket}
+
   ## -- End Delivery callbacks
 
   defp apply_action(socket, :index, params) do
@@ -123,13 +127,18 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
 
   defp tasks_filled_text(assigns) do
     {class, copy} =
-      if assigns.filled_tasks == nil do
-        {"", "N/A"}
-      else
-        case assigns.total_tasks - assigns.filled_tasks do
-          0 -> {"text-gray-600", "Fully Assigned"}
-          _ -> {"text-red-400", "#{assigns.total_tasks - assigns.filled_tasks} Available"}
-        end
+      cond do
+        assigns.filled_tasks == nil ->
+          {"text-gray-600", "N/A"}
+
+        campaign_in_past(assigns.campaign) ->
+          {"text-gray-600", "Campaign over"}
+
+        assigns.total_tasks - assigns.filled_tasks == 0 ->
+          {"text-gray-600", "Fully Assigned"}
+
+        true ->
+          {"text-red-400", "#{assigns.total_tasks - assigns.filled_tasks} Available"}
       end
 
     assigns =

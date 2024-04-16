@@ -6,10 +6,11 @@ defmodule BikeBrigadeWeb.RiderHomeLiveTest do
 
   defp make_campaign(program_id, opts \\ []) do
     start_offset = Keyword.get(opts, :start_offset, 0)
+    offset_type = Keyword.get(opts, :offset_type, :day)
     fixture(:campaign, %{
       program_id: program_id,
-      delivery_start: LocalizedDateTime.now() |> DateTime.add(start_offset, :day),
-      delivery_end: LocalizedDateTime.now() |> DateTime.add(start_offset, :day) |> DateTime.add(1, :hour),
+      delivery_start: LocalizedDateTime.now() |> DateTime.add(start_offset, offset_type),
+      delivery_end: LocalizedDateTime.now() |> DateTime.add(start_offset, offset_type) |> DateTime.add(1, :hour),
     })
   end
 
@@ -24,6 +25,12 @@ defmodule BikeBrigadeWeb.RiderHomeLiveTest do
       campaign = make_campaign(program.id)
       campaign2 = make_campaign(program2.id)
       campaign3 = make_campaign(program2.id, start_offset: 1)
+
+      # campaign4 and campaign_in_50_hours  are used to test that the
+      # CTA for urgent riders only shows from `now` to `now + 48 hours`
+      campaign4 = make_campaign(program2.id, start_offset: -1, offset_type: :hour)
+      campaign_in_50_hours = make_campaign(program2.id, start_offset: 50, offset_type: :hour)
+
       campaign_past_1 = make_campaign(program.id, start_offset: -7)
       campaign_past_2 = make_campaign(program.id, start_offset: -7)
 
@@ -32,6 +39,8 @@ defmodule BikeBrigadeWeb.RiderHomeLiveTest do
       fixture(:task, %{campaign: campaign, rider: nil})
       fixture(:task, %{campaign: campaign2, rider: nil})
       fixture(:task, %{campaign: campaign3, rider: nil})
+      fixture(:task, %{campaign: campaign4, rider: nil})
+      fixture(:task, %{campaign: campaign_in_50_hours, rider: nil})
 
       # create tasks for campaigns in the last seven days for the stats feature.
       for _r <- 1..7, do: fixture(:task, %{campaign: campaign_past_1, rider: res.rider})
@@ -73,6 +82,7 @@ defmodule BikeBrigadeWeb.RiderHomeLiveTest do
 
       assert live |> has_element?("#campaign-#{ctx.campaign.id}")
       assert live |> has_element?("#campaign-#{ctx.campaign2.id}")
+      assert live |> has_element?("#campaign-#{ctx.campaign3.id}")
 
       # assert that only 2 campaigns - the ones with unfilled tasks are showing up.
       assert Floki.parse_document!(html)
