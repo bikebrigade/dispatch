@@ -180,19 +180,18 @@ defmodule BikeBrigade.Delivery do
 
 
   @doc """
-    Gets campaigns that are happening today and have unassigned tasks.
+    Gets campaigns that are happening between now and 48 hours from now, and have unassigned tasks.
     Used on the rider's home page to let riders know about campaigns that could use the help.
   """
   def list_urgent_campaigns() do
-    today = LocalizedDateTime.today()
-    start_of_today = LocalizedDateTime.new!(today, ~T[00:00:00])
-    end_of_tomorrow = Date.add(today, 1) |> LocalizedDateTime.new!(~T[23:59:59])
+    now = LocalizedDateTime.now()
+    forty_eight_hours_from_now = DateTime.add(now, 48, :hour)
 
     query =
       from c in Campaign,
         distinct: [asc: c.id],
         join: t in assoc(c, :tasks),
-        where: c.delivery_start <= ^end_of_tomorrow and c.delivery_start >= ^start_of_today and is_nil(t.assigned_rider_id),
+        where: c.delivery_start <= ^forty_eight_hours_from_now and c.delivery_start >= ^now and is_nil(t.assigned_rider_id),
         select: c
 
     Repo.all(query)
