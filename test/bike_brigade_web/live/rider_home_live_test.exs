@@ -82,11 +82,12 @@ defmodule BikeBrigadeWeb.RiderHomeLiveTest do
 
       assert live |> has_element?("#campaign-#{ctx.campaign.id}")
       assert live |> has_element?("#campaign-#{ctx.campaign2.id}")
+      assert live |> has_element?("#campaign-#{ctx.campaign3.id}")
 
       # assert that only 2 campaigns - the ones with unfilled tasks are showing up.
       assert Floki.parse_document!(html)
              |> Floki.find(".campaign-item")
-             |> Enum.count() == 2
+             |> Enum.count() == 3
     end
 
     test "it shows rider's itinerary of deliveries for today, with a sign up button", ctx do
