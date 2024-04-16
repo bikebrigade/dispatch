@@ -77,7 +77,7 @@ defmodule BikeBrigadeWeb.RiderHomeLiveTest do
       # assert that only 2 campaigns - the ones with unfilled tasks are showing up.
       assert Floki.parse_document!(html)
              |> Floki.find(".campaign-item")
-             |> Enum.count() == 3
+             |> Enum.count() == 2
     end
 
     test "it shows rider's itinerary of deliveries for today, with a sign up button", ctx do
