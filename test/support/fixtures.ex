@@ -58,7 +58,7 @@ defmodule BikeBrigade.Fixtures do
     |> Repo.preload(program: [:items])
   end
 
-  def fixture(:campaign_with_riders, attrs) do
+  def fixture(:campaign_with_riders, _attrs) do
     campaign = fixture(:campaign)
 
     riders = for _i <- 1..7 do

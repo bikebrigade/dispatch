@@ -22,7 +22,7 @@ config :bike_brigade, BikeBrigadeWeb.Endpoint,
   static_url: [path: "/static"]
 
 # Print only warnings and errors during test
-config :logger, level: :warn
+config :logger, level: :warning
 
 # Don't run importers
 config :bike_brigade, BikeBrigade.TaskRunner, start: false
