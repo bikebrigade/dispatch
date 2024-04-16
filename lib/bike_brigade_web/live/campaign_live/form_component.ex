@@ -21,6 +21,7 @@ defmodule BikeBrigadeWeb.CampaignLive.FormComponent do
       field :task_spreadsheet_url, :string
       field :rider_spreadsheet_url, :string
       field :rider_spreadsheet_layout, :string
+      field :public, :boolean
 
       belongs_to :location, Location, on_replace: :update
       belongs_to :program, Program
@@ -35,6 +36,7 @@ defmodule BikeBrigadeWeb.CampaignLive.FormComponent do
         :task_spreadsheet_url,
         :rider_spreadsheet_url,
         :rider_spreadsheet_layout,
+        :public,
         :program_id
       ])
       |> cast_assoc(:location)
@@ -47,6 +49,7 @@ defmodule BikeBrigadeWeb.CampaignLive.FormComponent do
         delivery_date: LocalizedDateTime.to_date(campaign.delivery_start),
         start_time: LocalizedDateTime.to_time(campaign.delivery_start),
         end_time: LocalizedDateTime.to_time(campaign.delivery_end),
+        public: campaign.public,
         location: campaign.location,
         rider_spreadsheet_layout: campaign.rider_spreadsheet_layout
       }
@@ -58,6 +61,7 @@ defmodule BikeBrigadeWeb.CampaignLive.FormComponent do
         delivery_start:
           LocalizedDateTime.new!(campaign_form.delivery_date, campaign_form.start_time),
         delivery_end: LocalizedDateTime.new!(campaign_form.delivery_date, campaign_form.end_time),
+        public: campaign_form.public,
         location: Map.from_struct(campaign_form.location),
         rider_spreadsheet_layout: campaign_form.rider_spreadsheet_layout
       }

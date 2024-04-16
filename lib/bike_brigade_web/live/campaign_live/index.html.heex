@@ -23,7 +23,7 @@
   <.live_component
     module={BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent}
     id={:duplicate}
-      title={@page_title}
+    title={@page_title}
     action={@live_action}
     campaign={@campaign}
     navigate={~p"/campaigns?current_week=#{@current_week}"}
@@ -87,6 +87,12 @@
                     data-test-group="campaign-name"
                   >
                     <%= name(c) %>
+                    <span
+                      :if={!c.public}
+                      class="inline-flex items-center px-2 py-1 ml-1 text-xs font-medium text-pink-700 rounded-md bg-pink-50 ring-1 ring-inset ring-pink-700/10"
+                    >
+                      Private
+                    </span>
                   </.link>
                 </div>
                 <div class="flex-shrink-0 space-y-1 md:space-y-0 md:space-x-2 md:flex">
