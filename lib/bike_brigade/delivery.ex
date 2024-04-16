@@ -117,7 +117,7 @@ defmodule BikeBrigade.Delivery do
   Assign a task to a given rider (tracking the user that made the assignment)
   """
 
-  def assign_task(%Task{} = task, rider_id, user_id, opts \\ []) do
+  def assign_task(%Task{} = task, rider_id, user_id, opts \\ []) when is_list(opts) do
     Repo.transaction(fn ->
       {:ok, _log} =
         create_task_assignment_log(%{
@@ -138,7 +138,8 @@ defmodule BikeBrigade.Delivery do
   Unassign a task (tracking the user that made the unassignment)
   """
 
-  def unassign_task(%Task{assigned_rider_id: assigned_rider_id} = task, user_id, opts \\ []) when not is_nil(assigned_rider_id) do
+  def unassign_task(%Task{assigned_rider_id: assigned_rider_id} = task, user_id, opts \\ [])
+      when not is_nil(assigned_rider_id) and is_list(opts) do
     Repo.transaction(fn ->
       {:ok, _log} =
         create_task_assignment_log(%{
