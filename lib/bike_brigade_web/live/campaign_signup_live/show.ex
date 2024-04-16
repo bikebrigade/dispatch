@@ -158,6 +158,10 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
     end
   end
 
+  @impl Phoenix.LiveView
+  @doc "silently ignore other kinds of messages"
+  def handle_info(_, socket), do: {:noreply, socket}
+
   ## lil helpers
 
   defp get_task(socket, id) when is_binary(id), do: get_task(socket, String.to_integer(id))
