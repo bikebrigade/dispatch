@@ -8,7 +8,7 @@ defmodule BikeBrigade.Delivery do
   alias BikeBrigade.Riders.Rider
 
   alias BikeBrigade.Messaging
-  alias BikeBrigade.Delivery.{Task, CampaignRider}
+  alias BikeBrigade.Delivery.{Task, CampaignRider, TaskAssignmentLog}
 
   import BikeBrigade.Utils, only: [task_count: 1, humanized_task_count: 1]
 
@@ -111,6 +111,47 @@ defmodule BikeBrigade.Delivery do
     |> Task.changeset(attrs, opts)
     |> Repo.update()
     |> broadcast(:task_updated)
+  end
+
+  @doc """
+  Assign a task to a given rider (tracking the user that made the assignment)
+  """
+
+  def assign_task(%Task{} = task, rider_id, user_id, opts \\ []) do
+    Repo.transaction(fn ->
+      {:ok, _log} =
+        create_task_assignment_log(%{
+          task_id: task.id,
+          rider_id: rider_id,
+          user_id: user_id,
+          action: :assigned
+        })
+
+      {:ok, task} =
+        update_task(task, %{assigned_rider_id: rider_id}, opts)
+
+      task
+    end)
+  end
+
+  @doc """
+  Unassign a task (tracking the user that made the unassignment)
+  """
+
+  def unassign_task(%Task{assigned_rider_id: assigned_rider_id} = task, user_id, opts \\ []) when not is_nil(assigned_rider_id) do
+    Repo.transaction(fn ->
+      {:ok, _log} =
+        create_task_assignment_log(%{
+          task_id: task.id,
+          rider_id: assigned_rider_id,
+          user_id: user_id,
+          action: :unassigned
+        })
+
+      {:ok, task} = update_task(task, %{assigned_rider_id: nil}, opts)
+
+      task
+    end)
   end
 
   @doc """
@@ -1011,5 +1052,20 @@ defmodule BikeBrigade.Delivery do
 
   def change_opportunity(%Opportunity{} = opportunity, attrs \\ %{}) do
     Opportunity.changeset(opportunity, attrs)
+  end
+
+  @doc """
+  List all task assignment logs
+
+  Currently this table is used for analytics and not exposed in the app.
+  """
+  def list_task_assignment_logs() do
+    Repo.all(TaskAssignmentLog)
+  end
+
+  def create_task_assignment_log(attrs \\ %{}) do
+    %TaskAssignmentLog{timestamp: DateTime.utc_now()}
+    |> TaskAssignmentLog.changeset(attrs)
+    |> Repo.insert()
   end
 end
