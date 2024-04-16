@@ -215,13 +215,11 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
     - The first name of other riders who have signed up for tasks.
   """
 
-
   attr :task, :any, required: true
-
   attr :campaign, :any, required: true
   attr :current_rider_id, :integer, required: true
   attr :id, :string, required: true
-  defp signup_button(assigns) do
+  def signup_button(assigns) do
     ~H"""
     <div>
 
