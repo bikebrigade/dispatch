@@ -24,7 +24,8 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
   @impl true
   def handle_params(%{"id" => id} = params, _url, socket) do
     with {num, ""} <- Integer.parse(id),
-         campaign when not is_nil(campaign) <- Delivery.get_campaign(num) do
+         campaign when not is_nil(campaign) <- Delivery.get_campaign(num),
+         true <- public?(campaign) do
       {:noreply,
        socket
        |> assign_campaign(campaign)
@@ -208,7 +209,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
     end
   end
 
-  @doc"""
+  @doc """
     Shows one of the following:
     - A "Sign up" button if the campaign is eligible for signing up
     - A "Unassign me" button if a rider is assigned to a task and wants to unassign themselves
@@ -219,10 +220,10 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
   attr :campaign, :any, required: true
   attr :current_rider_id, :integer, required: true
   attr :id, :string, required: true
+
   def signup_button(assigns) do
     ~H"""
     <div>
-
       <%= if @task.assigned_rider do %>
         <span :if={@task.assigned_rider.id != @current_rider_id} class="mr-2">
           <%= split_first_name(@task.assigned_rider.name) %>
@@ -242,7 +243,9 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
 
       <%= if task_eligible_for_signup(@task, @campaign) do %>
         <.button
-          phx-click={JS.push("signup_rider", value: %{task_id: @task.id, rider_id: @current_rider_id})}
+          phx-click={
+            JS.push("signup_rider", value: %{task_id: @task.id, rider_id: @current_rider_id})
+          }
           color={:secondary}
           id={"#{@id}-sign-up-task-#{@task.id}"}
           size={:xsmall}
@@ -258,7 +261,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
           color={:secondary}
           id={"#{@id}-task-over-#{@task.id}"}
           size={:xsmall}
-          class="w-full md:w-28 cursor-not-allowed bg-neutral-100 text-neutral-800"
+          class="w-full cursor-not-allowed md:w-28 bg-neutral-100 text-neutral-800"
         >
           Campaign over
         </.button>

@@ -151,6 +151,8 @@ defmodule BikeBrigade.Delivery do
     # (such as when we need to display campaigns that urgently need a rider)
     campaign_ids = Keyword.get(opts, :campaign_ids, nil)
 
+    public = Keyword.get(opts, :public, nil)
+
     query =
       from c in Campaign,
         as: :campaign,
@@ -167,17 +169,26 @@ defmodule BikeBrigade.Delivery do
         query
       end
 
-    query = if campaign_ids do
-      query
-      |> where([campaign: c], c.id in ^campaign_ids)
-    else
-      query
-    end
+    query =
+      if campaign_ids do
+        query
+        |> where([campaign: c], c.id in ^campaign_ids)
+      else
+        query
+      end
+
+    query =
+      if not is_nil(public) do
+        query
+        |> join(:inner, [campaign: c], p in assoc(c, :program), as: :program)
+        |> where([program: p], p.public == ^public)
+      else
+        query
+      end
 
     Repo.all(query)
     |> Repo.preload(preload)
   end
-
 
   @doc """
     Gets campaigns that are happening between now and 48 hours from now, and have unassigned tasks.
@@ -191,7 +202,9 @@ defmodule BikeBrigade.Delivery do
       from c in Campaign,
         distinct: [asc: c.id],
         join: t in assoc(c, :tasks),
-        where: c.delivery_start <= ^forty_eight_hours_from_now and c.delivery_start >= ^now and is_nil(t.assigned_rider_id),
+        where:
+          c.delivery_start <= ^forty_eight_hours_from_now and c.delivery_start >= ^now and
+            is_nil(t.assigned_rider_id),
         select: c
 
     Repo.all(query)

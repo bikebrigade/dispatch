@@ -23,7 +23,9 @@ defmodule BikeBrigade.Fixtures do
     {:ok, program} =
       %{
         name: Faker.Superhero.name(),
-        start_date: DateTime.utc_now()
+        start_date: DateTime.utc_now(),
+        # Make programs public by default in our fixturess
+        public: true
       }
       |> Map.merge(attrs)
       |> Delivery.create_program()
@@ -58,23 +60,37 @@ defmodule BikeBrigade.Fixtures do
     |> Repo.preload(program: [:items])
   end
 
+  def fixture(:campaign_private, attrs) do
+    private_program = fixture(:program, %{public: false})
+
+    attrs =
+      %{program_id: private_program.id}
+      |> Map.merge(attrs)
+
+    fixture(:campaign, attrs)
+  end
+
   def fixture(:campaign_with_riders, _attrs) do
     campaign = fixture(:campaign)
 
-    riders = for _i <- 1..7 do
-      fixture(:rider)
-    end
+    riders =
+      for _i <- 1..7 do
+        fixture(:rider)
+      end
+
     Enum.each(riders, fn rider ->
       Delivery.create_campaign_rider(%{
-            campaign_id: campaign.id,
-            rider_id: rider.id
-            })
+        campaign_id: campaign.id,
+        rider_id: rider.id
+      })
     end)
+
     {campaign, riders}
   end
 
   def fixture(:rider, attrs) do
     location = Toronto.random_location()
+
     {:ok, rider} =
       %{
         name: fake_name(),
