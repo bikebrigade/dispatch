@@ -19,6 +19,12 @@
         />
         <.input type="textarea" field={{f, :description}} label="About (internal description)" />
         <.input type="date" field={{f, :start_date}} label="Start Date" placeholder="YYYY-MM-DD" />
+        <.input
+          type="checkbox"
+          field={{f, :public}}
+          label="Public"
+          help_text="Let riders sign up through the portal"
+        />
 
         <div class="space-y-1">
           <.header small>
