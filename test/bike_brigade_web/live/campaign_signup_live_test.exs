@@ -139,7 +139,11 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
 
     test "we see pertinent task information", ctx do
       {:ok, _live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
-      assert html =~ ctx.task.dropoff_name
+
+      # we only show the first initial of the dropoff name
+      refute html =~ ctx.task.dropoff_name
+      assert html =~ ctx.task.dropoff_name |> String.first() |> String.upcase()
+
       assert html =~ BikeBrigade.Locations.neighborhood(ctx.task.dropoff_location)
     end
 

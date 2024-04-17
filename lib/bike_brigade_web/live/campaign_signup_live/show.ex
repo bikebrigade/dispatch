@@ -262,7 +262,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
           color={:secondary}
           id={"#{@id}-task-over-#{@task.id}"}
           size={:xsmall}
-          class="w-full md:w-28 cursor-not-allowed bg-neutral-100 text-neutral-800"
+          class="w-full cursor-not-allowed md:w-28 bg-neutral-100 text-neutral-800"
         >
           Campaign over
         </.button>
@@ -279,5 +279,9 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
   # determine if a rider is eligible to "unassign" themselves
   defp task_eligigle_for_unassign(task, campaign, current_rider_id) do
     task.assigned_rider.id == current_rider_id && !campaign_in_past(campaign)
+  end
+
+  defp first_initial(name) do
+    name |> String.first() |> String.upcase()
   end
 end
