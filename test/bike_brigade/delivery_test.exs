@@ -39,7 +39,10 @@ defmodule BikeBrigade.DeliveryTest do
       """
 
       directions_url =
-        "https://www.google.com/maps/dir/?api=1&destination=#{to_uri(task.dropoff_location)}&origin=#{to_uri(rider.location)}&travelmode=bicycling&waypoints=#{to_uri(campaign.location)}"
+        BikeBrigade.GoogleMaps.directions_url(rider.location, [
+          campaign.location,
+          task.dropoff_location
+        ])
 
       assert Delivery.render_campaign_message_for_rider(campaign, message, rider) ==
                """

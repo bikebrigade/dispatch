@@ -569,20 +569,7 @@ defmodule BikeBrigade.Delivery do
       end
       |> Enum.join("\n\n")
 
-    {destination, waypoints} = List.pop_at(locations, -1)
-
-    # TODO: this is the same as DeliveryHelpers.directions_url
-    map_query =
-      URI.encode_query(%{
-        api: 1,
-        travelmode: "bicycling",
-        origin: rider.location,
-        waypoints: Enum.join(waypoints, "|"),
-        destination: destination
-      })
-
-    directions = "https://www.google.com/maps/dir/?#{map_query}"
-
+    directions = BikeBrigade.GoogleMaps.directions_url(rider.location, locations)
     delivery_details_url = url(~p"/app/delivery/#{rider.delivery_url_token}")
 
     campaign_date = LocalizedDateTime.to_date(campaign.delivery_start)

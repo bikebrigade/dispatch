@@ -1,5 +1,5 @@
 defmodule BikeBrigadeWeb.RiderHomeLiveTest do
-  use BikeBrigadeWeb.ConnCase, only: []
+  use BikeBrigadeWeb.ConnCase, async: false
   alias BikeBrigade.LocalizedDateTime
 
   import Phoenix.LiveViewTest

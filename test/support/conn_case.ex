@@ -37,11 +37,16 @@ defmodule BikeBrigadeWeb.ConnCase do
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(BikeBrigade.Repo)
+    repo_pid = Ecto.Adapters.SQL.Sandbox.start_owner!(BikeBrigade.Repo, shared: not tags[:async])
 
-    unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(BikeBrigade.Repo, {:shared, self()})
-    end
+    on_exit(fn ->
+      Ecto.Adapters.SQL.Sandbox.stop_owner(repo_pid)
+
+      # for pid <- BikeBrigade.Presence.fetchers_pids() do
+      #   ref = Process.monitor(pid)
+      #   assert_receive {:DOWN, ^ref, _, _, _}, 1000
+      # end
+    end)
 
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
