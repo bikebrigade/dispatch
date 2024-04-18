@@ -41,9 +41,9 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
 
   def handle_params(params, _url, socket) do
     {:noreply,
-      socket
-      |> assign(:showing_urgent_campaigns, false)
-      |> apply_action(socket.assigns.live_action, params)}
+     socket
+     |> assign(:showing_urgent_campaigns, false)
+     |> apply_action(socket.assigns.live_action, params)}
   end
 
   # -- Delivery callbacks
@@ -92,7 +92,9 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
   end
 
   defp fetch_campaigns(current_week, opts \\ []) do
-    Delivery.list_campaigns(current_week,
+    Delivery.list_campaigns(
+      start_date: current_week,
+      end_date: Date.add(current_week, 6),
       preload: [:program, :stats, :latest_message, :scheduled_message],
       campaign_ids: opts[:campaign_ids],
       public: true
