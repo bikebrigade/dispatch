@@ -39,7 +39,7 @@
 <ul class="flex flex-col text-xs md:hidden">
   <li :for={t <- @tasks} class="w-full mb-8">
     <div class="flex justify-between px-4 py-3 font-bold bg-slate-200">
-      <span><%= first_initial(t.dropoff_name) %></span>
+      <span data-test-id={"dropoff-name-#{t.id}"}><%= first_initial(t.dropoff_name) %></span>
       <span>Pickup: <%= pickup_window(@campaign) %></span>
     </div>
     <div class="flex flex-col bg-white shadow">
