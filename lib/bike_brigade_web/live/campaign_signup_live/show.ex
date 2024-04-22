@@ -283,4 +283,8 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
   defp task_eligigle_for_unassign(task, campaign, current_rider_id) do
     task.assigned_rider.id == current_rider_id && !campaign_in_past(campaign)
   end
+
+  defp first_initial(name) do
+    name |> String.first() |> String.upcase()
+  end
 end
