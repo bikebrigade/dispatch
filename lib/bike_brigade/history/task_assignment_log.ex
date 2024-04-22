@@ -1,4 +1,4 @@
-defmodule BikeBrigade.Delivery.TaskAssignmentLog do
+defmodule BikeBrigade.History.TaskAssignmentLog do
   use BikeBrigade.Schema
 
   import Ecto.Changeset

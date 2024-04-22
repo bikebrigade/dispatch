@@ -1,7 +1,8 @@
 defmodule BikeBrigade.DeliveryTest do
   use BikeBrigade.DataCase
 
-  alias BikeBrigade.{LocalizedDateTime, Delivery, Delivery.Task}
+
+  alias BikeBrigade.{LocalizedDateTime, Delivery, Delivery.Task, History}
 
   use Phoenix.VerifiedRoutes, endpoint: BikeBrigadeWeb.Endpoint, router: BikeBrigadeWeb.Router
 
@@ -74,7 +75,7 @@ defmodule BikeBrigade.DeliveryTest do
 
     assert task.assigned_rider_id == rider.id
 
-    assert [log] = Delivery.list_task_assignment_logs()
+    assert [log] = History.list_task_assignment_logs()
     assert log.task_id == task.id
     assert log.rider_id == rider.id
     assert log.user_id == user.id
@@ -91,7 +92,7 @@ defmodule BikeBrigade.DeliveryTest do
 
     assert task.assigned_rider_id == nil
 
-    assert [log] = Delivery.list_task_assignment_logs()
+    assert [log] = History.list_task_assignment_logs()
     assert log.task_id == task.id
     assert log.rider_id == rider.id
     assert log.user_id == user.id

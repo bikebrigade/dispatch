@@ -7,6 +7,7 @@ defmodule BikeBrigade.Delivery do
   import Geo.PostGIS, only: [st_distance: 2]
   alias BikeBrigade.Riders.Rider
 
+  alias BikeBrigade.History
   alias BikeBrigade.Messaging
   alias BikeBrigade.Delivery.{Task, CampaignRider, TaskAssignmentLog}
 
@@ -120,7 +121,7 @@ defmodule BikeBrigade.Delivery do
   def assign_task(%Task{} = task, rider_id, user_id, opts \\ []) when is_list(opts) do
     Repo.transaction(fn ->
       {:ok, _log} =
-        create_task_assignment_log(%{
+       History.create_task_assignment_log(%{
           task_id: task.id,
           rider_id: rider_id,
           user_id: user_id,
@@ -142,7 +143,7 @@ defmodule BikeBrigade.Delivery do
       when not is_nil(assigned_rider_id) and is_list(opts) do
     Repo.transaction(fn ->
       {:ok, _log} =
-        create_task_assignment_log(%{
+        History.create_task_assignment_log(%{
           task_id: task.id,
           rider_id: assigned_rider_id,
           user_id: user_id,
@@ -1055,18 +1056,4 @@ defmodule BikeBrigade.Delivery do
     Opportunity.changeset(opportunity, attrs)
   end
 
-  @doc """
-  List all task assignment logs
-
-  Currently this table is used for analytics and not exposed in the app.
-  """
-  def list_task_assignment_logs() do
-    Repo.all(TaskAssignmentLog)
-  end
-
-  def create_task_assignment_log(attrs \\ %{}) do
-    %TaskAssignmentLog{timestamp: DateTime.utc_now()}
-    |> TaskAssignmentLog.changeset(attrs)
-    |> Repo.insert()
-  end
 end

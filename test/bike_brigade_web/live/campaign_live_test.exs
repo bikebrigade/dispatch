@@ -3,7 +3,8 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
 
   import Phoenix.LiveViewTest
   alias BikeBrigadeWeb.CampaignHelpers
-  alias BikeBrigade.LocalizedDateTime
+
+  alias BikeBrigade.{Delivery, LocalizedDateTime, History}
 
   describe "Index" do
     setup [:create_campaign, :login]
@@ -205,17 +206,16 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
       # assign the task
       view |> element("a", "Assign to #{rider.name}") |> render_click()
 
-      task = BikeBrigade.Delivery.get_task(task.id)
+      task = Delivery.get_task(task.id)
       assert task.assigned_rider_id == rider.id
 
       # Make sure we have a log
-      assert [log] = BikeBrigade.Delivery.list_task_assignment_logs()
+      assert [log] = History.list_task_assignment_logs()
       assert log.action == :assigned
       assert log.task_id == task.id
       assert log.rider_id == rider.id
       assert log.user_id == ctx.user.id
     end
-
 
     test "Can unassign a rider from a task", ctx do
       rider = hd(ctx.riders)
@@ -229,11 +229,11 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
       # unassign the task
       view |> element("a", "Unassign") |> render_click()
 
-      task = BikeBrigade.Delivery.get_task(task.id)
+      task = Delivery.get_task(task.id)
       assert task.assigned_rider_id == nil
 
       # Make sure we have a log
-      assert [log] = BikeBrigade.Delivery.list_task_assignment_logs()
+      assert [log] = History.list_task_assignment_logs()
       assert log.action == :unassigned
       assert log.task_id == task.id
       assert log.rider_id == rider.id
