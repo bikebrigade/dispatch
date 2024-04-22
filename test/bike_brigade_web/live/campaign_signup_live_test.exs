@@ -119,6 +119,42 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
     end
   end
 
+  describe "Index - filter by urgent campaign" do
+    setup ctx do
+      program = fixture(:program, %{name: "ACME Delivery"})
+      res = login_as_rider(ctx)
+
+      campaign = fixture(:campaign, %{program_id: program.id})
+      campaign2 = fixture(:campaign, %{program_id: program.id})
+      campaign3 = fixture(:campaign, %{program_id: program.id})
+
+      Map.merge(res, %{
+        program: program,
+        campaign: campaign,
+        campaign2: campaign2,
+        campaign3: campaign3
+      })
+    end
+
+    test "It shows urgent campaigns when called with `campaign_ids`", ctx do
+      {:ok, live, html} =
+        live(
+          ctx.conn,
+          ~p"/campaigns/signup?campaign_ids[]=#{ctx.campaign.id}&campaign_ids[]=#{ctx.campaign2.id}"
+        )
+
+      assert html =~ "These deliveries need riders in the next 48 hours:"
+      assert live |> has_element?("#campaign-#{ctx.campaign.id}")
+      assert live |> has_element?("#campaign-#{ctx.campaign2.id}")
+      refute live |> has_element?("#campaign-#{ctx.campaign3.id}")
+
+      # assert that only 2 campaigns - the ones who's ids we sent
+      assert Floki.parse_document!(html)
+             |> Floki.find(".campaign-item")
+             |> Enum.count() == 2
+    end
+  end
+
   describe "Show" do
     setup ctx do
       program = fixture(:program, %{name: "ACME Delivery"})
