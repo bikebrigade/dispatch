@@ -230,7 +230,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
         >
           <Heroicons.information_circle :if={@kind == :info} mini class="w-4 h-4" />
           <Heroicons.exclamation_circle :if={@kind == :error} mini class="w-4 h-4" />
-          <Heroicons.exclamation_circle :if={@kind == :warn} mini class="w-4 h-4" />
+          <Heroicons.exclamation_triangle :if={@kind == :warn} mini class="w-4 h-4" />
           <%= @title %>
         </p>
         <p class="md:mt-2 text-[0.8125rem] leading-5"><%= msg %></p>
@@ -724,7 +724,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
               phx-window-keydown={hide_modal(@on_cancel, @id)}
               phx-key="escape"
               phx-click-away={hide_modal(@on_cancel, @id)}
-              class="relative hidden transition bg-white shadow-lg rounded-2xl p-6 md:p-14 shadow-zinc-700/10 ring-1 ring-zinc-700/10"
+              class="relative hidden p-6 transition bg-white shadow-lg rounded-2xl md:p-14 shadow-zinc-700/10 ring-1 ring-zinc-700/10"
             >
               <div class="absolute top-6 right-5">
                 <button
@@ -1140,7 +1140,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
                     :if={@action != []}
                     class="py-4 pl-2 pr-4 text-sm font-medium text-right sm:pr-6"
                   >
-                    <span :for={action <- @action} class="ml-1 flex">
+                    <span :for={action <- @action} class="flex ml-1">
                       <%= render_slot(action, row) %>
                     </span>
                   </td>
