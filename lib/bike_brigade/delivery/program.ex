@@ -37,6 +37,9 @@ defmodule BikeBrigade.Delivery.Program do
     field :active, :boolean, default: true
     field :start_date, :date
 
+    # Default to public false
+    field :public, :boolean, default: false
+
     # TODO: this is me trying out virtual fields again
     field :campaign_count, :integer, virtual: true
 
@@ -58,17 +61,18 @@ defmodule BikeBrigade.Delivery.Program do
   def changeset(program, attrs) do
     program
     |> cast(attrs, [
+      :active,
       :name,
       :contact_name,
       :contact_email,
       :contact_phone,
       :campaign_blurb,
+      :default_item_id,
       :description,
       :lead_id,
+      :public,
       :spreadsheet_layout,
-      :start_date,
-      :active,
-      :default_item_id
+      :start_date
     ])
     |> validate_required([:name, :start_date])
     |> foreign_key_constraint(:lead_id)

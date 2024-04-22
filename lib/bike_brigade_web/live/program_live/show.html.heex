@@ -1,5 +1,17 @@
 <.header>
   <%= @program.name %>
+  <span
+    :if={!@program.active}
+    class="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-600 rounded-md bg-gray-50 ring-1 ring-inset ring-gray-500/10"
+  >
+    Inactive
+  </span>
+  <span
+    :if={!@program.public}
+    class="inline-flex items-center px-2 py-1 ml-1 text-xs font-medium text-pink-700 rounded-md bg-pink-50 ring-1 ring-inset ring-pink-700/10"
+  >
+    Private
+  </span>
   <:subtitle>
     <%= @program.campaign_blurb %>
   </:subtitle>
@@ -7,7 +19,9 @@
     <.button navigate={~p"/programs/#{@program}/campaigns/new"}>
       New Campaign
     </.button>
-    <.button patch={~p"/programs/#{@program}/show/edit"} color={:white} class="ml-1">Edit</.button>
+    <.button patch={~p"/programs/#{@program}/show/edit"} color={:white} class="ml-1">
+      Edit
+    </.button>
   </:actions>
 </.header>
 

@@ -89,13 +89,15 @@ defmodule BikeBrigadeWeb.CampaignHelpers do
   end
 
   def name(campaign) do
-    campaign = campaign
-
     if campaign.program do
       campaign.program.name
     else
       campaign.name
     end
+  end
+
+  def public?(campaign) do
+    campaign.program.public
   end
 
   def campaign_date(campaign) do
