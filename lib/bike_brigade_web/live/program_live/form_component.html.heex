@@ -25,6 +25,12 @@
           label="Public"
           help_text="Let riders sign up through the portal"
         />
+        <.input
+          type="checkbox"
+          field={{f, :hide_pickup_address}}
+          label="Hide Pickup Address"
+          help_text="Hide the pickup address from the public calendar (riders will still see it)"
+        />
 
         <div class="space-y-1">
           <.header small>

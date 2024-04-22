@@ -83,9 +83,8 @@ defmodule BikeBrigadeWeb.CalendarLive.Index do
     opportunity.hide_address
   end
 
-  # TODO: some programs hide the campaign address - this should come from the program
-  defp hide_address?(%Campaign{}) do
-    true
+  defp hide_address?(%Campaign{} = campaign) do
+    campaign.program.hide_pickup_address
   end
 
   attr :campaign_or_opportunity, :any
