@@ -244,7 +244,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   def handle_event("assign_task", %{"task_id" => task_id, "rider_id" => rider_id}, socket) do
     {:ok, _task} =
       get_task(socket, task_id)
-      |> Delivery.update_task(%{assigned_rider_id: rider_id})
+      |> Delivery.assign_task(rider_id, socket.assigns.current_user.id)
 
     {:noreply, socket}
   end
@@ -256,7 +256,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
     if task.assigned_rider do
       {:ok, _task} =
         task
-        |> Delivery.update_task(%{assigned_rider_id: nil})
+        |> Delivery.unassign_task(socket.assigns.current_user.id)
     end
 
     {:noreply, socket}

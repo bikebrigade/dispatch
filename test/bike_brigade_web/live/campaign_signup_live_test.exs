@@ -1,6 +1,6 @@
 defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
   use BikeBrigadeWeb.ConnCase, async: false
-  alias BikeBrigade.LocalizedDateTime
+  alias BikeBrigade.{LocalizedDateTime, History}
 
   import Phoenix.LiveViewTest
 
@@ -173,6 +173,13 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       refute html =~ "Unassign me"
       html = live |> element("#signup-btn-desktop-sign-up-task-#{ctx.task.id}") |> render_click()
       assert html =~ "Unassign me"
+
+      # Make sure we have a log
+      assert [log] = History.list_task_assignment_logs()
+      assert log.action == :assigned
+      assert log.task_id == ctx.task.id
+      assert log.rider_id == ctx.rider.id
+      assert log.user_id == ctx.user.id
     end
 
     test "Rider cannot signup for a task in the past", ctx do
@@ -224,6 +231,13 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       assert html =~ "Unassign me"
       element(live, "a#signup-btn-desktop-unassign-task-#{task.id}") |> render_click()
       refute render(live) =~ "Unassign me"
+
+      # Make sure we have a log
+      assert [log] = History.list_task_assignment_logs()
+      assert log.action == :unassigned
+      assert log.task_id == task.id
+      assert log.rider_id == ctx.rider.id
+      assert log.user_id == ctx.user.id
     end
   end
 

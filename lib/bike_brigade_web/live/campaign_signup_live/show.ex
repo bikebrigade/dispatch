@@ -92,7 +92,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
     if task.assigned_rider do
       {:ok, _task} =
         task
-        |> Delivery.update_task(%{assigned_rider_id: nil})
+        |> Delivery.unassign_task(socket.assigns.current_user.id)
     end
 
     # If rider is no longer assigned to any tasks, remove them from the campaign
@@ -128,7 +128,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
 
     case Delivery.create_campaign_rider(attrs) do
       {:ok, _cr} ->
-        {:ok, _task} = Delivery.update_task(task, %{assigned_rider_id: rider_id})
+        {:ok, _task} = Delivery.assign_task(task, rider_id, socket.assigns.current_user.id)
         {:noreply, socket |> push_patch(to: ~p"/campaigns/signup/#{campaign}", replace: true)}
 
       {:error, %Ecto.Changeset{} = changeset} ->

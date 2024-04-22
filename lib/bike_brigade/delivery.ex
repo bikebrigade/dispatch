@@ -7,8 +7,9 @@ defmodule BikeBrigade.Delivery do
   import Geo.PostGIS, only: [st_distance: 2]
   alias BikeBrigade.Riders.Rider
 
+  alias BikeBrigade.History
   alias BikeBrigade.Messaging
-  alias BikeBrigade.Delivery.{Task, CampaignRider}
+  alias BikeBrigade.Delivery.{Task, CampaignRider, TaskAssignmentLog}
 
   import BikeBrigade.Utils, only: [task_count: 1, humanized_task_count: 1]
 
@@ -111,6 +112,48 @@ defmodule BikeBrigade.Delivery do
     |> Task.changeset(attrs, opts)
     |> Repo.update()
     |> broadcast(:task_updated)
+  end
+
+  @doc """
+  Assign a task to a given rider (tracking the user that made the assignment)
+  """
+
+  def assign_task(%Task{} = task, rider_id, user_id, opts \\ []) when is_list(opts) do
+    Repo.transaction(fn ->
+      {:ok, _log} =
+       History.create_task_assignment_log(%{
+          task_id: task.id,
+          rider_id: rider_id,
+          user_id: user_id,
+          action: :assigned
+        })
+
+      {:ok, task} =
+        update_task(task, %{assigned_rider_id: rider_id}, opts)
+
+      task
+    end)
+  end
+
+  @doc """
+  Unassign a task (tracking the user that made the unassignment)
+  """
+
+  def unassign_task(%Task{assigned_rider_id: assigned_rider_id} = task, user_id, opts \\ [])
+      when not is_nil(assigned_rider_id) and is_list(opts) do
+    Repo.transaction(fn ->
+      {:ok, _log} =
+        History.create_task_assignment_log(%{
+          task_id: task.id,
+          rider_id: assigned_rider_id,
+          user_id: user_id,
+          action: :unassigned
+        })
+
+      {:ok, task} = update_task(task, %{assigned_rider_id: nil}, opts)
+
+      task
+    end)
   end
 
   @doc """
@@ -1012,4 +1055,5 @@ defmodule BikeBrigade.Delivery do
   def change_opportunity(%Opportunity{} = opportunity, attrs \\ %{}) do
     Opportunity.changeset(opportunity, attrs)
   end
+
 end
