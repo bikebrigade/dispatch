@@ -1,7 +1,8 @@
 defmodule BikeBrigade.DeliveryTest do
   use BikeBrigade.DataCase
 
-  alias BikeBrigade.{LocalizedDateTime, Delivery, Delivery.Task}
+
+  alias BikeBrigade.{LocalizedDateTime, Delivery, Delivery.Task, History}
 
   use Phoenix.VerifiedRoutes, endpoint: BikeBrigadeWeb.Endpoint, router: BikeBrigadeWeb.Router
 
@@ -63,6 +64,41 @@ defmodule BikeBrigade.DeliveryTest do
                """
     end
   end
+
+  test "assign_task/3" do
+    campaign = fixture(:campaign)
+    rider = fixture(:rider)
+    user = fixture(:user)
+    task = fixture(:task, %{campaign: campaign})
+
+    assert {:ok, task} = Delivery.assign_task(task, rider.id, user.id)
+
+    assert task.assigned_rider_id == rider.id
+
+    assert [log] = History.list_task_assignment_logs()
+    assert log.task_id == task.id
+    assert log.rider_id == rider.id
+    assert log.user_id == user.id
+    assert log.action == :assigned
+  end
+
+  test "unassign_task/3" do
+    campaign = fixture(:campaign)
+    rider = fixture(:rider)
+    user = fixture(:user)
+    task = fixture(:task, %{campaign: campaign, assigned_rider_id: rider.id})
+
+    assert {:ok, task} = Delivery.unassign_task(task, user.id)
+
+    assert task.assigned_rider_id == nil
+
+    assert [log] = History.list_task_assignment_logs()
+    assert log.task_id == task.id
+    assert log.rider_id == rider.id
+    assert log.user_id == user.id
+    assert log.action == :unassigned
+  end
+
 
   def item_name(%Task{task_items: [%{item: %{name: item_name}}]}), do: item_name
 

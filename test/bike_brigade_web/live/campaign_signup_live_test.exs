@@ -1,6 +1,6 @@
 defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
   use BikeBrigadeWeb.ConnCase, async: false
-  alias BikeBrigade.LocalizedDateTime
+  alias BikeBrigade.{LocalizedDateTime, History}
 
   import Phoenix.LiveViewTest
 
@@ -119,6 +119,42 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
     end
   end
 
+  describe "Index - filter by urgent campaign" do
+    setup ctx do
+      program = fixture(:program, %{name: "ACME Delivery"})
+      res = login_as_rider(ctx)
+
+      campaign = fixture(:campaign, %{program_id: program.id})
+      campaign2 = fixture(:campaign, %{program_id: program.id})
+      campaign3 = fixture(:campaign, %{program_id: program.id})
+
+      Map.merge(res, %{
+        program: program,
+        campaign: campaign,
+        campaign2: campaign2,
+        campaign3: campaign3
+      })
+    end
+
+    test "It shows urgent campaigns when called with `campaign_ids`", ctx do
+      {:ok, live, html} =
+        live(
+          ctx.conn,
+          ~p"/campaigns/signup?campaign_ids[]=#{ctx.campaign.id}&campaign_ids[]=#{ctx.campaign2.id}"
+        )
+
+      assert html =~ "These deliveries need riders in the next 48 hours:"
+      assert live |> has_element?("#campaign-#{ctx.campaign.id}")
+      assert live |> has_element?("#campaign-#{ctx.campaign2.id}")
+      refute live |> has_element?("#campaign-#{ctx.campaign3.id}")
+
+      # assert that only 2 campaigns - the ones who's ids we sent
+      assert Floki.parse_document!(html)
+             |> Floki.find(".campaign-item")
+             |> Enum.count() == 2
+    end
+  end
+
   describe "Show" do
     setup ctx do
       program = fixture(:program, %{name: "ACME Delivery"})
@@ -137,6 +173,13 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       refute html =~ "Unassign me"
       html = live |> element("#signup-btn-desktop-sign-up-task-#{ctx.task.id}") |> render_click()
       assert html =~ "Unassign me"
+
+      # Make sure we have a log
+      assert [log] = History.list_task_assignment_logs()
+      assert log.action == :assigned
+      assert log.task_id == ctx.task.id
+      assert log.rider_id == ctx.rider.id
+      assert log.user_id == ctx.user.id
     end
 
     test "Rider cannot signup for a task in the past", ctx do
@@ -150,8 +193,14 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
     end
 
     test "we see pertinent task information", ctx do
-      {:ok, _live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
-      assert html =~ ctx.task.dropoff_name
+      {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
+
+      # we only show the first initial of the dropoff name
+      refute html =~ ctx.task.dropoff_name
+
+      assert live |> element("[data-test-id=dropoff-name-#{ctx.task.id}]") |> render =~
+               ctx.task.dropoff_name |> String.first() |> String.upcase()
+
       assert html =~ BikeBrigade.Locations.neighborhood(ctx.task.dropoff_location)
     end
 
@@ -182,6 +231,13 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       assert html =~ "Unassign me"
       element(live, "a#signup-btn-desktop-unassign-task-#{task.id}") |> render_click()
       refute render(live) =~ "Unassign me"
+
+      # Make sure we have a log
+      assert [log] = History.list_task_assignment_logs()
+      assert log.action == :unassigned
+      assert log.task_id == task.id
+      assert log.rider_id == ctx.rider.id
+      assert log.user_id == ctx.user.id
     end
   end
 

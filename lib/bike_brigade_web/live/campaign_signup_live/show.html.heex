@@ -1,9 +1,9 @@
-<.header class="text-center mt-4 mb-8 md:text-left">
+<.header class="mt-4 mb-8 text-center md:text-left">
   <div class="hidden md:flex">
     <%= @campaign.program.name %> - <%= campaign_date(@campaign) %>
   </div>
-  <div class="text-xl flex flex-col mb-4 md:hidden"><%= @campaign.program.name %></div>
-  <div class="text-sm mt-2 md:hidden">Deliveries for <%= campaign_date(@campaign) %></div>
+  <div class="flex flex-col mb-4 text-xl md:hidden"><%= @campaign.program.name %></div>
+  <div class="mt-2 text-sm md:hidden">Deliveries for <%= campaign_date(@campaign) %></div>
   <:subtitle>
     <span class="text-sm font-bold">Pickup: <%= @campaign.location.address %></span>
     <span :if={@campaign.program.campaign_blurb}>- <%= @campaign.program.campaign_blurb %></span>
@@ -19,7 +19,7 @@
     <:col :let={task} label="Delivery Size">
       <.get_delivery_size task={task} />
     </:col>
-    <:col :let={task} label="Recipient"><%= task.dropoff_name %></:col>
+    <:col :let={task} label="Recipient"><%= first_initial(task.dropoff_name) %></:col>
     <:col :let={task} label="Dropoff Neighbourhood">
       <%= Locations.neighborhood(task.dropoff_location) %>
     </:col>
@@ -38,19 +38,19 @@
 <!-- Mobile list of tasks -->
 <ul class="flex flex-col text-xs md:hidden">
   <li :for={t <- @tasks} class="w-full mb-8">
-    <div class="flex px-4 py-3 font-bold bg-slate-200 justify-between">
-      <span><%= t.dropoff_name %></span>
+    <div class="flex justify-between px-4 py-3 font-bold bg-slate-200">
+      <span data-test-id={"dropoff-name-#{t.id}"}><%= first_initial(t.dropoff_name) %></span>
       <span>Pickup: <%= pickup_window(@campaign) %></span>
     </div>
     <div class="flex flex-col bg-white shadow">
-      <div class="flex py-2 border-b p-4 items-center">
+      <div class="flex items-center p-4 py-2 border-b">
         <span class="pr-2 ">Delivery size:</span>
         <span class="italic">
           <.get_delivery_size task={t} />
         </span>
       </div>
 
-      <div class="flex px-4 py-2 items-start border-b space-x-2">
+      <div class="flex items-start px-4 py-2 space-x-2 border-b">
         <span>Dropoff Neighbourhood:</span>
         <span><%= Locations.neighborhood(t.dropoff_location) %></span>
       </div>
