@@ -11,29 +11,32 @@
       ) %>
     </h1>
   </div>
-  <%= if @show_buttons do %>
-    <div class="z-10 sticky top-0 h-16 sm:h-28 bg-black flex sm:justify-center pl-0.5 w-full gap-5 py-2 text-center  overflow-x-auto">
-      <%= for {date, _opportunities} <- @opportunities  do %>
-        <.button href={"##{date}"} size={:xlarge} color={:black} class="flex-col font-medium">
-          <div class="flex flex-row sm:flex-col">
-            <div class="pr-2 text-sm sm:text-lg sm:pr-0">
-              <%= Calendar.strftime(date, "%a") %>
-            </div>
-            <div class="pr-1 font-serif text-sm sm:text-3xl sm:pr-0">
-              <%= Calendar.strftime(date, "%-d") %>
-            </div>
-            <%= if date == @today do %>
-              <div class="mt-2 ml-0.5 sm:ml-3">
-                <Icons.circle class="w-2 h-2 mt-0" />
-              </div>
-            <% end %>
-          </div>
-        </.button>
-      <% end %>
-    </div>
-  <% end %>
+  <div
+    :if={@show_buttons}
+    class="z-10 sticky top-0 h-16 sm:h-28 bg-black flex sm:justify-center pl-0.5 w-full gap-5 py-2 text-center  overflow-x-auto"
+  >
+    <.button
+      :for={{date, _campaigns_and_opportunities} <- @campaigns_and_opportunities}
+      href={"##{date}"}
+      size={:xlarge}
+      color={:black}
+      class="flex-col font-medium"
+    >
+      <div class="flex flex-row sm:flex-col">
+        <div class="pr-2 text-sm sm:text-lg sm:pr-0">
+          <%= Calendar.strftime(date, "%a") %>
+        </div>
+        <div class="pr-1 font-serif text-sm sm:text-3xl sm:pr-0">
+          <%= Calendar.strftime(date, "%-d") %>
+        </div>
+        <div :if={date == @today} class="mt-2 ml-0.5 sm:ml-3">
+          <Icons.circle class="w-2 h-2 mt-0" />
+        </div>
+      </div>
+    </.button>
+  </div>
   <div class="flex flex-col my-4">
-    <%= for {date, opportunities} <- @opportunities  do %>
+    <div :for={{date, campaigns_and_opportunities} <- @campaigns_and_opportunities}>
       <div id={date} class="relative -top-16 sm:-top-28"></div>
       <div class="flex flex-col items-start border-gray-400 sm:pt-3 sm:border-t-2 sm:flex-row">
         <div class="flex-col items-center flex-shrink-0 hidden w-2/12 sm:flex">
@@ -49,87 +52,76 @@
           </div>
         </div>
         <div class="flex flex-col mb-5 space-y-1 border-gray-400 divide-y ml-14">
-          <%= for opportunity <- opportunities do %>
-            <div class="flex flex-row w-4/5 min-w-full pb-5 space-x-1">
-              <!-- don't show images yet
+          <div
+            :for={campaign_or_opportunity <- campaigns_and_opportunities}
+            class="flex flex-row w-4/5 min-w-full pb-5 space-x-1"
+          >
+            <!-- don't show images yet
             <div class="hidden md:block">
               <img class="w-full h-full" src={~p"/images/wordmark-black.png"}/>
             </div>
             -->
-              <div class="flex flex-col space-y-3">
-                <h2 class="mt-2 font-serif text-2xl font-medium">
-                  <%= opportunity.program.name %>
-                </h2>
-                <div class="flex items-center text-sm text-gray-300">
-                  <Heroicons.clock
-                    aria-label="Pickup Time"
-                    class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
-                  />
-                  <%= time_interval(opportunity.delivery_start, opportunity.delivery_end) %>
-                </div>
-                <div class="flex items-center text-sm text-gray-300">
-                  <Heroicons.map_pin class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
-                  <%= if !opportunity.hide_address do %>
-                    <div class="flex flex-col sm:flex-row">
-                      <.link
-                        href={GoogleMaps.open_map_url(opportunity.location)}
-                        target="_blank"
-                        class="mr-1 underline hover:text-gray-300"
-                      >
-                        <%= opportunity.location.address %>
-                      </.link>
-                      <div class="font-medium">
-                        (<%= Locations.neighborhood(opportunity.location) %>)
-                      </div>
-                    </div>
-                  <% else %>
+            <div class="flex flex-col space-y-3">
+              <h2 class="mt-2 font-serif text-2xl font-medium">
+                <%= campaign_or_opportunity.program.name %>
+              </h2>
+              <div class="flex items-center text-sm text-gray-300">
+                <Heroicons.clock
+                  aria-label="Pickup Time"
+                  class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
+                />
+                <%= time_interval(
+                  campaign_or_opportunity.delivery_start,
+                  campaign_or_opportunity.delivery_end
+                ) %>
+              </div>
+              <div class="flex items-center text-sm text-gray-300">
+                <Heroicons.map_pin class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
+                <%= if !hide_address?(campaign_or_opportunity) do %>
+                  <div class="flex flex-col sm:flex-row">
+                    <.link
+                      href={GoogleMaps.open_map_url(campaign_or_opportunity.location)}
+                      target="_blank"
+                      class="mr-1 underline hover:text-gray-300"
+                    >
+                      <%= campaign_or_opportunity.location.address %>
+                    </.link>
                     <div class="font-medium">
-                      <%= Locations.neighborhood(opportunity.location) %>
-                    </div>
-                  <% end %>
-                </div>
-                <%= if opportunity.program.campaign_blurb  do %>
-                  <div class="flex items-start text-sm text-gray-300">
-                    <Heroicons.information_circle
-                      aria-label="Pickup Time"
-                      class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
-                    />
-                    <%= opportunity.program.campaign_blurb %>
-                  </div>
-                <% end %>
-                <%= if Enum.filter(opportunity.program.items, fn item -> not item.hidden end) != []  do %>
-                  <div class="flex items-start text-sm text-gray-300">
-                    <Heroicons.shopping_bag
-                      aria-label="Pickup Time"
-                      class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
-                    />
-                    <div class="flex flex-col">
-                      You'll be delivering:
-                      <%= for item when not item.hidden <- opportunity.program.items do %>
-                        <p class="text-sm text-gray-300">
-                          <span class="font-bold"><%= item.name %></span>
-                          - <%= item.description %>
-                        </p>
-                      <% end %>
+                      (<%= Locations.neighborhood(campaign_or_opportunity.location) %>)
                     </div>
                   </div>
+                <% else %>
+                  <div class="font-medium">
+                    <%= Locations.neighborhood(campaign_or_opportunity.location) %>
+                  </div>
                 <% end %>
-                <div>
-                  <!--<.button patch={~p"/embed/calendar/#{opportunity}"} patch_replace color={:black}>More Info</.button>-->
-                  <.button
-                    href={opportunity.signup_link}
-                    target="_blank"
-                    class="ml-7"
-                    color={:black}
-                  >
-                    Sign Up
-                  </.button>
-                </div>
+              </div>
+              <div
+                :if={campaign_or_opportunity.program.campaign_blurb}
+                class="flex items-start text-sm text-gray-300"
+              >
+                <Heroicons.information_circle
+                  aria-label="Pickup Time"
+                  class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
+                />
+                <%= campaign_or_opportunity.program.campaign_blurb %>
+              </div>
+              <.show_items campaign_or_opportunity={campaign_or_opportunity} />
+              <div>
+                <!--<.button patch={~p"/embed/calendar/#{opportunity}"} patch_replace color={:black}>More Info</.button>-->
+                <.button
+                  href={signup_link(campaign_or_opportunity)}
+                  target="_blank"
+                  class="ml-7"
+                  color={:black}
+                >
+                  Sign Up
+                </.button>
               </div>
             </div>
-          <% end %>
+          </div>
         </div>
       </div>
-    <% end %>
+    </div>
   </div>
 </div>
