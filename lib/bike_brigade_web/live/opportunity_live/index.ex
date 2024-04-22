@@ -31,9 +31,22 @@ defmodule BikeBrigadeWeb.OpportunityLive.Index do
   end
 
   defp apply_action(socket, :edit, %{"id" => id}) do
-    socket
-    |> assign(:page_title, "Edit Opportunity")
-    |> assign(:opportunity, Delivery.get_opportunity(id))
+    opportunity = Delivery.get_opportunity(id)
+
+    socket =
+      socket
+      |> assign(:page_title, "Edit Opportunity")
+      |> assign(:opportunity, Delivery.get_opportunity(id))
+
+    if opportunity.program.public do
+      socket
+      |> put_flash(
+        :warn,
+        "This program is already public. You don't have to edit this opportunity to put it on the calendar."
+      )
+    else
+      socket
+    end
   end
 
   defp apply_action(socket, :new, _params) do
