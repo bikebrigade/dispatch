@@ -5,15 +5,16 @@ defmodule BikeBrigadeWeb.RiderHomeLiveTest do
   import Phoenix.LiveViewTest
 
   defp make_campaign(program_id, opts \\ []) do
-    start_offset = Keyword.get(opts, :start_offset, 0)
-    offset_type = Keyword.get(opts, :offset_type, :day)
+    {offset_amount, offset_unit} = Keyword.get(opts, :start_offset, {0, :day})
+    delivery_start = LocalizedDateTime.now() |> DateTime.add(offset_amount, offset_unit)
+    delivery_end = delivery_start |> DateTime.add(1, :hour)
+
     fixture(:campaign, %{
       program_id: program_id,
-      delivery_start: LocalizedDateTime.now() |> DateTime.add(start_offset, offset_type),
-      delivery_end: LocalizedDateTime.now() |> DateTime.add(start_offset, offset_type) |> DateTime.add(1, :hour),
+      delivery_start: delivery_start,
+      delivery_end: delivery_end
     })
   end
-
 
   describe "Rider Home Screen" do
     setup ctx do
@@ -24,15 +25,15 @@ defmodule BikeBrigadeWeb.RiderHomeLiveTest do
       rider_2 = fixture(:rider, %{name: "Hannah Bannana"})
       campaign = make_campaign(program.id)
       campaign2 = make_campaign(program2.id)
-      campaign3 = make_campaign(program2.id, start_offset: 1)
+      campaign3 = make_campaign(program2.id, start_offset: {1, :day})
 
       # campaign4 and campaign_in_50_hours  are used to test that the
       # CTA for urgent riders only shows from `now` to `now + 48 hours`
-      campaign4 = make_campaign(program2.id, start_offset: -1, offset_type: :hour)
-      campaign_in_50_hours = make_campaign(program2.id, start_offset: 50, offset_type: :hour)
+      campaign4 = make_campaign(program2.id, start_offset: {-1, :hour})
+      campaign_in_50_hours = make_campaign(program2.id, start_offset: {50, :hour})
 
-      campaign_past_1 = make_campaign(program.id, start_offset: -7)
-      campaign_past_2 = make_campaign(program.id, start_offset: -7)
+      campaign_past_1 = make_campaign(program.id, start_offset: {-7, :day})
+      campaign_past_2 = make_campaign(program.id, start_offset: {-7, :day})
 
       # We don't assign the rider to these tasks yet because we want to test both empty and filled states.
       fixture(:task, %{campaign: campaign, rider: nil})
