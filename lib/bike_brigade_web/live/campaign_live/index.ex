@@ -77,7 +77,9 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
   end
 
   defp fetch_campaigns(current_week) do
-    Delivery.list_campaigns(current_week,
+    Delivery.list_campaigns(
+      start_date: current_week,
+      end_date: Date.add(current_week, 6),
       preload: [:program, :stats, :latest_message, :scheduled_message]
     )
     |> Enum.reverse()

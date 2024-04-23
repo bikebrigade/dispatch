@@ -37,8 +37,9 @@ defmodule BikeBrigade.Delivery.Program do
     field :active, :boolean, default: true
     field :start_date, :date
 
-    # Default to public false
+    # Default to public false before we launch
     field :public, :boolean, default: false
+    field :hide_pickup_address, :boolean, default: false
 
     # TODO: this is me trying out virtual fields again
     field :campaign_count, :integer, virtual: true
@@ -71,6 +72,7 @@ defmodule BikeBrigade.Delivery.Program do
       :description,
       :lead_id,
       :public,
+      :hide_pickup_address,
       :spreadsheet_layout,
       :start_date
     ])

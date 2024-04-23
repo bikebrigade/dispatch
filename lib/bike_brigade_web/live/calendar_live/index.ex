@@ -1,4 +1,5 @@
 defmodule BikeBrigadeWeb.CalendarLive.Index do
+  alias BikeBrigade.Delivery.{Campaign, Opportunity}
   use BikeBrigadeWeb, {:live_view, layout: :public}
 
   alias BikeBrigade.Utils
@@ -15,10 +16,10 @@ defmodule BikeBrigadeWeb.CalendarLive.Index do
     # end
 
     start_date = today = LocalizedDateTime.today()
-    opportunities = list_opportunities(start_date)
+    campaigns_and_opportunities = list_campaigns_and_opportunities(start_date)
 
     end_date =
-      case List.last(opportunities) do
+      case List.last(campaigns_and_opportunities) do
         {end_date, _} -> end_date
         nil -> start_date
       end
@@ -29,7 +30,7 @@ defmodule BikeBrigadeWeb.CalendarLive.Index do
      |> assign(:today, today)
      |> assign(:start_date, start_date)
      |> assign(:end_date, end_date)
-     |> assign(:opportunities, list_opportunities(start_date))}
+     |> assign(:campaigns_and_opportunities, campaigns_and_opportunities)}
   end
 
   @impl true
@@ -51,12 +52,64 @@ defmodule BikeBrigadeWeb.CalendarLive.Index do
   #   |> assign(:expanded, String.to_integer(id))
   # end
 
-  def list_opportunities(start_date) do
-    Delivery.list_opportunities(
-      start_date: start_date,
-      published: true,
-      preload: [location: [:neighborhood], program: [:items]]
-    )
+  def list_campaigns_and_opportunities(start_date) do
+    opportunities =
+      Delivery.list_opportunities(
+        start_date: start_date,
+        published: true,
+        preload: [location: [:neighborhood], program: [:items]]
+      )
+
+    campaigns =
+      Delivery.list_campaigns(
+        start_date: start_date,
+        public: true,
+        preload: [location: [:neighborhood], program: [:items]]
+      )
+
+    (opportunities ++ campaigns)
     |> Utils.ordered_group_by(&LocalizedDateTime.to_date(&1.delivery_start))
+  end
+
+  defp signup_link(%Campaign{} = campaign) do
+    url(~p"/campaigns/signup/#{campaign.id}")
+  end
+
+  defp signup_link(%Opportunity{} = opportunity) do
+    opportunity.signup_link
+  end
+
+  defp hide_address?(%Opportunity{} = opportunity) do
+    opportunity.hide_address
+  end
+
+  defp hide_address?(%Campaign{} = campaign) do
+    campaign.program.hide_pickup_address
+  end
+
+  attr :campaign_or_opportunity, :any
+
+  defp show_items(assigns) do
+    visible_items_count =
+      Enum.count(assigns.campaign_or_opportunity.program.items, fn item -> not item.hidden end)
+
+    if visible_items_count == 0 do
+      ~H""
+    else
+      ~H"""
+      <div class="flex items-start text-sm text-gray-300">
+        <Heroicons.shopping_bag aria-label="Items" class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
+        <div class="flex flex-col">
+          You'll be delivering:
+          <p
+            :for={item when not item.hidden <- @campaign_or_opportunity.program.items}
+            class="text-sm text-gray-300"
+          >
+            <span class="font-bold"><%= item.name %></span> - <%= item.description %>
+          </p>
+        </div>
+      </div>
+      """
+    end
   end
 end

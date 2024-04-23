@@ -37,7 +37,7 @@ defmodule BikeBrigadeWeb.OpportunityLive.FormComponent do
         :published,
         :hide_address
       ])
-      |> cast_assoc(:location, with: &Location.geocoding_changeset/2)
+      |> cast_assoc(:location)
       |> validate_required([
         :program_id,
         :delivery_date,

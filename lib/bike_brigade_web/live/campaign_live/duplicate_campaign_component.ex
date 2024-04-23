@@ -10,6 +10,7 @@ defmodule BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent do
     ~H"""
     <div>
       <.flash kind={:info} title="Success!" flash={@flash} />
+      <.flash kind={:warn} title="Warning!" flash={@flash} />
       <.flash kind={:error} title="Error!" flash={@flash} />
       <.header><%= @title %></.header>
       <.simple_form

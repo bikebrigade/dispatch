@@ -1,16 +1,16 @@
 <div>
   <div class="flex w-full bg-white border-b">
-    <div class="absolute top-0 z-10 bg-white  md:hidden">
+    <div class="absolute top-0 z-10 bg-white md:hidden">
       <button
         phx-click={open_mobile_menu()}
         type="button"
-        class="inline-flex h-12 w-12 items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+        class="inline-flex items-center justify-center w-12 h-12 text-gray-500 rounded-md hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
       >
         <span class="sr-only">Open sidebar</span>
         <Heroicons.bars_3 class="w-6 h-6" />
       </button>
     </div>
-    <div class="w-full md:hidden text-center p-3 text-gray-600"><%= @page_title %></div>
+    <div class="w-full p-3 text-center text-gray-600 md:hidden"><%= @page_title %></div>
   </div>
   <!-- Off-canvas menu for mobile, show/hide based on off-canvas menu state. -->
   <div id="mobile-menu-container" class="relative z-40 hidden " role="dialog" aria-modal="true">
@@ -156,6 +156,7 @@
       <div class="py-6">
         <div class="px-4 mx-auto max-w-7xl sm:px-6 md:px-8">
           <.flash kind={:info} title="Success!" flash={@flash} />
+          <.flash kind={:warn} title="Warning!" flash={@flash} />
           <.flash kind={:error} title="Error!" flash={@flash} />
           <.flash
             id="disconnected"

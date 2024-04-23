@@ -1,5 +1,6 @@
 <div>
   <.flash kind={:info} title="Success!" flash={@flash} />
+  <.flash kind={:warn} title="Warning!" flash={@flash} />
   <.flash kind={:error} title="Error!" flash={@flash} />
   <div :if={@action == :edit}>
     <%= if @rider.user do %>
@@ -20,7 +21,11 @@
     phx-submit="save"
   >
     <.input type="text" field={{f, :name}} label="Name" />
-    <.input type="checkbox" field={{f, :anonymous_in_leaderboard}} label="Anonymize me in the leaderboard?"/>
+    <.input
+      type="checkbox"
+      field={{f, :anonymous_in_leaderboard}}
+      label="Anonymize me in the leaderboard?"
+    />
     <.input type="text" field={{f, :pronouns}} label="Pronouns" />
     <div class="px-2 py-3 -mx-2 space-y-4 border-2 border-gray-300 border-dashed rounded-md">
       <.input type="email" field={{f, :email}} label="Email" disabled={@action == :edit_profile} />

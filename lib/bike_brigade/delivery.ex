@@ -188,49 +188,63 @@ defmodule BikeBrigade.Delivery do
 
   alias BikeBrigade.Delivery.Campaign
 
-  def list_campaigns(week \\ nil, opts \\ []) do
+  def list_campaigns(opts \\ []) do
     preload = Keyword.get(opts, :preload, [:program])
-    # sometimes we just want to fetch campaigns with specific ids
-    # (such as when we need to display campaigns that urgently need a rider)
-    campaign_ids = Keyword.get(opts, :campaign_ids, nil)
-
-    public = Keyword.get(opts, :public, nil)
 
     query =
       from c in Campaign,
         as: :campaign,
-        order_by: [desc: c.delivery_start]
-
-    query =
-      if week do
-        start_date = LocalizedDateTime.new!(week, ~T[00:00:00])
-        end_date = Date.add(week, 6) |> LocalizedDateTime.new!(~T[23:59:59])
-
-        query
-        |> where([campaign: c], c.delivery_start >= ^start_date and c.delivery_start <= ^end_date)
-      else
-        query
-      end
-
-    query =
-      if campaign_ids do
-        query
-        |> where([campaign: c], c.id in ^campaign_ids)
-      else
-        query
-      end
-
-    query =
-      if not is_nil(public) do
-        query
-        |> join(:inner, [campaign: c], p in assoc(c, :program), as: :program)
-        |> where([program: p], p.public == ^public)
-      else
-        query
-      end
+        inner_join: p in assoc(c, :program),
+        as: :program,
+        order_by: [desc: c.delivery_start],
+        where: ^campaigns_filter(opts)
 
     Repo.all(query)
     |> Repo.preload(preload)
+  end
+
+  defp campaigns_filter(opts) do
+    filter = true
+
+    filter =
+      case Keyword.fetch(opts, :public) do
+        {:ok, true} -> dynamic([program: p], ^filter and p.public == true)
+        {:ok, false} -> dynamic([program: p], ^filter and p.public == false)
+        _ -> filter
+      end
+
+    filter =
+      case Keyword.fetch(opts, :start_date) do
+        {:ok, date} ->
+          date_time = LocalizedDateTime.new!(date, ~T[00:00:00])
+          dynamic([campaign: c], ^filter and c.delivery_start >= ^date_time)
+
+        _ ->
+          filter
+      end
+
+    filter =
+      case Keyword.fetch(opts, :end_date) do
+        {:ok, date} ->
+          date_time = LocalizedDateTime.new!(date, ~T[23:59:59])
+          dynamic([campaign: c], ^filter and c.delivery_start <= ^date_time)
+
+        _ ->
+          filter
+      end
+
+    # sometimes we just want to fetch campaigns with specific ids
+    # (such as when we need to display campaigns that urgently need a rider)
+    filter =
+      case Keyword.fetch(opts, :campaign_ids) do
+        {:ok, campaign_ids} when not is_nil(campaign_ids) ->
+          dynamic([campaign: c], ^filter and c.id in ^campaign_ids)
+
+        _ ->
+          filter
+      end
+
+    filter
   end
 
   @doc """
