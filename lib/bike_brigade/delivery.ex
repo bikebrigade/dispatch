@@ -262,8 +262,8 @@ defmodule BikeBrigade.Delivery do
         join: p in assoc(c, :program),
         where:
           c.delivery_start <= ^forty_eight_hours_from_now
-          and p.public == true
           and c.delivery_start >= ^now
+          and p.public == true
           and is_nil(t.assigned_rider_id),
         select: c
 
