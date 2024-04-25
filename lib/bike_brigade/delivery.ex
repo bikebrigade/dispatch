@@ -259,9 +259,12 @@ defmodule BikeBrigade.Delivery do
       from c in Campaign,
         distinct: [asc: c.id],
         join: t in assoc(c, :tasks),
+        join: p in assoc(c, :program),
         where:
-          c.delivery_start <= ^forty_eight_hours_from_now and c.delivery_start >= ^now and
-            is_nil(t.assigned_rider_id),
+          c.delivery_start <= ^forty_eight_hours_from_now
+          and p.public == true
+          and c.delivery_start >= ^now
+          and is_nil(t.assigned_rider_id),
         select: c
 
     Repo.all(query)
