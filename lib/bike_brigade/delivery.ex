@@ -458,9 +458,7 @@ defmodule BikeBrigade.Delivery do
       |> Repo.preload(:location)
 
     # Does a nested preload to get tasks' assigned riders without doing an extra db query
-    tasks =
-      Repo.preload(all_tasks, assigned_rider: fn _ -> all_riders end)
-    |> Enum.sort_by(fn t -> t.dropoff_location.neighborhood.name end)
+    tasks = Repo.preload(all_tasks, assigned_rider: fn _ -> all_riders end)
 
     riders = Repo.preload(all_riders, assigned_tasks: fn _ -> all_tasks end)
 
