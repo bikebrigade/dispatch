@@ -31,12 +31,30 @@ jobs:
       with:
         elixir-version: '1.14.2' # Define the elixir version [required]
         otp-version: '25' # Define the OTP version [required]
-    - name: Restore dependencies cache
-      uses: actions/cache@v2
-      with:
-        path: deps
-        key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
-        restore-keys: ${{ runner.os }}-mix-
+
+    - name: Cache Elixir deps
+        id: elixir-deps-cache
+        uses: actions/cache@v2.1.7
+        with:
+          path: |
+            **/deps
+          key: |
+            ${{ runner.os }}-elixir-deps-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-elixir-deps-
+
+      - name: Cache Elixir build
+        id: elixir-build-cache
+        uses: actions/cache@v2.1.7
+        with:
+          path: |
+            **/_build
+          key: |
+            ${{ runner.os }}-elixir-build-${{ hashFiles('**/mix.lock') }}-${{ hashFiles( '**/lib/**/*.{ex,eex}', '**/config/*.exs', '**/mix.exs' ) }}
+          restore-keys: |
+            ${{ runner.os }}-elixir-build-${{ hashFiles('**/mix.lock') }}-
+            ${{ runner.os }}-elixir-build-
+
     - name: Install dependencies
       run: mix deps.get
     - name: Compile
