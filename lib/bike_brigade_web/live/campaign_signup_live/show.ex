@@ -115,6 +115,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
     %{campaign: campaign, tasks: tasks} = socket.assigns
     task = Enum.find(tasks, fn task -> task.id == task_id end)
 
+
     attrs = %{
       # this is arbitrary and not actually used by dispatchers anymore.
       "rider_capacity" => "1",
