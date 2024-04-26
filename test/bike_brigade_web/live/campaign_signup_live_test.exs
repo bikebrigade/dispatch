@@ -162,7 +162,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       res = login_as_rider(ctx)
       campaign = fixture(:campaign, %{program_id: program.id})
 
-      task = fixture(:task, %{campaign: campaign, rider: nil})
+      task = fixture(:task, %{campaign: campaign, rider: nil, dropoff_name: "Carl Jo-Hanssen"})
 
       Map.merge(res, %{program: program, campaign: campaign, task: task})
     end
@@ -195,12 +195,10 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
     test "we see pertinent task information", ctx do
       {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
 
-      # we only show the first initial of the dropoff name
+      # we only show the first initials of the dropoff name, which is Carl Jo-Hansen -> CJH
       refute html =~ ctx.task.dropoff_name
 
-      assert live |> element("[data-test-id=dropoff-name-#{ctx.task.id}]") |> render =~
-               ctx.task.dropoff_name |> String.first() |> String.upcase()
-
+      assert live |> element("[data-test-id=dropoff-name-#{ctx.task.id}]") |> render =~ "CJH"
       assert html =~ BikeBrigade.Locations.neighborhood(ctx.task.dropoff_location)
     end
 
