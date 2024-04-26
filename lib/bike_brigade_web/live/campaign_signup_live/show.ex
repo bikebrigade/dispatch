@@ -173,10 +173,15 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
   defp assign_campaign(socket, campaign) do
     {riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
 
+    tasks_with_neighborhoods =
+      tasks
+      |> Enum.map(fn task -> {task, Locations.neighborhood(task.dropoff_location)} end)
+      |> Enum.sort_by(&elem(&1, 0))
+
     socket
     |> assign(:campaign, campaign)
     |> assign(:riders, riders)
-    |> assign(:tasks, tasks)
+    |> assign(:tasks_with_neighborhoods, tasks_with_neighborhoods)
   end
 
   ## Module specific components
