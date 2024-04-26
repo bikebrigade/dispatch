@@ -19,7 +19,7 @@
     <:col :let={task} label="Delivery Size">
       <.get_delivery_size task={task} />
     </:col>
-    <:col :let={task} label="Recipient"><%= first_initial(task.dropoff_name) %></:col>
+    <:col :let={task} label="Recipient"><%= first_and_last_initial(task.dropoff_name) %></:col>
     <:col :let={task} label="Dropoff Neighbourhood">
       <%= Locations.neighborhood(task.dropoff_location) %>
     </:col>
