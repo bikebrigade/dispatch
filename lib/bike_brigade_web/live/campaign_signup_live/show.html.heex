@@ -12,20 +12,20 @@
 
 <!-- Desktop Table of tasks -->
 <section class="hidden md:block">
-  <.table id="tasks" rows={@tasks_with_neighborhoods}>
+  <.table id="tasks" rows={@tasks}>
     <:col :let={_task} label="Pickup time">
       <%= pickup_window(@campaign) %>
     </:col>
-    <:col :let={{task, _}} label="Delivery Size">
+    <:col :let={task} label="Delivery Size">
       <.get_delivery_size task={task} />
     </:col>
-    <:col :let={{task, _}} label="Recipient"><%= first_initial(task.dropoff_name) %></:col>
-    <:col :let={{task, neighbourhood}} label="Dropoff Neighbourhood">
-      <%= neighbourhood %>
+    <:col :let={task} label="Recipient"><%= first_initial(task.dropoff_name) %></:col>
+    <:col :let={task} label="Dropoff Neighbourhood">
+      <%= task.dropoff_location.neighborhood.name %>
     </:col>
-    <:col :let={{task, _}} label="Notes"><%= task.delivery_status_notes %>
+    <:col :let={task} label="Notes"><%= task.delivery_status_notes %>
       <.truncated_riders_notes note={task.rider_notes || "--"} /></:col>
-    <:action :let={{task, _}}>
+    <:action :let={task}>
       <.signup_button
         id="signup-btn-desktop"
         campaign={@campaign}
@@ -37,7 +37,7 @@
 </section>
 <!-- Mobile list of tasks -->
 <ul class="flex flex-col text-xs md:hidden">
-  <li :for={{t, _} <- @tasks_with_neighborhoods} class="w-full mb-8">
+  <li :for={t <- @tasks} class="w-full mb-8">
     <div class="flex justify-between px-4 py-3 font-bold bg-slate-200">
       <span data-test-id={"dropoff-name-#{t.id}"}><%= first_initial(t.dropoff_name) %></span>
       <span>Pickup: <%= pickup_window(@campaign) %></span>

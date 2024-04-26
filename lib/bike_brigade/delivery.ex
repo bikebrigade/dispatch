@@ -436,7 +436,7 @@ defmodule BikeBrigade.Delivery do
       |> task_load_location()
       |> order_by(:id)
       |> Repo.all()
-      |> Repo.preload([:pickup_location, :dropoff_location, task_items: [:item]])
+      |> Repo.preload([:pickup_location, dropoff_location: [:neighborhood], task_items: [:item]])
 
     all_riders =
       Repo.all(
@@ -458,7 +458,9 @@ defmodule BikeBrigade.Delivery do
       |> Repo.preload(:location)
 
     # Does a nested preload to get tasks' assigned riders without doing an extra db query
-    tasks = Repo.preload(all_tasks, assigned_rider: fn _ -> all_riders end)
+    tasks =
+      Repo.preload(all_tasks, assigned_rider: fn _ -> all_riders end)
+    |> Enum.sort_by(fn t -> t.dropoff_location.neighborhood.name end)
 
     riders = Repo.preload(all_riders, assigned_tasks: fn _ -> all_tasks end)
 

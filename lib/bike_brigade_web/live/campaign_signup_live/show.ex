@@ -113,6 +113,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
 
   def handle_event("signup_rider", %{"rider_id" => rider_id, "task_id" => task_id}, socket) do
     %{campaign: campaign, tasks: tasks} = socket.assigns
+
     task = Enum.find(tasks, fn task -> task.id == task_id end)
 
     attrs = %{
@@ -173,15 +174,10 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
   defp assign_campaign(socket, campaign) do
     {riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
 
-    tasks_with_neighborhoods =
-      tasks
-      |> Enum.map(fn task -> {task, Locations.neighborhood(task.dropoff_location)} end)
-      |> Enum.sort_by(&elem(&1, 0))
-
     socket
     |> assign(:campaign, campaign)
     |> assign(:riders, riders)
-    |> assign(:tasks_with_neighborhoods, tasks_with_neighborhoods)
+    |> assign(:tasks, tasks)
   end
 
   ## Module specific components
