@@ -8,7 +8,6 @@ on:
 
 jobs:
   build:
-
     name: Build and test
     runs-on: ubuntu-latest
 
@@ -25,25 +24,43 @@ jobs:
           --health-retries 5
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Elixir
-      uses: erlef/setup-elixir@v1
-      with:
-        elixir-version: '1.14.2' # Define the elixir version [required]
-        otp-version: '25' # Define the OTP version [required]
-    - name: Restore dependencies cache
-      uses: actions/cache@v2
-      with:
-        path: deps
-        key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
-        restore-keys: ${{ runner.os }}-mix-
-    - name: Install dependencies
-      run: mix deps.get
-    - name: Compile
-      run: mix compile
-    - name: Install JS dependencies
-      run: npm install --prefix=assets
-    - name: Compile assets
-      run: mix assets.deploy
-    - name: Run tests
-      run: mix test
+      - uses: actions/checkout@v2
+      - name: Set up Elixir
+        uses: erlef/setup-elixir@v1
+        with:
+          elixir-version: '1.14.2'
+          otp-version: '25'
+
+      - name: Cache Elixir deps
+        id: elixir-deps-cache
+        uses: actions/cache@v2.1.7
+        with:
+          path: |
+            **/deps
+          key: |
+            ${{ runner.os }}-elixir-deps-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-elixir-deps-
+
+      - name: Cache Elixir build
+        id: elixir-build-cache
+        uses: actions/cache@v2.1.7
+        with:
+          path: |
+            **/_build
+          key: |
+            ${{ runner.os }}-elixir-build-${{ hashFiles('**/mix.lock') }}-${{ hashFiles( '**/lib/**/*.{ex,eex}', '**/config/*.exs', '**/mix.exs' ) }}
+          restore-keys: |
+            ${{ runner.os }}-elixir-build-${{ hashFiles('**/mix.lock') }}-
+            ${{ runner.os }}-elixir-build-
+
+      - name: Install dependencies
+        run: mix deps.get
+      - name: Compile
+        run: mix compile
+      - name: Install JS dependencies
+        run: npm install --prefix=assets
+      - name: Compile assets
+        run: mix assets.deploy
+      - name: Run tests
+        run: mix test
