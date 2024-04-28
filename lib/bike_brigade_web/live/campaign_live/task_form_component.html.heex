@@ -68,7 +68,9 @@
         </.link>
       </div>
 
-      <.input type="textarea" field={{f, :rider_notes}} label="Notes" />
+      <.input type="textarea" field={{f, :rider_notes}} label="Delivery Notes" />
+
+      <.input type="textarea" field={{f, :pickup_notes}} label="Pickup Notes" />
 
       <:actions>
         <.button type="submit" phx-disable-with="Saving...">Save</.button>

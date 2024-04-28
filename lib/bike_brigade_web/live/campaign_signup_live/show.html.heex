@@ -23,8 +23,8 @@
     <:col :let={task} label="Dropoff Neighbourhood">
       <%= Locations.neighborhood(task.dropoff_location) %>
     </:col>
-    <:col :let={task} label="Notes"><%= task.delivery_status_notes %>
-      <.truncated_riders_notes note={task.rider_notes || "--"} /></:col>
+    <:col :let={task} label="Pickup Notes">
+      <.truncated_riders_notes note={task.pickup_notes || "--"} /></:col>
     <:action :let={task}>
       <.signup_button
         id="signup-btn-desktop"
@@ -57,7 +57,7 @@
 
       <div :if={t.rider_notes} class="flex flex-col justify-center px-4 py-2 border-b-2">
         <span>Notes:</span>
-        <span><%= t.rider_notes %></span>
+        <span><%= t.pickup_notes %></span>
       </div>
 
       <div class="flex flex-col justify-center px-4 py-2 border-b-2">
