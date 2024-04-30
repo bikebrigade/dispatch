@@ -572,7 +572,7 @@ defmodule BikeBrigade.Delivery do
     {riders, _} = campaign_riders_and_tasks(campaign)
 
     msgs =
-      for rider <- riders, rider != nil, rider.assigned_tasks != [] do
+      for rider <- riders, rider != nil do
         {:ok, msg} = send_campaign_message(%Campaign{} = campaign, rider)
 
         msg
