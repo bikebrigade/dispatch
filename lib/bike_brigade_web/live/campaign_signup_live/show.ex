@@ -285,9 +285,9 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
     task.assigned_rider.id == current_rider_id && !campaign_in_past(campaign)
   end
 
-  defp initials(name) do
+  def initials(name) do
     name
-    |> String.split(~r/[\s+|-]/)
+    |> String.split(~r/[\s+|-]/, trim: true)
     |> Enum.map(&String.first/1)
     |> Enum.map(&String.upcase/1)
     |> Enum.join()
