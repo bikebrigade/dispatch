@@ -23,8 +23,6 @@
     <:col :let={task} label="Dropoff Neighbourhood">
       <%= Locations.neighborhood(task.dropoff_location) %>
     </:col>
-    <:col :let={task} label="Notes"><%= task.delivery_status_notes %>
-      <.truncated_riders_notes note={task.rider_notes || "--"} /></:col>
     <:action :let={task}>
       <.signup_button
         id="signup-btn-desktop"
