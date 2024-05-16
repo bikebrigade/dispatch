@@ -31,7 +31,7 @@ config :reverse_proxy_plug, :http_client, ReverseProxyPlug.HTTPClient.Adapters.H
 
 # Analytics reverse proxy
 config :bike_brigade, BikeBrigadeWeb.Router,
-  analytics_upstream: "http://bike-brigade-analytics.internal/analytics/"
+  analytics_upstream: "http://bike-brigade-analytics.internal:8080/analytics/"
 
 # Esbuild
 config :esbuild,
