@@ -77,7 +77,7 @@ defmodule BikeBrigade.AuthenticationMessenger do
     msg = [
       from: Messaging.outbound_number(),
       to: phone,
-      body: "Your BikeBrigade access code is #{token}."
+      body: "Your BikeBrigade access code is #{token}.\n\n@#{BikeBrigadeWeb.Endpoint.host()} ##{token}"
     ]
 
     SmsService.send_sms(msg)
