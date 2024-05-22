@@ -1,6 +1,7 @@
 ---
 name: Bug report
 about: Use this template for reporting bugs.
+label: needs triage, bug
 ---
 
 **Describe the bug**
