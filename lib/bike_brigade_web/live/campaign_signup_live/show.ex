@@ -191,23 +191,6 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
     """
   end
 
-  defp truncated_riders_notes(assigns) do
-    if String.length(assigns.note) > 40 do
-      ~H"""
-      <div class="w-[40ch] flex items-center">
-        <details>
-          <summary class="cursor-pointer"><%= String.slice(@note, 0..40) %>...</summary>
-          <%= @note %>
-        </details>
-      </div>
-      """
-    else
-      ~H"""
-      <div><%= @note %></div>
-      """
-    end
-  end
-
   @doc """
     Shows one of the following:
     - A "Sign up" button if the campaign is eligible for signing up
