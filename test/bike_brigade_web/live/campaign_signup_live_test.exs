@@ -200,6 +200,10 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
 
       assert live |> element("[data-test-id=dropoff-name-#{ctx.task.id}]") |> render =~ "CJH"
       assert html =~ BikeBrigade.Locations.neighborhood(ctx.task.dropoff_location)
+
+      # We show the name of the item
+      assert html =~ "Burrito"
+
     end
 
     test "Invalid route for campaign shows flash and redirects", ctx do

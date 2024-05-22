@@ -223,10 +223,9 @@ defmodule BikeBrigade.Fixtures do
 
   defp fake_item() do
     %{
-      name: "Foodshare Box",
-      plural: "Foodshare Boxes",
-      description: "a box",
-      category: "Foodshare Box"
+      name: "Burrito",
+      description: "a large burrito with all the fixings",
+      category: "Prepared Food"
     }
   end
 end

@@ -16,7 +16,7 @@
     <:col :let={_task} label="Pickup time">
       <%= pickup_window(@campaign) %>
     </:col>
-    <:col :let={task} label="Delivery Size">
+    <:col :let={task} label="Delivery">
       <.get_delivery_size task={task} />
     </:col>
     <:col :let={task} label="Recipient"><%= initials(task.dropoff_name) %></:col>
@@ -42,7 +42,7 @@
     </div>
     <div class="flex flex-col bg-white shadow">
       <div class="flex items-center p-4 py-2 border-b">
-        <span class="pr-2 ">Delivery size:</span>
+        <span class="pr-2 ">Delivery:</span>
         <span class="italic">
           <.get_delivery_size task={t} />
         </span>

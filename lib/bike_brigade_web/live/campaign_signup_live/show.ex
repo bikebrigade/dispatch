@@ -183,16 +183,10 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
   ## Module specific components
 
   defp get_delivery_size(assigns) do
-    item_list =
-      Enum.map(assigns.task.task_items, fn task_item ->
-        "#{task_item.count} #{task_item.item.category}"
-      end)
-
-    assigns = assign(assigns, :item_list, item_list)
-
     ~H"""
-    <div :for={item <- @item_list}>
-      <%= item %>
+    <div :for={task_item <- @task.task_items}>
+      <span :if={task_item.count > 1}> task_item.count </span>
+      <%= Inflex.inflect(task_item.item.name, task_item.count) %>
     </div>
     """
   end
