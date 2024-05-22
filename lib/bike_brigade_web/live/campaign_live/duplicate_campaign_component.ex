@@ -45,7 +45,7 @@ defmodule BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent do
         </div>
 
         <.input type="checkbox" checked field={{f, :duplicate_deliveries}} label="Copy Deliveries" />
-        <.input type="checkbox" checked field={{f, :duplicate_riders}} label="Copy Riders" />
+        <.input type="checkbox" field={{f, :duplicate_riders}} label="Copy Riders" />
 
         <:actions>
           <.button type="submit" phx-disable-with="Saving...">
