@@ -53,11 +53,6 @@
         <span><%= Locations.neighborhood(t.dropoff_location) %></span>
       </div>
 
-      <div :if={t.rider_notes} class="flex flex-col justify-center px-4 py-2 border-b-2">
-        <span>Notes:</span>
-        <span><%= t.rider_notes %></span>
-      </div>
-
       <div class="flex flex-col justify-center px-4 py-2 border-b-2">
         <.signup_button
           id="signup-btn-mobile"
