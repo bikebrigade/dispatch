@@ -190,7 +190,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
       <%= if task_item.item.description && task_item.item.description != "" do %>
         <div class="flex items-center">
           <details>
-            <summary class="cursor-pointer">
+            <summary class="cursor-pointer" title={task_item.item.description}>
               <%= Inflex.inflect(task_item.item.name, task_item.count) %>
             </summary>
             <%= task_item.item.description %>
