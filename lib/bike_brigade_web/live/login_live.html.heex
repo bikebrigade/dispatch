@@ -34,7 +34,11 @@
           </div>
 
           <div class="text-center ">
-            <.button href="https://www.bikebrigade.ca/volunteer-rider-sign-up" color={:white} size={:small}>
+            <.button
+              href="https://www.bikebrigade.ca/volunteer-rider-sign-up"
+              color={:white}
+              size={:small}
+            >
               Sign Up!
             </.button>
           </div>
@@ -65,7 +69,14 @@
             </p>
           </div>
           <.input type="hidden" field={{f, :phone}} />
-          <.input type="text" field={{f, :token_attempt}} label="Authentication Code" />
+          <.input
+            type="text"
+            field={{f, :token_attempt}}
+            label="Authentication Code"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            pattern="\d{6}"
+          />
           <:actions>
             <.button type="submit" class="w-full">Sign in</.button>
           </:actions>
