@@ -185,13 +185,11 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
   defp get_delivery_size(assigns) do
     ~H"""
     <div :for={task_item <- @task.task_items} class="flex items-center">
-      <span :if={task_item.count > 1}> task_item.count </span>
-
       <%= if task_item.item.description && task_item.item.description != "" do %>
         <div class="flex items-center">
           <details>
             <summary class="cursor-pointer" title={task_item.item.description}>
-              <%= Inflex.inflect(task_item.item.name, task_item.count) %>
+            <span :if={task_item.count > 1} class="mr-1"> <%= task_item.count %></span><%= Inflex.inflect(task_item.item.name, task_item.count) %>
             </summary>
             <%= task_item.item.description %>
           </details>
