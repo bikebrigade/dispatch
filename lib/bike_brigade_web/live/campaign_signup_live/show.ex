@@ -183,35 +183,24 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
   ## Module specific components
 
   defp get_delivery_size(assigns) do
-    item_list =
-      Enum.map(assigns.task.task_items, fn task_item ->
-        "#{task_item.count} #{task_item.item.category}"
-      end)
-
-    assigns = assign(assigns, :item_list, item_list)
-
     ~H"""
-    <div :for={item <- @item_list}>
-      <%= item %>
+    <div :for={task_item <- @task.task_items} class="flex items-center">
+      <span :if={task_item.count > 1}> task_item.count </span>
+
+      <%= if task_item.item.description && task_item.item.description != "" do %>
+        <div class="flex items-center">
+          <details>
+            <summary class="cursor-pointer" title={task_item.item.description}>
+              <%= Inflex.inflect(task_item.item.name, task_item.count) %>
+            </summary>
+            <%= task_item.item.description %>
+          </details>
+        </div>
+      <% else %>
+        <%= Inflex.inflect(task_item.item.name, task_item.count) %>
+      <% end %>
     </div>
     """
-  end
-
-  defp truncated_riders_notes(assigns) do
-    if String.length(assigns.note) > 40 do
-      ~H"""
-      <div class="w-[40ch] flex items-center">
-        <details>
-          <summary class="cursor-pointer"><%= String.slice(@note, 0..40) %>...</summary>
-          <%= @note %>
-        </details>
-      </div>
-      """
-    else
-      ~H"""
-      <div><%= @note %></div>
-      """
-    end
   end
 
   @doc """
