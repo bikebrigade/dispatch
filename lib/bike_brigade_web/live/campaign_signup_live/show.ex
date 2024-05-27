@@ -74,13 +74,13 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
     |> redirect(to: ~p"/campaigns/signup/#{socket.assigns.campaign}")
   end
 
-  defp split_first_name(full_name) do
-    case String.split(full_name, " ") do
+  defp first_name_and_last_initial(full_name) do
+    case String.split(full_name, " ", parts: 2) do
       [first_name, last_name] when is_binary(first_name) and is_binary(last_name) ->
-        first_name
+        "#{first_name} #{String.first(last_name)}"
 
-      _ ->
-        full_name
+      [first_name] ->
+        first_name
     end
   end
 
@@ -189,7 +189,10 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
         <div class="flex items-center">
           <details>
             <summary class="cursor-pointer" title={task_item.item.description}>
-            <span :if={task_item.count > 1} class="mr-1"> <%= task_item.count %></span><%= Inflex.inflect(task_item.item.name, task_item.count) %>
+              <span :if={task_item.count > 1} class="mr-1"><%= task_item.count %></span><%= Inflex.inflect(
+                task_item.item.name,
+                task_item.count
+              ) %>
             </summary>
             <%= task_item.item.description %>
           </details>
@@ -218,7 +221,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
     <div>
       <%= if @task.assigned_rider do %>
         <span :if={@task.assigned_rider.id != @current_rider_id} class="mr-2">
-          <%= split_first_name(@task.assigned_rider.name) %>
+          <%= first_name_and_last_initial(@task.assigned_rider.name) %>
         </span>
 
         <.button
