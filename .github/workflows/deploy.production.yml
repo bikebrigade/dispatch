@@ -3,6 +3,10 @@ on:
   push:
     branches:
       - main
+
+concurrency:
+  group: ${{ github.workflow }}
+
 jobs:
   deploy:
     name: Deploy
