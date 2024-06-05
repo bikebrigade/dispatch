@@ -215,11 +215,15 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
 
   def signup_button(assigns) do
     ~H"""
-    <div>
+    <div class="flex flex-col space-y-2 md:items-center md:space-y-0 md:flex-row md:space-x-2">
       <%= if @task.assigned_rider do %>
-        <span :if={@task.assigned_rider.id != @current_rider_id} class="mr-2">
+        <div :if={@task.assigned_rider.id != @current_rider_id}>
           <%= split_first_name(@task.assigned_rider.name) %>
-        </span>
+        </div>
+
+        <div :if={@task.assigned_rider.id == @current_rider_id}>
+          You
+        </div>
 
         <.button
           :if={task_eligigle_for_unassign(@task, @campaign, @current_rider_id)}
