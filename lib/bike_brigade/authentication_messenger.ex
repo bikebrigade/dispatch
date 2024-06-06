@@ -29,6 +29,11 @@ defmodule BikeBrigade.AuthenticationMessenger do
     GenServer.call(pid, {:validate_token, phone, token_attempt})
   end
 
+  def clear_token(phone), do: clear_token(@name, phone)
+  def clear_token(pid, phone) do
+    GenServer.cast(pid, {:clear, phone})
+  end
+
   # Server (callbacks)
 
   @impl GenServer
@@ -70,6 +75,11 @@ defmodule BikeBrigade.AuthenticationMessenger do
 
   @impl GenServer
   def handle_info({:expire, phone}, state) do
+    {:noreply, Map.delete(state, phone)}
+  end
+
+  @impl GenServer
+  def handle_cast({:clear, phone}, state) do
     {:noreply, Map.delete(state, phone)}
   end
 
