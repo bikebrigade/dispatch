@@ -72,4 +72,10 @@ defmodule BikeBrigadeWeb.LoginLive do
          |> push_patch(to: ~p"/login")}
     end
   end
+
+  @impl Phoenix.LiveView
+  def handle_event("cancel", %{"phone" => phone}, socket) do
+    AuthenticationMessenger.clear_token(phone)
+    {:noreply, redirect(socket, to: ~p"/login")}
+  end
 end

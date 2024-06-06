@@ -78,6 +78,13 @@
             pattern="\d{6}"
           />
           <:actions>
+            <.button
+              color={:white}
+              class="w-full"
+              phx-click={JS.push("cancel", value: %{phone: @changeset.data.phone})}
+            >
+              Cancel
+            </.button>
             <.button type="submit" class="w-full">Sign in</.button>
           </:actions>
         </.simple_form>
