@@ -7,11 +7,16 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
   alias BikeBrigade.Delivery
   alias BikeBrigade.Delivery.Campaign
   alias BikeBrigade.Messaging.SmsMessage
+  alias BikeBrigadeWeb.Components.CampaignComponents
 
   import BikeBrigadeWeb.CampaignHelpers
 
   @impl true
   def mount(_params, _session, socket) do
+    if connected?(socket) do
+      Delivery.subscribe()
+    end
+
     current_week =
       LocalizedDateTime.today()
       |> Date.beginning_of_week()
@@ -21,12 +26,31 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
      |> assign(:page, :campaigns)
      |> assign(:page_title, "Campaigns")
      |> assign(:current_week, current_week)
-     |> assign(:campaigns, fetch_campaigns(current_week))}
+     |> assign(:campaigns, fetch_campaigns(current_week))
+     |> assign(:campaign_task_counts, Delivery.get_total_tasks_and_open_tasks(current_week))
+    }
   end
 
   @impl true
   def handle_params(params, _url, socket) do
     {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+  end
+
+  @broadcasted_infos [
+    :task_created,
+    :task_deleted,
+    :task_updated,
+    :campaign_rider_created,
+    :campaign_rider_deleted
+  ]
+
+  @impl Phoenix.LiveView
+  def handle_info({event, entity}, socket) when event in @broadcasted_infos do
+    if entity_in_campaigns?(socket.assigns.campaigns, entity.campaign_id) do
+      {:noreply, refetch_and_assign_data(socket)}
+    else
+      {:noreply, socket}
+    end
   end
 
   @impl true
@@ -122,5 +146,13 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
 
   def message_info(assigns) do
     ~H""
+  end
+
+  defp refetch_and_assign_data(socket) do
+    week = socket.assigns.current_week
+
+    socket
+    |> assign(:campaign_task_counts, Delivery.get_total_tasks_and_open_tasks(week))
+    |> assign(:campaigns, fetch_campaigns(week))
   end
 end
