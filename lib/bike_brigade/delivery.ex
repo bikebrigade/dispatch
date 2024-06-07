@@ -638,7 +638,7 @@ defmodule BikeBrigade.Delivery do
 
     task_details =
       for task <- tasks do
-        "Name: #{task.dropoff_name}\nPhone: #{task.dropoff_phone}\nType: #{BikeBrigadeWeb.CampaignHelpers.request_type(task)}\nAddress: #{task.dropoff_location}\nNotes: #{task.rider_notes}"
+        "Name: #{task.dropoff_name}\nPhone: #{task.dropoff_phone}\nType: #{BikeBrigadeWeb.CampaignHelpers.request_type(task)}\nAddress: #{task.dropoff_location}\nNotes: #{task.delivery_instructions}"
       end
       |> Enum.join("\n\n")
 

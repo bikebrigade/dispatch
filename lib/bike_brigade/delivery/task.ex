@@ -23,7 +23,8 @@ defmodule BikeBrigade.Delivery.Task do
     :delivery_status,
     :delivery_status_notes,
     :partner_tracking_id,
-    :rider_notes,
+    :delivery_instructions,
+    :signup_notes,
     :assigned_rider_id,
     :campaign_id
   ]
@@ -33,8 +34,8 @@ defmodule BikeBrigade.Delivery.Task do
     :dropoff_location
   ]
   schema "tasks" do
-    # TODO: rename to delivery_instructions
-    field :rider_notes, :string
+    field :delivery_instructions, :string
+    field :signup_notes, :string
 
     field :dropoff_name, :string
     field :dropoff_phone, EctoPhoneNumber.Canadian
