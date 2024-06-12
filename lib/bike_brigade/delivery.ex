@@ -214,34 +214,32 @@ defmodule BikeBrigade.Delivery do
       end
 
     filter =
-      case Keyword.fetch(opts, :start_date) do
-        {:ok, date} ->
-          date_time = LocalizedDateTime.new!(date, ~T[00:00:00])
-          dynamic([campaign: c], ^filter and c.delivery_start >= ^date_time)
-
-        _ ->
-          filter
-      end
-
-    filter =
-      case Keyword.fetch(opts, :end_date) do
-        {:ok, date} ->
-          date_time = LocalizedDateTime.new!(date, ~T[23:59:59])
-          dynamic([campaign: c], ^filter and c.delivery_start <= ^date_time)
-
-        _ ->
-          filter
-      end
-
-    # sometimes we just want to fetch campaigns with specific ids
-    # (such as when we need to display campaigns that urgently need a rider)
-    filter =
+      # First we check if we are fetching with campaign_ids
+      # If so, we can ignore start_date and end_date to avoid
+      # cutting off results by the current_week boundary.
       case Keyword.fetch(opts, :campaign_ids) do
         {:ok, campaign_ids} when not is_nil(campaign_ids) ->
           dynamic([campaign: c], ^filter and c.id in ^campaign_ids)
 
         _ ->
-          filter
+          filter =
+            case Keyword.fetch(opts, :start_date) do
+              {:ok, date} ->
+                date_time = LocalizedDateTime.new!(date, ~T[00:00:00])
+                dynamic([campaign: c], ^filter and c.delivery_start >= ^date_time)
+
+              _ ->
+                filter
+            end
+
+          case Keyword.fetch(opts, :end_date) do
+            {:ok, date} ->
+              date_time = LocalizedDateTime.new!(date, ~T[23:59:59])
+              dynamic([campaign: c], ^filter and c.delivery_start <= ^date_time)
+
+            _ ->
+              filter
+          end
       end
 
     filter
