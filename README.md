@@ -1,7 +1,7 @@
 [![CI](https://github.com/mveytsman/bike-brigade/workflows/CI/badge.svg)](https://github.com/mveytsman/bike-brigade/actions?query=workflow%3ACI)
 # BikeBrigade
 
-**[🎬 Project Board](https://github.com/orgs/bikebrigade/projects/4/views/1)**
+**[🎬 Project Board](https://github.com/orgs/bikebrigade/projects/14/)**
 
 ## Prerequisities
 1.  [nix](https://nixos.org/download.html) with [flakes enabled](https://nixos.wiki/wiki/Flakes)
