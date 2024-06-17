@@ -78,13 +78,19 @@ defmodule BikeBrigadeWeb.AuthenticationController do
     end
   end
 
+  def show(conn, %{"cancel" => "true", "phone" => phone}) do
+    AuthenticationMessenger.clear_token(phone)
+
+    conn
+    |> redirect(to: ~p"/login")
+  end
+
   def show(conn, _params) do
     changeset = Ecto.Changeset.change(%Login{})
 
     conn
     |> render("show.html", state: :phone, changeset: changeset, layout: false)
   end
-
 
   @doc "Set the session token and live socket for the user"
   def do_login(conn, user) do
