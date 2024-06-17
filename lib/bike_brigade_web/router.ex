@@ -27,15 +27,7 @@ defmodule BikeBrigadeWeb.Router do
     plug :get_user_from_session
   end
 
-  pipeline :parse_request do
-    plug Plug.Parsers,
-      parsers: [:urlencoded, :multipart, :json],
-      pass: ["*/*"],
-      json_decoder: Phoenix.json_library()
-  end
-
   pipeline :browser do
-    plug :parse_request
     plug :accepts, ["html"]
     plug :sessions
     plug :fetch_live_flash
@@ -46,7 +38,6 @@ defmodule BikeBrigadeWeb.Router do
   end
 
   pipeline :api do
-    plug :parse_request
     plug :accepts, ["json"]
   end
 
@@ -110,7 +101,7 @@ defmodule BikeBrigadeWeb.Router do
       live "/leaderboard", StatsLive.Leaderboard, :show
     end
 
-    post "/logout", Authentication, :logout
+    delete "/logout", Authentication, :logout
   end
 
   scope "/", BikeBrigadeWeb do
