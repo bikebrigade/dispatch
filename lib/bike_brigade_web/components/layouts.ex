@@ -77,7 +77,7 @@ defmodule BikeBrigadeWeb.Layouts do
           My Profile
         </.sidebar_link>
 
-        <.sidebar_link selected={@current_page == :logout} href={~p"/logout"} method="post">
+        <.sidebar_link selected={@current_page == :logout} href={~p"/logout"} method="delete">
           <:icon>
             <Heroicons.arrow_left_on_rectangle solid />
           </:icon>
