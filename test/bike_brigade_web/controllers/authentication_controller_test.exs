@@ -55,5 +55,12 @@ defmodule BikeBrigadeWeb.AuthenticationControllerTest do
       conn = get(conn, ~p"/home")
       assert html_response(conn, 200) =~ "Welcome!"
     end
+
+    test "lets you cancel a login", %{conn: conn, user: user} do
+      conn = post(conn, ~p"/login", %{login: %{phone: user.phone}})
+      conn = delete(conn, ~p"/login", %{phone: user.phone})
+      assert redirected_to(conn) == ~p"/login"
+      assert Map.get(BikeBrigade.AuthenticationMessenger.get_state(), user.phone) == nil
+    end
   end
 end

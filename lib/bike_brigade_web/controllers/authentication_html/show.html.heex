@@ -85,7 +85,8 @@
             <.button
               color={:white}
               class="w-full"
-              href={~p"/login?cancel=true&phone=#{@changeset.data.phone}"}
+              href={~p"/login?phone=#{@changeset.data.phone}"}
+              method="delete"
             >
               Cancel
             </.button>

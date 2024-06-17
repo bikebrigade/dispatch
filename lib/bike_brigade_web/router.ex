@@ -84,6 +84,7 @@ defmodule BikeBrigadeWeb.Router do
 
     get "/login", AuthenticationController, :show
     post "/login", AuthenticationController, :login
+    delete "/login", AuthenticationController, :cancel
   end
 
   # this scope is for authenticated users that aren't dispatchers (ie: riders).
