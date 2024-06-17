@@ -36,6 +36,29 @@ defmodule BikeBrigadeWeb.AuthenticationController do
     end
   end
 
+  def show(conn, %{"login" => %{"phone" => phone, "token_attempt" => token_attempt}})
+      when not is_nil(token_attempt) do
+    case AuthenticationMessenger.validate_token(phone, token_attempt) do
+      :ok ->
+        user = Accounts.get_user_by_phone(phone)
+
+        conn
+        |> put_flash(:info, "Welcome!")
+        |> do_login(user)
+        |> redirect(to: signed_in_path(conn))
+
+      {:error, :token_expired} ->
+        conn
+        |> put_flash(:error, "Access code is expired. Please try again.")
+        |> redirect(to: ~p"/login")
+
+      {:error, :token_invalid} ->
+        conn
+        |> put_flash(:error, "Access code is invalid. Please try again.")
+        |> redirect(to: ~p"/login?#{%{login: %{phone: phone}}}")
+    end
+  end
+
   def show(conn, %{"login" => attrs}) do
     with {:ok, login} <- Login.validate_phone(attrs),
          :ok <- AuthenticationMessenger.generate_token(login.phone) do
@@ -62,27 +85,6 @@ defmodule BikeBrigadeWeb.AuthenticationController do
     |> render("show.html", state: :phone, changeset: changeset, layout: false)
   end
 
-  def login(conn, %{"login" => %{"phone" => phone, "token_attempt" => token_attempt}}) do
-    case AuthenticationMessenger.validate_token(phone, token_attempt) do
-      :ok ->
-        user = Accounts.get_user_by_phone(phone)
-
-        conn
-        |> put_flash(:info, "Welcome!")
-        |> do_login(user)
-        |> redirect(to: signed_in_path(conn))
-
-      {:error, :token_expired} ->
-        conn
-        |> put_flash(:error, "Access code is expired. Please try again.")
-        |> redirect(to: ~p"/login")
-
-      {:error, :token_invalid} ->
-        conn
-        |> put_flash(:error, "Access code is invalid. Please try again.")
-        |> redirect(to: ~p"/login?#{%{phone: phone}}")
-    end
-  end
 
   @doc "Set the session token and live socket for the user"
   def do_login(conn, user) do
