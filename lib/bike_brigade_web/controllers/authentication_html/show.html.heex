@@ -22,7 +22,7 @@
           :if={@state == :phone}
           for={@changeset}
           id="login-form"
-          method="get"
+          action={~p"/login"}
         >
           <.input type="tel" field={{f, :phone}} label="Phone Number" />
 

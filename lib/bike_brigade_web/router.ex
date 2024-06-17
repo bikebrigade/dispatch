@@ -83,7 +83,7 @@ defmodule BikeBrigadeWeb.Router do
     pipe_through [:browser, :redirect_if_user_is_authenticated]
 
     get "/login", AuthenticationController, :show
-    post "/login", AuthenticationController, :show
+    post "/login", AuthenticationController, :login
   end
 
   # this scope is for authenticated users that aren't dispatchers (ie: riders).

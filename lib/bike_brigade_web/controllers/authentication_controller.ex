@@ -36,7 +36,35 @@ defmodule BikeBrigadeWeb.AuthenticationController do
     end
   end
 
-  def show(conn, %{"login" => %{"phone" => phone, "token_attempt" => token_attempt}})
+  def show(conn, %{"login" => attrs}) do
+    case Login.validate_phone(attrs) do
+      {:ok, login} ->
+        changeset = Ecto.Changeset.change(login)
+
+        conn
+        |> render("show.html", state: :token, changeset: changeset, layout: false)
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        conn
+        |> render("show.html", state: :phone, changeset: changeset, layout: false)
+    end
+  end
+
+  def show(conn, %{"cancel" => "true", "phone" => phone}) do
+    AuthenticationMessenger.clear_token(phone)
+
+    conn
+    |> redirect(to: ~p"/login")
+  end
+
+  def show(conn, _params) do
+    changeset = Ecto.Changeset.change(%Login{})
+
+    conn
+    |> render("show.html", state: :phone, changeset: changeset, layout: false)
+  end
+
+  def login(conn, %{"login" => %{"phone" => phone, "token_attempt" => token_attempt}})
       when not is_nil(token_attempt) do
     case AuthenticationMessenger.validate_token(phone, token_attempt) do
       :ok ->
@@ -59,8 +87,8 @@ defmodule BikeBrigadeWeb.AuthenticationController do
     end
   end
 
-  def show(conn, %{"login" => attrs}) do
-    with {:ok, login} <- Login.validate_phone(attrs),
+  def login(conn, %{"login" => %{"phone" => phone}}) do
+    with {:ok, login} <- Login.validate_phone(%{"phone" => phone}),
          :ok <- AuthenticationMessenger.generate_token(login.phone) do
       changeset = Ecto.Changeset.change(login)
 
@@ -76,20 +104,6 @@ defmodule BikeBrigadeWeb.AuthenticationController do
         |> put_flash(:error, err)
         |> redirect(to: ~p"/login")
     end
-  end
-
-  def show(conn, %{"cancel" => "true", "phone" => phone}) do
-    AuthenticationMessenger.clear_token(phone)
-
-    conn
-    |> redirect(to: ~p"/login")
-  end
-
-  def show(conn, _params) do
-    changeset = Ecto.Changeset.change(%Login{})
-
-    conn
-    |> render("show.html", state: :phone, changeset: changeset, layout: false)
   end
 
   @doc "Set the session token and live socket for the user"
