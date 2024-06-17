@@ -36,13 +36,23 @@ defmodule BikeBrigadeWeb.AuthenticationController do
     end
   end
 
-  def show(conn, %{"login" => %{"phone" => phone}}) do
-    changeset = Ecto.Changeset.change(%Login{phone: phone})
-    # TODO: validate phone number
-    # TODO: send token
+  def show(conn, %{"login" => attrs}) do
+    with {:ok, login} <- Login.validate_phone(attrs),
+         :ok <- AuthenticationMessenger.generate_token(login.phone) do
+      changeset = Ecto.Changeset.change(login)
 
-    conn
-    |> render("show.html", state: :token, changeset: changeset, layout: false)
+      conn
+      |> render("show.html", state: :token, changeset: changeset, layout: false)
+    else
+      {:error, %Ecto.Changeset{} = changeset} ->
+        conn
+        |> render("show.html", state: :phone, changeset: changeset, layout: false)
+
+      {:error, err} ->
+        conn
+        |> put_flash(:error, err)
+        |> redirect(to: ~p"/login")
+    end
   end
 
   def show(conn, _params) do
