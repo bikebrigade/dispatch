@@ -1,4 +1,5 @@
 defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
+  alias BikeBrigade.LocalizedDateTime
   use BikeBrigadeWeb, :live_view
 
   import BikeBrigadeWeb.CampaignHelpers
@@ -228,7 +229,12 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
           You
         </div>
         <.button
-          :if={task_eligigle_for_unassign(@task, @campaign, @current_rider_id)}
+          :if={task_eligigle_for_unassign?(@task, @campaign, @current_rider_id)}
+          data-confirm={
+            if campaign_today?(@campaign),
+              do:
+                "This delivery starts today. If you need to unassign yourself, please also text dispatch to let us know!"
+          }
           phx-click={JS.push("unassign_task", value: %{task_id: @task.id})}
           id={"#{@id}-unassign-task-#{@task.id}"}
           color={:red}
@@ -239,7 +245,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
         </.button>
       <% end %>
 
-      <%= if task_eligible_for_signup(@task, @campaign) do %>
+      <%= if task_eligible_for_signup?(@task, @campaign) do %>
         <.button
           phx-click={
             JS.push("signup_rider", value: %{task_id: @task.id, rider_id: @current_rider_id})
@@ -268,14 +274,18 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
     """
   end
 
-  defp task_eligible_for_signup(task, campaign) do
+  defp task_eligible_for_signup?(task, campaign) do
     # campaign not in past, assigned rider not nil.
     task.assigned_rider == nil && !campaign_in_past(campaign)
   end
 
   # determine if a rider is eligible to "unassign" themselves
-  defp task_eligigle_for_unassign(task, campaign, current_rider_id) do
+  defp task_eligigle_for_unassign?(task, campaign, current_rider_id) do
     task.assigned_rider.id == current_rider_id && !campaign_in_past(campaign)
+  end
+
+  defp campaign_today?(campaign) do
+    LocalizedDateTime.to_date(campaign.delivery_start) == LocalizedDateTime.today()
   end
 
   def initials(name) do
