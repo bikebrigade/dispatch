@@ -12,7 +12,7 @@ defmodule BikeBrigadeWeb.Router do
   def handle_errors(_conn, %{reason: %BikeBrigadeWeb.DeliveryExpiredError{}}), do: :ok
   def handle_errors(conn, err), do: super(conn, err)
 
-  import BikeBrigadeWeb.Authentication,
+  import BikeBrigadeWeb.AuthenticationController,
     only: [
       require_authenticated_user: 2,
       require_dispatcher: 2,
@@ -82,8 +82,9 @@ defmodule BikeBrigadeWeb.Router do
   scope "/", BikeBrigadeWeb do
     pipe_through [:browser, :redirect_if_user_is_authenticated]
 
-    live "/login", LoginLive, :index
-    post "/login", Authentication, :login
+    #live "/login", LoginLive, :index
+    get "/login", AuthenticationController, :show
+    post "/login", AuthenticationController, :login
   end
 
   # this scope is for authenticated users that aren't dispatchers (ie: riders).
@@ -101,7 +102,7 @@ defmodule BikeBrigadeWeb.Router do
       live "/leaderboard", StatsLive.Leaderboard, :show
     end
 
-    delete "/logout", Authentication, :logout
+    delete "/logout", AuthenticationController, :logout
   end
 
   scope "/", BikeBrigadeWeb do
