@@ -154,21 +154,6 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
     save_rider_edit_impl(socket, rider_form_params)
   end
 
-  # TODO: this can probably be deleted: we don't really create riders from the form?
-  # https://github.com/bikebrigade/dispatch/issues/321
-  defp save_rider(socket, :new, rider_params) do
-    case Riders.create_rider_with_tags(rider_params, rider_params["tags"]) do
-      {:ok, _rider} ->
-        {:noreply,
-         socket
-         |> put_flash(:info, "Rider created successfully")
-         |> push_navigate(to: socket.assigns.navigate)}
-
-      {:error, %Ecto.Changeset{} = changeset} ->
-        {:noreply, assign(socket, changeset: changeset)}
-    end
-  end
-
   defp save_rider_edit_impl(socket, rider_form_params) do
     rider_form_params = Map.merge(%{"tags" => []}, rider_form_params)
 

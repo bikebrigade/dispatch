@@ -228,10 +228,10 @@
               class="relative mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-7"
             >
               <div x-bind:class="{ 'max-h-24': collapsed }" class="overflow-hidden">
-                <%= if is_nil(task.rider_notes) or task.rider_notes=="" do %>
+                <%= if is_nil(task.delivery_instructions) or task.delivery_instructions=="" do %>
                   N/A
                 <% else %>
-                  <%= render_raw(task.rider_notes) %>
+                  <%= render_raw(task.delivery_instructions) %>
                 <% end %>
               </div>
               <div

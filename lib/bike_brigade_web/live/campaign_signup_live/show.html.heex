@@ -23,6 +23,10 @@
     <:col :let={task} label="Dropoff Neighbourhood">
       <%= Locations.neighborhood(task.dropoff_location) %>
     </:col>
+
+    <:col :let={task} label="Signup Notes">
+      <%= task.signup_notes %>
+    </:col>
     <:action :let={task}>
       <.signup_button
         id="signup-btn-desktop"
@@ -33,7 +37,9 @@
     </:action>
   </.table>
 </section>
+
 <!-- Mobile list of tasks -->
+
 <ul class="flex flex-col text-xs md:hidden">
   <li :for={t <- @tasks} class="w-full mb-8">
     <div class="flex justify-between px-4 py-3 font-bold bg-slate-200">
@@ -42,15 +48,19 @@
     </div>
     <div class="flex flex-col bg-white shadow">
       <div class="flex items-center p-4 py-2 border-b">
-        <span class="pr-2 ">Delivery:</span>
+        <span class="pr-2 font-semibold">Delivery:</span>
         <span class="italic">
           <.get_delivery_size task={t} />
         </span>
       </div>
 
       <div class="flex items-start px-4 py-2 space-x-2 border-b">
-        <span>Dropoff Neighbourhood:</span>
+        <span class="font-semibold">Dropoff Neighbourhood:</span>
         <span><%= Locations.neighborhood(t.dropoff_location) %></span>
+      </div>
+      <div :if={t.signup_notes} class="flex items-start px-4 py-2 space-x-2 border-b">
+        <span class="font-semibold">Signup Notes</span>
+        <span><%= t.signup_notes %></span>
       </div>
 
       <div class="flex flex-col justify-center px-4 py-2 border-b-2">

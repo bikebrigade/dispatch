@@ -156,7 +156,7 @@ defmodule BikeBrigade.GSheetsImporter do
         dropoff_name: name,
         dropoff_phone: phone,
         dropoff_location: %{address: street, postal: postal},
-        rider_notes: notes,
+        delivery_instructions: notes,
         delivery_status: :pending,
         partner_tracking_id: partner_tracking_id,
         task_items: [%{count: count, item_id: item_id}]
@@ -204,7 +204,7 @@ defmodule BikeBrigade.GSheetsImporter do
         dropoff_name: name,
         dropoff_phone: phone,
         dropoff_location: %{address: street, postal: postal},
-        rider_notes: notes,
+        delivery_instructions: notes,
         delivery_status: :pending,
         partner_tracking_id: partner_tracking_id,
         task_items: task_items

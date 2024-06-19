@@ -199,16 +199,6 @@ defmodule BikeBrigade.Riders do
     end
   end
 
-  # TODO: make it pretty
-  # TODO This may not be needed, i think it's only used when creating riders from a form input which we don't seem to do?
-  def create_rider_with_tags(attrs \\ %{}, tags \\ [], opts \\ []) do
-    %Rider{}
-    |> Rider.changeset(attrs)
-    |> Rider.tags_changeset(tags)
-    |> Repo.insert(opts)
-    |> broadcast(:rider_created)
-  end
-
   @doc """
   Updates a rider.
 
