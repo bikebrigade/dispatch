@@ -75,7 +75,8 @@ prob needs to come from mix command and/or have certain length/etc
 * flyctl ext supabase create -a dan-dispatch-test in yul (sets DATABASE_URL)
 * fly deploy again
 * set a bunch of secrets
-* dan-dispatch-test-db
+* dan-dispatch-test-db, need ipv6
+* set pgaudit.log='none';
 
 
 ----
