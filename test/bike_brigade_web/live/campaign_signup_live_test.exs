@@ -192,6 +192,25 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       assert live |> has_element?("#signup-btn-mobile-task-over-#{task.id}")
     end
 
+    test "Rider sees message about texting dispatch if unassigning from a campaign that's today", ctx do
+
+      {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
+      assert html =~ "Sign up"
+      html = live |> element("#signup-btn-desktop-sign-up-task-#{ctx.task.id}") |> render_click()
+      assert html =~ "Unassign me"
+      assert html =~ "This delivery starts today. If you need to unassign yourself, please also text dispatch to let us know!"
+
+
+      campaign = make_campaign_in_future(ctx.program.id)
+      task = fixture(:task, %{campaign: campaign, rider: nil})
+
+      {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup/#{campaign.id}/")
+
+      html = live |> element("#signup-btn-desktop-sign-up-task-#{task.id}") |> render_click()
+      assert html =~ "Unassign me"
+      refute html =~ "This delivery starts today. If you need to unassign yourself, please also text dispatch to let us know!"
+    end
+
     test "we see pertinent task information", ctx do
       {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
 
@@ -249,6 +268,14 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       program_id: program_id,
       delivery_start: LocalizedDateTime.now() |> DateTime.add(-7, :day),
       delivery_end: LocalizedDateTime.now() |> DateTime.add(-7, :day) |> DateTime.add(60, :second)
+    })
+  end
+
+  defp make_campaign_in_future(program_id) do
+    fixture(:campaign, %{
+      program_id: program_id,
+      delivery_start: LocalizedDateTime.now() |> DateTime.add(7, :day),
+      delivery_end: LocalizedDateTime.now() |> DateTime.add(7, :day) |> DateTime.add(60, :second)
     })
   end
 end
