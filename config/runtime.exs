@@ -199,7 +199,7 @@ case config_env() do
       credentials: System.fetch_env!("GOOGLE_SERVICE_JSON")
 
     # Slack
-    config :bike_brigade, :slack, token: System.fetch_env!("SLACK_OAUTH_TOKEN")
+    config :bike_brigade, :slack, token: System.fetch_env("SLACK_OAUTH_TOKEN")
 
     # Geocoding
     config :lib_lat_lon, :provider, LibLatLon.Providers.GoogleMaps
