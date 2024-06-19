@@ -60,3 +60,9 @@ Use as `MAILCHIMP_API_KEY`
 
 
 ### App setup
+
+* create app (adjust fly.toml etc)
+* fly deploy with config
+* DATABASE_URL missing
+* flyctl ext supabase create -a dan-dispatch-test in yul (sets DATABASE_URL)
+* fly deploy again
