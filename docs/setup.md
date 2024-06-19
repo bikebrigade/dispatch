@@ -57,3 +57,6 @@ https://us22.admin.mailchimp.com/account/api/
 create a key
 
 Use as `MAILCHIMP_API_KEY`
+
+
+### App setup
