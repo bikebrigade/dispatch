@@ -46,7 +46,7 @@ defmodule BikeBrigadeWeb.CampaignController do
           task.dropoff_location,
           task.dropoff_phone,
           CampaignHelpers.request_type(task),
-          task.rider_notes
+          task.delivery_instructions
         ]
       end
 

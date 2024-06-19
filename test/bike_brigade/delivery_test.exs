@@ -58,7 +58,7 @@ defmodule BikeBrigade.DeliveryTest do
                Phone: #{task.dropoff_phone}
                Type: 1 #{item_name(task)}
                Address: #{task.dropoff_location}
-               Notes: #{task.rider_notes}
+               Notes: #{task.delivery_instructions}
 
                Directions: #{directions_url}
                """
