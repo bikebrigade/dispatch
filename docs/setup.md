@@ -14,6 +14,9 @@ Auth token for `TWILIO_ACCOUNT_SID` and `TWILIO_AUTH_TOKEN`.
 
 `TWILIO_STATUS_CALLBACK`?
 
+TWILIO_STATUS_CALLBACK=https://dan-dispatch-test.fly.io/webhooks/twilio/status_callback
+TODO: have the app figure it out
+
 ### Google Maps and storage
 
 https://console.cloud.google.com
@@ -27,7 +30,9 @@ Link / create
 Set a budget?
 Might have to fiddle to get project linked to billing account
 
-Enable Geocoding API?
+https://developers.google.com/maps/documentation/embed/get-api-key
+let it create one
+API restrict to geocoding and embed?
 
 Enable Cloud Storage
 Create Credentials
