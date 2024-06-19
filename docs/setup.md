@@ -74,6 +74,8 @@ prob needs to come from mix command and/or have certain length/etc
 * DATABASE_URL missing
 * flyctl ext supabase create -a dan-dispatch-test in yul (sets DATABASE_URL)
 * fly deploy again
+* set a bunch of secrets
+* dan-dispatch-test-db
 
 
 ----
