@@ -17,13 +17,16 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
       LocalizedDateTime.today()
       |> Date.beginning_of_week()
 
-    campaigns = fetch_campaigns(current_week)
+    campaign_filter = {:current_week, current_week}
+
+    campaigns = fetch_campaigns(campaign_filter)
 
     {:ok,
      socket
      |> assign(:page, :campaigns_signup)
      |> assign(:page_title, "Delivery Sign Up")
      |> assign(:current_week, current_week)
+     |> assign(:campaign_filter, campaign_filter)
      |> assign(:campaign_task_counts, Delivery.get_total_tasks_and_open_tasks(current_week))
      |> assign(:showing_urgent_campaigns, false)
      |> assign(:campaigns, campaigns)}
@@ -31,11 +34,13 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
 
   @impl true
   def handle_params(%{"campaign_ids" => campaign_ids}, _url, socket) do
-    campaigns = fetch_campaigns(socket.assigns.current_week, campaign_ids: campaign_ids)
+    campaign_filter = {:campaign_ids, campaign_ids}
+    campaigns = fetch_campaigns(campaign_filter)
 
     {:noreply,
      socket
      |> assign(:campaigns, campaigns)
+     |> assign(:campaign_filter, campaign_filter)
      |> assign(:showing_urgent_campaigns, true)}
   end
 
@@ -76,10 +81,12 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
       case params do
         %{"current_week" => week} ->
           week = Date.from_iso8601!(week)
+          campaign_filter = {:current_week, week}
 
           assign(socket,
             current_week: week,
-            campaigns: fetch_campaigns(week),
+            campaign_filter: campaign_filter,
+            campaigns: fetch_campaigns(campaign_filter),
             campaign_task_counts: Delivery.get_total_tasks_and_open_tasks(week)
           )
 
@@ -91,12 +98,22 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
     |> assign(:campaign, nil)
   end
 
-  defp fetch_campaigns(current_week, opts \\ []) do
+  defp fetch_campaigns({:current_week, current_week}) do
     Delivery.list_campaigns(
       start_date: current_week,
       end_date: Date.add(current_week, 6),
       preload: [:program, :stats, :latest_message, :scheduled_message],
-      campaign_ids: opts[:campaign_ids],
+      public: true
+    )
+    |> Enum.reverse()
+    |> Utils.ordered_group_by(&LocalizedDateTime.to_date(&1.delivery_start))
+    |> Enum.reverse()
+  end
+
+  defp fetch_campaigns({:campaign_ids, campaign_ids}) do
+    Delivery.list_campaigns(
+      campaign_ids: campaign_ids,
+      preload: [:program, :stats, :latest_message, :scheduled_message],
       public: true
     )
     |> Enum.reverse()
@@ -108,11 +125,12 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
   # changes (add, edit, delete), we refetch all tasks and campaign riders.
   # This may eventually become a problem.
   defp refetch_and_assign_data(socket) do
+    campaign_filter = socket.assigns.campaign_filter
     week = socket.assigns.current_week
 
     socket
     |> assign(:campaign_task_counts, Delivery.get_total_tasks_and_open_tasks(week))
-    |> assign(:campaigns, fetch_campaigns(week))
+    |> assign(:campaigns, fetch_campaigns(campaign_filter))
   end
 
   # Use this to determine if we need to refetch data to update the liveview.
