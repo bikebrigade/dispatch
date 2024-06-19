@@ -204,45 +204,46 @@ defmodule BikeBrigade.Delivery do
   end
 
   defp campaigns_filter(opts) do
-    filter = true
+    public = Keyword.get(opts, :public, nil)
+    campaign_ids = Keyword.get(opts, :campaign_ids, nil)
+    start_date = Keyword.get(opts, :start_date, nil)
+    end_date = Keyword.get(opts, :end_date, nil)
 
-    filter =
-      case Keyword.fetch(opts, :public) do
-        {:ok, true} -> dynamic([program: p], ^filter and p.public == true)
-        {:ok, false} -> dynamic([program: p], ^filter and p.public == false)
-        _ -> filter
-      end
+    true
+    |> filter_public(public)
+    |> filter_campaign_ids(campaign_ids)
+    |> filter_start_date(start_date)
+    |> filter_end_date(end_date)
+  end
 
-    filter =
-      # First we check if we are fetching with campaign_ids
-      # If so, we can ignore start_date and end_date to avoid
-      # cutting off results by the current_week boundary.
-      case Keyword.fetch(opts, :campaign_ids) do
-        {:ok, campaign_ids} when not is_nil(campaign_ids) ->
-          dynamic([campaign: c], ^filter and c.id in ^campaign_ids)
+  defp filter_public(filter, nil), do: filter
 
-        _ ->
-          filter =
-            case Keyword.fetch(opts, :start_date) do
-              {:ok, date} ->
-                date_time = LocalizedDateTime.new!(date, ~T[00:00:00])
-                dynamic([campaign: c], ^filter and c.delivery_start >= ^date_time)
+  defp filter_public(filter, true) do
+    dynamic([program: p], ^filter and p.public == true)
+  end
 
-              _ ->
-                filter
-            end
+  defp filter_public(filter, false) do
+    dynamic([program: p], ^filter and p.public == false)
+  end
 
-          case Keyword.fetch(opts, :end_date) do
-            {:ok, date} ->
-              date_time = LocalizedDateTime.new!(date, ~T[23:59:59])
-              dynamic([campaign: c], ^filter and c.delivery_start <= ^date_time)
+  defp filter_campaign_ids(filter, nil), do: filter
 
-            _ ->
-              filter
-          end
-      end
+  defp filter_campaign_ids(filter, campaign_ids) when is_list(campaign_ids) do
+    dynamic([campaign: c], ^filter and c.id in ^campaign_ids)
+  end
 
-    filter
+  defp filter_start_date(filter, nil), do: filter
+
+  defp filter_start_date(filter, date) do
+    date_time = LocalizedDateTime.new!(date, ~T[00:00:00])
+    dynamic([campaign: c], ^filter and c.delivery_start >= ^date_time)
+  end
+
+  defp filter_end_date(filter, nil), do: filter
+
+  defp filter_end_date(filter, date) do
+    date_time = LocalizedDateTime.new!(date, ~T[23:59:59])
+    dynamic([campaign: c], ^filter and c.delivery_start <= ^date_time)
   end
 
   @doc """
