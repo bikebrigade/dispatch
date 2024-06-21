@@ -138,6 +138,14 @@
                     />
                     <%= c.stats.task_count %>
                   </p>
+                  <p class="flex items-center mt-2 text-sm text-gray-700 sm:mt-0 sm:ml-6">
+                  <.tasks_filled_text
+                    filled_tasks={@campaign_task_counts[c.id][:filled_tasks]}
+                    total_tasks={@campaign_task_counts[c.id][:total_tasks]}
+                    campaign={c}
+                  />
+                  </p>
+
                 </div>
                 <div class="flex items-center mt-2 text-sm text-gray-700 sm:mt-0">
                   <.message_info campaign={c} />
