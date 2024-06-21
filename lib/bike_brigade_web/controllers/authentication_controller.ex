@@ -1,4 +1,4 @@
-defmodule BikeBrigadeWeb.Authentication do
+defmodule BikeBrigadeWeb.AuthenticationController do
   use BikeBrigadeWeb, :controller
 
   import Plug.Conn
@@ -6,7 +6,59 @@ defmodule BikeBrigadeWeb.Authentication do
   alias BikeBrigade.Accounts
   alias BikeBrigade.AuthenticationMessenger
 
-  def login(conn, %{"login" => %{"phone" => phone, "token_attempt" => token_attempt}}) do
+  defmodule Login do
+    use BikeBrigade.Schema
+    import Ecto.Changeset
+
+    alias BikeBrigade.EctoPhoneNumber
+
+    @primary_key false
+    embedded_schema do
+      field :phone, EctoPhoneNumber.Canadian
+      field :token_attempt, :string
+    end
+
+    def validate_phone(attrs) do
+      %Login{}
+      |> cast(attrs, [:phone])
+      |> validate_required([:phone])
+      |> validate_user_exists(:phone)
+      |> Ecto.Changeset.apply_action(:insert)
+    end
+
+    defp validate_user_exists(changeset, field) when is_atom(field) do
+      validate_change(changeset, field, fn _, phone ->
+        case Accounts.get_user_by_phone(phone) do
+          nil -> [{field, "We can't find your number. Have you signed up for Bike Brigade?"}]
+          _ -> []
+        end
+      end)
+    end
+  end
+
+  def show(conn, %{"login" => attrs}) do
+    case Login.validate_phone(attrs) do
+      {:ok, login} ->
+        changeset = Ecto.Changeset.change(login)
+
+        conn
+        |> render("show.html", state: :token, changeset: changeset, layout: false)
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        conn
+        |> render("show.html", state: :phone, changeset: changeset, layout: false)
+    end
+  end
+
+  def show(conn, _params) do
+    changeset = Ecto.Changeset.change(%Login{})
+
+    conn
+    |> render("show.html", state: :phone, changeset: changeset, layout: false)
+  end
+
+  def login(conn, %{"login" => %{"phone" => phone, "token_attempt" => token_attempt}})
+      when not is_nil(token_attempt) do
     case AuthenticationMessenger.validate_token(phone, token_attempt) do
       :ok ->
         user = Accounts.get_user_by_phone(phone)
@@ -24,8 +76,34 @@ defmodule BikeBrigadeWeb.Authentication do
       {:error, :token_invalid} ->
         conn
         |> put_flash(:error, "Access code is invalid. Please try again.")
-        |> redirect(to: ~p"/login?#{%{phone: phone}}")
+        |> redirect(to: ~p"/login?#{%{login: %{phone: phone}}}")
     end
+  end
+
+  def login(conn, %{"login" => %{"phone" => phone}}) do
+    with {:ok, login} <- Login.validate_phone(%{"phone" => phone}),
+         :ok <- AuthenticationMessenger.generate_token(login.phone) do
+      changeset = Ecto.Changeset.change(login)
+
+      conn
+      |> render("show.html", state: :token, changeset: changeset, layout: false)
+    else
+      {:error, %Ecto.Changeset{} = changeset} ->
+        conn
+        |> render("show.html", state: :phone, changeset: changeset, layout: false)
+
+      {:error, err} ->
+        conn
+        |> put_flash(:error, err)
+        |> redirect(to: ~p"/login")
+    end
+  end
+
+  def cancel(conn, %{"phone" => phone}) do
+    AuthenticationMessenger.clear_token(phone)
+
+    conn
+    |> redirect(to: ~p"/login")
   end
 
   @doc "Set the session token and live socket for the user"

@@ -103,6 +103,6 @@ defmodule BikeBrigadeWeb.ConnCase do
   def login_user(conn, user) do
     conn
     |> Phoenix.ConnTest.init_test_session(%{})
-    |> BikeBrigadeWeb.Authentication.do_login(user)
+    |> BikeBrigadeWeb.AuthenticationController.do_login(user)
   end
 end
