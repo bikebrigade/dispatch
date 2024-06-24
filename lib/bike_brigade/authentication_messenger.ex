@@ -67,7 +67,7 @@ defmodule BikeBrigade.AuthenticationMessenger do
 
   def handle_call({:validate_token, phone, token_attempt}, _from, state) do
     # TODO refactor
-    if dev?() do
+    if !dev?() do
       unless Map.has_key?(state, phone) do
         {:reply, {:error, :token_expired}, state}
       else
