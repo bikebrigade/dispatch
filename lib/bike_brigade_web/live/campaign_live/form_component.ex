@@ -146,6 +146,9 @@ defmodule BikeBrigadeWeb.CampaignLive.FormComponent do
     end
   end
 
+  defp save_campaign(socket, :new_campaign, campaign_form_params),
+    do: save_campaign(socket, :new, campaign_form_params)
+
   defp import_tasks_spreadsheet(campaign, nil), do: {:ok, campaign}
 
   defp import_tasks_spreadsheet(campaign, ""), do: {:ok, campaign}
