@@ -78,6 +78,7 @@ prob needs to come from mix command and/or have certain length/etc
 * dan-dispatch-test-db, need ipv6
 * set pgaudit.log='none';
 
+Jun 26 session
 
 ----
 
