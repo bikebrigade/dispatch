@@ -70,4 +70,4 @@ ENV HOME=/app
 ENV SECRET_KEY_BASE=nokey
 ENV PORT=4000
 
-CMD ["bin/bike_brigade", "start"]
+CMD ["/bin/sh", "-x", "bin/bike_brigade", "start"]
