@@ -146,20 +146,18 @@
         </.header>
         <div class="grid grid-cols-3 gap-4 mt-2">
           <figure :for={{url, i} <- Enum.with_index(Phoenix.HTML.Form.input_value(f, :photos))}>
-          <img class="w-32" src={url} />
+            <img class="w-32" src={url} />
+            <input type="hidden" name={"#{Phoenix.HTML.Form.input_name(f, :photos)}[]"} value={url} />
             <figcaption class="flex mt-1">
               <.button
-                  color={:lightred}
-                  size={:xsmall}
-                  phx-click={
-                    JS.push("delete_photo", value: %{index: i}, target: @myself)
-                  }
-                  type="button"
-                >
-                  Delete
-                </.button>
+                color={:lightred}
+                size={:xsmall}
+                phx-click={JS.push("delete_photo", value: %{index: i}, target: @myself)}
+                type="button"
+              >
+                Delete
+              </.button>
             </figcaption>
-
           </figure>
         </div>
         <div class="flex justify-center px-6 py-10 mt-2 border border-dashed rounded-lg border-gray-900/25">
@@ -172,10 +170,7 @@
                 class="relative font-semibold text-indigo-600 bg-white rounded-md cursor-pointer focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
               >
                 <span>Upload a file</span>
-                <.live_file_input
-                  upload={@uploads.photos}
-                  class="sr-only"
-                />
+                <.live_file_input upload={@uploads.photos} class="sr-only" />
               </label>
               <p class="pl-1">or drag and drop</p>
             </div>
