@@ -230,12 +230,12 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
 
     test "we see campaign photos if available", ctx do
       {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
-      refute html =~ "Campaign photos"
+      refute html =~ "Delivery photos"
 
       Delivery.update_program(ctx.program, %{photos: ["https://example.com/photo.jpg"]})
 
       {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
-      assert html =~ "Campaign photos"
+      assert html =~ "Delivery photos"
       assert html =~ "https://example.com/photo.jpg"
     end
 
