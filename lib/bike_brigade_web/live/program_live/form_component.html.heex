@@ -144,10 +144,20 @@
             To be shown to riders when signing up
           </:subtitle>
         </.header>
+        <.input
+          type="text"
+          field={{f, :photo_description}}
+          label="Photo Descriotion"
+          placeholder="Typical delivery size"
+        />
         <div class="grid grid-cols-3 gap-4 mt-2">
           <figure :for={{url, i} <- Enum.with_index(Phoenix.HTML.Form.input_value(f, :photos))}>
             <img class="w-32" src={url} />
-            <input type="hidden" name={"#{Phoenix.HTML.Form.input_name(f, :photos)}[]"} value={url} />
+            <input
+              type="hidden"
+              name={"#{Phoenix.HTML.Form.input_name(f, :photos)}[]"}
+              value={url}
+            />
             <figcaption class="flex mt-1">
               <.button
                 color={:lightred}

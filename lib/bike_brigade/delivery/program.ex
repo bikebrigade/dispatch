@@ -36,6 +36,7 @@ defmodule BikeBrigade.Delivery.Program do
     field :spreadsheet_layout, SpreadsheetLayout, default: :foodshare
     field :active, :boolean, default: true
     field :start_date, :date
+    field :photo_description, :string
     field :photos, {:array, :string}, default: []
 
     # Default to public false before we launch
@@ -76,6 +77,7 @@ defmodule BikeBrigade.Delivery.Program do
       :hide_pickup_address,
       :spreadsheet_layout,
       :start_date,
+      :photo_description,
       :photos
     ])
     |> validate_required([:name, :start_date])
