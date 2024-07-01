@@ -28,8 +28,8 @@ jobs:
       - name: Set up Elixir
         uses: erlef/setup-elixir@v1
         with:
-          elixir-version: '1.14.2'
-          otp-version: '25'
+          elixir-version: '1.15'
+          otp-version: '26'
 
       - name: Cache Elixir deps
         id: elixir-deps-cache
