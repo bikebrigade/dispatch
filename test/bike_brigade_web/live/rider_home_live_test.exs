@@ -51,7 +51,9 @@ defmodule BikeBrigadeWeb.RiderHomeLiveTest do
         program: program,
         campaign: campaign,
         campaign2: campaign2,
-        campaign3: campaign3
+        campaign3: campaign3,
+        campaign4: campaign4,
+        campaign_in_50_hours: campaign_in_50_hours
       })
     end
 
@@ -77,7 +79,20 @@ defmodule BikeBrigadeWeb.RiderHomeLiveTest do
       expected_redirect =
         ~p"/campaigns/signup?campaign_ids[]=#{ctx.campaign.id}&campaign_ids[]=#{ctx.campaign2.id}&campaign_ids[]=#{ctx.campaign3.id}"
 
-      end
+      # the cta button should link to only the relevant campaigns.
+      assert html
+             |> Floki.parse_fragment!()
+             |> Floki.find("#urgent-campaigns-signup-btn")
+             |> Floki.attribute("href") == [expected_redirect]
+
+      # let's visit the campaigns and ensure that the right ones render.
+      {:ok, _live, html} = live(ctx.conn, expected_redirect)
+      assert html =~ "campaign-#{ctx.campaign.id}"
+      assert html =~ "campaign-#{ctx.campaign2.id}"
+      assert html =~ "campaign-#{ctx.campaign3.id}"
+      refute html =~ "campaign-#{ctx.campaign4.id}"
+      refute html =~ "campaign-#{ctx.campaign_in_50_hours.id}"
+    end
 
     test "it shows rider's itinerary of deliveries for today, with a sign up button", ctx do
       fixture(:task, %{campaign: ctx.campaign, rider: ctx.rider})
