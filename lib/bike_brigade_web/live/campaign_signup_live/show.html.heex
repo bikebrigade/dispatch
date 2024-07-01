@@ -71,3 +71,21 @@
     </div>
   </li>
 </ul>
+<div
+  :if={!Enum.empty?(@campaign.program.photos)}
+  class="mt-4 overflow-hidden bg-white rounded-lg shadow"
+>
+  <div class="px-4 py-5 sm:p-6">
+    <.header>
+      Delivery photos
+      <:subtitle>
+       <%= @campaign.program.photo_description %>
+      </:subtitle>
+    </.header>
+    <div class="grid grid-cols-3 gap-4 mt-4">
+      <figure :for={url <- @campaign.program.photos}>
+        <img class="w-64" src={url} />
+      </figure>
+    </div>
+  </div>
+</div>

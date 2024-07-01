@@ -1,6 +1,6 @@
 defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
   use BikeBrigadeWeb.ConnCase, async: false
-  alias BikeBrigade.{LocalizedDateTime, History}
+  alias BikeBrigade.{Delivery, LocalizedDateTime, History}
 
   import Phoenix.LiveViewTest
 
@@ -226,6 +226,18 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       # We show the name and description of the item
       assert html =~ "Burrito"
       assert html =~ "a large burrito with all the fixings"
+    end
+
+    test "we see campaign photos and description if available", ctx do
+      {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
+      refute html =~ "Delivery photos"
+
+      Delivery.update_program(ctx.program, %{photos: ["https://example.com/photo.jpg"], photo_description: "a typical meal"})
+
+      {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
+      assert html =~ "Delivery photos"
+      assert html =~ "https://example.com/photo.jpg"
+      assert html =~ "a typical meal"
     end
 
     test "Invalid route for campaign shows flash and redirects", ctx do
