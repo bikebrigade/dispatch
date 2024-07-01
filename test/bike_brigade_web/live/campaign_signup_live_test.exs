@@ -192,14 +192,15 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       assert live |> has_element?("#signup-btn-mobile-task-over-#{task.id}")
     end
 
-    test "Rider sees message about texting dispatch if unassigning from a campaign that's today", ctx do
-
+    test "Rider sees message about texting dispatch if unassigning from a campaign that's today",
+         ctx do
       {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
       assert html =~ "Sign up"
       html = live |> element("#signup-btn-desktop-sign-up-task-#{ctx.task.id}") |> render_click()
       assert html =~ "Unassign me"
-      assert html =~ "This delivery starts today. If you need to unassign yourself, please also text dispatch to let us know!"
 
+      assert html =~
+               "This delivery starts today. If you need to unassign yourself, please also text dispatch to let us know!"
 
       campaign = make_campaign_in_future(ctx.program.id)
       task = fixture(:task, %{campaign: campaign, rider: nil})
@@ -208,7 +209,9 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
 
       html = live |> element("#signup-btn-desktop-sign-up-task-#{task.id}") |> render_click()
       assert html =~ "Unassign me"
-      refute html =~ "This delivery starts today. If you need to unassign yourself, please also text dispatch to let us know!"
+
+      refute html =~
+               "This delivery starts today. If you need to unassign yourself, please also text dispatch to let us know!"
     end
 
     test "we see pertinent task information", ctx do
@@ -223,7 +226,6 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       # We show the name and description of the item
       assert html =~ "Burrito"
       assert html =~ "a large burrito with all the fixings"
-
     end
 
     test "Invalid route for campaign shows flash and redirects", ctx do

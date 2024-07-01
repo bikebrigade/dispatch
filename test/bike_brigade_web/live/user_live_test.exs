@@ -25,7 +25,7 @@ defmodule BikeBrigadeWeb.UserLiveTest do
   describe "Users new / edit" do
     test "Can edit a user", ctx do
       {:ok, view, _html} = live(ctx.conn, ~p"/users/#{ctx.user.id}/edit")
-      view |> element("#user-form") 
+      view |> element("#user-form")
 
       {:ok, _view, html} =
         view

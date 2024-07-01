@@ -122,7 +122,6 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
     |> assign(:rider, fetched_rider)
   end
 
-
   defp apply_action(socket, :bulk_message, _) do
     socket
     |> assign(:page_title, "Message Riders for Campaign")
@@ -368,7 +367,8 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   def handle_info(
         {ev, %CampaignRider{campaign_id: campaign_id, rider_id: rider_id}},
         socket
-      ) when ev in [:campaign_rider_created, :campaign_rider_updated] do
+      )
+      when ev in [:campaign_rider_created, :campaign_rider_updated] do
     %{campaign: campaign} = socket.assigns
 
     if campaign_id == campaign.id do

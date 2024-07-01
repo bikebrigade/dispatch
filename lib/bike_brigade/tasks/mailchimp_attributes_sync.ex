@@ -44,7 +44,8 @@ defmodule BikeBrigade.Tasks.MailchimpAttributesSync do
         riders = Repo.all(query)
 
         for rider <- riders do
-          task_count =  if rider.total_stats, do:  rider.total_stats.task_count, else: 0
+          task_count = if rider.total_stats, do: rider.total_stats.task_count, else: 0
+
           MailchimpApi.update_member_fields(list_id, rider.email, %{
             LAST_RIDE: rider.latest_campaign.delivery_start,
             TASK_COUNT: task_count

@@ -34,6 +34,7 @@ defmodule BikeBrigadeWeb.UserLive.FormComponent do
     # TODO: We should probably not allow users to have no rider associated
     # But for now let's make it possible for consistency
     user_params = Map.put_new(user_params, "rider_id", nil)
+
     case Accounts.update_user_as_admin(socket.assigns.user, user_params) do
       {:ok, _user} ->
         {:noreply,

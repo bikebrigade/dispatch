@@ -9,7 +9,6 @@
     <span :if={@campaign.program.campaign_blurb}>- <%= @campaign.program.campaign_blurb %></span>
   </:subtitle>
 </.header>
-
 <!-- Desktop Table of tasks -->
 <section class="hidden md:block">
   <.table id="tasks" rows={@tasks}>
@@ -37,9 +36,7 @@
     </:action>
   </.table>
 </section>
-
 <!-- Mobile list of tasks -->
-
 <ul class="flex flex-col text-xs md:hidden">
   <li :for={t <- @tasks} class="w-full mb-8">
     <div class="flex justify-between px-4 py-3 font-bold bg-slate-200">
