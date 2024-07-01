@@ -68,7 +68,7 @@ defmodule BikeBrigadeWeb.CalendarLive.Index do
       )
 
     (opportunities ++ campaigns)
-    |> Enum.sort_by(&(&1.delivery_start), Date)
+    |> Enum.sort_by(& &1.delivery_start, Date)
     |> Utils.ordered_group_by(&LocalizedDateTime.to_date(&1.delivery_start))
   end
 

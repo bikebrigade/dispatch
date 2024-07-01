@@ -15,12 +15,12 @@ defmodule BikeBrigade.MailchimpApi.Http do
       {members, status} =
         Enum.flat_map_reduce(offsets, :ok, fn offset, _status ->
           case Mailchimp.List.members(list, %{
-            count: @count,
-            offset: offset,
-            fields:
-              "members.email_address,members.id,members.status,members.merge_fields,members.timestamp_opt",
-            since_timestamp_opt: opted_in
-          }) do
+                 count: @count,
+                 offset: offset,
+                 fields:
+                   "members.email_address,members.id,members.status,members.merge_fields,members.timestamp_opt",
+                 since_timestamp_opt: opted_in
+               }) do
             {:ok, []} -> {:halt, :ok}
             {:ok, members} -> {members, :ok}
             {:error, err} -> {:error, err}

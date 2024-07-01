@@ -48,7 +48,6 @@ defmodule BikeBrigadeWeb.ProgramLive.Show do
   defp apply_action(socket, :new_item, %{"id" => id}) do
     program = Delivery.get_program!(id, preload: [:lead, :items, campaigns: [:stats]])
 
-
     socket
     |> assign(:page_title, "New Item")
     |> assign(:program, program)
@@ -57,6 +56,7 @@ defmodule BikeBrigadeWeb.ProgramLive.Show do
 
   defp apply_action(socket, :edit_item, %{"id" => id, "item_id" => item_id}) do
     program = Delivery.get_program!(id, preload: [:lead, :items, campaigns: [:stats]])
+
     socket
     |> assign(:page_title, "Edit Item")
     |> assign(:program, program)

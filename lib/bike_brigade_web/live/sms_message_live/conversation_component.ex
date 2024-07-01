@@ -127,7 +127,6 @@ defmodule BikeBrigadeWeb.SmsMessageLive.ConversationComponent do
   def error_to_string(:too_many_files), do: "You have selected too many files"
   def error_to_string(:not_accepted), do: "You have selected an unacceptable file type"
 
-
   def media_type(%SmsMessage.MediaItem{content_type: content_type}) do
     String.split(content_type, "/")
     |> List.first()

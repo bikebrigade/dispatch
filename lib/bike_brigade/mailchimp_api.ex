@@ -18,5 +18,6 @@ defmodule BikeBrigade.MailchimpApi do
   @doc """
   Update merge fields for a member
   """
-  def update_member_fields(list_id, email, fields), do: adapter().update_member_fields(list_id, email, fields)
+  def update_member_fields(list_id, email, fields),
+    do: adapter().update_member_fields(list_id, email, fields)
 end

@@ -1,7 +1,6 @@
 defmodule BikeBrigade.DeliveryTest do
   use BikeBrigade.DataCase
 
-
   alias BikeBrigade.{LocalizedDateTime, Delivery, Delivery.Task, History}
 
   use Phoenix.VerifiedRoutes, endpoint: BikeBrigadeWeb.Endpoint, router: BikeBrigadeWeb.Router
@@ -98,7 +97,6 @@ defmodule BikeBrigade.DeliveryTest do
     assert log.user_id == user.id
     assert log.action == :unassigned
   end
-
 
   def item_name(%Task{task_items: [%{item: %{name: item_name}}]}), do: item_name
 

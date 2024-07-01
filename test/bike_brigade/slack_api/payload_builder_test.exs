@@ -5,7 +5,6 @@ defmodule BikeBrigade.SlackApi.PayloadBuilderTest do
 
   use Phoenix.VerifiedRoutes, endpoint: BikeBrigadeWeb.Endpoint, router: BikeBrigadeWeb.Router
 
-
   describe "When an SMS message from a rider is provided" do
     test "The payload is formatted with a reply button linking to the message" do
       channel_id = "123"

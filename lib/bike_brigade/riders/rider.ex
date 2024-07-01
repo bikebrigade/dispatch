@@ -149,7 +149,13 @@ defmodule BikeBrigade.Riders.Rider do
 
   def soft_delete_changeset(rider) do
     rider
-    |> change(name: "Deleted Rider", phone: nil, email: nil, pronouns: nil, deleted_at: DateTime.utc_now())
+    |> change(
+      name: "Deleted Rider",
+      phone: nil,
+      email: nil,
+      pronouns: nil,
+      deleted_at: DateTime.utc_now()
+    )
     |> put_assoc(:location, nil)
     |> put_assoc(:messages, [])
     |> put_assoc(:tags, [])
