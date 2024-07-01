@@ -9,7 +9,6 @@
     <span :if={@campaign.program.campaign_blurb}>- <%= @campaign.program.campaign_blurb %></span>
   </:subtitle>
 </.header>
-
 <!-- Desktop Table of tasks -->
 <section class="hidden md:block">
   <.table id="tasks" rows={@tasks}>
@@ -37,9 +36,7 @@
     </:action>
   </.table>
 </section>
-
 <!-- Mobile list of tasks -->
-
 <ul class="flex flex-col text-xs md:hidden">
   <li :for={t <- @tasks} class="w-full mb-8">
     <div class="flex justify-between px-4 py-3 font-bold bg-slate-200">
@@ -74,3 +71,21 @@
     </div>
   </li>
 </ul>
+<div
+  :if={!Enum.empty?(@campaign.program.photos)}
+  class="mt-4 overflow-hidden bg-white rounded-lg shadow"
+>
+  <div class="px-4 py-5 sm:p-6">
+    <.header>
+      Delivery photos
+      <:subtitle>
+       <%= @campaign.program.photo_description %>
+      </:subtitle>
+    </.header>
+    <div class="grid grid-cols-3 gap-4 mt-4">
+      <figure :for={url <- @campaign.program.photos}>
+        <img class="w-64" src={url} />
+      </figure>
+    </div>
+  </div>
+</div>
