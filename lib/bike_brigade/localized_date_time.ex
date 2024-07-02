@@ -1,12 +1,14 @@
 defmodule BikeBrigade.LocalizedDateTime do
-  @timezone "America/Toronto"
+  defp timezone() do
+    Application.get_env(:bike_brigade, __MODULE__)[:timezone]
+  end
 
   def localize(%DateTime{} = datetime) do
-    DateTime.shift_zone!(datetime, @timezone)
+    DateTime.shift_zone!(datetime, timezone())
   end
 
   def localize(%NaiveDateTime{} = datetime) do
-    DateTime.from_naive!(datetime, @timezone)
+    DateTime.from_naive!(datetime, timezone())
   end
 
   def now() do
@@ -20,11 +22,11 @@ defmodule BikeBrigade.LocalizedDateTime do
   end
 
   def new(date, time) do
-    DateTime.new(date, time, @timezone)
+    DateTime.new(date, time, timezone())
   end
 
   def new!(date, time) do
-    DateTime.new!(date, time, @timezone)
+    DateTime.new!(date, time, timezone())
   end
 
   def to_date(datetime) do
