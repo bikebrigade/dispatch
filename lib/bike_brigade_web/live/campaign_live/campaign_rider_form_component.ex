@@ -50,9 +50,9 @@ defmodule BikeBrigadeWeb.CampaignLive.CampaignRiderFormComponent do
   @impl Phoenix.LiveComponent
   def handle_event("save", %{"campaign_rider" => cr_params}, socket) do
     if !Map.has_key?(cr_params, "rider_id") do
-        {:noreply, socket |> put_flash(:error, "Rider is required")}
-      else
-        handle_save_impl(cr_params, socket, socket.assigns.action)
+      {:noreply, socket |> put_flash(:error, "Rider is required")}
+    else
+      handle_save_impl(cr_params, socket, socket.assigns.action)
     end
   end
 

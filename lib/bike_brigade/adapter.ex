@@ -16,6 +16,7 @@ defmodule BikeBrigade.Adapter do
       def append_child_spec(children) when is_list(children) do
         module = BikeBrigade.Adapter.Utils.extract_adapter(unquote(cfg_section))
         args = BikeBrigade.Adapter.Utils.extract_adapter_args(unquote(cfg_section))
+
         case Code.ensure_loaded!(module) && Kernel.function_exported?(module, :start_link, 1) do
           true -> children ++ [{module, args}]
           false -> children

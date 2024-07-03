@@ -76,8 +76,7 @@ defmodule BikeBrigadeWeb.RiderHomeLiveTest do
 
       expected_redirect =
         ~p"/campaigns/signup?campaign_ids[]=#{ctx.campaign.id}&campaign_ids[]=#{ctx.campaign2.id}&campaign_ids[]=#{ctx.campaign3.id}"
-
-      end
+    end
 
     test "it shows rider's itinerary of deliveries for today, with a sign up button", ctx do
       fixture(:task, %{campaign: ctx.campaign, rider: ctx.rider})

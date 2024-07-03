@@ -29,35 +29,35 @@
     </form>
   </div>
   <div class="flex justify-between">
-  <div class="inline-flex rounded-md shadow-sm mr-2">
-    <button
-      phx-click={JS.push("set_mode", value: %{mode: :list})}
-      type="button"
-      class={
+    <div class="inline-flex rounded-md shadow-sm mr-2">
+      <button
+        phx-click={JS.push("set_mode", value: %{mode: :list})}
+        type="button"
+        class={
           "#{if @mode == :list, do: "bg-gray-300", else: "bg-white"} relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-l-md hover:bg-gray-200 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
         }
-    >
-      <Heroicons.table_cells mini class="w-5 h-5 mr-1" /> List
-    </button>
-    <button
-      phx-click={JS.push("set_mode", value: %{mode: :map})}
-      type="button"
-      class={
+      >
+        <Heroicons.table_cells mini class="w-5 h-5 mr-1" /> List
+      </button>
+      <button
+        phx-click={JS.push("set_mode", value: %{mode: :map})}
+        type="button"
+        class={
           "#{if @mode == :map, do: "bg-gray-300", else: "bg-white"} relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 border border-gray-300 rounded-r-md hover:bg-gray-200 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
         }
-    >
-      Map <Heroicons.map mini class="w-5 h-5 ml-1" />
-    </button>
-  </div>
-  <.button class="space-x-2" patch={~p"/riders/message"}>
-    Bulk Message
-    <%= if MapSet.size(@selected) > 0 do %>
-      (<%= MapSet.size(@selected) %>)
-    <% end %>
-  </.button>
+      >
+        Map <Heroicons.map mini class="w-5 h-5 ml-1" />
+      </button>
+    </div>
+    <.button class="space-x-2" patch={~p"/riders/message"}>
+      Bulk Message
+      <%= if MapSet.size(@selected) > 0 do %>
+        (<%= MapSet.size(@selected) %>)
+      <% end %>
+    </.button>
   </div>
 </div>
-<form id="selected" phx-change="select_rider"/>
+<form id="selected" phx-change="select_rider" />
 <%= if @mode == :map do %>
   <div class="min-w-full mt-2 bg-white rounded-lg shadow">
     <div class="p-1 h-[80vh]">
@@ -109,7 +109,7 @@
     </:col>
     <:col :let={rider} label="Tags">
       <ul class="flex flex-wrap ">
-        <li :for={tag <-  rider.tags} class="flex after:content-[',\00a0'] last:after:content-['']">
+        <li :for={tag <- rider.tags} class="flex after:content-[',\00a0'] last:after:content-['']">
           <button type="button" phx-click={add_filter(:tag, tag.name)} class="link">
             <%= if get_filter(@rider_search.filters, :tag, tag.name) do %>
               <span class="font-bold"><%= tag.name %></span>

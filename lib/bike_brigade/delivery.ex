@@ -121,7 +121,7 @@ defmodule BikeBrigade.Delivery do
   def assign_task(%Task{} = task, rider_id, user_id, opts \\ []) when is_list(opts) do
     Repo.transaction(fn ->
       {:ok, _log} =
-       History.create_task_assignment_log(%{
+        History.create_task_assignment_log(%{
           task_id: task.id,
           rider_id: rider_id,
           user_id: user_id,
@@ -261,10 +261,10 @@ defmodule BikeBrigade.Delivery do
         join: t in assoc(c, :tasks),
         join: p in assoc(c, :program),
         where:
-          c.delivery_start <= ^forty_eight_hours_from_now
-          and c.delivery_start >= ^now
-          and p.public == true
-          and is_nil(t.assigned_rider_id),
+          c.delivery_start <= ^forty_eight_hours_from_now and
+            c.delivery_start >= ^now and
+            p.public == true and
+            is_nil(t.assigned_rider_id),
         select: c
 
     Repo.all(query)
@@ -1072,5 +1072,4 @@ defmodule BikeBrigade.Delivery do
   def change_opportunity(%Opportunity{} = opportunity, attrs \\ %{}) do
     Opportunity.changeset(opportunity, attrs)
   end
-
 end
