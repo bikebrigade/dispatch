@@ -9,6 +9,9 @@ import Config
 
 config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
 
+config :bike_brigade, BikeBrigade.LocalizedDateTime,
+  timezone: System.get_env("APP_TZ", "America/Toronto")
+
 config :bike_brigade,
   ecto_repos: [BikeBrigade.Repo]
 

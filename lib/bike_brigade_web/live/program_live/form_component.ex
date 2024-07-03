@@ -1,9 +1,18 @@
 defmodule BikeBrigadeWeb.ProgramLive.FormComponent do
   use BikeBrigadeWeb, :live_component
 
-  alias BikeBrigade.Delivery
+  alias BikeBrigade.{Delivery, MediaStorage}
 
   alias BikeBrigadeWeb.ProgramLive.ProgramForm
+
+  @impl Phoenix.LiveComponent
+  def mount(socket) do
+    socket =
+      socket
+      |> allow_upload(:photos, accept: ~w(.gif .png .jpg .jpeg), max_entries: 10)
+
+    {:ok, socket}
+  end
 
   @impl Phoenix.LiveComponent
   def update(%{program: program} = assigns, socket) do
@@ -83,6 +92,24 @@ defmodule BikeBrigadeWeb.ProgramLive.FormComponent do
     {:noreply, assign(socket, :changeset, changeset)}
   end
 
+  def handle_event("delete_photo", %{"index" => index}, socket) do
+    changeset = socket.assigns.changeset
+    program = Ecto.Changeset.get_field(changeset, :program)
+
+    photos =
+      program.photos
+      |> List.delete_at(index)
+
+    changeset =
+      changeset
+      |> Ecto.Changeset.change(
+        program:
+          program
+          |> Delivery.Program.changeset(%{photos: photos})
+      )
+    {:noreply, assign(socket, :changeset, changeset)}
+  end
+
   @impl Phoenix.LiveComponent
   def handle_event("validate", %{"program_form" => program_form_params}, socket) do
     changeset =
@@ -95,7 +122,33 @@ defmodule BikeBrigadeWeb.ProgramLive.FormComponent do
 
   @impl Phoenix.LiveComponent
   def handle_event("save", %{"program_form" => program_form_params}, socket) do
+    photos =
+      consume_uploaded_entries(socket, :photos, fn %{path: path}, %{client_type: content_type} ->
+        # TODO do some guards on content type here
+        {:ok, MediaStorage.upload_file!(path, content_type)}
+      end)
+
+    photo_urls = Enum.map(photos, &Map.get(&1, :url))
+
+    program_form_params =
+      program_form_params
+      |> update_in(
+        ["program", "photos"],
+        fn
+          nil ->
+            photo_urls
+
+          photos when is_list(photos) ->
+            photos ++ photo_urls
+        end
+      )
+
     save_program(socket, socket.assigns.action, program_form_params)
+  end
+
+  @impl Phoenix.LiveComponent
+  def handle_event("cancel_upload", %{"ref" => ref}, socket) do
+    {:noreply, cancel_upload(socket, :photos, ref)}
   end
 
   defp save_program(socket, :edit, program_form_params) do
@@ -134,4 +187,8 @@ defmodule BikeBrigadeWeb.ProgramLive.FormComponent do
         {:noreply, assign(socket, changeset: changeset |> Map.put(:action, :insert))}
     end
   end
+
+  defp error_to_string(:too_large), do: "Too large"
+  defp error_to_string(:too_many_files), do: "You have selected too many files"
+  defp error_to_string(:not_accepted), do: "You have selected an unacceptable file type"
 end

@@ -117,7 +117,6 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
 
       assert html =~ "Pasta"
       assert html =~ "Soup"
-
     end
   end
 end

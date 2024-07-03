@@ -872,10 +872,10 @@ defmodule BikeBrigadeWeb.CoreComponents do
                   <div class="px-4 py-6 bg-gray-50 sm:px-6">
                     <div class="flex items-start justify-between space-x-3">
                       <header :if={@title != []} class="space-y-1">
-                        <h1 class="text-lg font-medium text-gray-900" id={"#{@id}-title"}>
+                        <h1 class="text-lg font-medium leading-8 text-gray-900" id={"#{@id}-title"}>
                           <%= render_slot(@title) %>
                         </h1>
-                        <p :if={@subtitle != []} class="text-sm text-gray-500">
+                        <p :if={@subtitle != []} class="text-sm leading-6 text-gray-500">
                           <%= render_slot(@subtitle) %>
                         </p>
                       </header>
