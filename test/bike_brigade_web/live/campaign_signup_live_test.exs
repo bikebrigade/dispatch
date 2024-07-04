@@ -205,7 +205,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       campaign = make_campaign_in_future(ctx.program.id)
       task = fixture(:task, %{campaign: campaign, rider: nil})
 
-      {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup/#{campaign.id}/")
+      {:ok, live, _html} = live(ctx.conn, ~p"/campaigns/signup/#{campaign.id}/")
 
       html = live |> element("#signup-btn-desktop-sign-up-task-#{task.id}") |> render_click()
       assert html =~ "Unassign me"
