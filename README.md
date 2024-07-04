@@ -41,6 +41,20 @@ If you wish to run a specific test you can provide a file and optionally a line 
 scripts/test path/to/test.exs:LINENUMBER
 ```
 
+### Code formatting
+
+Format code with
+
+```
+scripts/format
+```
+
+There is probably a way to set up your editor to run `scripts/format` on save. [This article](https://medium.com/@rviragh/all-elixir-coders-should-autoformat-on-save-heres-how-ae094dd7af82) may help in a VS Code context.
+
+You can also add `mix format --check-formatted` to a [Git pre-commit hook](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks) to have git automatically error on `git commit` if formatting needs to be applied.
+
+Note: similar to having the Elixir language server available in your editor you may need to launch your editor from within `nix-shell` or otherwise make sure your editor can find/run `scripts/format`.
+
 ### Updating nix dependencies
 [niv](https://github.com/nmattia/niv) is used to ensure everyone is using the same version of nixpkgs.
 To update the nixpkgs version run:

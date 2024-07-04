@@ -58,6 +58,8 @@ jobs:
         run: mix deps.get
       - name: Compile
         run: mix compile
+      - name: Check Elixir code formatting
+        run: mix format --check-formatted
       - name: Install JS dependencies
         run: npm install --prefix=assets
       - name: Compile assets

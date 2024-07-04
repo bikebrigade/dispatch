@@ -107,6 +107,7 @@ defmodule BikeBrigadeWeb.ProgramLive.FormComponent do
           program
           |> Delivery.Program.changeset(%{photos: photos})
       )
+
     {:noreply, assign(socket, :changeset, changeset)}
   end
 
