@@ -20,6 +20,8 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
     campaign_filter = {:current_week, current_week}
 
     campaigns = fetch_campaigns(campaign_filter)
+    start_date = LocalizedDateTime.new!(current_week, ~T[00:00:00])
+    end_date = Date.add(current_week, 6) |> LocalizedDateTime.new!(~T[23:59:59])
 
     {:ok,
      socket
@@ -27,7 +29,10 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
      |> assign(:page_title, "Delivery Sign Up")
      |> assign(:current_week, current_week)
      |> assign(:campaign_filter, campaign_filter)
-     |> assign(:campaign_task_counts, Delivery.get_total_tasks_and_open_tasks(current_week))
+     |> assign(
+       :campaign_task_counts,
+       Delivery.get_total_tasks_and_open_tasks(start_date, end_date)
+     )
      |> assign(:showing_urgent_campaigns, false)
      |> assign(:campaigns, campaigns)}
   end
@@ -37,10 +42,17 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
     campaign_filter = {:campaign_ids, campaign_ids}
     campaigns = fetch_campaigns(campaign_filter)
 
+    start_date = LocalizedDateTime.now()
+    end_date = Date.add(start_date, 2) |> LocalizedDateTime.new!(~T[23:59:59])
+
     {:noreply,
      socket
      |> assign(:campaigns, campaigns)
      |> assign(:campaign_filter, campaign_filter)
+     |> assign(
+       :campaign_task_counts,
+       Delivery.get_total_tasks_and_open_tasks(start_date, end_date)
+     )
      |> assign(:showing_urgent_campaigns, true)}
   end
 

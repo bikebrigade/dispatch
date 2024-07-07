@@ -275,7 +275,7 @@ defmodule BikeBrigade.Delivery do
   and groups them by campaign ID.
   Written in order to show how "full" a campaign is.
   """
-  def get_total_tasks_and_open_tasks(week \\ nil) do
+  def get_total_tasks_and_open_tasks(start_time \\ nil, end_time \\ nil) do
     query =
       from t in Task,
         as: :task,
@@ -283,12 +283,12 @@ defmodule BikeBrigade.Delivery do
         as: :campaign
 
     query =
-      if week do
-        start_date = LocalizedDateTime.new!(week, ~T[00:00:00])
-        end_date = Date.add(week, 6) |> LocalizedDateTime.new!(~T[23:59:59])
-
+      if start_time && end_time do
         query
-        |> where([campaign: c], c.delivery_start >= ^start_date and c.delivery_start <= ^end_date)
+        |> where(
+          [campaign: c],
+          c.delivery_start >= ^start_time and c.delivery_start <= ^end_time
+        )
       else
         query
       end
