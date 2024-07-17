@@ -96,7 +96,7 @@ defmodule BikeBrigadeWeb.OpportunityLive.FormComponent do
 
   @impl Phoenix.LiveComponent
   def mount(socket) do
-    programs = for p <- BikeBrigade.Repo.all(Program), do: {p.name, p.id}
+    programs = for p <- Delivery.list_programs(), do: {p.name, p.id}
 
     {:ok,
      socket
