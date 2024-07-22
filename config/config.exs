@@ -68,10 +68,9 @@ config :phoenix, :json_library, Jason
 config :geo_postgis,
   json_library: Jason
 
-config :bike_brigade, BikeBrigade.Tasks.MailchimpImporter,
-  list_id: {:system, "MAILCHIMP_LIST_ID"}
+config :bike_brigade, BikeBrigade.Tasks.MailchimpImporter, list_id: {:system, "MAILCHIMP_LIST_ID"}
 
-  config :bike_brigade, BikeBrigade.Tasks.MailchimpAttributesSync,
+config :bike_brigade, BikeBrigade.Tasks.MailchimpAttributesSync,
   list_id: {:system, "MAILCHIMP_LIST_ID"}
 
 # We use the same phone number for our authentication and regular messaging by they are configurable separately for now
@@ -80,10 +79,12 @@ config :bike_brigade, BikeBrigade.Messaging,
   new_outbound_number: {:system, "NEW_PHONE_NUMBER", default: "647-555-5555"},
   inbound_numbers: {:system, "INBOUND_NUMBERS", default: "647-555-5555"}
 
-config :bike_brigade, BikeBrigade.AuthenticationMessenger, phone_number: {:system, "PHONE_NUMBER", default: "647-555-5555"}
+config :bike_brigade, BikeBrigade.AuthenticationMessenger,
+  phone_number: {:system, "PHONE_NUMBER", default: "647-555-5555"}
 
 # Config our google clients
-config :bike_brigade, BikeBrigade.GoogleMaps, api_key: {:system, "GOOGLE_MAPS_API_KEY", default: ""}
+config :bike_brigade, BikeBrigade.GoogleMaps,
+  api_key: {:system, "GOOGLE_MAPS_API_KEY", default: ""}
 
 # Set slack channel IDs for messaging
 config :bike_brigade, BikeBrigade.Messaging.Slack.Operations,
