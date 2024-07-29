@@ -127,23 +127,21 @@
                     />
                     <%= pickup_window(c) %>
                   </p>
-                  <p class="flex items-center mt-2 text-sm text-gray-700 sm:mt-0 sm:ml-6">
-                    <Icons.maki_bicycle_share class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-500" />
-                    <%= c.stats.signed_up_rider_count %>
-                  </p>
-                  <p class="flex items-center mt-2 text-sm text-gray-700 sm:mt-0 sm:ml-6">
-                    <Heroicons.shopping_bag
-                      mini
-                      class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-500"
-                    />
-                    <%= c.stats.task_count %>
-                  </p>
+
                   <p class="flex items-center mt-2 text-sm text-gray-700 sm:mt-0 sm:ml-6">
                   <.tasks_filled_text
                     filled_tasks={@campaign_task_counts[c.id][:filled_tasks]}
                     total_tasks={@campaign_task_counts[c.id][:total_tasks]}
                     campaign={c}
                   />
+                  </p>
+
+                  <p class="flex items-center mt-2 text-sm text-gray-700 sm:mt-0 sm:ml-6">
+                    <Heroicons.shopping_bag
+                      mini
+                      class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-500"
+                    />
+                    <%= c.stats.task_count %>
                   </p>
 
                 </div>

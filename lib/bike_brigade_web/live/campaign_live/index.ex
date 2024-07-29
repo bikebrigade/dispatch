@@ -36,6 +36,14 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
     {:noreply, apply_action(socket, socket.assigns.live_action, params)}
   end
 
+  @impl true
+  def handle_event("delete", %{"id" => id}, socket) do
+    campaign = Delivery.get_campaign(id)
+    {:ok, _} = Delivery.delete_campaign(campaign)
+
+    {:noreply, assign(socket, :campaigns, fetch_campaigns(socket.assigns.current_week))}
+  end
+
   @broadcasted_infos [
     :task_created,
     :task_deleted,
@@ -53,13 +61,9 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
     end
   end
 
-  @impl true
-  def handle_event("delete", %{"id" => id}, socket) do
-    campaign = Delivery.get_campaign(id)
-    {:ok, _} = Delivery.delete_campaign(campaign)
-
-    {:noreply, assign(socket, :campaigns, fetch_campaigns(socket.assigns.current_week))}
-  end
+  @impl Phoenix.LiveView
+    @doc "silently ignore other kinds of messages"
+    def handle_info(_, socket), do: {:noreply, socket}
 
   defp apply_action(socket, :edit, %{"id" => id}) do
     socket
