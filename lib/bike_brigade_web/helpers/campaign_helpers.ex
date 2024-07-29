@@ -1,6 +1,10 @@
 defmodule BikeBrigadeWeb.CampaignHelpers do
   alias BikeBrigade.Delivery.Task
   alias BikeBrigade.Riders.Rider
+  alias BikeBrigade.Delivery
+  alias BikeBrigade.Utils
+
+  use BikeBrigadeWeb, :live_component
 
   alias BikeBrigade.LocalizedDateTime
 
@@ -127,5 +131,51 @@ defmodule BikeBrigadeWeb.CampaignHelpers do
   # TODO this could be better
   defp print_item(task_item) do
     "#{task_item.count} #{Inflex.inflect(task_item.item.name, task_item.count)}"
+  end
+
+  attr :filled_tasks, :integer, required: true
+  attr :total_tasks, :integer, required: true
+  attr :campaign, :any, required: true
+
+  @doc """
+    Renders possible states of campaign "Fullness" in styled text.
+  """
+  def tasks_filled_text(assigns) do
+    {class, copy} =
+      cond do
+        assigns.filled_tasks == nil ->
+          {"text-gray-600", "N/A"}
+
+        campaign_in_past(assigns.campaign) ->
+          {"text-gray-600", "Campaign over"}
+
+        assigns.total_tasks - assigns.filled_tasks == 0 ->
+          {"text-gray-600", "Fully Assigned"}
+
+        true ->
+          {"text-red-400", "#{assigns.total_tasks - assigns.filled_tasks} Available"}
+      end
+
+    assigns =
+      assigns
+      |> assign(:class, class)
+      |> assign(:copy, copy)
+
+    ~H"""
+    <p class="flex flex-col items-center mt-0 text-sm text-gray-700 md:flex-row">
+      <Icons.maki_bicycle_share class="flex-shrink-0 mb-2 mr-1.5 h-8 w-8 md:h-5 md:w-5 md:mb-0 text-gray-500" />
+      <span class="flex space-x-2 font-bold md:font-normal">
+        <span class={@class}><%= @copy %></span>
+      </span>
+    </p>
+    """
+  end
+
+  # Use this to determine if we need to refetch data to update the liveview.
+  # ex: dispatcher changes riders/tasks, or another rider signs up -> refetch.
+  def entity_in_campaigns?(campaigns, entity_campaign_id) do
+    campaigns
+    |> Enum.flat_map(fn {_date, campaigns} -> campaigns end)
+    |> Enum.any?(fn c -> c.id == entity_campaign_id end)
   end
 end

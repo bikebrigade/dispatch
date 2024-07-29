@@ -75,7 +75,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
 
   @impl Phoenix.LiveView
   def handle_info({event, entity}, socket) when event in @broadcasted_infos do
-    if entity_in_campaigns?(socket, entity.campaign_id) do
+    if entity_in_campaigns?(socket.assigns.campaigns, entity.campaign_id) do
       {:noreply, refetch_and_assign_data(socket)}
     else
       {:noreply, socket}
@@ -143,49 +143,6 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
     socket
     |> assign(:campaign_task_counts, Delivery.get_total_tasks_and_open_tasks(week))
     |> assign(:campaigns, fetch_campaigns(campaign_filter))
-  end
-
-  # Use this to determine if we need to refetch data to update the liveview.
-  # ex: dispatcher changes riders/tasks, or another rider signs up -> refetch.
-  defp entity_in_campaigns?(socket, entity_campaign_id) do
-    socket.assigns.campaigns
-    |> Enum.flat_map(fn {_date, campaigns} -> campaigns end)
-    |> Enum.any?(fn c -> c.id == entity_campaign_id end)
-  end
-
-  attr :filled_tasks, :integer, required: true
-  attr :total_tasks, :integer, required: true
-  attr :campaign, :any, required: true
-
-  defp tasks_filled_text(assigns) do
-    {class, copy} =
-      cond do
-        assigns.filled_tasks == nil ->
-          {"text-gray-600", "N/A"}
-
-        campaign_in_past(assigns.campaign) ->
-          {"text-gray-600", "Campaign over"}
-
-        assigns.total_tasks - assigns.filled_tasks == 0 ->
-          {"text-gray-600", "Fully Assigned"}
-
-        true ->
-          {"text-red-400", "#{assigns.total_tasks - assigns.filled_tasks} Available"}
-      end
-
-    assigns =
-      assigns
-      |> assign(:class, class)
-      |> assign(:copy, copy)
-
-    ~H"""
-    <p class="flex flex-col items-center mt-0 text-sm text-gray-700 md:flex-row">
-      <Icons.maki_bicycle_share class="flex-shrink-0 mb-2 mr-1.5 h-8 w-8 md:h-5 md:w-5 md:mb-0 text-gray-500" />
-      <span class="flex space-x-2 font-bold md:font-normal">
-        <span class={@class}><%= @copy %></span>
-      </span>
-    </p>
-    """
   end
 
   attr :campaign, :any, required: true
