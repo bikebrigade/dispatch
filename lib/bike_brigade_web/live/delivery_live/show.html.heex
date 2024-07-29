@@ -15,13 +15,13 @@
           <%= Calendar.strftime(@campaign_date, "%A, %b %d") %>
         </p>
 
-      <.link
-        patch={~p"/itinerary"}
-        aria-label="Go to ride itinerary"
-        class="mt-1 text-sm text-indigo-600"
-      >
-        View all rides on your itinerary →
-      </.link>
+        <.link
+          patch={~p"/itinerary"}
+          aria-label="Go to ride itinerary"
+          class="mt-1 text-sm text-indigo-600"
+        >
+          View all rides on your itinerary →
+        </.link>
       </div>
       <div class="flex-shrink-0">
         <div class="flex justify-end flex-1">
@@ -82,13 +82,13 @@
                   size={:small}
                   color={:green}
                 >
-                  <Heroicons.map mini class="w-5 h-5 mr-1 -ml-0.5" />
-                  Map
+                  <Heroicons.map mini class="w-5 h-5 mr-1 -ml-0.5" /> Map
                 </.button>
               </div>
             </div>
             <div class="inline-flex flex-shrink-0 leading-normal">
-              <Heroicons.clock mini
+              <Heroicons.clock
+                mini
                 aria-label="Pickup Time"
                 class="w-4 h-4 mt-1 mr-1 text-gray-500"
               />
@@ -115,7 +115,10 @@
             phx-hook="Alpine"
             class="relative mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-7"
           >
-            <div x-bind:class="{ 'max-h-20': collapsed }" class="overflow-hidden whitespace-pre-wrap">
+            <div
+              x-bind:class="{ 'max-h-20': collapsed }"
+              class="overflow-hidden whitespace-pre-wrap"
+            >
               <%= render_raw(@campaign.details) %>
             </div>
             <div
@@ -173,8 +176,7 @@
                       Text
                     </.button>
                     <.button href={tel_url(task)} aria-label={"Call Delivery #{i}"} size={:small}>
-                      <Heroicons.phone_arrow_up_right mini class="w-5 h-5 mr-1 -ml-0.5" />
-                      Call
+                      <Heroicons.phone_arrow_up_right mini class="w-5 h-5 mr-1 -ml-0.5" /> Call
                     </.button>
                   <% end %>
                   <.button
@@ -183,13 +185,13 @@
                     aria-label={"Map Delivery #{i}"}
                     size={:small}
                   >
-                    <Heroicons.map mini class="w-5 h-5 mr-1 -ml-0.5" />
-                    Map
+                    <Heroicons.map mini class="w-5 h-5 mr-1 -ml-0.5" /> Map
                   </.button>
                 </div>
               </div>
               <div class="inline-flex flex-shrink-0 leading-normal">
-                <Heroicons.user mini
+                <Heroicons.user
+                  mini
                   aria-label="Dropoff Name"
                   class="w-4 h-4 mt-1 mr-1 text-gray-500"
                 />
@@ -197,7 +199,8 @@
               </div>
               <.location location={task.dropoff_location} />
               <div class="inline-flex flex-shrink-0 leading-normal">
-                <Heroicons.device_phone_mobile mini
+                <Heroicons.device_phone_mobile
+                  mini
                   aria-label="Dropoff Phone"
                   class="w-4 h-4 mt-1 mr-1 text-gray-500"
                 />
@@ -208,7 +211,10 @@
                 <% end %>
               </div>
               <div class="inline-flex leading-normal">
-                <Heroicons.shopping_bag mini class="flex-shrink-0 w-4 h-4 mt-1 mr-1 text-gray-500 " />
+                <Heroicons.shopping_bag
+                  mini
+                  class="flex-shrink-0 w-4 h-4 mt-1 mr-1 text-gray-500 "
+                />
                 <%= CampaignHelpers.request_type(task) %>
               </div>
             </div>
@@ -228,10 +234,10 @@
               class="relative mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-7"
             >
               <div x-bind:class="{ 'max-h-24': collapsed }" class="overflow-hidden">
-                <%= if is_nil(task.rider_notes) or task.rider_notes=="" do %>
+                <%= if is_nil(task.delivery_instructions) or task.delivery_instructions=="" do %>
                   N/A
                 <% else %>
-                  <%= render_raw(task.rider_notes) %>
+                  <%= render_raw(task.delivery_instructions) %>
                 <% end %>
               </div>
               <div
@@ -274,8 +280,7 @@
             </h2>
             <div class="flex flex-wrap items-start justify-end flex-shrink ml-auto">
               <.button href={sms_done_url(@campaign, @rider)} class="ml-auto" color={:green}>
-                <Heroicons.chat_bubble_left_right mini class="w-5 h-5 mr-1 -ml-0.5" />
-                I'm done!
+                <Heroicons.chat_bubble_left_right mini class="w-5 h-5 mr-1 -ml-0.5" /> I'm done!
               </.button>
             </div>
           </div>

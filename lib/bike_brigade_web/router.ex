@@ -12,7 +12,7 @@ defmodule BikeBrigadeWeb.Router do
   def handle_errors(_conn, %{reason: %BikeBrigadeWeb.DeliveryExpiredError{}}), do: :ok
   def handle_errors(conn, err), do: super(conn, err)
 
-  import BikeBrigadeWeb.Authentication,
+  import BikeBrigadeWeb.AuthenticationController,
     only: [
       require_authenticated_user: 2,
       require_dispatcher: 2,
@@ -27,15 +27,7 @@ defmodule BikeBrigadeWeb.Router do
     plug :get_user_from_session
   end
 
-  pipeline :parse_request do
-    plug Plug.Parsers,
-      parsers: [:urlencoded, :multipart, :json],
-      pass: ["*/*"],
-      json_decoder: Phoenix.json_library()
-  end
-
   pipeline :browser do
-    plug :parse_request
     plug :accepts, ["html"]
     plug :sessions
     plug :fetch_live_flash
@@ -46,7 +38,6 @@ defmodule BikeBrigadeWeb.Router do
   end
 
   pipeline :api do
-    plug :parse_request
     plug :accepts, ["json"]
   end
 
@@ -91,8 +82,9 @@ defmodule BikeBrigadeWeb.Router do
   scope "/", BikeBrigadeWeb do
     pipe_through [:browser, :redirect_if_user_is_authenticated]
 
-    live "/login", LoginLive, :index
-    post "/login", Authentication, :login
+    get "/login", AuthenticationController, :show
+    post "/login", AuthenticationController, :login
+    delete "/login", AuthenticationController, :cancel
   end
 
   # this scope is for authenticated users that aren't dispatchers (ie: riders).
@@ -110,7 +102,7 @@ defmodule BikeBrigadeWeb.Router do
       live "/leaderboard", StatsLive.Leaderboard, :show
     end
 
-    post "/logout", Authentication, :logout
+    delete "/logout", AuthenticationController, :logout
   end
 
   scope "/", BikeBrigadeWeb do
@@ -118,7 +110,6 @@ defmodule BikeBrigadeWeb.Router do
 
     live_session :dispatch, on_mount: {LiveHooks.Authentication, :require_dispatcher} do
       live "/riders", RiderLive.Index, :index
-      live "/riders/new", RiderLive.Index, :new
       live "/riders/message", RiderLive.Index, :message
       # this is mostly used for testing!
       live "/riders/map", RiderLive.Index, :map

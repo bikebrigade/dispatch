@@ -68,7 +68,16 @@
         </.link>
       </div>
 
-      <.input type="textarea" field={{f, :rider_notes}} label="Notes" />
+      <.input
+        type="textarea"
+        field={{f, :delivery_instructions}}
+        label="Delivery Instructions (sent to rider when doing delivery)"
+      />
+      <.input
+        type="textarea"
+        field={{f, :signup_notes}}
+        label="Signup Notes (shown on rider signup - No personal information in this notes, please!)"
+      />
 
       <:actions>
         <.button type="submit" phx-disable-with="Saving...">Save</.button>

@@ -135,6 +135,6 @@ defmodule BikeBrigade.Utils do
   def join([a]), do: to_string(a)
   def join([a, b]), do: "#{a} and #{b}"
   def join(list), do: join(list, [])
-  def join([last], strl), do: to_string([strl, 'and ', to_string(last)])
-  def join([h | t], strl), do: join(t, [strl, to_string(h), ', '])
+  def join([last], strl), do: to_string([strl, ~c"and ", to_string(last)])
+  def join([h | t], strl), do: join(t, [strl, to_string(h), ~c", "])
 end

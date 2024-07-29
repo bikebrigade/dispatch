@@ -1,4 +1,4 @@
 [
   import_deps: [:ecto_sql],
-  inputs: ["/**/*.{ex,exs}"],
+  inputs: ["**/*.{ex,exs}"]
 ]

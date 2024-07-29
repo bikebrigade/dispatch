@@ -25,13 +25,13 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
       fixture(:rider, %{name: "Béa"})
       {:ok, index_live, _html} = live(conn, ~p"/riders")
 
-      html = index_live
-      |> element("#rider-search")
-      |> render_submit(%{value: "Bea"})
+      html =
+        index_live
+        |> element("#rider-search")
+        |> render_submit(%{value: "Bea"})
 
       assert Floki.parse_fragment!(html) |> Floki.find(".rider-row") |> Enum.count() == 1
       assert html =~ "Béa"
-
     end
 
     test "bulk message with no riders selected", %{conn: conn, rider: rider} do
@@ -114,19 +114,24 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
       error_msg_regex = ~r/could not find non-disabled input, select or textarea/
 
       assert_raise ArgumentError, error_msg_regex, fn ->
-        view |> form("#rider-form", rider_form: %{"internal_notes" => "notes!"}) |> render_submit()
-      end
-
-      assert_raise ArgumentError,  error_msg_regex, fn ->
-        view |> form("#rider-form", rider_form: %{"last_safety_check" => "2023-11-21"}) |> render_submit()
-      end
-
-      assert_raise ArgumentError,  error_msg_regex, fn ->
         view
-        |> form("#rider-form", rider_form: %{"text_based_itinerary" => "false"}) |> render_submit()
+        |> form("#rider-form", rider_form: %{"internal_notes" => "notes!"})
+        |> render_submit()
       end
 
-      assert_raise ArgumentError,  error_msg_regex, fn ->
+      assert_raise ArgumentError, error_msg_regex, fn ->
+        view
+        |> form("#rider-form", rider_form: %{"last_safety_check" => "2023-11-21"})
+        |> render_submit()
+      end
+
+      assert_raise ArgumentError, error_msg_regex, fn ->
+        view
+        |> form("#rider-form", rider_form: %{"text_based_itinerary" => "false"})
+        |> render_submit()
+      end
+
+      assert_raise ArgumentError, error_msg_regex, fn ->
         view
         |> form("#rider-form", rider_form: %{"tags" => ["foo"]})
         |> render_submit()
@@ -145,20 +150,21 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
       assert html =~ "dispatch-data-tags-and-capacity"
     end
 
-
     test "Logged in dispatcher can edit admin-only fields.", %{conn: conn, rider: rider} do
       {:ok, view, html} = live(conn, ~p"/riders/#{rider}/show/edit")
       assert html =~ rider.name
 
-        view
-        |> form("#rider-form", rider_form: %{
-              "name" => "alex123",
-              "internal_notes" => "notes!",
-              "last_safety_check" => "2023-11-21",
-              "text_based_itinerary" => "false"})
-        |> render_submit()
+      view
+      |> form("#rider-form",
+        rider_form: %{
+          "name" => "alex123",
+          "internal_notes" => "notes!",
+          "last_safety_check" => "2023-11-21",
+          "text_based_itinerary" => "false"
+        }
+      )
+      |> render_submit()
     end
-
 
     test "edit rider", %{conn: conn, rider: rider} do
       {:ok, view, _html} = live(conn, ~p"/riders/#{rider}/show/edit")

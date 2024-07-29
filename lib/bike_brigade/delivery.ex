@@ -121,7 +121,7 @@ defmodule BikeBrigade.Delivery do
   def assign_task(%Task{} = task, rider_id, user_id, opts \\ []) when is_list(opts) do
     Repo.transaction(fn ->
       {:ok, _log} =
-       History.create_task_assignment_log(%{
+        History.create_task_assignment_log(%{
           task_id: task.id,
           rider_id: rider_id,
           user_id: user_id,
@@ -204,47 +204,46 @@ defmodule BikeBrigade.Delivery do
   end
 
   defp campaigns_filter(opts) do
-    filter = true
+    public = Keyword.get(opts, :public, nil)
+    campaign_ids = Keyword.get(opts, :campaign_ids, nil)
+    start_date = Keyword.get(opts, :start_date, nil)
+    end_date = Keyword.get(opts, :end_date, nil)
 
-    filter =
-      case Keyword.fetch(opts, :public) do
-        {:ok, true} -> dynamic([program: p], ^filter and p.public == true)
-        {:ok, false} -> dynamic([program: p], ^filter and p.public == false)
-        _ -> filter
-      end
+    true
+    |> filter_public(public)
+    |> filter_campaign_ids(campaign_ids)
+    |> filter_start_date(start_date)
+    |> filter_end_date(end_date)
+  end
 
-    filter =
-      case Keyword.fetch(opts, :start_date) do
-        {:ok, date} ->
-          date_time = LocalizedDateTime.new!(date, ~T[00:00:00])
-          dynamic([campaign: c], ^filter and c.delivery_start >= ^date_time)
+  defp filter_public(filter, nil), do: filter
 
-        _ ->
-          filter
-      end
+  defp filter_public(filter, true) do
+    dynamic([program: p], ^filter and p.public == true)
+  end
 
-    filter =
-      case Keyword.fetch(opts, :end_date) do
-        {:ok, date} ->
-          date_time = LocalizedDateTime.new!(date, ~T[23:59:59])
-          dynamic([campaign: c], ^filter and c.delivery_start <= ^date_time)
+  defp filter_public(filter, false) do
+    dynamic([program: p], ^filter and p.public == false)
+  end
 
-        _ ->
-          filter
-      end
+  defp filter_campaign_ids(filter, nil), do: filter
 
-    # sometimes we just want to fetch campaigns with specific ids
-    # (such as when we need to display campaigns that urgently need a rider)
-    filter =
-      case Keyword.fetch(opts, :campaign_ids) do
-        {:ok, campaign_ids} when not is_nil(campaign_ids) ->
-          dynamic([campaign: c], ^filter and c.id in ^campaign_ids)
+  defp filter_campaign_ids(filter, campaign_ids) when is_list(campaign_ids) do
+    dynamic([campaign: c], ^filter and c.id in ^campaign_ids)
+  end
 
-        _ ->
-          filter
-      end
+  defp filter_start_date(filter, nil), do: filter
 
-    filter
+  defp filter_start_date(filter, date) do
+    date_time = LocalizedDateTime.new!(date, ~T[00:00:00])
+    dynamic([campaign: c], ^filter and c.delivery_start >= ^date_time)
+  end
+
+  defp filter_end_date(filter, nil), do: filter
+
+  defp filter_end_date(filter, date) do
+    date_time = LocalizedDateTime.new!(date, ~T[23:59:59])
+    dynamic([campaign: c], ^filter and c.delivery_start <= ^date_time)
   end
 
   @doc """
@@ -261,10 +260,10 @@ defmodule BikeBrigade.Delivery do
         join: t in assoc(c, :tasks),
         join: p in assoc(c, :program),
         where:
-          c.delivery_start <= ^forty_eight_hours_from_now
-          and c.delivery_start >= ^now
-          and p.public == true
-          and is_nil(t.assigned_rider_id),
+          c.delivery_start <= ^forty_eight_hours_from_now and
+            c.delivery_start >= ^now and
+            p.public == true and
+            is_nil(t.assigned_rider_id),
         select: c
 
     Repo.all(query)
@@ -276,7 +275,7 @@ defmodule BikeBrigade.Delivery do
   and groups them by campaign ID.
   Written in order to show how "full" a campaign is.
   """
-  def get_total_tasks_and_open_tasks(week \\ nil) do
+  def get_total_tasks_and_open_tasks(start_time \\ nil, end_time \\ nil) do
     query =
       from t in Task,
         as: :task,
@@ -284,12 +283,12 @@ defmodule BikeBrigade.Delivery do
         as: :campaign
 
     query =
-      if week do
-        start_date = LocalizedDateTime.new!(week, ~T[00:00:00])
-        end_date = Date.add(week, 6) |> LocalizedDateTime.new!(~T[23:59:59])
-
+      if start_time && end_time do
         query
-        |> where([campaign: c], c.delivery_start >= ^start_date and c.delivery_start <= ^end_date)
+        |> where(
+          [campaign: c],
+          c.delivery_start >= ^start_time and c.delivery_start <= ^end_time
+        )
       else
         query
       end
@@ -638,7 +637,7 @@ defmodule BikeBrigade.Delivery do
 
     task_details =
       for task <- tasks do
-        "Name: #{task.dropoff_name}\nPhone: #{task.dropoff_phone}\nType: #{BikeBrigadeWeb.CampaignHelpers.request_type(task)}\nAddress: #{task.dropoff_location}\nNotes: #{task.rider_notes}"
+        "Name: #{task.dropoff_name}\nPhone: #{task.dropoff_phone}\nType: #{BikeBrigadeWeb.CampaignHelpers.request_type(task)}\nAddress: #{task.dropoff_location}\nNotes: #{task.delivery_instructions}"
       end
       |> Enum.join("\n\n")
 
@@ -1072,5 +1071,4 @@ defmodule BikeBrigade.Delivery do
   def change_opportunity(%Opportunity{} = opportunity, attrs \\ %{}) do
     Opportunity.changeset(opportunity, attrs)
   end
-
 end

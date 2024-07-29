@@ -37,7 +37,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
     values: [:none, :small, :normal, :medium, :full]
 
   attr :class, :string, default: nil
-  attr :rest, :global, include: ~w(href patch navigate disabled replace)
+  attr :rest, :global, include: ~w(href patch navigate disabled replace method)
   slot :inner_block, required: true
 
   @button_base_classes [
@@ -212,8 +212,8 @@ defmodule BikeBrigadeWeb.CoreComponents do
       phx-mounted={@autoshow && show("##{@id}")}
       phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide("##{@id}")}
       class={[
-        "top-0 w-full left-0 right-0 z-50 p-1 m-0 p-3",
-        "fixed hidden md:left-auto md:top-2 md:right-2 md:w-96 md:z-50 md:rounded-lg md:p-3 md:shadow-md md:shadow-zinc-900/5 ring-1",
+        "bottom-0 w-[80%] mx-auto left-0 right-0 z-50 p-1 m-4 p-3",
+        "fixed hidden md:bottom-auto md:m-0 md:left-auto md:top-2 md:right-2 md:w-96 md:z-50 md:rounded-lg md:p-3 md:shadow-md md:shadow-zinc-900/5 ring-1",
         @kind == :info && "bg-emerald-50 text-emerald-800 ring-emerald-500 fill-cyan-900",
         @kind == :warn && "bg-amber-50 text-amber-800 ring-amber-500 fill-amber-900",
         @kind == :error && "bg-rose-50 text-rose-900 shadow-md ring-rose-500 fill-rose-900"
@@ -872,10 +872,10 @@ defmodule BikeBrigadeWeb.CoreComponents do
                   <div class="px-4 py-6 bg-gray-50 sm:px-6">
                     <div class="flex items-start justify-between space-x-3">
                       <header :if={@title != []} class="space-y-1">
-                        <h1 class="text-lg font-medium text-gray-900" id={"#{@id}-title"}>
+                        <h1 class="text-lg font-medium leading-8 text-gray-900" id={"#{@id}-title"}>
                           <%= render_slot(@title) %>
                         </h1>
-                        <p :if={@subtitle != []} class="text-sm text-gray-500">
+                        <p :if={@subtitle != []} class="text-sm leading-6 text-gray-500">
                           <%= render_slot(@subtitle) %>
                         </p>
                       </header>

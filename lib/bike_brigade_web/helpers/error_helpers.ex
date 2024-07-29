@@ -10,6 +10,7 @@ defmodule BikeBrigadeWeb.ErrorHelpers do
   """
   def error_tag(form, field, opts \\ []) do
     show_field = Keyword.get(opts, :show_field, true)
+
     Enum.map(Keyword.get_values(form.errors, field), fn error ->
       error_string =
         if show_field do

@@ -29,6 +29,20 @@ defmodule BikeBrigade.AuthenticationMessenger do
     GenServer.call(pid, {:validate_token, phone, token_attempt})
   end
 
+  def clear_token(phone), do: clear_token(@name, phone)
+
+  def clear_token(pid, phone) do
+    GenServer.cast(pid, {:clear, phone})
+  end
+
+  if Mix.env() == :test do
+    def get_state(), do: get_state(@name)
+
+    def get_state(pid) do
+      GenServer.call(pid, :get_state)
+    end
+  end
+
   # Server (callbacks)
 
   @impl GenServer
@@ -68,8 +82,20 @@ defmodule BikeBrigade.AuthenticationMessenger do
     end
   end
 
+  if Mix.env() == :test do
+    @impl GenServer
+    def handle_call(:get_state, _from, state) do
+      {:reply, state, state}
+    end
+  end
+
   @impl GenServer
   def handle_info({:expire, phone}, state) do
+    {:noreply, Map.delete(state, phone)}
+  end
+
+  @impl GenServer
+  def handle_cast({:clear, phone}, state) do
     {:noreply, Map.delete(state, phone)}
   end
 
@@ -77,7 +103,8 @@ defmodule BikeBrigade.AuthenticationMessenger do
     msg = [
       from: Messaging.outbound_number(),
       to: phone,
-      body: "Your BikeBrigade access code is #{token}.\n\n@#{BikeBrigadeWeb.Endpoint.host()} ##{token}"
+      body:
+        "Your BikeBrigade access code is #{token}.\n\n@#{BikeBrigadeWeb.Endpoint.host()} ##{token}"
     ]
 
     SmsService.send_sms(msg)

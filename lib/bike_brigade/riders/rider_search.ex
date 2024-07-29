@@ -230,7 +230,7 @@ defmodule BikeBrigade.Riders.RiderSearch do
   defp apply_filter(%Filter{type: :name, search: search}, query) do
     query
     |> where(
-      fragment("unaccent(?) ilike unaccent(?)", as(:rider).name, ^"%#{search}%") or
+      fragment("unaccent(?) ilike unaccent(?)", as(:rider).name, ^"#{search}%") or
         fragment("unaccent(?) ilike unaccent(?)", as(:rider).name, ^"% #{search}%")
     )
   end
@@ -243,7 +243,7 @@ defmodule BikeBrigade.Riders.RiderSearch do
   defp apply_filter(%Filter{type: :name_or_phone, search: search}, query) do
     query
     |> where(
-      fragment("unaccent(?) ilike unaccent(?)", as(:rider).name, ^"%#{search}%") or
+      fragment("unaccent(?) ilike unaccent(?)", as(:rider).name, ^"#{search}%") or
         fragment("unaccent(?) ilike unaccent(?)", as(:rider).name, ^"% #{search}%") or
         like(as(:rider).phone, ^"%#{search}%")
     )
