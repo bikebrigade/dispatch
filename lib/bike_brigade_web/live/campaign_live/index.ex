@@ -27,8 +27,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
      |> assign(:page_title, "Campaigns")
      |> assign(:current_week, current_week)
      |> assign(:campaigns, fetch_campaigns(current_week))
-     |> assign(:campaign_task_counts, Delivery.get_total_tasks_and_open_tasks(current_week))
-    }
+     |> assign(:campaign_task_counts, Delivery.get_total_tasks_and_open_tasks(current_week))}
   end
 
   @impl true
@@ -62,8 +61,8 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
   end
 
   @impl Phoenix.LiveView
-    @doc "silently ignore other kinds of messages"
-    def handle_info(_, socket), do: {:noreply, socket}
+  @doc "silently ignore other kinds of messages"
+  def handle_info(_, socket), do: {:noreply, socket}
 
   defp apply_action(socket, :edit, %{"id" => id}) do
     socket
