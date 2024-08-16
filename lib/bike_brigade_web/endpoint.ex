@@ -50,6 +50,7 @@ defmodule BikeBrigadeWeb.Endpoint do
 
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
+    body_reader: {CacheBodyReader, :read_body, []},
     pass: ["*/*"],
     json_decoder: Phoenix.json_library()
 
@@ -57,4 +58,27 @@ defmodule BikeBrigadeWeb.Endpoint do
   plug Plug.Head
   plug Plug.Session, @session_options
   plug BikeBrigadeWeb.Router
+end
+
+defmodule CacheBodyReader do
+  @moduledoc """
+  Inspired by https://hexdocs.pm/plug/1.6.0/Plug.Parsers.html#module-custom-body-reader
+  """
+
+  alias Plug.Conn
+
+  @cache_body_for_proxy_path "/analytics"
+
+  @doc """
+  Read the raw body and store it for later use in the connection.
+  It ignores the updated connection returned by `Plug.Conn.read_body/2` to not break CSRF.
+  """
+  @spec read_body(Conn.t(), Plug.opts()) :: {:ok, String.t(), Conn.t()}
+  def read_body(%Conn{request_path: @cache_body_for_proxy_path <> _} = conn, opts) do
+    {:ok, body, _conn} = Conn.read_body(conn, opts)
+    conn = update_in(conn.assigns[:raw_body], &[body | &1 || []])
+    {:ok, body, conn}
+  end
+
+  def read_body(conn, opts), do: Conn.read_body(conn, opts)
 end
