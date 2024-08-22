@@ -32,6 +32,8 @@ defmodule BikeBrigade.SmsService do
   def send_sms(message, opts) when is_list(message) do
     sms_service = Keyword.get(opts, :sms_service, adapter())
 
+    message = message |> Keyword.put(:smartEncoded, true)
+
     payload =
       case Keyword.get(opts, :send_callback, false) do
         true ->
