@@ -209,6 +209,8 @@ case config_env() do
            System.get_env("GOOGLE_MAPS_API_KEY") ||
              raise("environment variable GOOGLE_MAPS_API_KEY is missing.")
 
+    config :lib_lat_lon, :exexif, :exexif
+
     # Twilio
     config :ex_twilio,
       account_sid: System.fetch_env!("TWILIO_ACCOUNT_SID"),
