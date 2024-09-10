@@ -42,8 +42,14 @@
       <%= rider.name %>
     </:col>
 
-    <:action :let={task}>
-      aa
+    <:action :let={rider}>
+      <.button
+      :if={backup_rider_eligible_to_unassign(rider, @campaign, @current_rider_id)}
+      size={:small}
+      color={:secondary}
+      phx-click={JS.push("remove_backup_rider", value: %{rider_id: @current_rider_id})}>
+        Remove me from backuprider
+      </.button>
     </:action>
   </.table>
   <div class="flex justify-end mt-2">

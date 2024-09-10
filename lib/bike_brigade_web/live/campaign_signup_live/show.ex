@@ -166,6 +166,12 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
     end
   end
 
+
+  def handle_event("remove_backup_rider", %{"rider_id" => rider_id}, socket) do
+    %{campaign: campaign} = socket.assigns
+    Delivery.remove_rider_from_campaign(socket.assigns.campaign, rider_id)
+  end
+
   ## -- Callbacks to handle Delivery broadcasts --
 
   @broadcasted_infos [
@@ -328,4 +334,9 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
   def backup_riders(riders) do
     Enum.filter(riders, fn r -> r.backup_rider end)
   end
+
+  def backup_rider_eligible_to_unassign(rider, campaign, current_rider_id) do
+    current_rider_id == rider.id && !campaign_in_past(campaign)
+  end
+
 end
