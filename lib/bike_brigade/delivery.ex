@@ -348,7 +348,7 @@ defmodule BikeBrigade.Delivery do
     %CampaignRider{}
     |> CampaignRider.changeset(attrs)
     |> Repo.insert(
-      on_conflict: {:replace, [:rider_capacity, :notes, :pickup_window, :enter_building]},
+      on_conflict: {:replace, [:rider_capacity, :notes, :pickup_window, :enter_building, :backup_rider]},
       conflict_target: [:rider_id, :campaign_id]
     )
     |> broadcast(:campaign_rider_created)

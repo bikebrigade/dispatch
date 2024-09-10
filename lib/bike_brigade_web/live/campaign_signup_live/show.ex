@@ -124,12 +124,40 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
       "enter_building" => true,
       "campaign_id" => campaign.id,
       "rider_id" => rider_id,
-      "rider_signed_up" => true
+      "rider_signed_up" => true,
+      "backup_rider" => false
+
     }
 
     case Delivery.create_campaign_rider(attrs) do
       {:ok, _cr} ->
         {:ok, _task} = Delivery.assign_task(task, rider_id, socket.assigns.current_user.id)
+        # TODO: why is this a push_patch here? @mveytsman 2024-09-10
+        {:noreply, socket |> push_patch(to: ~p"/campaigns/signup/#{campaign}", replace: true)}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:noreply, assign(socket, :changeset, changeset)}
+    end
+  end
+
+  def handle_event("signup_backup_rider", %{"rider_id" => rider_id}, socket) do
+    %{campaign: campaign} = socket.assigns
+
+    attrs = %{
+      # this is arbitrary and not actually used by dispatchers anymore.
+      "rider_capacity" => "1",
+      # this will need to be configurable at some point, for campaigns that have pickup time edge cases.
+      "pickup_window" => pickup_window(campaign),
+      "enter_building" => true,
+      "campaign_id" => campaign.id,
+      "rider_id" => rider_id,
+      "rider_signed_up" => true,
+      "backup_rider" => true
+    }
+
+    case Delivery.create_campaign_rider(attrs) do
+      {:ok, _cr} ->
+        # TODO: why is this a push_patch here? @mveytsman 2024-09-10
         {:noreply, socket |> push_patch(to: ~p"/campaigns/signup/#{campaign}", replace: true)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -294,5 +322,9 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
     |> Enum.map(&String.first/1)
     |> Enum.map(&String.upcase/1)
     |> Enum.join()
+  end
+
+  def backup_riders() do
+    ["tyler", "max"]
   end
 end

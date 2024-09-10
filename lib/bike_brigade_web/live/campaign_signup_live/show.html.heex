@@ -36,6 +36,22 @@
     </:action>
   </.table>
 </section>
+<section class="hidden md:block">
+  <.table id="backup_riders" rows={backup_riders()}>
+    <:col :let={rider} label="Backup Riders">
+      <%= rider %>
+    </:col>
+
+    <:action :let={task}>
+      aa
+    </:action>
+  </.table>
+  <div class="flex justify-end mt-2">
+    <.button size={:small} color={:secondary} phx-click={JS.push("signup_backup_rider", value: %{rider_id: @current_rider_id})}>
+      Sign up as a backup rider
+    </.button>
+  </div>
+</section>
 <!-- Mobile list of tasks -->
 <ul class="flex flex-col text-xs md:hidden">
   <li :for={t <- @tasks} class="w-full mb-8">
