@@ -451,7 +451,8 @@ defmodule BikeBrigade.Delivery do
             task_capacity: cr.rider_capacity,
             task_enter_building: cr.enter_building,
             pickup_window: cr.pickup_window,
-            delivery_url_token: cr.token
+            delivery_url_token: cr.token,
+            backup_rider: cr.backup_rider
           }
       )
       |> Repo.preload(:location)

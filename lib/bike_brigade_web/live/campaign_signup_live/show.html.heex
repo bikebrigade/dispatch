@@ -37,9 +37,9 @@
   </.table>
 </section>
 <section class="hidden md:block">
-  <.table id="backup_riders" rows={backup_riders()}>
+  <.table id="backup_riders" rows={backup_riders(@riders)}>
     <:col :let={rider} label="Backup Riders">
-      <%= rider %>
+      <%= rider.name %>
     </:col>
 
     <:action :let={task}>

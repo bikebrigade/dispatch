@@ -19,6 +19,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
      |> assign(:current_rider_id, socket.assigns.current_user.rider_id)
      |> assign(:campaign, nil)
      |> assign(:riders, nil)
+     |> assign(:backup_riders, [])
      |> assign(:tasks, nil)}
   end
 
@@ -324,7 +325,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
     |> Enum.join()
   end
 
-  def backup_riders() do
-    ["tyler", "max"]
+  def backup_riders(riders) do
+    Enum.filter(riders, fn r -> r.backup_rider end)
   end
 end

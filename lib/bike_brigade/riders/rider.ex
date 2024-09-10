@@ -70,6 +70,7 @@ defmodule BikeBrigade.Riders.Rider do
     field :task_enter_building, :boolean, virtual: true
     field :delivery_url_token, :string, virtual: true
     field :pickup_window, :string, virtual: true
+    field :backup_rider, :boolean, virtual: true
 
     has_one :user, User, on_replace: :delete_if_exists
 
