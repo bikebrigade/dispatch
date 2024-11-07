@@ -174,6 +174,9 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
   defp tasks_filled_text(assigns) do
     {class, copy} =
       cond do
+        match?(%Opportunity{}, assigns.campaign_or_opportunity) ->
+          {"text-gray-600", ""}
+
         assigns.filled_tasks == nil ->
           {"text-gray-600", "N/A"}
 
@@ -182,9 +185,6 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
 
         assigns.total_tasks - assigns.filled_tasks == 0 ->
           {"text-gray-600", "Fully Assigned"}
-
-        match?(%Opportunity{}, assigns.campaign_or_opportunity)  ->
-          {"text-gray-600", ""}
 
         true ->
           {"text-red-400", "#{assigns.total_tasks - assigns.filled_tasks} Available"}
@@ -207,7 +207,6 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
 
   defp campaign_or_opportunity_element_id(%Opportunity{id: id}) do
     "opportunity-#{id}"
-
   end
 
   defp campaign_or_opportunity_element_id(%Campaign{id: id}) do
@@ -220,63 +219,67 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
 
   defp signup_button(assigns) do
     c_or_o = assigns.campaign_or_opportunity
-    filled_tasks = assigns.campaign_task_counts[c_or_o.id][:filled_tasks]
-    total_tasks = assigns.campaign_task_counts[c_or_o.id][:total_tasks]
-    campaign_tasks_fully_assigned? = filled_tasks == total_tasks
-    IO.inspect({filled_tasks, total_tasks}, label: ">!>!>!>!>!")
-    campaign_not_ready_for_signup? = match?(%Campaign{}, c_or_o) and is_nil(total_tasks)
 
-    current_rider_task_count =
-      if is_nil(total_tasks) do
-        0
-      else
-        assigns.campaign_task_counts[c_or_o.id].rider_ids_counts[assigns.rider_id] || 0
-      end
-
-    campaign_in_past = campaign_in_past(c_or_o)
-
-    # Define map for button properties
-    buttonType =
-      cond do
-        campaign_in_past ->
-          %{color: :disabled, text: "Completed"}
-
-        current_rider_task_count > 0 ->
-          %{color: :secondary, text: "Signed up for #{current_rider_task_count} deliveries"}
-
-        campaign_not_ready_for_signup? ->
-          %{color: :disabled, text: "Campaign not ready for signup"}
-
-        campaign_tasks_fully_assigned? ->
-          %{color: :secondary, text: "Campaign Filled"}
-
-        match?(%Opportunity{}, c_or_o)  ->
-          %{color: :secondary, text: "Signup on Spreadsheet"}
-
-        true ->
-          %{color: :secondary, text: "Sign up"}
-      end
-
-    signup_link =
+    {button_type, signup_link} =
       case c_or_o do
-        %Opportunity{signup_link: signup_link} -> signup_link
-        %Campaign{} -> ~p"/campaigns/signup/#{c_or_o}/"
+        %Opportunity{signup_link: signup_link} ->
+          button_type =
+            if campaign_in_past(c_or_o) do
+              %{color: :disabled, text: "Completed"}
+            else
+              %{color: :secondary, text: "Sign up"}
+            end
+
+          {button_type, signup_link}
+
+        %Campaign{} ->
+          filled_tasks = assigns.campaign_task_counts[c_or_o.id][:filled_tasks]
+          total_tasks = assigns.campaign_task_counts[c_or_o.id][:total_tasks]
+          campaign_tasks_fully_assigned? = filled_tasks == total_tasks
+          campaign_not_ready_for_signup? = match?(%Campaign{}, c_or_o) and is_nil(total_tasks)
+
+          current_rider_task_count =
+            if is_nil(total_tasks) do
+              0
+            else
+              assigns.campaign_task_counts[c_or_o.id].rider_ids_counts[assigns.rider_id] || 0
+            end
+
+          # Define map for button properties
+          button_type =
+            cond do
+              campaign_in_past(c_or_o) ->
+                %{color: :disabled, text: "Completed"}
+
+              current_rider_task_count > 0 ->
+                %{color: :secondary, text: "Signed up for #{current_rider_task_count} deliveries"}
+
+              campaign_not_ready_for_signup? ->
+                %{color: :disabled, text: "Campaign not ready for signup"}
+
+              campaign_tasks_fully_assigned? ->
+                %{color: :secondary, text: "Campaign Filled"}
+
+              true ->
+                %{color: :secondary, text: "Sign up"}
+            end
+
+          {button_type, ~p"/campaigns/signup/#{c_or_o}/"}
       end
 
     assigns =
       assigns
-      |> assign(:signup_text, Map.get(buttonType, :text))
-      |> assign(:button_color, Map.get(buttonType, :color))
+      |> assign(:button_type, button_type)
       |> assign(:signup_link, signup_link)
 
     ~H"""
     <.button
       size={:small}
       class="w-full rounded-none md:rounded-sm"
-      color={@button_color}
+      color={@button_type.color}
       navigate={@signup_link}
     >
-      <%= @signup_text %>
+      <%= @button_type.text %>
     </.button>
     """
   end

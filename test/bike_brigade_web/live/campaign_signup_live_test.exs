@@ -171,7 +171,6 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
         opportunity = fixture(:opportunity, %{program_id: ctx.program.id, published: true})
 
       {:ok, live, _html} = live(ctx.conn, ~p"/campaigns/signup")
-      open_browser(live)
 
       for c <- campaigns do
         assert has_element?(live, "#campaign-#{c.id}")
