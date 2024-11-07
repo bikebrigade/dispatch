@@ -231,14 +231,14 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
     "campaign-#{id}"
   end
 
-  attr :campaign, :any, required: true
+  attr :campaign_or_opportunity, :any, required: true
   attr :rider_id, :integer, required: true
   attr :campaign_task_counts, :any, required: true
 
   defp signup_button(assigns) do
-    c = assigns.campaign
-    filled_tasks = assigns.campaign_task_counts[c.id][:filled_tasks]
-    total_tasks = assigns.campaign_task_counts[c.id][:total_tasks]
+    c_or_o = assigns.campaign_or_opportunity
+    filled_tasks = assigns.campaign_task_counts[c_or_o.id][:filled_tasks]
+    total_tasks = assigns.campaign_task_counts[c_or_o.id][:total_tasks]
     campaign_tasks_fully_assigned? = filled_tasks == total_tasks
     campaign_not_ready_for_signup? = is_nil(total_tasks)
 
@@ -246,10 +246,10 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
       if is_nil(total_tasks) do
         0
       else
-        assigns.campaign_task_counts[c.id].rider_ids_counts[assigns.rider_id] || 0
+        assigns.campaign_task_counts[c_or_o.id].rider_ids_counts[assigns.rider_id] || 0
       end
 
-    campaign_in_past = campaign_in_past(assigns.campaign)
+    campaign_in_past = campaign_in_past(c_or_o)
 
     # Define map for button properties
     buttonType =
@@ -270,17 +270,24 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
           %{color: :secondary, text: "Sign up"}
       end
 
+    signup_link =
+      case c_or_o do
+        %Opportunity{signup_link: signup_link} -> signup_link
+        %Campaign{} -> ~p"/campaigns/signup/#{c_or_o}/"
+      end
+
     assigns =
       assigns
       |> assign(:signup_text, Map.get(buttonType, :text))
       |> assign(:button_color, Map.get(buttonType, :color))
+      |> assign(:signup_link, signup_link)
 
     ~H"""
     <.button
       size={:small}
       class="w-full rounded-none md:rounded-sm"
       color={@button_color}
-      navigate={~p"/campaigns/signup/#{@campaign}/"}
+      navigate={@signup_link}
     >
       <%= @signup_text %>
     </.button>
