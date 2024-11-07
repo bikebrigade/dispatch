@@ -41,6 +41,9 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
   @impl true
   def handle_params(%{"campaign_ids" => campaign_ids}, _url, socket) do
     campaign_filter = {:campaign_ids, campaign_ids}
+    # We are joining campaigns and opportunities so that they can be displayed
+    # as a intermixed list of things that people can sign up for.
+    # This is why you will see a lot of long variables. Sorry.
     campaigns_and_opportunities = fetch_campaigns_and_opportunities(campaign_filter)
 
     start_date = LocalizedDateTime.now()
@@ -182,14 +185,14 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
   # Use this to determine if we need to refetch data to update the liveview.
   # ex: dispatcher changes riders/tasks, or another rider signs up -> refetch.
   defp entity_in_campaigns?(socket, entity_campaign_id) do
-    socket.assigns.campaigns
-    |> Enum.flat_map(fn {_date, campaigns} -> campaigns end)
-    |> Enum.any?(fn c -> c.id == entity_campaign_id end)
+    socket.assigns.campaigns_and_opportunities
+    |> Enum.flat_map(fn {_date, campaigns_and_opportunities} -> campaigns_and_opportunities end)
+    |> Enum.any?(fn c_or_o -> match?(%Campaign{}, c_or_o) and c_or_o.id == entity_campaign_id end)
   end
 
   attr :filled_tasks, :integer, required: true
   attr :total_tasks, :integer, required: true
-  attr :campaign, :any, required: true
+  attr :campaign_or_opportunity, :any, required: true
 
   defp tasks_filled_text(assigns) do
     {class, copy} =
@@ -197,11 +200,14 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
         assigns.filled_tasks == nil ->
           {"text-gray-600", "N/A"}
 
-        campaign_in_past(assigns.campaign) ->
+        campaign_in_past(assigns.campaign_or_opportunity) ->
           {"text-gray-600", "Campaign over"}
 
         assigns.total_tasks - assigns.filled_tasks == 0 ->
           {"text-gray-600", "Fully Assigned"}
+
+        match?(%Opportunity{}, assigns.campaign_or_opportunity)  ->
+          {"text-gray-600", ""}
 
         true ->
           {"text-red-400", "#{assigns.total_tasks - assigns.filled_tasks} Available"}
