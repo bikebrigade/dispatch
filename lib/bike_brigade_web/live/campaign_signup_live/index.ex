@@ -266,6 +266,9 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
         campaign_tasks_fully_assigned? ->
           %{color: :secondary, text: "Campaign Filled"}
 
+        match?(%Opportunity{}, c_or_o)  ->
+          %{color: :secondary, text: "Signup on Spreadsheet"}
+
         true ->
           %{color: :secondary, text: "Sign up"}
       end
