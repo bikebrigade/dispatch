@@ -61,7 +61,7 @@
 
       <ul id="campaign-list" role="list" class="w-full divide-y divide-gray-200">
         <%= for c_or_o <- campaigns_and_opportunities do %>
-          <li id={"campaign-#{c_or_o.id}"} class="mb-8 bg-white border shadow campaign-item last:mb-0">
+          <li id={campaign_or_opportunity_element_id(c_or_o)} class="mb-8 bg-white border shadow campaign-item last:mb-0">
             <div class="flex items-center px-4 py-2 space-x-1 bg-slate-100">
               <div
                 class="flex items-center justify-between w-full text-sm"

@@ -4,6 +4,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
   alias BikeBrigade.Utils
   alias BikeBrigade.LocalizedDateTime
   alias BikeBrigade.Delivery
+  alias BikeBrigade.Delivery.{Opportunity, Campaign}
 
   import BikeBrigadeWeb.CampaignHelpers
 
@@ -219,6 +220,15 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
       </span>
     </p>
     """
+  end
+
+  defp campaign_or_opportunity_element_id(%Opportunity{id: id}) do
+    "opportunity-#{id}"
+
+  end
+
+  defp campaign_or_opportunity_element_id(%Campaign{id: id}) do
+    "campaign-#{id}"
   end
 
   attr :campaign, :any, required: true
