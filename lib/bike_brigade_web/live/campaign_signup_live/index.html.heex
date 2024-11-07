@@ -1,10 +1,10 @@
 <nav
   :if={@showing_urgent_campaigns == false}
-  class="flex flex-col md:flex-row md:items-center justify-between md:px-4 md:py-3 md:mb-4 md:border-b-2 md:border-gray-200 md:justify-end"
+  class="flex flex-col justify-between md:flex-row md:items-center md:px-4 md:py-3 md:mb-4 md:border-b-2 md:border-gray-200 md:justify-end"
   aria-label="Pagination"
 >
   <div class="flex justify-between md:my-4 align-end">
-    <span class="relative z-0 w-full inline-flex rounded-md shadow-sm">
+    <span class="relative z-0 inline-flex w-full rounded-md shadow-sm">
       <.link
         patch={~p"/campaigns/signup?current_week=#{Date.add(@current_week, -7)}"}
         class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
@@ -15,7 +15,7 @@
         patch={
           ~p"/campaigns/signup?current_week=#{Date.beginning_of_week(LocalizedDateTime.today())}"
         }
-        class="w-full text-center relative items-center px-4 py-2  text-sm font-medium text-gray-700 bg-white border border-gray-300  hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+        class="relative items-center w-full px-4 py-2 text-sm font-medium text-center text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
       >
         Week of <%= Calendar.strftime(@current_week, "%B %-d") %>
       </.link>
@@ -34,7 +34,7 @@
 <nav :if={@showing_urgent_campaigns}>
   <.button
     size={:small}
-    class="w-full rounded-none md:rounded-sm mb-2"
+    class="w-full mb-2 rounded-none md:rounded-sm"
     color={:secondary}
     navigate={~p"/campaigns/signup"}
   >
@@ -42,66 +42,66 @@
   </.button>
 </nav>
 
-<%= if @campaigns != [] do %>
-  <div :if={@showing_urgent_campaigns} class="bg-red-300 p-2 lg:mb-4 rounded bg-opacity-40">
+<%= if @campaigns_and_opportunities != [] do %>
+  <div :if={@showing_urgent_campaigns} class="p-2 bg-red-300 rounded lg:mb-4 bg-opacity-40">
     These deliveries need riders in the next 48 hours:
   </div>
 
-  <%= for {date, campaigns} <- @campaigns do %>
-    <div class="flex flex-col lg:flex-row w-full sm:my-1 sm:rounded-md mb-4 md:mb-0 lg:mb-8">
-      <div class="flex w-full lg:w-40 justify-center  py-4 my-4 lg:py-0 lg:my-0">
-        <div class="flex w-full items-center lg:items-start">
-          <div class="md:hidden flex-1 border-t-2 border-gray-300"></div>
+  <%= for {date, campaigns_and_opportunities} <- @campaigns_and_opportunities do %>
+    <div class="flex flex-col w-full mb-4 lg:flex-row sm:my-1 sm:rounded-md md:mb-0 lg:mb-8">
+      <div class="flex justify-center w-full py-4 my-4 lg:w-40 lg:py-0 lg:my-0">
+        <div class="flex items-center w-full lg:items-start">
+          <div class="flex-1 border-t-2 border-gray-300 md:hidden"></div>
           <span class="px-3">
             <.date date={date} />
           </span>
-          <div class="md:hidden flex-1 border-t-2 border-gray-300"></div>
+          <div class="flex-1 border-t-2 border-gray-300 md:hidden"></div>
         </div>
       </div>
 
       <ul id="campaign-list" role="list" class="w-full divide-y divide-gray-200">
-        <%= for c <- campaigns do %>
-          <li id={"campaign-#{c.id}"} class="campaign-item bg-white shadow mb-8 border last:mb-0">
-            <div class="flex items-center space-x-1 px-4 py-2 bg-slate-100">
+        <%= for c_or_o <- campaigns_and_opportunities do %>
+          <li id={"campaign-#{c_or_o.id}"} class="mb-8 bg-white border shadow campaign-item last:mb-0">
+            <div class="flex items-center px-4 py-2 space-x-1 bg-slate-100">
               <div
                 class="flex items-center justify-between w-full text-sm"
                 data-test-group="campaign-name"
               >
-                <span class="font-medium truncate"><%= name(c) %></span>
+                <span class="font-medium truncate"><%= name(c_or_o) %></span>
                 <.date class="border-none opacity-80" date={date} />
               </div>
             </div>
 
             <div class="flex flex-col md:flex-row md:px-4 ">
-              <div class="order-2  items-center justify-between md:flex md:flex-3">
+              <div class="items-center justify-between order-2 md:flex md:flex-3">
                 <div class="flex-shrink-0 md:space-x-2 md:flex">
                   <div class="md:mt-0">
                     <.signup_button
                       rider_id={@current_user.rider_id}
                       campaign_task_counts={@campaign_task_counts}
-                      campaign={c}
+                      campaign={c_or_o}
                     />
                   </div>
                 </div>
               </div>
-              <div class="order-1 flex-1 sm:flex sm:justify-between">
-                <div class="flex flex-row divide-x-2 md:divide-x-0 justify-around py-4 w-full">
+              <div class="flex-1 order-1 sm:flex sm:justify-between">
+                <div class="flex flex-row justify-around w-full py-4 divide-x-2 md:divide-x-0">
                   <div class="flex-1">
                     <.tasks_filled_text
-                      filled_tasks={@campaign_task_counts[c.id][:filled_tasks]}
-                      total_tasks={@campaign_task_counts[c.id][:total_tasks]}
-                      campaign={c}
+                      filled_tasks={@campaign_task_counts[c_or_o.id][:filled_tasks]}
+                      total_tasks={@campaign_task_counts[c_or_o.id][:total_tasks]}
+                      campaign={c_or_o}
                     />
                   </div>
 
                   <div class="flex-1">
-                    <p class="flex flex-col md:flex-row items-center mt-0 text-sm text-gray-700">
+                    <p class="flex flex-col items-center mt-0 text-sm text-gray-700 md:flex-row">
                       <Heroicons.clock
                         aria-label="pickup time"
                         class="flex-shrink-0 mb-2 mr-1.5 h-8 w-8 md:h-5 md:w-5 md:mb-0 text-gray-500"
                       />
                       <span class="flex space-x-2 font-bold md:font-normal">
-                        <%= pickup_window(c) %>
+                        <%= pickup_window(c_or_o) %>
                       </span>
                     </p>
                   </div>
@@ -114,7 +114,7 @@
     </div>
   <% end %>
 <% else %>
-  <div class="flex items-center justify-center h-96 w-4/5 mx-auto text-center">
+  <div class="flex items-center justify-center w-4/5 mx-auto text-center h-96">
     No campaigns set up yet for the week of <%= Calendar.strftime(@current_week, "%B %-d") %>.
   </div>
 <% end %>

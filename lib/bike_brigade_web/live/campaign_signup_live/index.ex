@@ -19,7 +19,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
 
     campaign_filter = {:current_week, current_week}
 
-    campaigns = fetch_campaigns(campaign_filter)
+    campaigns_and_opportunities = fetch_campaigns_and_opportunities(campaign_filter)
     start_date = LocalizedDateTime.new!(current_week, ~T[00:00:00])
     end_date = Date.add(current_week, 6) |> LocalizedDateTime.new!(~T[23:59:59])
 
@@ -34,20 +34,20 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
        Delivery.get_total_tasks_and_open_tasks(start_date, end_date)
      )
      |> assign(:showing_urgent_campaigns, false)
-     |> assign(:campaigns, campaigns)}
+     |> assign(:campaigns_and_opportunities, campaigns_and_opportunities)}
   end
 
   @impl true
   def handle_params(%{"campaign_ids" => campaign_ids}, _url, socket) do
     campaign_filter = {:campaign_ids, campaign_ids}
-    campaigns = fetch_campaigns(campaign_filter)
+    campaigns_and_opportunities = fetch_campaigns_and_opportunities(campaign_filter)
 
     start_date = LocalizedDateTime.now()
     end_date = Date.add(start_date, 2) |> LocalizedDateTime.new!(~T[23:59:59])
 
     {:noreply,
      socket
-     |> assign(:campaigns, campaigns)
+     |> assign(:campaigns_and_opportunities, campaigns_and_opportunities)
      |> assign(:campaign_filter, campaign_filter)
      |> assign(
        :campaign_task_counts,
@@ -98,7 +98,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
           assign(socket,
             current_week: week,
             campaign_filter: campaign_filter,
-            campaigns: fetch_campaigns(campaign_filter),
+            campaigns_and_opportunities: fetch_campaigns_and_opportunities(campaign_filter),
             campaign_task_counts: Delivery.get_total_tasks_and_open_tasks(week)
           )
 
@@ -133,6 +133,39 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
     |> Enum.reverse()
   end
 
+  defp fetch_campaigns_and_opportunities({:campaign_ids, campaign_ids}) do
+    Delivery.list_campaigns(
+      campaign_ids: campaign_ids,
+      preload: [:program, :stats, :latest_message, :scheduled_message],
+      public: true
+    )
+    |> Enum.reverse()
+    |> Utils.ordered_group_by(&LocalizedDateTime.to_date(&1.delivery_start))
+    |> Enum.reverse()
+  end
+
+  defp fetch_campaigns_and_opportunities({:current_week, current_week}) do
+    opportunities =
+      Delivery.list_opportunities(
+        start_date: current_week,
+        end_date: Date.add(current_week, 6),
+        published: true,
+        preload: [location: [:neighborhood], program: [:items]]
+      )
+
+    campaigns =
+      Delivery.list_campaigns(
+        start_date: current_week,
+        end_date: Date.add(current_week, 6),
+        public: true,
+        preload: [:program, :stats, :latest_message, :scheduled_message]
+      )
+
+    (opportunities ++ campaigns)
+    |> Enum.sort_by(& &1.delivery_start, Date)
+    |> Utils.ordered_group_by(&LocalizedDateTime.to_date(&1.delivery_start))
+  end
+
   # TODO HACK: right now everytime something about a task, or campaign rider
   # changes (add, edit, delete), we refetch all tasks and campaign riders.
   # This may eventually become a problem.
@@ -142,7 +175,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
 
     socket
     |> assign(:campaign_task_counts, Delivery.get_total_tasks_and_open_tasks(week))
-    |> assign(:campaigns, fetch_campaigns(campaign_filter))
+    |> assign(:campaigns_and_opportunities, fetch_campaigns_and_opportunities(campaign_filter))
   end
 
   # Use this to determine if we need to refetch data to update the liveview.

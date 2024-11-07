@@ -155,6 +155,32 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
     end
   end
 
+  describe "Index - show opportunities (links to spreadhseet)" do
+    setup ctx do
+      program = fixture(:program, %{name: "ACME Delivery"})
+      res = login_as_rider(ctx)
+      Map.merge(res, %{program: program})
+    end
+
+    test "It displays the link to the spreadsheet", ctx do
+      campaigns =
+        for _n <- 1..3 do
+          fixture(:campaign, %{program_id: ctx.program.id})
+        end
+
+        opportunity = fixture(:opportunity, %{program_id: ctx.program.id})
+        IO.inspect opportunity
+
+      {:ok, live, _html} = live(ctx.conn, ~p"/campaigns/signup")
+
+      for c <- campaigns do
+        assert has_element?(live, "#campaign-#{c.id}")
+      end
+
+      assert has_element?(live, ~s{[href="#{opportunity.signup_link}"]})
+    end
+  end
+
   describe "Show" do
     setup ctx do
       program = fixture(:program, %{name: "ACME Delivery"})
