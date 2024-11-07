@@ -114,29 +114,6 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
     |> assign(:campaign, nil)
   end
 
-  defp fetch_campaigns({:current_week, current_week}) do
-    Delivery.list_campaigns(
-      start_date: current_week,
-      end_date: Date.add(current_week, 6),
-      preload: [:program, :stats, :latest_message, :scheduled_message],
-      public: true
-    )
-    |> Enum.reverse()
-    |> Utils.ordered_group_by(&LocalizedDateTime.to_date(&1.delivery_start))
-    |> Enum.reverse()
-  end
-
-  defp fetch_campaigns({:campaign_ids, campaign_ids}) do
-    Delivery.list_campaigns(
-      campaign_ids: campaign_ids,
-      preload: [:program, :stats, :latest_message, :scheduled_message],
-      public: true
-    )
-    |> Enum.reverse()
-    |> Utils.ordered_group_by(&LocalizedDateTime.to_date(&1.delivery_start))
-    |> Enum.reverse()
-  end
-
   defp fetch_campaigns_and_opportunities({:campaign_ids, campaign_ids}) do
     Delivery.list_campaigns(
       campaign_ids: campaign_ids,
@@ -246,7 +223,8 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
     filled_tasks = assigns.campaign_task_counts[c_or_o.id][:filled_tasks]
     total_tasks = assigns.campaign_task_counts[c_or_o.id][:total_tasks]
     campaign_tasks_fully_assigned? = filled_tasks == total_tasks
-    campaign_not_ready_for_signup? = is_nil(total_tasks)
+    IO.inspect({filled_tasks, total_tasks}, label: ">!>!>!>!>!")
+    campaign_not_ready_for_signup? = match?(%Campaign{}, c_or_o) and is_nil(total_tasks)
 
     current_rider_task_count =
       if is_nil(total_tasks) do
