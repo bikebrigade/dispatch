@@ -168,7 +168,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
           fixture(:campaign, %{program_id: ctx.program.id})
         end
 
-        opportunity = fixture(:opportunity, %{program_id: ctx.program.id, published: true})
+      opportunity = fixture(:opportunity, %{program_id: ctx.program.id, published: true})
 
       {:ok, live, _html} = live(ctx.conn, ~p"/campaigns/signup")
 
