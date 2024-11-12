@@ -131,7 +131,12 @@ defmodule BikeBrigadeWeb.CampaignHelpers do
 
   def novice_participant?(%Rider{total_stats: nil}), do: true
   def novice_participant?(%Rider{total_stats: %{campaign_count: nil}}), do: true
-  def novice_participant?(%Rider{total_stats: %{campaign_count: campaign_count}}) when campaign_count < 5, do: true
-  def novice_participant?(%Rider{total_stats: %{campaign_count: campaign_count}}) when campaign_count >= 5, do: false
 
+  def novice_participant?(%Rider{total_stats: %{campaign_count: campaign_count}})
+      when campaign_count < 5,
+      do: true
+
+  def novice_participant?(%Rider{total_stats: %{campaign_count: campaign_count}})
+      when campaign_count >= 5,
+      do: false
 end
