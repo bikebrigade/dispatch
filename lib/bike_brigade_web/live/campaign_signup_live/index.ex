@@ -122,7 +122,6 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
     )
     |> Enum.reverse()
     |> Utils.ordered_group_by(&LocalizedDateTime.to_date(&1.delivery_start))
-    |> Enum.reverse()
   end
 
   defp fetch_campaigns_and_opportunities({:current_week, current_week}) do

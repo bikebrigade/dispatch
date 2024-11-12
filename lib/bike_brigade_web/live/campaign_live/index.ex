@@ -84,7 +84,6 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
     )
     |> Enum.reverse()
     |> Utils.ordered_group_by(&LocalizedDateTime.to_date(&1.delivery_start))
-    |> Enum.reverse()
   end
 
   attr :campaign, Campaign, required: true
