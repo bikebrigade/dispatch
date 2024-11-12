@@ -4,6 +4,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
   alias BikeBrigade.Utils
   alias BikeBrigade.LocalizedDateTime
   alias BikeBrigade.Delivery
+  alias BikeBrigade.Delivery.{Opportunity, Campaign}
 
   import BikeBrigadeWeb.CampaignHelpers
 
@@ -19,7 +20,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
 
     campaign_filter = {:current_week, current_week}
 
-    campaigns = fetch_campaigns(campaign_filter)
+    campaigns_and_opportunities = fetch_campaigns_and_opportunities(campaign_filter)
     start_date = LocalizedDateTime.new!(current_week, ~T[00:00:00])
     end_date = Date.add(current_week, 6) |> LocalizedDateTime.new!(~T[23:59:59])
 
@@ -34,20 +35,23 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
        Delivery.get_total_tasks_and_open_tasks(start_date, end_date)
      )
      |> assign(:showing_urgent_campaigns, false)
-     |> assign(:campaigns, campaigns)}
+     |> assign(:campaigns_and_opportunities, campaigns_and_opportunities)}
   end
 
   @impl true
   def handle_params(%{"campaign_ids" => campaign_ids}, _url, socket) do
     campaign_filter = {:campaign_ids, campaign_ids}
-    campaigns = fetch_campaigns(campaign_filter)
+    # We are joining campaigns and opportunities so that they can be displayed
+    # as a intermixed list of things that people can sign up for.
+    # This is why you will see a lot of long variables. Sorry.
+    campaigns_and_opportunities = fetch_campaigns_and_opportunities(campaign_filter)
 
     start_date = LocalizedDateTime.now()
     end_date = Date.add(start_date, 2) |> LocalizedDateTime.new!(~T[23:59:59])
 
     {:noreply,
      socket
-     |> assign(:campaigns, campaigns)
+     |> assign(:campaigns_and_opportunities, campaigns_and_opportunities)
      |> assign(:campaign_filter, campaign_filter)
      |> assign(
        :campaign_task_counts,
@@ -98,7 +102,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
           assign(socket,
             current_week: week,
             campaign_filter: campaign_filter,
-            campaigns: fetch_campaigns(campaign_filter),
+            campaigns_and_opportunities: fetch_campaigns_and_opportunities(campaign_filter),
             campaign_task_counts: Delivery.get_total_tasks_and_open_tasks(week)
           )
 
@@ -110,19 +114,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
     |> assign(:campaign, nil)
   end
 
-  defp fetch_campaigns({:current_week, current_week}) do
-    Delivery.list_campaigns(
-      start_date: current_week,
-      end_date: Date.add(current_week, 6),
-      preload: [:program, :stats, :latest_message, :scheduled_message],
-      public: true
-    )
-    |> Enum.reverse()
-    |> Utils.ordered_group_by(&LocalizedDateTime.to_date(&1.delivery_start))
-    |> Enum.reverse()
-  end
-
-  defp fetch_campaigns({:campaign_ids, campaign_ids}) do
+  defp fetch_campaigns_and_opportunities({:campaign_ids, campaign_ids}) do
     Delivery.list_campaigns(
       campaign_ids: campaign_ids,
       preload: [:program, :stats, :latest_message, :scheduled_message],
@@ -131,6 +123,28 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
     |> Enum.reverse()
     |> Utils.ordered_group_by(&LocalizedDateTime.to_date(&1.delivery_start))
     |> Enum.reverse()
+  end
+
+  defp fetch_campaigns_and_opportunities({:current_week, current_week}) do
+    opportunities =
+      Delivery.list_opportunities(
+        start_date: current_week,
+        end_date: Date.add(current_week, 6),
+        published: true,
+        preload: [location: [:neighborhood], program: [:items]]
+      )
+
+    campaigns =
+      Delivery.list_campaigns(
+        start_date: current_week,
+        end_date: Date.add(current_week, 6),
+        public: true,
+        preload: [:program, :stats, :latest_message, :scheduled_message]
+      )
+
+    (opportunities ++ campaigns)
+    |> Enum.sort_by(& &1.delivery_start, Date)
+    |> Utils.ordered_group_by(&LocalizedDateTime.to_date(&1.delivery_start))
   end
 
   # TODO HACK: right now everytime something about a task, or campaign rider
@@ -142,28 +156,31 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
 
     socket
     |> assign(:campaign_task_counts, Delivery.get_total_tasks_and_open_tasks(week))
-    |> assign(:campaigns, fetch_campaigns(campaign_filter))
+    |> assign(:campaigns_and_opportunities, fetch_campaigns_and_opportunities(campaign_filter))
   end
 
   # Use this to determine if we need to refetch data to update the liveview.
   # ex: dispatcher changes riders/tasks, or another rider signs up -> refetch.
   defp entity_in_campaigns?(socket, entity_campaign_id) do
-    socket.assigns.campaigns
-    |> Enum.flat_map(fn {_date, campaigns} -> campaigns end)
-    |> Enum.any?(fn c -> c.id == entity_campaign_id end)
+    socket.assigns.campaigns_and_opportunities
+    |> Enum.flat_map(fn {_date, campaigns_and_opportunities} -> campaigns_and_opportunities end)
+    |> Enum.any?(fn c_or_o -> match?(%Campaign{}, c_or_o) and c_or_o.id == entity_campaign_id end)
   end
 
   attr :filled_tasks, :integer, required: true
   attr :total_tasks, :integer, required: true
-  attr :campaign, :any, required: true
+  attr :campaign_or_opportunity, :any, required: true
 
   defp tasks_filled_text(assigns) do
     {class, copy} =
       cond do
+        match?(%Opportunity{}, assigns.campaign_or_opportunity) ->
+          {"text-gray-600", ""}
+
         assigns.filled_tasks == nil ->
           {"text-gray-600", "N/A"}
 
-        campaign_in_past(assigns.campaign) ->
+        campaign_in_past(assigns.campaign_or_opportunity) ->
           {"text-gray-600", "Campaign over"}
 
         assigns.total_tasks - assigns.filled_tasks == 0 ->
@@ -188,58 +205,81 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
     """
   end
 
-  attr :campaign, :any, required: true
+  defp campaign_or_opportunity_element_id(%Opportunity{id: id}) do
+    "opportunity-#{id}"
+  end
+
+  defp campaign_or_opportunity_element_id(%Campaign{id: id}) do
+    "campaign-#{id}"
+  end
+
+  attr :campaign_or_opportunity, :any, required: true
   attr :rider_id, :integer, required: true
   attr :campaign_task_counts, :any, required: true
 
   defp signup_button(assigns) do
-    c = assigns.campaign
-    filled_tasks = assigns.campaign_task_counts[c.id][:filled_tasks]
-    total_tasks = assigns.campaign_task_counts[c.id][:total_tasks]
-    campaign_tasks_fully_assigned? = filled_tasks == total_tasks
-    campaign_not_ready_for_signup? = is_nil(total_tasks)
+    c_or_o = assigns.campaign_or_opportunity
 
-    current_rider_task_count =
-      if is_nil(total_tasks) do
-        0
-      else
-        assigns.campaign_task_counts[c.id].rider_ids_counts[assigns.rider_id] || 0
-      end
+    {button_type, signup_link} =
+      case c_or_o do
+        %Opportunity{signup_link: signup_link} ->
+          button_type =
+            if campaign_in_past(c_or_o) do
+              %{color: :disabled, text: "Completed"}
+            else
+              %{color: :secondary, text: "Sign up"}
+            end
 
-    campaign_in_past = campaign_in_past(assigns.campaign)
+          {button_type, signup_link}
 
-    # Define map for button properties
-    buttonType =
-      cond do
-        campaign_in_past ->
-          %{color: :disabled, text: "Completed"}
+        %Campaign{} ->
+          filled_tasks = assigns.campaign_task_counts[c_or_o.id][:filled_tasks]
+          total_tasks = assigns.campaign_task_counts[c_or_o.id][:total_tasks]
+          campaign_tasks_fully_assigned? = filled_tasks == total_tasks
+          campaign_not_ready_for_signup? = match?(%Campaign{}, c_or_o) and is_nil(total_tasks)
 
-        current_rider_task_count > 0 ->
-          %{color: :secondary, text: "Signed up for #{current_rider_task_count} deliveries"}
+          current_rider_task_count =
+            if is_nil(total_tasks) do
+              0
+            else
+              assigns.campaign_task_counts[c_or_o.id].rider_ids_counts[assigns.rider_id] || 0
+            end
 
-        campaign_not_ready_for_signup? ->
-          %{color: :disabled, text: "Campaign not ready for signup"}
+          # Define map for button properties
+          button_type =
+            cond do
+              campaign_in_past(c_or_o) ->
+                %{color: :disabled, text: "Completed"}
 
-        campaign_tasks_fully_assigned? ->
-          %{color: :secondary, text: "Campaign Filled"}
+              current_rider_task_count > 0 ->
+                %{color: :secondary, text: "Signed up for #{current_rider_task_count} deliveries"}
 
-        true ->
-          %{color: :secondary, text: "Sign up"}
+              campaign_not_ready_for_signup? ->
+                %{color: :disabled, text: "Campaign not ready for signup"}
+
+              campaign_tasks_fully_assigned? ->
+                %{color: :secondary, text: "Campaign Filled"}
+
+              true ->
+                %{color: :secondary, text: "Sign up"}
+            end
+
+          {button_type, ~p"/campaigns/signup/#{c_or_o}/"}
       end
 
     assigns =
       assigns
-      |> assign(:signup_text, Map.get(buttonType, :text))
-      |> assign(:button_color, Map.get(buttonType, :color))
+      |> assign(:button_type, button_type)
+      |> assign(:signup_link, signup_link)
 
     ~H"""
     <.button
       size={:small}
       class="w-full rounded-none md:rounded-sm"
-      color={@button_color}
-      navigate={~p"/campaigns/signup/#{@campaign}/"}
+      color={@button_type.color}
+      navigate={@signup_link}
     >
-      <%= @signup_text %>
+      <%= @button_type.text %>
     </.button>
     """
   end
