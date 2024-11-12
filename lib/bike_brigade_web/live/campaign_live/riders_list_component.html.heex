@@ -67,6 +67,20 @@
                 class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end"
               />
             <% end %>
+            <%= if novice_participant?(rider) do %>
+              <.with_tooltip>
+                <Heroicons.star
+                  mini
+                  class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end"
+                />
+                <:tooltip>
+                  <div class="w-20">
+                    Novice rider
+                  </div>
+                </:tooltip>
+              </.with_tooltip>
+            <% end %>
+
             <%= if has_notes?(rider) do %>
               <Heroicons.pencil_square mini class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500" />
             <% end %>
@@ -98,6 +112,7 @@
                 </div>
               </div>
             <% end %>
+            
             <%= if Enum.count(rider.assigned_tasks) > 0 do %>
               <%= for task <- rider.assigned_tasks do %>
                 <div class="flex flex-row my-2">
