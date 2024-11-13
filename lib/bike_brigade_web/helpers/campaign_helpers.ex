@@ -4,6 +4,8 @@ defmodule BikeBrigadeWeb.CampaignHelpers do
 
   alias BikeBrigade.LocalizedDateTime
 
+  @novice_campaign_threshold 5
+
   def task_assigned?(task) do
     task.assigned_rider != nil
   end
@@ -128,4 +130,15 @@ defmodule BikeBrigadeWeb.CampaignHelpers do
   defp print_item(task_item) do
     "#{task_item.count} #{Inflex.inflect(task_item.item.name, task_item.count)}"
   end
+
+  def novice_participant?(%Rider{total_stats: nil}), do: true
+  def novice_participant?(%Rider{total_stats: %{campaign_count: nil}}), do: true
+
+  def novice_participant?(%Rider{total_stats: %{campaign_count: campaign_count}})
+      when campaign_count < @novice_campaign_threshold,
+      do: true
+
+  def novice_participant?(%Rider{total_stats: %{campaign_count: campaign_count}})
+      when campaign_count >= @novice_campaign_threshold,
+      do: false
 end
