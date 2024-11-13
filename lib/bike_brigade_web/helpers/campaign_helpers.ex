@@ -4,6 +4,8 @@ defmodule BikeBrigadeWeb.CampaignHelpers do
 
   alias BikeBrigade.LocalizedDateTime
 
+  @novice_campaign_threshold 5
+
   def task_assigned?(task) do
     task.assigned_rider != nil
   end
@@ -133,10 +135,10 @@ defmodule BikeBrigadeWeb.CampaignHelpers do
   def novice_participant?(%Rider{total_stats: %{campaign_count: nil}}), do: true
 
   def novice_participant?(%Rider{total_stats: %{campaign_count: campaign_count}})
-      when campaign_count < 5,
+      when campaign_count < @novice_campaign_threshold,
       do: true
 
   def novice_participant?(%Rider{total_stats: %{campaign_count: campaign_count}})
-      when campaign_count >= 5,
+      when campaign_count >= @novice_campaign_threshold,
       do: false
 end
