@@ -67,6 +67,20 @@
                 class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end"
               />
             <% end %>
+            <%= if novice_participant?(rider) do %>
+              <.with_tooltip>
+                <Heroicons.star
+                  mini
+                  class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end"
+                />
+                <:tooltip>
+                  <div class="w-18">
+                    New rider (less than 5 campaigns)
+                  </div>
+                </:tooltip>
+              </.with_tooltip>
+            <% end %>
+
             <%= if has_notes?(rider) do %>
               <Heroicons.pencil_square mini class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500" />
             <% end %>

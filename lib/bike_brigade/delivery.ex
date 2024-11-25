@@ -454,7 +454,7 @@ defmodule BikeBrigade.Delivery do
             delivery_url_token: cr.token
           }
       )
-      |> Repo.preload(:location)
+      |> Repo.preload([:location, :total_stats])
 
     # Does a nested preload to get tasks' assigned riders without doing an extra db query
     tasks = Repo.preload(all_tasks, assigned_rider: fn _ -> all_riders end)
