@@ -208,7 +208,7 @@ defmodule BikeBrigade.Stats do
     order_by =
       case sort_by do
         :rider_name -> dynamic(as(:rider).name)
-        :campaigns -> dynamic(count(as(:aggregate).campaign_id))
+        :campaigns -> dynamic(count(as(:aggregate).campaign_id, :distinct))
         :deliveries -> dynamic(count(as(:aggregate).task_id))
         :distance -> dynamic(sum(as(:aggregate).distance))
       end
