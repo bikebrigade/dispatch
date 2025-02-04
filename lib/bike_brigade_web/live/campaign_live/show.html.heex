@@ -235,7 +235,7 @@
 </.slideover>
 <!-- Show message list for all riders -->
 <.slideover
-  :if={@live_action == :campaign_message_list}
+  :if={@live_action == :campaign_messaging_index || @live_action == :campaign_messaging_show}
   id="messaging-riders"
   show
   wide
