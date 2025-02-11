@@ -170,6 +170,14 @@ defmodule BikeBrigadeWeb.Router do
       live "/programs/:id", ProgramLive.Show, :show
       live "/programs/:id/show/edit", ProgramLive.Show, :edit
       live "/programs/:id/campaigns/new", ProgramLive.Show, :new_campaign
+
+    live "/announcements", AnnouncementLive.Index, :index
+    live "/announcements/new", AnnouncementLive.Index, :new
+    live "/announcements/:id/edit", AnnouncementLive.Index, :edit
+
+    live "/announcements/:id", AnnouncementLive.Show, :show
+    live "/announcements/:id/show/edit", AnnouncementLive.Show, :edit
+
     end
 
     get "/stats/leaderboard/download", ExportStatsController, :leaderboard

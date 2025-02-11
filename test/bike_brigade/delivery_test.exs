@@ -105,4 +105,62 @@ defmodule BikeBrigade.DeliveryTest do
     |> String.Chars.to_string()
     |> URI.encode_www_form()
   end
+
+  describe "announcements" do
+    alias BikeBrigade.Delivery.Announcement
+
+    import BikeBrigade.DeliveryFixtures
+
+    @invalid_attrs %{message: nil, turn_on_at: nil, turn_off_at: nil}
+
+    test "list_announcements/0 returns all announcements" do
+      announcement = announcement_fixture()
+      assert Delivery.list_announcements() == [announcement]
+    end
+
+    test "get_announcement!/1 returns the announcement with given id" do
+      announcement = announcement_fixture()
+      assert Delivery.get_announcement!(announcement.id) == announcement
+    end
+
+    test "create_announcement/1 with valid data creates a announcement" do
+      valid_attrs = %{message: "some message", turn_on_at: ~U[2025-02-10 22:26:00.000000Z], turn_off_at: ~U[2025-02-10 22:26:00.000000Z]}
+
+      assert {:ok, %Announcement{} = announcement} = Delivery.create_announcement(valid_attrs)
+      assert announcement.message == "some message"
+      assert announcement.turn_on_at == ~U[2025-02-10 22:26:00.000000Z]
+      assert announcement.turn_off_at == ~U[2025-02-10 22:26:00.000000Z]
+    end
+
+    test "create_announcement/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Delivery.create_announcement(@invalid_attrs)
+    end
+
+    test "update_announcement/2 with valid data updates the announcement" do
+      announcement = announcement_fixture()
+      update_attrs = %{message: "some updated message", turn_on_at: ~U[2025-02-11 22:26:00.000000Z], turn_off_at: ~U[2025-02-11 22:26:00.000000Z]}
+
+      assert {:ok, %Announcement{} = announcement} = Delivery.update_announcement(announcement, update_attrs)
+      assert announcement.message == "some updated message"
+      assert announcement.turn_on_at == ~U[2025-02-11 22:26:00.000000Z]
+      assert announcement.turn_off_at == ~U[2025-02-11 22:26:00.000000Z]
+    end
+
+    test "update_announcement/2 with invalid data returns error changeset" do
+      announcement = announcement_fixture()
+      assert {:error, %Ecto.Changeset{}} = Delivery.update_announcement(announcement, @invalid_attrs)
+      assert announcement == Delivery.get_announcement!(announcement.id)
+    end
+
+    test "delete_announcement/1 deletes the announcement" do
+      announcement = announcement_fixture()
+      assert {:ok, %Announcement{}} = Delivery.delete_announcement(announcement)
+      assert_raise Ecto.NoResultsError, fn -> Delivery.get_announcement!(announcement.id) end
+    end
+
+    test "change_announcement/1 returns a announcement changeset" do
+      announcement = announcement_fixture()
+      assert %Ecto.Changeset{} = Delivery.change_announcement(announcement)
+    end
+  end
 end
