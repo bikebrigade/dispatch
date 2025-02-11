@@ -9,6 +9,7 @@
       "flex flex-col h-full bg-white shadow sm:rounded-lg",
       "max-h-[calc(100vh-6rem)] sm:max-h-[calc(100vh-6.75rem)] md:max-h-[calc(100vh-3rem)]"
     ]}>
+
       <div class="px-4 py-5 bg-white border-b border-gray-200 sm:px-6 sm:rounded-t-lg">
         <div class="flex flex-wrap items-center justify-between -mt-2 -ml-4 sm:flex-nowrap">
           <div class="w-full h-10 ml-4">
@@ -65,6 +66,7 @@
       rider={@selected_rider}
       live_action={@live_action}
       current_user={@current_user}
+      return_to={~p"/messages"}
     />
   </div>
   <div
