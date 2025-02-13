@@ -113,3 +113,11 @@ Copyright 2021 The Bike Brigade Inc.
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
+
+  ## End to End testing with Playwright
+
+  To run e2e tests:
+
+  1. navigate to `/test/e2e` and run `npm install`
+  1. from the root directory, run `mix test.e2e` - (THIS WILL WIPE YOUR LOCAL DB AND RESET IT)
+  1. in a neew terminal, navigate to `/test/e2e` and run `npm run test:ui`
