@@ -1,5 +1,16 @@
 import { test, expect } from '@playwright/test';
 
+test('standard flow', async ({ page }) => {
+
+  const programName = `Test Program ${Date.now()}`;
+
+  await doLogin(page)
+  await createProgram(page, programName);
+  await editProgram(page, programName)
+  await createCampaign(page);
+  await createCampaignForNextWeek(page)
+});
+
 
 async function doLogin(page: any) {
   await page.goto('http://localhost:4000/login');
@@ -11,20 +22,12 @@ async function doLogin(page: any) {
   await page.getByRole('button', { name: 'Sign in' }).click();
 }
 
-test('standard flow', async ({ page }) => {
-  await doLogin(page)
-  await createProgram(page);
-  await editProgram(page)
-  await createCampaign(page);
-
-});
 
 // requires login
-async function createProgram(page: any) {
+async function createProgram(page: any, programName: string) {
   await page.goto('http://localhost:4000/programs');
 
-  const browserName = page.context().browser()?.browserType().name();
-  const programName = `Program ${Date.now()}`;
+  // const browserName = page.context().browser()?.browserType().name();
 
   await page.getByRole('link', { name: 'Programs' }).click();
   await page.getByRole('link', { name: 'New Program' }).click();
@@ -50,28 +53,59 @@ async function createProgram(page: any) {
   await expect(page.getByRole('link', { name: programName, exact: true })).toBeVisible();
 }
 
-async function editProgram(page: any) {
+// TODO: leaving off; don't change the name of the program when testing it was updated.
+async function editProgram(page: any, programName: string) {
+
+  const programNameUpdated = `Test Program ${Date.now()}`;
   await page.goto('http://localhost:4000/programs');
-  await page.getByRole('link', { name: 'Edit , Program' }).click();
+  
+  await page.getByRole('link', { name: `Edit , ${programName}` }).click();
   await page.getByRole('textbox', { name: 'Name', exact: true }).click();
-  await page.getByRole('textbox', { name: 'Name', exact: true }).fill('Program Updated');
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(programNameUpdated);
   await page.getByRole('textbox', { name: 'Campaign Blurb (please keep' }).click();
   await page.getByRole('textbox', { name: 'Campaign Blurb (please keep' }).fill('This is a test program that was updated');
   await page.getByRole('button', { name: 'Save' }).click();
-  await expect(page.getByRole('link', { name: 'Program Updated', exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: programNameUpdated, exact: true })).toBeVisible();
   await expect(page.getByText('Success! program updated')).toBeVisible();
 }
 
 async function createCampaign(page: any) {
   await page.getByRole('link', { name: 'Campaigns' }).click();
   await page.getByRole('link', { name: 'New Campaign' }).click();
-  // TODO: change date for campaign to take param from function
-  await page.getByRole('textbox', { name: 'Delivery Date' }).fill('2025-02-20');
-  await page.locator('#user-form_program_id').selectOption('3');
+  await page.getByRole('textbox', { name: 'Delivery Date' }).fill(getDatePlusDays(0));
+  await page.locator('#user-form_program_id').selectOption('3'); 
   await page.locator('#location-form-location-input-open').click();
   await page.locator('[id="campaign_form\\[location\\]_address"]').click();
   await page.locator('[id="campaign_form\\[location\\]_address"]').fill('123 yonge');
   await page.waitForTimeout(2000);
   await page.getByRole('button', { name: 'Save' }).click();
   await expect(page.getByText('Success! Campaign created')).toBeVisible({timeout: 10000});
+}
+
+async function createCampaignForNextWeek(page: any) {
+  await page.getByRole('link', { name: 'Campaigns' }).click();
+  await page.getByRole('link', { name: 'New Campaign' }).click();
+  await page.getByRole('textbox', { name: 'Delivery Date' }).fill(getDatePlusDays(8));
+  // out of convenience; we select the third; ie, the one we greated in createProgram
+  await page.locator('#user-form_program_id').selectOption('3'); 
+  await page.locator('#location-form-location-input-open').click();
+  await page.locator('[id="campaign_form\\[location\\]_address"]').click();
+  await page.locator('[id="campaign_form\\[location\\]_address"]').fill('123 yonge');
+  await page.waitForTimeout(2000);
+  await page.getByRole('button', { name: 'Save' }).click();
+  await expect(page.getByText('Success! Campaign created')).toBeVisible({timeout: 10000});
+  // TODO: test that you can see the campaign next week.
+}
+
+
+function getDatePlusDays(daysToAdd: number) {
+    const today = new Date();
+    const futureDate = new Date(today);
+    futureDate.setDate(today.getDate() + daysToAdd);
+    
+    const year = futureDate.getFullYear();
+    const month = String(futureDate.getMonth() + 1).padStart(2, '0');
+    const day = String(futureDate.getDate()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}`;
 }
