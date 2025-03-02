@@ -86,6 +86,12 @@ defmodule BikeBrigadeWeb.Layouts do
           </:icon>
           Messages
         </.sidebar_link>
+        <.sidebar_link selected={@current_page == :announcements} navigate={~p"/announcements"}>
+          <:icon>
+            <Heroicons.bell />
+          </:icon>
+          Announcements
+        </.sidebar_link>
       </div>
 
       <.rider_links is_rider={@is_rider} is_dispatcher={@is_dispatcher} current_page={@current_page} />

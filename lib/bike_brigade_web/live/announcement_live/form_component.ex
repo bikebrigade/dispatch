@@ -25,6 +25,7 @@ defmodule BikeBrigadeWeb.AnnouncementLive.FormComponent do
         <CC2.input field={@form[:message]} type="text" label="Message" />
         <CC2.input field={@form[:turn_on_at]} type="datetime-local" label="Turn on at" />
         <CC2.input field={@form[:turn_off_at]} type="datetime-local" label="Turn off at" />
+        <CC2.input field={@form[:created_by]} type="text" label="Created by" value={@myself}/>
         <:actions>
           <CC2.button phx-disable-with="Saving...">Save Announcement</CC2.button>
         </:actions>
@@ -54,6 +55,7 @@ defmodule BikeBrigadeWeb.AnnouncementLive.FormComponent do
   end
 
   def handle_event("save", %{"announcement" => announcement_params}, socket) do
+    IO.inspect socket
     save_announcement(socket, socket.assigns.action, announcement_params)
   end
 

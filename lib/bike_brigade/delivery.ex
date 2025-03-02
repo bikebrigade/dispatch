@@ -120,6 +120,7 @@ defmodule BikeBrigade.Delivery do
 
   def assign_task(%Task{} = task, rider_id, user_id, opts \\ []) when is_list(opts) do
     Repo.transaction(fn ->
+
       {:ok, _log} =
         History.create_task_assignment_log(%{
           task_id: task.id,
@@ -1084,7 +1085,23 @@ defmodule BikeBrigade.Delivery do
 
   """
   def list_announcements do
-    Repo.all(Announcement)
+    Announcement
+    |> Repo.all()
+    |> Repo.preload(:user)
+    |> IO.inspect
+  end
+
+  def list_current_announcements do
+    now = LocalizedDateTime.now()
+
+    query =
+      from a in Announcement,
+        where:
+          a.turn_on_at <= ^now and
+          a.turn_off_at >= ^now
+
+          Repo.all(query)
+          |> Repo.preload(:user)
   end
 
   @doc """
@@ -1118,6 +1135,7 @@ defmodule BikeBrigade.Delivery do
   def create_announcement(attrs \\ %{}) do
     %Announcement{}
     |> Announcement.changeset(attrs)
+    |> IO.inspect
     |> Repo.insert()
   end
 

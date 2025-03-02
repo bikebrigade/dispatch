@@ -15,6 +15,7 @@
   <:col :let={{_id, announcement}} label="Message"><%= announcement.message %></:col>
   <:col :let={{_id, announcement}} label="Turn on at"><%= announcement.turn_on_at %></:col>
   <:col :let={{_id, announcement}} label="Turn off at"><%= announcement.turn_off_at %></:col>
+  <:col :let={{_id, announcement}} label="Created by"><%= announcement.user.name %></:col>
   <:action :let={{_id, announcement}}>
     <div class="sr-only">
       <.link navigate={~p"/announcements/#{announcement}"}>Show</.link>
