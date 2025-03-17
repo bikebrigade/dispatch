@@ -43,7 +43,7 @@ test.describe('Programs', () => {
     await doLogin(page) // only needs to run once per describe block
     await page.goto('http://localhost:4000/programs');
 
-    createProgram(page, programName)
+    await createProgram(page, programName)
     await expect(page.getByRole('link', { name: programName, exact: true })).toBeVisible();
 
     // editing of program
@@ -77,10 +77,9 @@ test.describe('Campaigns', () => {
     await page.goto('http://localhost:4000/campaigns/new');
     await page.waitForSelector("body > .phx-connected")
     await page.getByRole('textbox', { name: 'Delivery Date' }).fill(getDatePlusDays(0));
-    await page.locator('#user-form_program_id').click()
-    // HACK: a way to target the specific program, since we can't select by value for some reason.
-    await page.locator('#user-form_program_id').pressSequentially(programName, { delay: 30 })
-    await page.locator('#user-form_program_id').press('Enter')
+
+    const programSelector = page.locator('#user-form_program_id')
+    await programSelector.selectOption({label: programName})
 
 
     await page.locator('#location-form-location-input-open').click();
@@ -94,11 +93,12 @@ test.describe('Campaigns', () => {
     await page.goto('http://localhost:4000/campaigns/new');
     await page.waitForSelector("body > .phx-connected")
     await page.getByRole('textbox', { name: 'Delivery Date' }).fill(getDatePlusDays(8));
-    await page.locator('#user-form_program_id').click()
-    await page.locator('#user-form_program_id').pressSequentially(programName, { delay: 30 })
-    await page.locator('#user-form_program_id').press('Enter')
+
+    const programSelector = page.locator('#user-form_program_id')
+    await programSelector.selectOption({label: programName})
+
     await page.locator('#location-form-location-input-open').click();
-    await page.locator('#location-form-location-input-open').pressSequentially("200 Yonge", { delay: 100 })
+    await page.locator('#location-form-location-input-open').pressSequentially("200 Yonge", { delay: 200 })
     await page.getByRole('button', { name: 'Save' }).click();
     await expect(page.locator('#flash')).toContainText('Success! Campaign created successfully');
 
