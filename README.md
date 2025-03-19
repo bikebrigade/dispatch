@@ -114,10 +114,29 @@ Copyright 2021 The Bike Brigade Inc.
   See the License for the specific language governing permissions and
   limitations under the License.
 
-  ## End to End testing with Playwright
+## End to End testing with Playwright
 
-  To run e2e tests:
+To run e2e tests:
 
-  1. navigate to `/test/e2e` and run `npm install`
-  1. from the root directory, run `mix test.e2e` - (THIS WILL WIPE YOUR LOCAL DB AND RESET IT)
-  1. in a neew terminal, navigate to `/test/e2e` and run `npm run test:ui`
+1. navigate to `/test/e2e` and run `npm install`
+1. from the root directory, run `mix test.e2e` - (THIS WILL WIPE YOUR LOCAL DB AND RESET IT)
+1. in a new terminal, navigate to `/test/e2e` and run `npm run test:ui`
+
+### Troubleshooting E2E tests
+
+Sometimes e2e tests will fail due to network calls that are actually being made. For example, calling Google Maps to fetch addresses when creating a campaign.
+
+
+Often, the best thing you can do is re-run the failed individual tests and see if they pass. If not, you may need to go and tweak the delays of certain statements in the test, for example:
+
+```js
+await page
+  .locator('#location-form-location-input-open')
+  .pressSequentially("200 Yonge", { delay: 100 })
+
+// becomes...
+
+await page
+  .locator('#location-form-location-input-open')
+  .pressSequentially("200 Yonge", { delay: 200 })
+```

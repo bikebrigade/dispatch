@@ -74,33 +74,13 @@ test.describe('Campaigns', () => {
 
 
   test('Can create a campaign', async () => {
-    await page.goto('http://localhost:4000/campaigns/new');
-    await page.waitForSelector("body > .phx-connected")
-    await page.getByRole('textbox', { name: 'Delivery Date' }).fill(getDatePlusDays(0));
-
-    const programSelector = page.locator('#user-form_program_id')
-    await programSelector.selectOption({label: programName})
-
-
-    await page.locator('#location-form-location-input-open').click();
-    await page.locator('#location-form-location-input-open').pressSequentially("200 Yonge", { delay: 100 })
-    await page.getByRole('button', { name: 'Save' }).click();
+    await createCampaign({page, programName, numDays: 0})
     await expect(page.locator('#flash')).toContainText('Success! Campaign created successfully');
     await expect(page.getByText(programName)).toBeVisible();
   })
 
   test('Can create a campaign for next week', async () => {
-    await page.goto('http://localhost:4000/campaigns/new');
-    await page.waitForSelector("body > .phx-connected")
-    await page.getByRole('textbox', { name: 'Delivery Date' }).fill(getDatePlusDays(8));
-
-    const programSelector = page.locator('#user-form_program_id')
-    await programSelector.selectOption({label: programName})
-
-    await page.locator('#location-form-location-input-open').click();
-    await page.locator('#location-form-location-input-open').pressSequentially("200 Yonge", { delay: 200 })
-    await page.getByRole('button', { name: 'Save' }).click();
-    await expect(page.locator('#flash')).toContainText('Success! Campaign created successfully');
+    await createCampaign({page, programName, numDays: 8})
 
     // now go check that campaign shows up next week.
     await page.getByRole('link', { name: 'Campaigns' }).click();
@@ -148,13 +128,45 @@ async function createProgram(page: Page, programName: string) {
   await page.getByRole('checkbox', { name: 'Public' }).check();
   await page.getByRole('checkbox', { name: 'Hide Pickup Address' }).check();
   await page.getByRole('button', { name: 'Add Schedule' }).click();
-  await page.getByRole('textbox', { name: 'Photo Descriotion' }).click();
-  await page.getByRole('textbox', { name: 'Photo Descriotion' }).fill('1 Large Box');
+
+  await page.getByRole('textbox', { name: 'Photo Description' }).click();
+  await page.getByRole('textbox', { name: 'Photo Description' }).fill('1 Large Box');
   await page.getByRole('textbox', { name: 'Contact Name' }).click();
   await page.getByRole('textbox', { name: 'Contact Name' }).fill('Joe Cool');
   await page.getByRole('textbox', { name: 'Contact Name' }).press('Tab');
   await page.getByRole('textbox', { name: 'Contact Email' }).fill('joecool@gmail.com');
   await page.getByRole('textbox', { name: 'Contact Email' }).press('Tab');
   await page.getByRole('textbox', { name: 'Contact Phone' }).fill('6475555554');
+  await page.getByRole('button', { name: 'Save' }).click();
+
+
+  // once the program is created, we need to find it on the program page and EDIT it,
+  // because at this time there is no "add items" for part when creating a new program
+  // (only when editing it)
+  await page.getByRole('link', { name: programName, exact: true }).click();
+  await page.getByRole('link', { name: 'Edit', exact: true }).click();
+  await page.getByRole('link', { name: 'New Item' }).click();
+  await page.locator('#program-form_program_0_items_0_name').click();
+  await page.locator('#program-form_program_0_items_0_name').fill('An item');
+  await page.locator('#program-form_program_0_items_0_name').press('Tab');
+  await page.locator('#program-form_program_0_items_0_description').fill('5 lbs');
+  await page.getByRole('cell', { name: 'Foodshare Box' }).getByLabel('').selectOption('Food Hamper');
+  await page.getByRole('button', { name: 'Save' }).click();
+  // return to programs because otherwise we'll be on programs/<program_id>
+  await page.goto('http://localhost:4000/programs');
+
+}
+
+async function createCampaign({ page, programName, numDays }: any) {
+  await page.goto('http://localhost:4000/campaigns/new');
+  await page.waitForSelector("body > .phx-connected")
+  await page.getByRole('textbox', { name: 'Delivery Date' }).fill(getDatePlusDays(numDays));
+
+  const programSelector = page.locator('#user-form_program_id')
+  await programSelector.selectOption({ label: programName })
+
+
+  await page.locator('#location-form-location-input-open').click();
+  await page.locator('#location-form-location-input-open').pressSequentially("200 Yonge", { delay: 100 })
   await page.getByRole('button', { name: 'Save' }).click();
 }
