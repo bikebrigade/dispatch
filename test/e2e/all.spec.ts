@@ -39,6 +39,8 @@ test.describe('Login and Logout', () => {
 
 test.describe('Programs', () => {
 
+
+  // TODO: something about this is failing on a fresh db.
   test('Can create and edit program', async ({ page }) => {
     await doLogin(page) // only needs to run once per describe block
     await page.goto('http://localhost:4000/programs');
@@ -53,6 +55,7 @@ test.describe('Programs', () => {
     await page.getByRole('textbox', { name: 'Campaign Blurb (please keep' }).fill('This is a test program that was updated');
     await page.getByRole('button', { name: 'Save' }).click();
     await expect(page.getByText('Success! program updated')).toBeVisible();
+
 
     await page.getByRole('link', { name: `Edit , ${programName}` }).click();
     await page.getByRole('textbox', { name: 'Campaign Blurb (please keep' }).click();
@@ -167,6 +170,6 @@ async function createCampaign({ page, programName, numDays }: any) {
 
 
   await page.locator('#location-form-location-input-open').click();
-  await page.locator('#location-form-location-input-open').pressSequentially("200 Yonge", { delay: 100 })
+  await page.locator('#location-form-location-input-open').pressSequentially("200 Yonge", { delay: 200 })
   await page.getByRole('button', { name: 'Save' }).click();
 }
