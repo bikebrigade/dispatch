@@ -40,7 +40,7 @@ test.describe('Login and Logout', () => {
 test.describe('Programs', () => {
 
 
-  // TODO: something about this is failing on a fresh db.
+  // NOTE: something about this is sometimes fails on a fresh db.
   test('Can create and edit program', async ({ page }) => {
     await doLogin(page) // only needs to run once per describe block
     await page.goto('http://localhost:4000/programs');
