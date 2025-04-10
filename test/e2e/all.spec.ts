@@ -1,4 +1,5 @@
-import { test, expect, Page } from '@playwright/test';
+import { Page } from '@playwright/test';
+import { test, expect } from "./helpers/sandbox";
 import { faker } from '@faker-js/faker';
 
 const programName = faker.company.name()
