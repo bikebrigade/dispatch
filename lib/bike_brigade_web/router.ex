@@ -161,6 +161,9 @@ defmodule BikeBrigadeWeb.Router do
       live "/messages/:id", SmsMessageLive.Index, :show
       live "/messages/:id/tasks", SmsMessageLive.Index, :tasks
 
+      live "/alerts", AlertsLive.Index, :index
+      live "/alerts/new", AlertsLive.Index, :new
+
       live "/programs", ProgramLive.Index, :index
       live "/programs/new", ProgramLive.Index, :new
       live "/programs/:id/edit", ProgramLive.Index, :edit

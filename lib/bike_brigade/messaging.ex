@@ -6,7 +6,7 @@ defmodule BikeBrigade.Messaging do
   import Ecto.Query, warn: false
   alias BikeBrigade.Repo
 
-  alias BikeBrigade.Messaging.{SmsMessage, ScheduledMessage}
+  alias BikeBrigade.Messaging.{SmsMessage, ScheduledMessage, Banner}
   alias BikeBrigade.Riders
   alias BikeBrigade.Riders.Rider
   alias BikeBrigade.SmsService
@@ -401,4 +401,22 @@ defmodule BikeBrigade.Messaging do
 
     message.sent_by_user.name
   end
+
+  def create_banner(banner \\ %Banner{}, attrs) do
+    banner
+    |> Banner.changeset(attrs)
+    |> Repo.insert()
+    |> broadcast(:banner_created)
+  end
+
+  def list_banners() do
+    Repo.all(Banner)
+  end
 end
+
+  # def create_sms_message(sms_message \\ %SmsMessage{}, attrs) do
+  #   sms_message
+  #   |> SmsMessage.changeset(attrs)
+  #   |> Repo.insert()
+  #   |> broadcast(:message_created)
+  # end

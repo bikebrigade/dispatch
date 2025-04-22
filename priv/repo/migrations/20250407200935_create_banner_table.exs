@@ -4,7 +4,7 @@ defmodule BikeBrigade.Repo.Migrations.CreateBannerTable do
   def change do
     create table(:banners) do
       add :message, :text
-      add :created_by, references :users
+      add :created_by_user_id, references :users
       add :turn_on_at, :date
       add :turn_off_at, :date
     end
