@@ -16,11 +16,11 @@ defmodule BikeBrigade.Messaging.Banner do
     banner
     |> cast(attrs, [
       :message,
-      :created_by,
+      :created_by_user_id,
       :turn_on_at,
       :turn_off_at,
     ])
-    |> validate_required([:message, :turn_on_at, :created_by, :turn_off_at])
+    |> validate_required([:message, :turn_on_at, :created_by_user_id, :turn_off_at])
   end
   
 end

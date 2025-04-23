@@ -1,0 +1,13 @@
+
+
+<.modal :if={@live_action == :new} id="riders-modal" show on_cancel={JS.navigate(~p"/alerts")}>
+  <.live_component
+    module={BikeBrigadeWeb.AlertsLive.FormComponent}
+    id={:new_alert}
+    action={@live_action}
+    title={@page_title}
+    current_user={@current_user}
+    navigate={~p"/alerts"}
+  />
+</.modal>
+

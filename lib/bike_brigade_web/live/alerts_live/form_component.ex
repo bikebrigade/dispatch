@@ -8,57 +8,34 @@ defmodule BikeBrigadeWeb.AlertsLive.FormComponent do
 
   @impl true
   def mount(socket) do
-    sms_message = Messaging.new_sms_message()
-    changeset = Messaging.send_sms_message_changeset(sms_message)
+    banner = Messaging.new_banner()
+    changeset = Messaging.banner_changeset(banner, %{})
 
     socket =
       socket
       |> allow_upload(:media, accept: ~w(.gif .png .jpg .jpeg), max_entries: 10)
-      |> assign_confirm_send_warning()
-      |> assign(:sms_message, sms_message)
+      |> assign(:banner, banner)
       |> assign(:changeset, changeset)
-      |> assign(:initial_riders, [])
+      |> assign(:banners, [])
 
     {:ok, socket}
   end
 
-  def assign_confirm_send_warning(socket) do
-    assign(socket, :confirm_send, SmsService.sending_confirmation_message())
-  end
 
   @impl Phoenix.LiveComponent
-  def handle_event("validate", %{"sms_message" => sms_message_params}, socket) do
+  def handle_event("validate", %{"banner" => banner_params}, socket) do
     changeset =
-      Messaging.send_sms_message_changeset(socket.assigns.sms_message, sms_message_params)
+      Messaging.banner_changeset(socket.assigns.banner, banner_params)
 
     {:noreply, socket |> assign(changeset: changeset)}
   end
 
   @impl Phoenix.LiveComponent
-  def handle_event(
-        "send",
-        %{"sms_message" => sms_message_params, "rider_ids" => [rider_id | _] = rider_ids},
-        socket
-      ) do
-    media =
-      consume_uploaded_entries(socket, :media, fn %{path: path}, %{client_type: content_type} ->
-        # TODO do some guards on content type here
-        {:ok, MediaStorage.upload_file!(path, content_type)}
-      end)
-
-    sms_message_params = Map.put(sms_message_params, "media", media)
-
-    riders = Riders.get_riders(rider_ids)
-
-    for rider <- riders do
-      # TODO handle errors
-      sms_message = Messaging.new_sms_message(rider, sent_by: socket.assigns.current_user)
-      Messaging.send_sms_message(sms_message, sms_message_params)
-    end
-
-    {:noreply,
-     socket
-     |> push_redirect(to: ~p"/messages/#{rider_id}")}
+  def handle_event("submit", %{"banner" => banner_params}, socket) do
+    IO.inspect(banner_params, label: ">>>>>>>>>>>>>>>>")
+    x = Messaging.create_banner(%Messaging.Banner{}, banner_params)
+    IO.inspect(x, label: "!!!!!!!!!!!!!!!!!!!!!!!!!")
+    {:noreply, socket |> push_redirect(to: ~p"/alerts")}
   end
 
   @impl Phoenix.LiveComponent

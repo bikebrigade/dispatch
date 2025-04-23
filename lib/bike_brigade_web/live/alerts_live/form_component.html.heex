@@ -11,12 +11,14 @@
       phx-target={@myself}
       autocomplete="off"
     >
+      <.input type="textarea" field={{f, :message}} label="Message" />
 
-      <.input type="textarea" field={{f, :body}} label="Message" />
+      <.input type="date" field={{f, :turn_on_at}} label="Start displaying banner on:" />
+      <.input type="date" field={{f, :turn_off_at}} label="Stop displaying banner on:" />
 
       <div class="flex justify-end mt-6 space-x-2">
-        <.button type="submit" data-confirm={@confirm_send} phx-disable-with="Sending...">
-          Send
+        <.button type="submit"  phx-disable-with="Submitting...">
+          Submit
         </.button>
       </div>
       <.error :for={msg <- translate_errors(f.errors, :other_error)}><%= msg %></.error>

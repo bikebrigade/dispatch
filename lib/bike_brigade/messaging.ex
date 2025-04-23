@@ -412,11 +412,13 @@ defmodule BikeBrigade.Messaging do
   def list_banners() do
     Repo.all(Banner)
   end
-end
 
-  # def create_sms_message(sms_message \\ %SmsMessage{}, attrs) do
-  #   sms_message
-  #   |> SmsMessage.changeset(attrs)
-  #   |> Repo.insert()
-  #   |> broadcast(:message_created)
-  # end
+  def new_banner() do
+    %Banner{}
+  end
+
+  def banner_changeset(banner \\ %Banner{}, attrs) do
+    banner
+    |> Banner.changeset(attrs)
+  end
+end
