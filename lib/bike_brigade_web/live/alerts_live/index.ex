@@ -15,10 +15,12 @@ defmodule BikeBrigadeWeb.AlertsLive.Index do
   def mount(_params, _session, socket) do
     banners = Messaging.list_banners()
 
+
     socket =
       socket
       |> assign(:page_title, "Alerts")
       |> assign(:page, :alerts)
+      |> assign(:current_user, socket.assigns.current_user)
       |> assign(:banners, banners)
 
     {:ok, socket, temporary_assigns: [conversations: []]}

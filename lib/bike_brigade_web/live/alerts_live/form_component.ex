@@ -8,6 +8,7 @@ defmodule BikeBrigadeWeb.AlertsLive.FormComponent do
 
   @impl true
   def mount(socket) do
+    IO.inspect(socket, label: "!!!!!!!!!!!!!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
     banner = Messaging.new_banner()
     changeset = Messaging.banner_changeset(banner, %{})
 
@@ -21,6 +22,10 @@ defmodule BikeBrigadeWeb.AlertsLive.FormComponent do
     {:ok, socket}
   end
 
+  @impl true
+  def update(assigns, socket) do
+    {:ok, socket |> assign(assigns)}
+  end
 
   @impl Phoenix.LiveComponent
   def handle_event("validate", %{"banner" => banner_params}, socket) do
@@ -40,12 +45,15 @@ defmodule BikeBrigadeWeb.AlertsLive.FormComponent do
     date_time_on = BikeBrigade.LocalizedDateTime.new!(dateOn, timeOn)
     date_time_off = BikeBrigade.LocalizedDateTime.new!(dateOff, timeOff)
 
-    # TODO: leaving off, need to include the user_id of who created it.
-    x = Messaging.create_banner(%Messaging.Banner{},
-    %{"turn_off_at" => date_time_off, "turn_on_at" => date_time_on, "message" => banner_params["message"]}
-    )
+    banner_payload = %{
+      "turn_off_at" => date_time_off,
+      "turn_on_at" => date_time_on,
+      "message" => banner_params["message"],
+      "created_by_user_id" => socket.assigns.current_user.id
+    }
 
-     IO.inspect(x, label: ">>>>>>>>")
+    # TODO: leaving off, need to include the user_id of who created it.
+    x = Messaging.create_banner(%Messaging.Banner{}, banner_payload)
 
     {:noreply, socket |> push_redirect(to: ~p"/alerts")}
   end
