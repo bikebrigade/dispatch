@@ -33,15 +33,21 @@ defmodule BikeBrigadeWeb.AlertsLive.Index do
      |> apply_action(socket.assigns.live_action, params)}
   end
 
-  @impl true
-  def handle_event("do-thing", _params, socket) do
-    {:noreply, socket }
-  end
-
-
   defp apply_action(socket, :new, _params) do
+    banner = Messaging.new_banner()
     socket
+    |> assign(:banner, banner)
+    |> assign(:changeset, Messaging.banner_changeset(banner, %{}))
     |> assign(:page_title, "Create an Alert")
+  end
+  defp apply_action(socket, :edit, %{"id" => id}) do
+    banner = Messaging.get_banner!(id)
+
+    # TODO: need to break apart the DateTime to prefill the values of the edit form.
+    socket
+    |> assign(:page_title, "Edit Banner")
+    |> assign(:changeset, Messaging.banner_changeset(banner, %{}))
+    |> assign(:banner, banner)
   end
 
   defp apply_action(socket, :index, _params) do

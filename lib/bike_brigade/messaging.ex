@@ -421,4 +421,7 @@ defmodule BikeBrigade.Messaging do
     banner
     |> Banner.changeset(attrs)
   end
+
+  def get_banner!(id), do: Repo.get!(Banner, id)
+
 end

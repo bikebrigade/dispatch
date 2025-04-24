@@ -1,9 +1,38 @@
-<.modal :if={@live_action == :new} id="riders-modal" show on_cancel={JS.navigate(~p"/alerts")}>
+<.header>
+  Banners
+  <:subtitle>
+    Banners are show to riders when they come to the user portal to sign up for a ride. They are useful for relaying important information (ex: "We need 2 riders to help FYFB!"). Banners must be given a time and date to start and finish. 
+  </:subtitle>
+  <:actions>
+    <.button patch={~p"/alerts/new"}>
+      New Banner
+    </.button>
+  </:actions>
+</.header>
+
+<.table id="banners" rows={@banners}>
+    <:col :let={banner} label="Message">
+    <%= banner.message %>
+  </:col>
+  <:col :let={banner} label="Turns on at">
+    <%= banner.turn_on_at %>
+  </:col>
+  <:col :let={banner} label="Turns off at">
+    <%= banner.turn_off_at %>
+  </:col>
+  <:action :let={banner}>
+    <.link patch={~p"/alerts/#{banner}/edit"} class="link"> Edit </.link>
+  </:action>
+</.table>
+
+<.modal :if={@live_action in [:new, :edit]} id="riders-modal" show on_cancel={JS.navigate(~p"/alerts")}>
   <.live_component
     module={BikeBrigadeWeb.AlertsLive.FormComponent}
     id={:new_alert}
     action={@live_action}
     title={@page_title}
+    banner={@banner}
+    changeset={@changeset}
     current_user={@current_user}
     navigate={~p"/alerts"}
   />
