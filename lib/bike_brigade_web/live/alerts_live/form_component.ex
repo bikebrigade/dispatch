@@ -32,9 +32,21 @@ defmodule BikeBrigadeWeb.AlertsLive.FormComponent do
 
   @impl Phoenix.LiveComponent
   def handle_event("submit", %{"banner" => banner_params}, socket) do
-    IO.inspect(banner_params, label: ">>>>>>>>>>>>>>>>")
-    x = Messaging.create_banner(%Messaging.Banner{}, banner_params)
-    IO.inspect(x, label: "!!!!!!!!!!!!!!!!!!!!!!!!!")
+    {:ok, dateOn} = Date.from_iso8601(banner_params["turn_on_at_date"])
+    {:ok, dateOff} = Date.from_iso8601(banner_params["turn_off_at_date"])
+    {:ok, timeOn} = Time.from_iso8601("#{banner_params["turn_on_at_time"]}:00")
+    {:ok, timeOff} = Time.from_iso8601("#{banner_params["turn_off_at_time"]}:00")
+
+    date_time_on = BikeBrigade.LocalizedDateTime.new!(dateOn, timeOn)
+    date_time_off = BikeBrigade.LocalizedDateTime.new!(dateOff, timeOff)
+
+    # TODO: leaving off, need to include the user_id of who created it.
+    x = Messaging.create_banner(%Messaging.Banner{},
+    %{"turn_off_at" => date_time_off, "turn_on_at" => date_time_on, "message" => banner_params["message"]}
+    )
+
+     IO.inspect(x, label: ">>>>>>>>")
+
     {:noreply, socket |> push_redirect(to: ~p"/alerts")}
   end
 

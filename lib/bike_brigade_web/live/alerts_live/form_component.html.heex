@@ -13,8 +13,14 @@
     >
       <.input type="textarea" field={{f, :message}} label="Message" />
 
-      <.input type="date" field={{f, :turn_on_at}} label="Start displaying banner on:" />
-      <.input type="date" field={{f, :turn_off_at}} label="Stop displaying banner on:" />
+    <div class="flex flex-col space-x-0 space-y-2 md:space-y-0 md:space-x-2 md:flex-row">
+      <.input type="date" field={{f, :turn_on_at_date}} label="Start displaying banner on:" />
+      <.input type="time" field={{f, :turn_on_at_time}} label="-" />
+    </div>
+    <div class="flex flex-col space-x-0 space-y-2 md:space-y-0 md:space-x-2 md:flex-row">
+      <.input type="date" field={{f, :turn_off_at_date}} label="Stop displaying banner on:" />
+      <.input type="time" field={{f, :turn_off_at_time}} label="-" />
+    </div>
 
       <div class="flex justify-end mt-6 space-x-2">
         <.button type="submit"  phx-disable-with="Submitting...">
