@@ -8,13 +8,11 @@ defmodule BikeBrigadeWeb.AlertsLive.FormComponent do
 
   @impl true
   def mount(socket) do
-    IO.inspect(socket, label: "!!!!!!!!!!!!!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
     banner = Messaging.new_banner()
     changeset = Messaging.banner_changeset(banner, %{})
 
     socket =
       socket
-      |> allow_upload(:media, accept: ~w(.gif .png .jpg .jpeg), max_entries: 10)
       |> assign(:banner, banner)
       |> assign(:changeset, changeset)
       |> assign(:banners, [])
@@ -24,6 +22,7 @@ defmodule BikeBrigadeWeb.AlertsLive.FormComponent do
 
   @impl true
   def update(assigns, socket) do
+    IO.inspect(assigns.banner, label: "@@@@@@@@@@@!!!!!!!!!!!")
     {:ok, socket |> assign(assigns)}
   end
 
@@ -52,29 +51,22 @@ defmodule BikeBrigadeWeb.AlertsLive.FormComponent do
       "created_by_user_id" => socket.assigns.current_user.id
     }
 
+    handle_save(socket, socket.assigns.action, banner_payload)
+
     # TODO: leaving off, need to include the user_id of who created it.
-    x = Messaging.create_banner(%Messaging.Banner{}, banner_payload)
+    # handle_save(socket, socket.assigns)
 
     {:noreply, socket |> push_redirect(to: ~p"/alerts")}
   end
 
-  @impl Phoenix.LiveComponent
-  def handle_event("send", %{"sms_message" => sms_message_params}, socket) do
-    # Missing the rider id means we didn't pick a rider
-    changeset =
-      Messaging.new_sms_message()
-      |> Messaging.send_sms_message_changeset(sms_message_params)
-      |> Map.put(:action, :validate)
-
-    {:noreply, assign(socket, :changeset, changeset)}
+  defp handle_save(socket, :edit, banner_form_params) do
+    IO.inspect(banner_form_params, label: "about to edit >>>>>>>>>>.")
+    Messaging.update_banner(socket.assigns.banner, banner_form_params)
+   
   end
 
-  @impl Phoenix.LiveComponent
-  def handle_event("cancel_upload", %{"ref" => ref}, socket) do
-    {:noreply, cancel_upload(socket, :media, ref)}
+  defp handle_save(socket, :new, banner_form_params) do
+    Messaging.create_banner(%Messaging.Banner{}, banner_form_params)
+    
   end
-
-  def error_to_string(:too_large), do: "Too large"
-  def error_to_string(:too_many_files), do: "You have selected too many files"
-  def error_to_string(:not_accepted), do: "You have selected an unacceptable file type"
 end

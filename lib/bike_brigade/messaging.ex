@@ -402,6 +402,18 @@ defmodule BikeBrigade.Messaging do
     message.sent_by_user.name
   end
 
+
+  def update_banner(%Banner{} = banner, attrs) do
+
+    IO.inspect(banner, label: ">>>>>>>>>>>>>>>")
+
+    banner
+    |> Banner.changeset(attrs)
+    |> Repo.update()
+    |> broadcast(:banner_updated)
+  end
+
+
   def create_banner(banner \\ %Banner{}, attrs) do
     banner
     |> Banner.changeset(attrs)
