@@ -5,6 +5,65 @@ defmodule BikeBrigadeWeb.AlertsLive.FormComponent do
   alias BikeBrigade.MediaStorage
   alias BikeBrigade.Riders
   alias BikeBrigade.SmsService
+  alias BikeBrigade.Messaging.Banner
+
+  defmodule BannerForm do
+    use BikeBrigade.Schema
+    import Ecto.Changeset
+
+    @primary_key false
+    embedded_schema do
+      field :turn_on_at_date, :date
+      field :turn_on_at_time, :time
+      field :turn_off_at_date, :date
+      field :turn_off_at_time, :time
+      field :message, :string
+
+      # belongs_to :user, User
+    end
+
+    def changeset(form, attrs \\ %{}) do
+      form
+      |> cast(attrs, [
+        :turn_on_at_date, 
+        :turn_on_at_time, 
+        :turn_off_at_date,
+        :turn_off_at_time,
+        :message
+      ])
+      |> validate_required([:turn_on_at_date, :turn_on_at_time, :turn_off_at_date, :turn_off_at_time, :message])
+    end
+
+    def from_banner(%Banner{} = banner) do
+      %__MODULE__{
+
+        turn_on_at_date: LocalizedDateTime.to_date(banner.turn_on_at),
+        turn_on_at_time: LocalizedDateTime.to_time(banner.turn_on_at),
+        turn_off_at_date: LocalizedDateTime.to_date(banner.turn_off_at),
+        turn_off_at_time: LocalizedDateTime.to_time(banner.turn_off_at),
+        message: banner.message
+      }
+    end
+
+    def to_banner_params(%__MODULE__{} = banner_form) do
+      %{
+        message: banner_form.message,
+        turn_on_at: LocalizedDateTime.new!(banner_form.turn_on_at_date, banner_form.turn_on_at_time),
+        turn_off_at: LocalizedDateTime.new!(banner_form.turn_on_at_date, banner_form.turn_on_at_time),
+        created_by_user: 1 # < TODO: get this in there.
+      }
+    end
+
+    def update(%__MODULE__{} = campaign_form, params) do
+      campaign_form
+      |> changeset(params)
+      |> apply_action(:save)
+    end
+  end
+
+  
+
+
 
   @impl true
   def mount(socket) do
