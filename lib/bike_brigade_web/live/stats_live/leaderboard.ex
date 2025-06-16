@@ -80,6 +80,7 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
      |> assign(:page_title, "Leaderboard")
      |> assign(:options, options)
      |> assign(:current_rider, current_rider)
+     |> assign(:show_anonymous_riders?, false)
      |> assign_stats()}
   end
 
@@ -111,6 +112,12 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
       end
 
     {:noreply, socket}
+  end
+
+  @impl Phoenix.Liveview
+  def handle_event("toggle_all_riders_anonymity", _params, socket) do
+    {:noreply,
+    socket |> assign(:show_anonymous_riders?, !socket.assigns.show_anonymous_riders?) }
   end
 
   @impl Phoenix.LiveView
@@ -182,8 +189,12 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
     ~p"/stats/leaderboard/download?#{params}"
   end
 
-  defp display_rider(%{rider: rider, current_rider: current_rider} = assigns) do
-    is_anonymous = rider.anonymous_in_leaderboard
+  defp display_rider(%{
+  rider: rider,
+  current_rider: current_rider,
+  override_anonymity: override_anonymity
+  } = assigns) do
+    is_anonymous = if override_anonymity, do: !override_anonymity, else: rider.anonymous_in_leaderboard
     is_current_rider = current_rider && rider.id == current_rider.id
 
     name =
