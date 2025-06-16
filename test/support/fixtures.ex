@@ -88,6 +88,27 @@ defmodule BikeBrigade.Fixtures do
     {campaign, riders}
   end
 
+
+  def fixture(:campaign_with_riders_with_tasks, _attrs) do
+    
+    campaign = fixture(:campaign, %{delivery_end: DateTime.utc_now()})
+    riders =
+      for _i <- 1..7 do
+        rider = fixture(:rider)
+        fixture(:task, %{campaign: campaign, rider: rider})
+        rider
+      end
+
+    Enum.each(riders, fn rider ->
+      Delivery.create_campaign_rider(%{
+        campaign_id: campaign.id,
+        rider_id: rider.id
+      })
+    end)
+
+    {campaign, riders}
+  end
+
   def fixture(:rider, attrs) do
     location = Toronto.random_location()
 
