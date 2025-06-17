@@ -16,7 +16,23 @@ defmodule BikeBrigadeWeb.StatsLive.LeaderboardTest do
 
       refute leaderboard_live |> element("a", "Show All Riders") |> has_element?()
     end
+
+    test "Cannot trigger the anonymous toggle while as a non-dispatcher", %{conn: conn} do
+      {:ok, leaderboard_live, _html} = live(conn, ~p"/leaderboard")
+
+      # simulate the user triggering 'Show All Riders'
+      # (NB: the button shouldn't be rendered, but this tests the backend check.)
+      send(leaderboard_live.pid, {:handle_event, "toggle_all_riders_anonymity", %{}})
+
+      assert render(leaderboard_live)
+             |> Floki.find("td")
+             |> Enum.filter(fn f -> Floki.text(f) == "Anonymous" end)
+             |> length() == 7
+
+      refute leaderboard_live |> element("a", "Show All Riders") |> has_element?()
+    end
   end
+
 
   describe "Leaderboard, seen as a rider who is also a dispatcher" do
     setup [:create_campaign_with_riders_with_tasks, :login_as_rider_and_dispatcher]
