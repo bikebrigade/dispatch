@@ -117,7 +117,8 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
   @impl Phoenix.LiveView
   def handle_event("toggle_all_riders_anonymity", _params, socket) do
     if socket.assigns.current_user.is_dispatcher do
-      {:noreply, socket |> assign(:show_anonymous_riders?, !socket.assigns.show_anonymous_riders?)}
+      {:noreply,
+       socket |> assign(:show_anonymous_riders?, !socket.assigns.show_anonymous_riders?)}
     else
       {:noreply, socket}
     end

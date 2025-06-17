@@ -33,7 +33,6 @@ defmodule BikeBrigadeWeb.StatsLive.LeaderboardTest do
     end
   end
 
-
   describe "Leaderboard, seen as a rider who is also a dispatcher" do
     setup [:create_campaign_with_riders_with_tasks, :login_as_rider_and_dispatcher]
 
