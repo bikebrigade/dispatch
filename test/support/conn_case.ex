@@ -73,7 +73,6 @@ defmodule BikeBrigadeWeb.ConnCase do
     Accounts.update_user_as_admin(user, %{})
     {:ok, user_as_admin} = Accounts.update_user_as_admin(user, %{is_dispatcher: true})
     %{conn: login_user(conn, user), user: user_as_admin, rider: rider}
-    
   end
 
   def create_program(%{}) do

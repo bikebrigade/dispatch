@@ -97,9 +97,9 @@
     >
       <:col :let={rider_stat} label="Name" sortable_field={:rider_name} default_order={:asc}>
         <.display_rider
-        rider={rider_stat.rider}
-        current_rider={@current_rider}
-        override_anonymity={@show_anonymous_riders?}
+          rider={rider_stat.rider}
+          current_rider={@current_rider}
+          override_anonymity={@show_anonymous_riders?}
         />
       </:col>
       <:col :let={rider_stat} label="Campaigns" sortable_field={:campaigns} default_order={:desc}>
@@ -125,9 +125,9 @@
         <div class="">
           <div class="grid grid-cols-3">
             <.display_rider
-            rider={stat.rider}
-            current_rider={@current_rider}
-            override_anonymity={@show_anonymous_riders?}
+              rider={stat.rider}
+              current_rider={@current_rider}
+              override_anonymity={@show_anonymous_riders?}
             />
             <span class="text-center">
               <%= round_distance(stat.distance) %> km

@@ -88,10 +88,9 @@ defmodule BikeBrigade.Fixtures do
     {campaign, riders}
   end
 
-
   def fixture(:campaign_with_riders_with_tasks, _attrs) do
-    
     campaign = fixture(:campaign, %{delivery_end: DateTime.utc_now()})
+
     riders =
       for _i <- 1..7 do
         rider = fixture(:rider)
