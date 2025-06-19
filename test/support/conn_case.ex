@@ -66,6 +66,15 @@ defmodule BikeBrigadeWeb.ConnCase do
     %{conn: login_user(conn, user), user: user, rider: rider}
   end
 
+  def login_as_rider_and_dispatcher(%{conn: conn}) do
+    rider = fixture(:rider)
+
+    {:ok, user} = Accounts.create_user_for_rider(rider)
+    Accounts.update_user_as_admin(user, %{})
+    {:ok, user_as_admin} = Accounts.update_user_as_admin(user, %{is_dispatcher: true})
+    %{conn: login_user(conn, user), user: user_as_admin, rider: rider}
+  end
+
   def create_program(%{}) do
     program = fixture(:program)
     %{program: program}
@@ -80,6 +89,12 @@ defmodule BikeBrigadeWeb.ConnCase do
   def create_campaign_with_riders(%{}) do
     program = fixture(:program)
     {campaign, riders} = fixture(:campaign_with_riders, %{})
+    %{campaign: campaign, program: program, riders: riders}
+  end
+
+  def create_campaign_with_riders_with_tasks(%{}) do
+    program = fixture(:program)
+    {campaign, riders} = fixture(:campaign_with_riders_with_tasks, %{})
     %{campaign: campaign, program: program, riders: riders}
   end
 

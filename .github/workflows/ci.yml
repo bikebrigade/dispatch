@@ -33,7 +33,7 @@ jobs:
 
       - name: Cache Elixir deps
         id: elixir-deps-cache
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v4
         with:
           path: |
             **/deps
@@ -44,7 +44,7 @@ jobs:
 
       - name: Cache Elixir build
         id: elixir-build-cache
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v4
         with:
           path: |
             **/_build
