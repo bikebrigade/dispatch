@@ -229,6 +229,23 @@ defmodule BikeBrigade.Fixtures do
     fixture(:sms_message, Map.merge(attrs, %{rider_id: rider.id, to: rider.phone}))
   end
 
+  def fixture(:banner, attrs) do
+      defaults = %{
+        message: "foo",
+        created_by_id: 1,
+        turn_on_at: DateTime.utc_now(),
+        turn_off_at: DateTime.utc_now() |> DateTime.add(1, :day)
+      }
+
+      {:ok, banner} =
+      defaults
+      |> Map.merge(attrs)
+      |> Messaging.create_banner
+
+      banner
+
+  end
+
   defp fake_name() do
     # Faker has names like O'Connel, and the apostrophe gets translated to &#39; in HTML output
     # This is annoying in tests so we'll just filter out the apostrophe.
