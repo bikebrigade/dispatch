@@ -230,20 +230,19 @@ defmodule BikeBrigade.Fixtures do
   end
 
   def fixture(:banner, attrs) do
-      defaults = %{
-        message: "foo",
-        created_by_id: 1,
-        turn_on_at: DateTime.utc_now(),
-        turn_off_at: DateTime.utc_now() |> DateTime.add(1, :day)
-      }
+    defaults = %{
+      message: "foo",
+      created_by_id: 1,
+      turn_on_at: DateTime.utc_now(),
+      turn_off_at: DateTime.utc_now() |> DateTime.add(1, :day)
+    }
 
-      {:ok, banner} =
+    {:ok, banner} =
       defaults
       |> Map.merge(attrs)
-      |> Messaging.create_banner
+      |> Messaging.create_banner()
 
-      banner
-
+    banner
   end
 
   defp fake_name() do
