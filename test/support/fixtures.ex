@@ -230,9 +230,10 @@ defmodule BikeBrigade.Fixtures do
   end
 
   def fixture(:banner, attrs) do
+    user = fixture(:user, %{is_dispatcher: true})
     defaults = %{
       message: "foo",
-      created_by_id: 1,
+      created_by_id: user.id,
       turn_on_at: DateTime.utc_now(),
       turn_off_at: DateTime.utc_now() |> DateTime.add(1, :day)
     }

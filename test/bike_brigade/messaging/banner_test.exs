@@ -7,11 +7,12 @@ defmodule BikeBrigade.Messaging.BannerTest do
     test "create_banner" do
       turn_on_time = DateTime.utc_now()
       turn_off_time = DateTime.utc_now() |> DateTime.add(1, :day)
+      user = fixture(:user, %{is_dispatcher: true})
 
       result =
         Messaging.create_banner(%{
           message: "foo",
-          created_by_id: 1,
+          created_by_id: user.id,
           turn_on_at: turn_on_time,
           turn_off_at: turn_off_time
         })
