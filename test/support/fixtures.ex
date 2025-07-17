@@ -231,6 +231,7 @@ defmodule BikeBrigade.Fixtures do
 
   def fixture(:banner, attrs) do
     user = fixture(:user, %{is_dispatcher: true})
+
     defaults = %{
       message: "foo",
       created_by_id: user.id,
