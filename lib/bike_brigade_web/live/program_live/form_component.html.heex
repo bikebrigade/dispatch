@@ -12,23 +12,23 @@
   >
     <.inputs_for :let={f} field={c[:program]}>
       <div class="space-y-4">
-        <.input type="text" field={{f, :name}} label="Name" placeholder="Program name" />
+        <.input type="text" field={f[:name]} label="Name" placeholder="Program name" />
         <.input
           type="textarea"
-          field={{f, :campaign_blurb}}
+          field={f[:campaign_blurb]}
           label="Campaign Blurb (please keep generic to be used on ongoing basis - 2 sentences)"
         />
-        <.input type="textarea" field={{f, :description}} label="About (internal description)" />
-        <.input type="date" field={{f, :start_date}} label="Start Date" placeholder="YYYY-MM-DD" />
+        <.input type="textarea" field={f[:description]} label="About (internal description)" />
+        <.input type="date" field={f[:start_date]} label="Start Date" placeholder="YYYY-MM-DD" />
         <.input
           type="checkbox"
-          field={{f, :public}}
+          field={f[:public]}
           label="Public"
           help_text="Let riders sign up through the portal"
         />
         <.input
           type="checkbox"
-          field={{f, :hide_pickup_address}}
+          field={f[:hide_pickup_address]}
           label="Hide Pickup Address"
           help_text="Hide the pickup address from the public calendar (riders will still see it)"
         />
@@ -55,7 +55,7 @@
               <.input
                 type="select"
                 class="mt-8"
-                field={{s, :weekday}}
+                field={s[:weekday]}
                 options={[
                   Monday: :monday,
                   Tuesday: :tuesday,
@@ -66,8 +66,8 @@
                   Sunday: :sunday
                 ]}
               />
-              <.input type="time" field={{s, :start_time}} />
-              <.input type="time" field={{s, :end_time}} />
+              <.input type="time" field={s[:start_time]} />
+              <.input type="time" field={s[:end_time]} />
               <div class="justify-center mt-1 ml-auto">
                 <.button
                   color={:clear}
@@ -101,25 +101,25 @@
 
           <.table id="items" rows={Phoenix.HTML.FormData.to_form(f.source, f, :items, [])}>
             <:col :let={item_form} label="Name">
-              <.input type="hidden" field={{item_form, :id}} />
-              <.input type="hidden" field={{item_form, :program_id}} />
-              <.input type="text" field={{item_form, :name}} />
+              <.input type="hidden" field={item_form[:id]} />
+              <.input type="hidden" field={item_form[:program_id]} />
+              <.input type="text" field={item_form[:name]} />
             </:col>
 
             <:col :let={item_form} label="Description" show_at={:large}>
-              <.input type="text" field={{item_form, :description}} />
+              <.input type="text" field={item_form[:description]} />
             </:col>
 
             <:col :let={item_form} label="Category">
               <.input
                 type="select"
-                field={{item_form, :category}}
+                field={item_form[:category]}
                 options={Ecto.Enum.values(Delivery.Item, :category)}
               />
             </:col>
 
             <:col :let={item_form} label="Archived?">
-              <.input type="checkbox" field={{item_form, :hidden}} />
+              <.input type="checkbox" field={item_form[:hidden]} />
             </:col>
 
             <:action :let={item_form}>
@@ -146,7 +146,7 @@
         </.header>
         <.input
           type="text"
-          field={{f, :photo_description}}
+          field={f[:photo_description]}
           label="Photo Descriotion"
           placeholder="Typical delivery size"
         />
@@ -194,7 +194,7 @@
           <figure :for={entry <- @uploads.photos.entries}>
             <.live_img_preview entry={entry} class="w-32" />
             <figcaption class="flex">
-              <div class="mr-1"><%= entry.client_name %></div>
+              <div class="mr-1">{entry.client_name}</div>
               <button
                 type="button"
                 phx-click={JS.push("cancel_upload", value: %{ref: entry.ref}, target: @myself)}
@@ -204,44 +204,44 @@
               </button>
             </figcaption>
             <p :for={err <- upload_errors(@uploads.photos, entry)} class="text-sm text-red-600">
-              <%= error_to_string(err) %>
+              {error_to_string(err)}
             </p>
           </figure>
         </div>
 
         <.input
           type="text"
-          field={{f, :contact_name}}
+          field={f[:contact_name]}
           label="Contact Name"
           placeholder="Point of contact's name"
         />
         <.input
           type="email"
-          field={{f, :contact_email}}
+          field={f[:contact_email]}
           label="Contact Email"
           placeholder="Point of contact's name"
         />
         <.input
           type="tel"
-          field={{f, :contact_phonel}}
+          field={f[:contact_phonel]}
           label="Contact Phone"
           placeholder="Point of contact's phone"
         />
 
         <.user_select
-          field={{f, :lead_id}}
+          field={f[:lead_id]}
           label="Program Lead"
           placeholder="Point of contact's phone"
         />
 
         <.input
           type="select"
-          field={{f, :spreadsheet_layout}}
+          field={f[:spreadsheet_layout]}
           label="Spreadsheet Layout"
           options={[Foodshare: :foodshare, "Mutual Aid Parkdale": :map]}
         />
 
-        <.input type="checkbox" field={{f, :active}} label="Active" />
+        <.input type="checkbox" field={f[:active]} label="Active" />
       </div>
     </.inputs_for>
   </.simple_form>

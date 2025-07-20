@@ -17,9 +17,9 @@
             <div class="min-w-0">
               <div class="flex items-start gap-x-3">
                 <p class="text-sm font-semibold leading-6 text-gray-900">
-                  <span><%= name(cr.campaign) %></span>
+                  <span>{name(cr.campaign)}</span>
                   <span :if={Utils.task_count(cr.campaign.tasks) > 1}>
-                    (<%= delivery_count(cr.campaign.tasks) %>)
+                    ({delivery_count(cr.campaign.tasks)})
                   </span>
                 </p>
                 <%!-- TODO: optional badge to show "done" "in-progess" etc (see tailwind component "stacked-lists")  --%>
@@ -91,11 +91,11 @@
     <span class="text-2xl mr-1">🚨</span>
     <div class="flex justify-between w-full">
       <span class="text-sm font-semibold">Riders Needed!</span>
-      <span class="text-sm font-semibold"><%= deliveries %> Unassigned deliveries</span>
+      <span class="text-sm font-semibold">{deliveries} Unassigned deliveries</span>
     </div>
   </div>
   <div class="text-sm mt-2">
-    <span class=""><%= programs %> are looking for riders for the next 48 hours.</span>
+    <span class="">{programs} are looking for riders for the next 48 hours.</span>
     <.button
       id="urgent-campaigns-signup-btn"
       navigate={~p"/campaigns/signup?#{%{campaign_ids: campaign_ids}}"}
@@ -115,12 +115,12 @@
     <span class="text-sm font-semibold">In the last 7 days at The Bike Brigade:</span>
   </div>
   <div id="week-stats" class="text-sm mt-2">
-    <span class="font-semibold"><%= @stats.riders %> riders</span>
-    have delivered <span class="font-semibold"><%= @stats.tasks %> items</span>
+    <span class="font-semibold">{@stats.riders} riders</span>
+    have delivered <span class="font-semibold">{@stats.tasks} items</span>
     for <span class="font-semibold"><%= @stats.campaigns %> programs</span>,
     covering about
     <span class="font-semibold">
-      <%= if @stats.distance && @stats.distance > 0, do: round_distance(@stats.distance), else: 0 %> km
+      {if @stats.distance && @stats.distance > 0, do: round_distance(@stats.distance), else: 0} km
     </span>
     of road!
   </div>

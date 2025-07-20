@@ -7,13 +7,13 @@
   </:actions>
 </.header>
 <.table id="items" rows={@items}>
-  <:col :let={item} label="Program"><%= item.program && item.program.name %></:col>
-  <:col :let={item} label="Name"><%= item.name %></:col>
-  <:col :let={item} label="Description"><%= item.description %></:col>
-  <:col :let={item} label="Category"><%= item.category %></:col>
+  <:col :let={item} label="Program">{item.program && item.program.name}</:col>
+  <:col :let={item} label="Name">{item.name}</:col>
+  <:col :let={item} label="Description">{item.description}</:col>
+  <:col :let={item} label="Category">{item.category}</:col>
   <:action :let={item}>
     <.link patch={~p"/items/#{item}/edit"} class="pl-2 link">
-      Edit <span class="sr-only">, <%= item.name %></span>
+      Edit <span class="sr-only">, {item.name}</span>
     </.link>
   </:action>
   <:action :let={item}>

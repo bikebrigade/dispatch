@@ -64,7 +64,7 @@ defmodule BikeBrigadeWeb.CampaignLive.CampaignRiderFormComponent do
       {:ok, _cr} ->
         {:noreply,
          socket
-         |> push_redirect(to: ~p"/campaigns/#{campaign}")}
+         |> push_navigate(to: ~p"/campaigns/#{campaign}")}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, :changeset, changeset)}

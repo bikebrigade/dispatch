@@ -15,7 +15,7 @@
 <.table id="programs" rows={@programs}>
   <:col :let={program} label="Name">
     <.link navigate={~p"/programs/#{program}"} class="link">
-      <%= program.name %>
+      {program.name}
     </.link>
     <span
       :if={!program.active}
@@ -31,7 +31,7 @@
     </span>
   </:col>
   <:col :let={program} label="Campaigns" show_at={:large}>
-    <%= program.campaign_count %>
+    {program.campaign_count}
   </:col>
   <:col :let={program} label="Latest Campaign" unstack_at={:large}>
     <.date
@@ -42,15 +42,15 @@
   </:col>
   <:col :let={program} label="Schedule" unstack_at={:large}>
     <div :for={s <- program.schedules}>
-      <%= ProgramForm.Schedule.from_program_schedule(s) %>
+      {ProgramForm.Schedule.from_program_schedule(s)}
     </div>
   </:col>
   <:col :let={program} label="Lead">
-    <span :if={program.lead}><%= program.lead.name %></span>
+    <span :if={program.lead}>{program.lead.name}</span>
   </:col>
   <:action :let={program}>
     <.link patch={~p"/programs/#{program}/edit"} class="link">
-      Edit <span class="sr-only">, <%= program.name %></span>
+      Edit <span class="sr-only">, {program.name}</span>
     </.link>
   </:action>
 </.table>
@@ -62,7 +62,7 @@
   wide
   on_cancel={JS.navigate(~p"/programs")}
 >
-  <:title><%= @page_title %></:title>
+  <:title>{@page_title}</:title>
 
   <.live_component
     module={BikeBrigadeWeb.ProgramLive.FormComponent}

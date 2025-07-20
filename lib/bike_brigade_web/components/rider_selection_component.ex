@@ -148,20 +148,20 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
         </div>
         <div class="ml-2">
           <div class="text-sm font-medium leading-5 text-indigo-700">
-            <span><%= @rider.name %></span>
+            <span>{@rider.name}</span>
             <span class="ml-1 text-xs font-normal text-gray-500">
-              <%= @rider.pronouns %>
+              {@rider.pronouns}
             </span>
           </div>
           <div class="flex items-center mt-2 text-xs leading-5 text-gray-700">
             <Heroicons.device_phone_mobile mini class="flex-shrink-0 w-4 h-4 mr-1 text-gray-500" />
             <span class="truncate">
-              <%= @rider.phone %>
+              {@rider.phone}
             </span>
           </div>
           <div class="flex items-center mt-2 text-xs text-gray-700">
             <Heroicons.envelope mini class="flex-shrink-0 w-4 h-4 mr-1 text-gray-500" />
-            <span class="truncate"><%= @rider.email %></span>
+            <span class="truncate">{@rider.email}</span>
           </div>
         </div>
       </div>

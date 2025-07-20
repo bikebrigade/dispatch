@@ -6,14 +6,14 @@
           Name
         <% end %>
         <div class="mt-1 rounded-md shadow-sm">
-          <%= text_input(f, :name,
+          {text_input(f, :name,
             required: true,
             phx_debounce: "blur",
             class:
               "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-          ) %>
+          )}
         </div>
-        <%= error_tag(f, :name) %>
+        {error_tag(f, :name)}
       </div>
 
       <div class="my-2">
@@ -21,14 +21,14 @@
           Delivery Date (YYYY-MM-DD)
         <% end %>
         <div class="mt-1 rounded-md shadow-sm">
-          <%= text_input(f, :delivery_date,
+          {text_input(f, :delivery_date,
             required: true,
             phx_debounce: "blur",
             class:
               "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-          ) %>
+          )}
         </div>
-        <%= error_tag(f, :delivery_date) %>
+        {error_tag(f, :delivery_date)}
       </div>
 
       <div class="my-2">
@@ -36,14 +36,14 @@
           Pickup Address
         <% end %>
         <div class="mt-1 rounded-md shadow-sm">
-          <%= text_input(f, :pickup_address,
+          {text_input(f, :pickup_address,
             required: true,
             phx_debounce: "blur",
             class:
               "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-          ) %>
+          )}
         </div>
-        <%= error_tag(f, :pickup_address) %>
+        {error_tag(f, :pickup_address)}
       </div>
 
       <%= unless @delivery_spreadsheet do %>
@@ -99,7 +99,7 @@
                           scope="col"
                           class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase bg-gray-50"
                         >
-                          <%= cell %>
+                          {cell}
                         </th>
                       <% end %>
                     </tr>
@@ -109,7 +109,7 @@
                       <tr>
                         <%= for cell <- row do %>
                           <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
-                            <%= cell %>
+                            {cell}
                           </td>
                         <% end %>
                       </tr>
@@ -121,7 +121,7 @@
           </div>
           <%= if Enum.count(@delivery_spreadsheet) > 4 do %>
             <div class="my-1 text-sm font-medium tracking-wider">
-              ...<%= Enum.count(@delivery_spreadsheet) - 4 %> more rows
+              ...{Enum.count(@delivery_spreadsheet) - 4} more rows
             </div>
           <% end %>
         </div>
@@ -132,14 +132,14 @@
           Rider Spreadsheet (link to google sheet)
         <% end %>
         <div class="mt-1 rounded-md shadow-sm">
-          <%= text_input(f, :rider_spreadsheet_url,
+          {text_input(f, :rider_spreadsheet_url,
             class:
               "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5",
             id: "spreadsheet",
             file_input: "one"
-          ) %>
+          )}
         </div>
-        <%= error_tag(f, :rider_spreadsheet_url) %>
+        {error_tag(f, :rider_spreadsheet_url)}
       </div>
 
       <span class="block w-full rounded-md shadow-sm">

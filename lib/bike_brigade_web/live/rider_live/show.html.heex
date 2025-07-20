@@ -19,7 +19,7 @@
     </div>
     <div class="">
       <h1 class="mb-4 text-3xl font-medium leading-none sm:text-4xl">
-        <%= @rider.name %> <small class="text-sm"><%= pronouns(@rider) %></small>
+        {@rider.name} <small class="text-sm">{pronouns(@rider)}</small>
       </h1>
 
       <p class="text-sm !leading-relaxed xl:text-base">
@@ -29,7 +29,7 @@
             aria-label="Calendar"
             class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 sm:mr-.5"
           />
-          <span>Signed up on: <%= format_date(@rider.signed_up_on) %></span>
+          <span>Signed up on: {format_date(@rider.signed_up_on)}</span>
         </span>
         <span class="block xl:inline">
           <Heroicons.fire
@@ -49,7 +49,7 @@
             aria-label="Marker"
             class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 sm:mr-.5"
           />
-          <%= address(@rider.location) %>
+          {address(@rider.location)}
         </span>
         <span class="block xl:inline">
           <Heroicons.device_phone_mobile
@@ -57,7 +57,7 @@
             aria-label="Phone"
             class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 xl:ml-1 sm:mr-.5"
           />
-          <%= phone(@rider) %>
+          {phone(@rider)}
         </span>
         <span class="block xl:inline">
           <Heroicons.envelope
@@ -65,7 +65,7 @@
             aria-label="Mail"
             class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 xl:ml-1 sm:mr-.5"
           />
-          <.link href={"mailto:#{email(@rider)}"} class="link"><%= email(@rider) %></.link>
+          <.link href={"mailto:#{email(@rider)}"} class="link">{email(@rider)}</.link>
         </span>
       </p>
       <p
@@ -83,7 +83,7 @@
             navigate={~p"/riders?#{%{filters: ["capacity:#{@rider.capacity}"]}}"}
             class="link"
           >
-            <%= @rider.capacity %>
+            {@rider.capacity}
           </.link>
         </span>
         <%= if @rider.text_based_itinerary do %>
@@ -108,7 +108,7 @@
               <%= for tag <- @rider.tags do %>
                 <span class="before:content-[','] first:before:content-['']">
                   <.link navigate={~p"/riders?#{%{filters: ["tag:#{tag.name}"]}}"} class="link">
-                    <%= tag.name %>
+                    {tag.name}
                   </.link>
                 </span>
               <% end %>
@@ -131,7 +131,7 @@
           Deliveries
         </dt>
         <dd class="mt-1 text-2xl font-semibold text-center text-green-700 sm:text-4xl">
-          <%= @stats.task_count %>
+          {@stats.task_count}
         </dd>
       </div>
       <div class="flex-initial px-4 py-3 mb-5 mr-5 bg-white rounded-lg shadow sm:p-6">
@@ -139,7 +139,7 @@
           Campaigns
         </dt>
         <dd class="mt-1 text-2xl font-semibold text-center text-green-700 sm:text-4xl">
-          <%= @stats.campaign_count %>
+          {@stats.campaign_count}
         </dd>
       </div>
       <div class="flex-initial px-4 py-3 mb-5 bg-white rounded-lg shadow sm:p-6">
@@ -147,7 +147,7 @@
           Distance
         </dt>
         <dd class="mt-1 text-2xl font-semibold text-center text-green-700 sm:text-4xl">
-          <%= round_distance(@stats.total_distance) %> km
+          {round_distance(@stats.total_distance)} km
         </dd>
       </div>
     </div>
@@ -212,19 +212,19 @@
         <%= for {date, campaigns} <- @schedule do %>
           <div class="px-3 border-r last:border-0 first:hidden first:md:block">
             <h4 class="mb-4 font-bold">
-              <%= if date == @today, do: "Today", else: format_date(date) %>
+              {if date == @today, do: "Today", else: format_date(date)}
             </h4>
             <%= if !Enum.empty?(campaigns) do %>
               <%= for {campaign, task_count} <- campaigns do %>
                 <div class="mb-3">
-                  <span class="text-sm text-gray-500"><%= pickup_window(campaign) %></span>
+                  <span class="text-sm text-gray-500">{pickup_window(campaign)}</span>
                   <p class="font-bold leading-snug">
                     <.link navigate={~p"/campaigns/#{campaign}"} class="link">
-                      <%= campaign.program.name %>
+                      {campaign.program.name}
                     </.link>
                   </p>
                   <p class="text-gray-900">
-                    <%= task_count %> <%= Inflex.inflect("delivery", task_count) %>
+                    {task_count} {Inflex.inflect("delivery", task_count)}
                   </p>
                 </div>
               <% end %>
@@ -244,7 +244,7 @@
       </div>
       <div class="px-4 py-5 my-5 bg-white rounded-lg shadow sm:p-6">
         <%= if @rider.internal_notes do %>
-          <%= @rider.internal_notes %>
+          {@rider.internal_notes}
         <% else %>
           N/A
         <% end %>
@@ -261,12 +261,12 @@
         <ul class="h-[calc(100%-6rem)] pr-6 overflow-x-auto list-none sm:absolute ">
           <%= for s <- @rider.program_stats do %>
             <li class="pb-4 mb-4 border-b last:border-b-0">
-              <span class="block text-lg font-bold"><%= s.program.name %></span>
+              <span class="block text-lg font-bold">{s.program.name}</span>
               <span>
-                <%= s.campaign_count %> <%= Inflex.inflect("ride", s.campaign_count) %>, <%= s.task_count %> <%= Inflex.inflect(
+                {s.campaign_count} {Inflex.inflect("ride", s.campaign_count)}, {s.task_count} {Inflex.inflect(
                   "delivery",
                   s.task_count
-                ) %>, <%= round_distance(s.total_distance) %>km
+                )}, {round_distance(s.total_distance)}km
               </span>
             </li>
           <% end %>
@@ -285,7 +285,7 @@
   on_cancel={JS.patch(if @live_action == :edit, do: ~p"/riders/#{@rider}", else: ~p"/profile")}
 >
   <:title>
-    <%= if @live_action == :edit, do: "Edit Rider", else: "Edit Profile" %>
+    {if @live_action == :edit, do: "Edit Rider", else: "Edit Profile"}
   </:title>
   <.live_component
     module={BikeBrigadeWeb.RiderLive.FormComponent}

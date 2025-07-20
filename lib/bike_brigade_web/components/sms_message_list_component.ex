@@ -64,10 +64,10 @@ defmodule BikeBrigadeWeb.Components.SMSMessageListComponent do
                         else: "font-semibold"
                       )
                     ]}>
-                      <%= rider.name %>
+                      {rider.name}
                     </div>
                     <div class="text-xs text-gray-500 font-medium">
-                      <%= datetime(last_message.sent_at) %>
+                      {datetime(last_message.sent_at)}
                     </div>
                   </div>
                   <div class={[
@@ -75,14 +75,14 @@ defmodule BikeBrigadeWeb.Components.SMSMessageListComponent do
                     if(last_message.from == rider.phone, do: "font-extrabold", else: "font-medium")
                   ]}>
                     <span class="truncate">
-                      <%= preview_message(last_message) %>
+                      {preview_message(last_message)}
                     </span>
                   </div>
                 </div>
               <% else %>
                 <div class="flex-1 min-w-0">
                   <div class={["pii", "text-sm leading-5 text-indigo-600 truncate"]}>
-                    <%= rider.name %>
+                    {rider.name}
                   </div>
                   <div class={["flex items-center mt-2 text-sm leading-5 text-gray-500"]}>
                     <span class="truncate">

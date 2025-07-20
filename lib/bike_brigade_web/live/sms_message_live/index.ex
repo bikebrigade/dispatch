@@ -257,14 +257,14 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
           </div>
           <div class="flex flex-wrap items-center">
             <h3 class="text-lg font-medium leading-6 text-gray-900">
-              <%= Enum.count(@others_present) %> Currently Viewing
+              {Enum.count(@others_present)} Currently Viewing
             </h3>
           </div>
         </div>
         <ul class="px-2 py-3">
           <%= for user <- @others_present
           do %>
-            <li><%= user.name %></li>
+            <li>{user.name}</li>
           <% end %>
         </ul>
       </div>
@@ -277,7 +277,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
           rounded={:full}
         >
           <Heroicons.eye solid class="w-5 h-5" />
-          <span class="ml-1 text-sm font-semibold"><%= Enum.count(@others_present) %></span>
+          <span class="ml-1 text-sm font-semibold">{Enum.count(@others_present)}</span>
         </.button>
       </div>
     </div>

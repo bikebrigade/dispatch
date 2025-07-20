@@ -1,5 +1,5 @@
 <div phx-drop-target={@uploads.media.ref}>
-  <.header><%= @title %></.header>
+  <.header>{@title}</.header>
 
   <div class="mt-2">
     <.simple_form
@@ -19,7 +19,7 @@
         label="To"
       />
 
-      <.input type="textarea" field={{f, :body}} label="Message" />
+      <.input type="textarea" field={f[:body]} label="Message" />
 
       <div class="flex justify-end mt-6 space-x-2">
         <.button
@@ -44,12 +44,12 @@
           Send
         </.button>
       </div>
-      <.error :for={msg <- translate_errors(f.errors, :other_error)}><%= msg %></.error>
+      <.error :for={msg <- translate_errors(f.errors, :other_error)}>{msg}</.error>
       <div class="grid grid-cols-3 gap-4">
         <figure :for={entry <- @uploads.media.entries}>
           <.live_img_preview entry={entry} class="w-32" />
           <figcaption class="flex">
-            <div class="mr-1"><%= entry.client_name %></div>
+            <div class="mr-1">{entry.client_name}</div>
             <button
               type="button"
               phx-click={JS.push("cancel_upload", value: %{ref: entry.ref}, target: @myself)}
@@ -59,7 +59,7 @@
             </button>
           </figcaption>
           <.error :for={err <- upload_errors(@uploads.media, entry)}>
-            <%= error_to_string(err) %>
+            {error_to_string(err)}
           </.error>
         </figure>
       </div>

@@ -62,7 +62,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
       }
       {@rest}
     >
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </button>
     """
   end
@@ -78,7 +78,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
       }
       {@rest}
     >
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </.link>
     """
   end
@@ -170,17 +170,17 @@ defmodule BikeBrigadeWeb.CoreComponents do
     ~H"""
     <time datetime={@date} class="inline-flex items-center p-1 text-center">
       <span class="mr-1 text-sm font-semibold text-gray-500">
-        <%= Calendar.strftime(@date, "%a") %>
+        {Calendar.strftime(@date, "%a")}
       </span>
       <span class="mr-1 text-sm font-bold text-gray-600">
-        <%= Calendar.strftime(@date, "%d") %>
+        {Calendar.strftime(@date, "%d")}
       </span>
       <span class="text-sm font-semibold">
-        <%= Calendar.strftime(@date, "%b") %>
+        {Calendar.strftime(@date, "%b")}
       </span>
       <Icons.circle :if={@date == @today} class="w-2 h-2 ml-1 text-indigo-400" />
       <span :if={@date.year != @today.year} class="ml-1 text-sm font-semibold">
-        <%= Calendar.strftime(@date, "%y") %>
+        {Calendar.strftime(@date, "%y")}
       </span>
     </time>
     """
@@ -231,9 +231,9 @@ defmodule BikeBrigadeWeb.CoreComponents do
           <Heroicons.information_circle :if={@kind == :info} mini class="w-4 h-4" />
           <Heroicons.exclamation_circle :if={@kind == :error} mini class="w-4 h-4" />
           <Heroicons.exclamation_triangle :if={@kind == :warn} mini class="w-4 h-4" />
-          <%= @title %>
+          {@title}
         </p>
-        <p class="md:mt-2 text-[0.8125rem] leading-5"><%= msg %></p>
+        <p class="md:mt-2 text-[0.8125rem] leading-5">{msg}</p>
       </div>
     </div>
     """
@@ -267,7 +267,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
       {@rest}
     >
       <div class="text-xs leading-relaxed text-center">
-        <%= render_slot(@inner_block) %>
+        {render_slot(@inner_block)}
       </div>
     </button>
     """
@@ -287,13 +287,13 @@ defmodule BikeBrigadeWeb.CoreComponents do
     <header class={[@actions != [] && "sm:flex sm:items-center", @class]}>
       <div class="sm:flex-auto">
         <h1 class={["font-semibold text-gray-900", if(@small, do: "text-lg", else: "text-xl")]}>
-          <%= render_slot(@inner_block) %>
+          {render_slot(@inner_block)}
         </h1>
         <p :if={@subtitle != []} class="mt-2 text-sm text-gray-700">
-          <%= render_slot(@subtitle) %>
+          {render_slot(@subtitle)}
         </p>
       </div>
-      <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none"><%= render_slot(@actions) %></div>
+      <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">{render_slot(@actions)}</div>
     </header>
     """
   end
@@ -318,7 +318,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
                range radio search select tel text textarea time url week)
 
   attr :value, :any
-  attr :field, :any, doc: "a %Phoenix.HTML.Form{}/field name tuple, for example: {f, :email}"
+  attr :field, :any, doc: "a %Phoenix.HTML.FormField{} struct, for example: f[:email]"
   attr :errors, :list
   attr :checked, :boolean, doc: "the checked flag for checkbox inputs"
   attr :prompt, :string, default: nil, doc: "the prompt for select inputs"
@@ -329,24 +329,25 @@ defmodule BikeBrigadeWeb.CoreComponents do
                                    multiple pattern placeholder readonly required size step)
   slot :inner_block
 
-  def input(%{field: {f, field}} = assigns) do
+  def input(%{field: %Phoenix.HTML.FormField{} = field} = assigns) do
+    errors = if Phoenix.Component.used_input?(field), do: field.errors, else: []
+
     assigns
     |> assign(field: nil)
-    |> assign_new(:name, fn ->
-      name = Phoenix.HTML.Form.input_name(f, field)
-      if assigns.multiple, do: name <> "[]", else: name
-    end)
-    |> assign_new(:id, fn -> Phoenix.HTML.Form.input_id(f, field) end)
-    |> assign_new(:value, fn -> Phoenix.HTML.Form.input_value(f, field) end)
-    |> assign_new(:errors, fn -> translate_errors(f.errors || [], field) end)
+    |> assign(:errors, Enum.map(errors, &translate_error(&1)))
+    |> assign_new(:id, fn -> field.id end)
+    |> assign_new(:name, fn -> if assigns.multiple, do: field.name <> "[]", else: field.name end)
+    |> assign_new(:value, fn -> field.value end)
     |> input()
   end
+
+
 
   def input(%{type: "checkbox"} = assigns) do
     assigns = assign_new(assigns, :checked, fn -> input_equals?(assigns.value, "true") end)
 
     ~H"""
-    <div phx-feedback-for={@name} class="relative flex items-start">
+    <div class="relative flex items-start">
       <div class="flex items-center h-5">
         <input type="hidden" name={@name} value="false" />
         <input
@@ -360,9 +361,9 @@ defmodule BikeBrigadeWeb.CoreComponents do
         />
       </div>
       <div class="ml-3 text-sm">
-        <.label for={@id}><%= @label %></.label>
+        <.label for={@id}>{@label}</.label>
         <p if={@help_text} id={"#{@id}-help"} class="text-gray-500">
-          <%= @help_text %>
+          {@help_text}
         </p>
       </div>
     </div>
@@ -371,8 +372,8 @@ defmodule BikeBrigadeWeb.CoreComponents do
 
   def input(%{type: "select"} = assigns) do
     ~H"""
-    <div phx-feedback-for={@name}>
-      <.label for={@id}><%= @label %></.label>
+    <div>
+      <.label for={@id}>{@label}</.label>
       <select
         id={@id}
         name={@name}
@@ -380,18 +381,18 @@ defmodule BikeBrigadeWeb.CoreComponents do
         multiple={@multiple}
         {@rest}
       >
-        <option :if={@prompt}><%= @prompt %></option>
-        <%= Phoenix.HTML.Form.options_for_select(@options, @value) %>
+        <option :if={@prompt}>{@prompt}</option>
+        {Phoenix.HTML.Form.options_for_select(@options, @value)}
       </select>
-      <.error :for={msg <- @errors}><%= msg %></.error>
+      <.error :for={msg <- @errors}>{msg}</.error>
     </div>
     """
   end
 
   def input(%{type: "textarea"} = assigns) do
     ~H"""
-    <div phx-feedback-for={@name}>
-      <.label for={@id}><%= @label %></.label>
+    <div>
+      <.label for={@id}>{@label}</.label>
       <textarea
         id={@id || @name}
         name={@name}
@@ -399,16 +400,16 @@ defmodule BikeBrigadeWeb.CoreComponents do
           input_border(@errors),
           "mt-1 block min-h-[6rem] w-full rounded-md border-gray-300 shadow-sm py-[calc(theme(spacing.2)-1px)] px-[calc(theme(spacing.3)-1px)]]",
           "text-gray-900 focus:outline-none sm:text-sm sm:leading-6",
-          "phx-no-feedback:border-gray-300 phx-no-feedback:focus:border-indigo-500 phx-no-feedback:focus:ring-indigo-500",
+          @errors == [] && "border-gray-300 focus:border-indigo-500 focus:ring-indigo-500",
           "disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none",
           @extra_class
         ]}
         {@rest}
       ><%= @value %></textarea>
       <p :if={@help_text} class="mt-2 text-sm text-gray-500">
-        <%= @help_text %>
+        {@help_text}
       </p>
-      <.error :for={msg <- @errors}><%= msg %></.error>
+      <.error :for={msg <- @errors}>{msg}</.error>
     </div>
     """
   end
@@ -431,8 +432,8 @@ defmodule BikeBrigadeWeb.CoreComponents do
       end
 
     ~H"""
-    <div phx-feedback-for={@name}>
-      <.label for={@id}><%= @label %></.label>
+    <div>
+      <.label for={@id}>{@label}</.label>
       <input
         type={@type}
         name={@name}
@@ -442,16 +443,16 @@ defmodule BikeBrigadeWeb.CoreComponents do
           input_border(@errors),
           "mt-1 block w-full rounded-md border-gray-300 shadow-sm py-[calc(theme(spacing.2)-1px)] px-[calc(theme(spacing.3)-1px)]",
           "text-gray-900 focus:outline-none sm:text-sm sm:leading-6",
-          "phx-no-feedback:border-gray-300 phx-no-feedback:focus:border-indigo-500 phx-no-feedback:focus:ring-indigo-500",
+          @errors == [] && "border-gray-300 focus:border-indigo-500 focus:ring-indigo-500",
           "disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none",
           @extra_class
         ]}
         {@rest}
       />
       <p :if={@help_text} class="mt-2 text-sm text-gray-500">
-        <%= @help_text %>
+        {@help_text}
       </p>
-      <.error :for={msg <- @errors}><%= msg %></.error>
+      <.error :for={msg <- @errors}>{msg}</.error>
     </div>
     """
   end
@@ -460,7 +461,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
   attr :name, :any
   attr :label, :string, default: nil
   attr :help_text, :string, default: nil
-  attr :field, :any, doc: "a %Phoenix.HTML.Form{}/field name tuple, for example: {f, :email}"
+  attr :field, :any, doc: "a %Phoenix.HTML.FormField{} struct, for example: f[:email]"
   attr :errors, :list
   attr :rest, :global, include: ~w(autocomplete checked disabled form max maxlength min minlength
                                    multiple pattern placeholder readonly required size step)
@@ -470,22 +471,24 @@ defmodule BikeBrigadeWeb.CoreComponents do
     attr :value, :any
   end
 
-  def radio_group(%{field: {f, field}} = assigns) do
+  def radio_group(%{field: %Phoenix.HTML.FormField{} = field} = assigns) do
+    errors = if Phoenix.Component.used_input?(field), do: field.errors, else: []
+
     assigns =
       assigns
-      |> assign_new(:value, fn -> Phoenix.HTML.Form.input_value(f, field) end)
-      |> assign_new(:name, fn -> Phoenix.HTML.Form.input_name(f, field) end)
-      |> assign_new(:errors, fn -> translate_errors(f.errors || [], field) end)
+      |> assign_new(:value, fn -> field.value end)
+      |> assign_new(:name, fn -> field.name end)
+      |> assign_new(:errors, fn -> Enum.map(errors, &translate_error(&1)) end)
 
     ~H"""
-    <div phx-feedback-for={@name}>
-      <.label><%= @label %></.label>
-      <p :if={@help_text} class="text-sm leading-5 text-gray-500"><%= @help_text %></p>
+    <div>
+      <.label>{@label}</.label>
+      <p :if={@help_text} class="text-sm leading-5 text-gray-500">{@help_text}</p>
       <fieldset class="mt-4">
         <div class="space-y-4 sm:flex sm:items-center sm:space-y-0 sm:space-x-10">
           <div :for={radio <- @radio} class="flex items-center">
             <input
-              id={Phoenix.HTML.Form.input_id(elem(@field, 0), elem(@field, 1), radio[:value])}
+              id={"#{@name}_#{radio[:value]}"}
               name={@name}
               type="radio"
               value={Phoenix.HTML.html_escape(radio[:value])}
@@ -493,10 +496,8 @@ defmodule BikeBrigadeWeb.CoreComponents do
               class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
             />
             <div class="ml-3 text-sm">
-              <.label for={
-                Phoenix.HTML.Form.input_id(elem(@field, 0), elem(@field, 1), radio[:value])
-              }>
-                <%= radio[:label] %>
+              <.label for={"#{@name}_#{radio[:value]}"}>
+                {radio[:label]}
               </.label>
             </div>
           </div>
@@ -506,30 +507,32 @@ defmodule BikeBrigadeWeb.CoreComponents do
     """
   end
 
+
   attr :id, :any
   attr :name, :any
-  attr :field, :any, doc: "a %Phoenix.HTML.Form{}/field name tuple, for example: {f, :email}"
+  attr :field, :any, doc: "a %Phoenix.HTML.FormField{} struct, for example: f[:email]"
   attr :label, :string, default: nil
   attr :help_text, :string, default: nil
   attr :multi, :boolean, default: false
   attr :selected_rider, :any, default: nil
   attr :rest, :global, include: ~w(selected_riders)
 
-  def rider_select(%{field: {f, field}} = assigns) do
+  def rider_select(%{field: %Phoenix.HTML.FormField{} = field} = assigns) do
     assigns
     |> assign(field: nil)
     |> assign_new(:name, fn ->
-      name = Phoenix.HTML.Form.input_name(f, field)
+      name = field.name
       if assigns.multi, do: name <> "[]", else: name
     end)
-    |> assign_new(:id, fn -> Phoenix.HTML.Form.input_id(f, field) end)
+    |> assign_new(:id, fn -> field.id end)
     |> rider_select()
   end
 
+
   def rider_select(assigns) do
     ~H"""
-    <div phx-feedback-for={@name}>
-      <.label for={@id}><%= @label %></.label>
+    <div>
+      <.label for={@id}>{@label}</.label>
 
       <.live_component
         module={RiderSelectionComponent}
@@ -540,7 +543,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
         {@rest}
       />
       <p :if={@help_text} class="mt-2 text-sm text-gray-500">
-        <%= @help_text %>
+        {@help_text}
       </p>
     </div>
     """
@@ -548,22 +551,22 @@ defmodule BikeBrigadeWeb.CoreComponents do
 
   attr :id, :any
   attr :name, :any
-  attr :field, :any, doc: "a %Phoenix.HTML.Form{}/field name tuple, for example: {f, :email}"
+  attr :field, :any, doc: "a %Phoenix.HTML.FormField{} struct, for example: f[:email]"
   attr :selected_user_id, :integer
   attr :label, :string, default: nil
   attr :help_text, :string, default: nil
   attr :rest, :global, include: ~w(multi)
 
-  def user_select(%{field: {f, field}} = assigns) do
+  def user_select(%{field: %Phoenix.HTML.FormField{} = field} = assigns) do
     assigns =
       assigns
-      |> assign_new(:name, fn -> Phoenix.HTML.Form.input_name(f, field) end)
-      |> assign_new(:id, fn -> Phoenix.HTML.Form.input_id(f, field) end)
-      |> assign_new(:selected_user_id, fn -> Phoenix.HTML.Form.input_value(f, field) end)
+      |> assign_new(:name, fn -> field.name end)
+      |> assign_new(:id, fn -> field.id end)
+      |> assign_new(:selected_user_id, fn -> field.value end)
 
     ~H"""
-    <div phx-feedback-for={@name}>
-      <.label for={@id}><%= @label %></.label>
+    <div>
+      <.label for={@id}>{@label}</.label>
 
       <.live_component
         module={UserSelectionComponent}
@@ -573,11 +576,12 @@ defmodule BikeBrigadeWeb.CoreComponents do
         {@rest}
       />
       <p :if={@help_text} class="mt-2 text-sm text-gray-500">
-        <%= @help_text %>
+        {@help_text}
       </p>
     </div>
     """
   end
+
 
   defp input_border([] = _errors),
     do: "border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
@@ -594,7 +598,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
   def label(assigns) do
     ~H"""
     <label for={@for} class="block text-sm font-medium text-gray-700">
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </label>
     """
   end
@@ -606,9 +610,9 @@ defmodule BikeBrigadeWeb.CoreComponents do
 
   def error(assigns) do
     ~H"""
-    <p class="flex gap-3 mt-3 text-sm leading-6 phx-no-feedback:hidden text-rose-600">
+    <p class="flex gap-3 mt-3 text-sm leading-6 text-rose-600">
       <Heroicons.exclamation_circle mini class="mt-0.5 h-5 w-5 flex-none fill-rose-500" />
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </p>
     """
   end
@@ -628,12 +632,12 @@ defmodule BikeBrigadeWeb.CoreComponents do
     <div class="inline-flex flex-shrink-0 leading-normal">
       <Heroicons.map_pin mini aria-label="Location" class="w-4 h-4 mt-1 mr-1 text-gray-500" />
       <div class="grid grid-cols-2 gap-y-0 gap-x-1">
-        <div class="col-span-2"><%= @location.address %></div>
+        <div class="col-span-2">{@location.address}</div>
         <div :if={@location.unit} class="text-sm">
-          <span class="font-bold">Unit:</span> <%= @location.unit %>
+          <span class="font-bold">Unit:</span> {@location.unit}
         </div>
         <div :if={@location.buzzer} class="text-sm">
-          <span class="font-bold">Buzz:</span> <%= @location.buzzer %>
+          <span class="font-bold">Buzz:</span> {@location.buzzer}
         </div>
       </div>
     </div>
@@ -739,13 +743,13 @@ defmodule BikeBrigadeWeb.CoreComponents do
               <div id={"#{@id}-content"}>
                 <header :if={@title != []}>
                   <h1 id={"#{@id}-title"} class="text-lg font-semibold leading-8 text-zinc-800">
-                    <%= render_slot(@title) %>
+                    {render_slot(@title)}
                   </h1>
                   <p :if={@subtitle != []} class="mt-2 text-sm leading-6 text-zinc-600">
-                    <%= render_slot(@subtitle) %>
+                    {render_slot(@subtitle)}
                   </p>
                 </header>
-                <%= render_slot(@inner_block) %>
+                {render_slot(@inner_block)}
                 <div :if={@confirm != [] or @cancel != []} class="flex items-center gap-5 mb-4 ml-6">
                   <.button
                     :for={confirm <- @confirm}
@@ -754,14 +758,14 @@ defmodule BikeBrigadeWeb.CoreComponents do
                     phx-disable-with
                     class="px-3 py-2"
                   >
-                    <%= render_slot(confirm) %>
+                    {render_slot(confirm)}
                   </.button>
                   <.link
                     :for={cancel <- @cancel}
                     phx-click={hide_modal(@on_cancel, @id)}
                     class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
                   >
-                    <%= render_slot(cancel) %>
+                    {render_slot(cancel)}
                   </.link>
                 </div>
               </div>
@@ -798,9 +802,9 @@ defmodule BikeBrigadeWeb.CoreComponents do
     ~H"""
     <.form :let={f} for={@for} as={@as} {@rest}>
       <div class="mt-4 space-y-4 bg-white">
-        <%= render_slot(@inner_block, f) %>
+        {render_slot(@inner_block, f)}
         <div :for={action <- @actions} class="flex items-center justify-end gap-6 mt-2">
-          <%= render_slot(action, f) %>
+          {render_slot(action, f)}
         </div>
       </div>
     </.form>
@@ -873,10 +877,10 @@ defmodule BikeBrigadeWeb.CoreComponents do
                     <div class="flex items-start justify-between space-x-3">
                       <header :if={@title != []} class="space-y-1">
                         <h1 class="text-lg font-medium leading-8 text-gray-900" id={"#{@id}-title"}>
-                          <%= render_slot(@title) %>
+                          {render_slot(@title)}
                         </h1>
                         <p :if={@subtitle != []} class="text-sm leading-6 text-gray-500">
-                          <%= render_slot(@subtitle) %>
+                          {render_slot(@subtitle)}
                         </p>
                       </header>
                       <div class="flex items-center h-7">
@@ -893,7 +897,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
                     </div>
                   </div>
                   <div class="p-4 sm:p-6">
-                    <%= render_slot(@inner_block) %>
+                    {render_slot(@inner_block)}
                   </div>
                 </div>
                 <!-- Action buttons -->
@@ -907,14 +911,14 @@ defmodule BikeBrigadeWeb.CoreComponents do
                       phx-click={hide_slideover(@on_cancel, @id)}
                       color={:white}
                     >
-                      <%= render_slot(cancel) %>
+                      {render_slot(cancel)}
                     </.button>
                     <.button
                       :for={confirm <- @confirm}
                       id={"#{@id}-confirm"}
                       {Map.take(confirm, [:form, :type, :"phx-disable-with"])}
                     >
-                      <%= render_slot(confirm) %>
+                      {render_slot(confirm)}
                     </.button>
                   </div>
                 </div>
@@ -1025,7 +1029,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
               class="absolute top-0 flex items-center h-12 space-x-3 left-12 bg-gray-50 sm:left-16"
             >
               <span :for={bulk_action <- @bulk_action}>
-                <%= render_slot(bulk_action) %>
+                {render_slot(bulk_action)}
               </span>
             </div>
             <table class="min-w-full divide-y divide-gray-300">
@@ -1063,7 +1067,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
                     ]}
                   >
                     <div class="inline-flex space-x-1">
-                      <%= col[:label] %>
+                      {col[:label]}
                       <.sort_link
                         :if={col[:sortable_field]}
                         phx-click={@sort_click}
@@ -1121,7 +1125,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
                       )
                     ]}
                   >
-                    <%= render_slot(col, row) %>
+                    {render_slot(col, row)}
                     <dl :if={i == 0} class="">
                       <div
                         :for={col <- Enum.drop(@col, 1)}
@@ -1129,9 +1133,9 @@ defmodule BikeBrigadeWeb.CoreComponents do
                         class={hidden_at_size(col[:unstack_at])}
                       >
                         <dt class="sr-only">
-                          <%= col[:label] %>
+                          {col[:label]}
                         </dt>
-                        <dd class="mt-1 text-gray-700 truncate"><%= render_slot(col, row) %></dd>
+                        <dd class="mt-1 text-gray-700 truncate">{render_slot(col, row)}</dd>
                       </div>
                     </dl>
                   </td>
@@ -1141,13 +1145,13 @@ defmodule BikeBrigadeWeb.CoreComponents do
                     class="py-4 pl-2 pr-4 text-sm font-medium text-right sm:pr-6"
                   >
                     <span :for={action <- @action} class="flex ml-1">
-                      <%= render_slot(action, row) %>
+                      {render_slot(action, row)}
                     </span>
                   </td>
                 </tr>
               </tbody>
             </table>
-            <%= render_slot(@footer) %>
+            {render_slot(@footer)}
           </div>
         </div>
       </div>
@@ -1195,10 +1199,10 @@ defmodule BikeBrigadeWeb.CoreComponents do
   def with_tooltip(assigns) do
     ~H"""
     <div class="relative flex flex-col items-center has-tooltip">
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
       <div class="absolute bottom-0 flex-col items-center mb-6 tooltip">
         <span class="relative z-10 p-2 text-xs leading-none text-white whitespace-no-wrap bg-black rounded-sm shadow-lg">
-          <%= render_slot(@tooltip) %>
+          {render_slot(@tooltip)}
         </span>
         <div class="w-3 h-3 -mt-2 transform rotate-45 bg-black"></div>
       </div>

@@ -1,5 +1,5 @@
 <div>
-  <.header><%= @title %></.header>
+  <.header>{@title}</.header>
 
   <.simple_form
     :let={f}
@@ -9,24 +9,24 @@
     phx-change="validate"
     phx-submit="save"
   >
-    <.input type="hidden" field={{f, :program_id}} />
-    <.input type="text" field={{f, :name}} placeholder="Food Hamper" label="Name" />
+    <.input type="hidden" field={f[:program_id]} />
+    <.input type="text" field={f[:name]} placeholder="Food Hamper" label="Name" />
 
     <.input
       type="text"
-      field={{f, :description}}
+      field={f[:description]}
       placeholder="3 grocery bags worth, 10-20lbs"
       label="Description"
     />
 
     <.input
       type="select"
-      field={{f, :category}}
+      field={f[:category]}
       options={Ecto.Enum.values(Item, :category)}
       label="Category"
     />
 
-    <.input type="checkbox" field={{f, :hidden}} label="Hidden?" />
+    <.input type="checkbox" field={f[:hidden]} label="Hidden?" />
 
     <:actions>
       <.button type="submit" phx-disable-with="Saving...">Save</.button>

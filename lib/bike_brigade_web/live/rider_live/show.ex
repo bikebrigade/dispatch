@@ -69,7 +69,7 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
     else
       socket
       |> put_flash(:error, "You must be registered as a Rider to edit your profile")
-      |> push_redirect(to: "/")
+      |> push_navigate(to: "/")
     end
   end
 
@@ -126,9 +126,9 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
     if assigns.rider.latest_campaign do
       ~H"""
       <.link navigate={~p"/campaigns/#{@rider.latest_campaign}"} class="link">
-        <%= @rider.latest_campaign.program.name %>
+        {@rider.latest_campaign.program.name}
       </.link>
-      on <%= format_date(@rider.latest_campaign.delivery_start) %>
+      on {format_date(@rider.latest_campaign.delivery_start)}
       """
     else
       ~H"Nothing (yet!)"

@@ -10,7 +10,7 @@
         Total Riders
       </dt>
       <dd class="mt-1 text-3xl font-semibold text-gray-900">
-        <%= @total_riders %>
+        {@total_riders}
       </dd>
       <div class="mt-1 text-sm font-medium text-gray-500">
         signed up as a volunteer
@@ -22,7 +22,7 @@
         Active Riders
       </dt>
       <dd class="mt-1 text-3xl font-semibold text-gray-900">
-        <%= @active_riders %>
+        {@active_riders}
       </dd>
       <div class="mt-1 text-sm font-medium text-gray-500">
         at least one delivery
@@ -34,7 +34,7 @@
 <div class="mt-4">
   <div class="flex items-center justify-between">
     <h3 class="text-lg font-medium leading-6 text-gray-900">
-      Last <%= @period |> Atom.to_string() |> String.capitalize() %> (<%= @last_period[:label] %>)
+      Last {@period |> Atom.to_string() |> String.capitalize()} ({@last_period[:label]})
     </h3>
     <span class="relative z-0 inline-flex rounded-md shadow-sm">
       <button
@@ -63,7 +63,7 @@
         Total Riders
       </dt>
       <dd class="mt-1 text-3xl font-semibold text-gray-900">
-        <%= @last_period[:total_riders] %>
+        {@last_period[:total_riders]}
       </dd>
     </div>
 
@@ -72,7 +72,7 @@
         New Riders
       </dt>
       <dd class="mt-1 text-3xl font-semibold text-gray-900">
-        <%= @last_period[:new_riders] %>
+        {@last_period[:new_riders]}
       </dd>
     </div>
 
@@ -81,7 +81,7 @@
         Returning Riders
       </dt>
       <dd class="mt-1 text-3xl font-semibold text-gray-900">
-        <%= @last_period[:returning_riders] %>
+        {@last_period[:returning_riders]}
       </dd>
     </div>
   </dl>

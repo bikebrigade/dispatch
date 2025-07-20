@@ -10,7 +10,7 @@
           name="selected_rider_id"
           class="block w-full py-2 pl-3 pr-10 mt-1 text-base border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         >
-          <%= rider_selection_options(@riders, @selected_rider) %>
+          {rider_selection_options(@riders, @selected_rider)}
         </select>
       </form>
     </div>
@@ -58,7 +58,7 @@
           <div class="mt-10 rounded-md shadow-sm">
             <.input
               type="textarea"
-              field={{instructions_template_form, :body}}
+              field={instructions_template_form[:body]}
               phx-hook="Autocomplete"
               data-autocomplete={inspect(Delivery.campaign_message_directives())}
               extra_class="h-80"
@@ -71,7 +71,7 @@
           Preview
         </label>
         <div class="px-2 py-1 mt-1 overflow-auto text-gray-700 whitespace-pre-wrap bg-gray-100 rounded-md shadow-inner h-80">
-          <%= render_raw(preview(@campaign, @changeset, @selected_rider)) %>
+          {render_raw(preview(@campaign, @changeset, @selected_rider))}
         </div>
       </div>
     </div>
@@ -81,7 +81,7 @@
         :for={directive <- Delivery.campaign_message_directives()}
         class="mr-1 font-serif bg-gray-100"
       >
-        {{{<%= directive %>}}}
+        {raw("{{#{directive}}}")}
       </span>
     </p>
     <div class="flex flex-row my-3 space-x-3">
@@ -101,7 +101,7 @@
           </.button>
         <% end %>
 
-        <.input type="textarea" field={{f, :details}} extra_class="h-60" />
+        <.input type="textarea" field={f[:details]} extra_class="h-60" />
       </div>
       <div class="w-1/2">
         <label class="block text-sm font-medium leading-5 text-gray-700">
@@ -124,7 +124,7 @@
                       aria-label="Pickup Time"
                       class="w-4 h-4 mt-1 mr-1 text-gray-500"
                     />
-                    <%= CampaignHelpers.pickup_window(@campaign, @selected_rider) %>
+                    {CampaignHelpers.pickup_window(@campaign, @selected_rider)}
                   </div>
                   <div class="inline-flex flex-shrink-0 leading-normal">
                     <Heroicons.map_pin
@@ -132,14 +132,14 @@
                       aria-label="Pickup Address"
                       class="w-4 h-4 mt-1 mr-1 text-gray-500"
                     />
-                    <%= @campaign.location.address %>
+                    {@campaign.location.address}
                   </div>
                   <div class="inline-flex leading-normal">
                     <Heroicons.shopping_bag
                       mini
                       class="flex-shrink-0 w-4 h-4 mt-1 mr-1 text-gray-500 "
                     />
-                    <%= humanized_task_count(@selected_rider.assigned_tasks) %>
+                    {humanized_task_count(@selected_rider.assigned_tasks)}
                   </div>
                 </div>
                 <div class="flex flex-wrap items-start justify-end flex-shrink ml-auto">
@@ -166,7 +166,7 @@
                     x-bind:class="{ 'max-h-20': collapsed }"
                     class="overflow-hidden whitespace-pre-wrap"
                   >
-                    <%= render_raw(Ecto.Changeset.get_field(@changeset, :details)) %>
+                    {render_raw(Ecto.Changeset.get_field(@changeset, :details))}
                   </div>
                   <div
                     x-show="overflows"
@@ -195,31 +195,31 @@
         <div class="flex items-center w-1/2">
           <div class="hidden mt-1 rounded-md shadow-sm show-if-scheduling">
             <%= if dt = Ecto.Changeset.get_field(sm.source, :send_at) do %>
-              <%= datetime_local_input(sm, :send_at,
+              {datetime_local_input(sm, :send_at,
                 id: "hacky-input-1",
                 value: LocalizedDateTime.localize(dt),
                 phx_debounce: "blur",
                 class:
                   "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-              ) %>
+              )}
             <% else %>
-              <%= datetime_local_input(sm, :send_at,
+              {datetime_local_input(sm, :send_at,
                 id: "hacky-input-2",
                 value: nil,
                 phx_debounce: "blur",
                 class:
                   "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-              ) %>
+              )}
             <% end %>
           </div>
           <div class="flex flex-col w-full space-y-0.5 text-sm font-medium text-gray-700 hide-if-scheduling">
             <%= if @campaign.latest_message do %>
-              <div>Last Messaged at <%= datetime(@campaign.latest_message.sent_at) %></div>
+              <div>Last Messaged at {datetime(@campaign.latest_message.sent_at)}</div>
             <% end %>
 
             <%= if (send_at = input_value(sm, :send_at)) && send_at != "" do %>
               <div>
-                Scheduled to be sent at <%= datetime(send_at) %>
+                Scheduled to be sent at {datetime(send_at)}
               </div>
             <% end %>
           </div>

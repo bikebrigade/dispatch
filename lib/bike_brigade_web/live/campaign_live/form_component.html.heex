@@ -2,7 +2,7 @@
   <.flash kind={:info} title="Success!" flash={@flash} />
   <.flash kind={:warn} title="Warning!" flash={@flash} />
   <.flash kind={:error} title="Error!" flash={@flash} />
-  <.header><%= @title %></.header>
+  <.header>{@title}</.header>
   <.simple_form
     :let={f}
     for={@changeset}
@@ -12,35 +12,35 @@
     phx-submit="save"
   >
     <div class="flex flex-col space-x-0 space-y-2 md:space-y-0 md:space-x-2 md:flex-row">
-      <.input type="date" field={{f, :delivery_date}} label="Delivery Date" />
-      <.input type="time" field={{f, :start_time}} label="Start" />
-      <.input type="time" field={{f, :end_time}} label="End" />
+      <.input type="date" field={f[:delivery_date]} label="Delivery Date" />
+      <.input type="time" field={f[:start_time]} label="Start" />
+      <.input type="time" field={f[:end_time]} label="End" />
     </div>
 
-    <.input type="select" field={{f, :program_id}} options={@program_options} label="Program" />
+    <.input type="select" field={f[:program_id]} options={@program_options} label="Program" />
 
     <.live_component
       module={LiveLocation}
       id="location-form"
-      field={{f, :location}}
+      field={f[:location]}
       label="Pickup Location"
     />
 
     <.input
       type="text"
-      field={{f, :task_spreadsheet_url}}
+      field={f[:task_spreadsheet_url]}
       label="Delivery Spreadsheet"
       help_text="Link to a Google sheet"
     />
     <.input
       type="text"
-      field={{f, :rider_spreadsheet_url}}
+      field={f[:rider_spreadsheet_url]}
       label="Rider Spreadsheet"
       help_text="Link to a Google sheet"
     />
     <.input
       type="select"
-      field={{f, :rider_spreadsheet_layout}}
+      field={f[:rider_spreadsheet_layout]}
       options={["Not Foodshare": :non_foodshare, Foodshare: :foodshare]}
       label="Program"
     />

@@ -1,7 +1,7 @@
 <div class="flex flex-col h-full max-h-full py-6 mx-auto print:fixed print:top-0">
   <div class="px-4 mt-1 mb-2 sm:px-6 md:px-8">
-    <h1 class="font-semibold text-gray-400 text-l"><%= @campaign_date %></h1>
-    <h6 class="text-2xl font-semibold text-gray-900"><%= @campaign_title %></h6>
+    <h1 class="font-semibold text-gray-400 text-l">{@campaign_date}</h1>
+    <h6 class="text-2xl font-semibold text-gray-900">{@campaign_title}</h6>
   </div>
 </div>
 
@@ -37,7 +37,7 @@
             <tr id={"rider-#{rider.id}"} class="leading-tight">
               <td class="w-24 px-6 text-xs leading-5 text-gray-500 border">
                 <div class="flex items-center justify-between">
-                  <div><%= rider.name %> (<%= rider.pronouns %>)</div>
+                  <div>{rider.name} ({rider.pronouns})</div>
                   <%= if new_rider?(rider) do %>
                     <div class="px-2 text-xs border rounded-full">
                       New
@@ -46,7 +46,7 @@
                 </div>
               </td>
               <td class="px-6 text-xs leading-5 text-gray-500 truncate border">
-                <%= rider.last_safety_check || "-" %>
+                {rider.last_safety_check || "-"}
               </td>
               <td class="px-6 text-xs leading-5 text-gray-500 truncate border">
                 <input type="checkbox" class="w-4 h-4 ml-2" /> Pass

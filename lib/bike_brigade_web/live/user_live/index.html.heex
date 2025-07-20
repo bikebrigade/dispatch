@@ -11,13 +11,13 @@
         <img class="w-10 h-10 rounded-full" src={gravatar(user.email)} alt="" />
       </div>
       <div class="ml-4 ">
-        <div class="text-sm font-medium leading-5 text-gray-900"><%= user.name %></div>
-        <div class="text-sm leading-5 text-gray-500"><%= user.email %></div>
+        <div class="text-sm font-medium leading-5 text-gray-900">{user.name}</div>
+        <div class="text-sm leading-5 text-gray-500">{user.email}</div>
       </div>
     </div>
   </:col>
   <:col :let={user} label="Phone">
-    <%= user.phone %>
+    {user.phone}
   </:col>
   <:col :let={user} label="Status">
     <div class="flex space-x-2">
@@ -34,7 +34,7 @@
 
   <:action :let={user}>
     <.link patch={~p"/users/#{user}/edit"} class="link">
-      Edit <span class="sr-only">, <%= user.name %></span>
+      Edit <span class="sr-only">, {user.name}</span>
     </.link>
   </:action>
   <:action :let={user}>
@@ -43,7 +43,7 @@
       data-confirm="Are you sure?"
       class="link"
     >
-      Delete <span class="sr-only">, <%= user.name %></span>
+      Delete <span class="sr-only">, {user.name}</span>
     </.link>
   </:action>
 </.table>

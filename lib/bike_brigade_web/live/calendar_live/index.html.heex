@@ -5,10 +5,10 @@
 >
   <div class="w-full py-3 text-center mb-14">
     <h1 class="font-serif text-4xl font-medium ">
-      <%= Calendar.strftime(@start_date, "%b %-d") %> - <%= Calendar.strftime(
+      {Calendar.strftime(@start_date, "%b %-d")} - {Calendar.strftime(
         @end_date,
         "%b %-d, %Y"
-      ) %>
+      )}
     </h1>
   </div>
   <div
@@ -24,10 +24,10 @@
     >
       <div class="flex flex-row sm:flex-col">
         <div class="pr-2 text-sm sm:text-lg sm:pr-0">
-          <%= Calendar.strftime(date, "%a") %>
+          {Calendar.strftime(date, "%a")}
         </div>
         <div class="pr-1 font-serif text-sm sm:text-3xl sm:pr-0">
-          <%= Calendar.strftime(date, "%-d") %>
+          {Calendar.strftime(date, "%-d")}
         </div>
         <div :if={date == @today} class="mt-2 ml-0.5 sm:ml-3">
           <Icons.circle class="w-2 h-2 mt-0" />
@@ -40,15 +40,15 @@
       <div id={date} class="relative -top-16 sm:-top-28"></div>
       <div class="flex flex-col items-start border-gray-400 sm:pt-3 sm:border-t-2 sm:flex-row">
         <div class="flex-col items-center flex-shrink-0 hidden w-2/12 sm:flex">
-          <div class="mt-2 text-lg font-normal "><%= Calendar.strftime(date, "%a") %></div>
-          <div class="my-2 font-serif text-3xl"><%= Calendar.strftime(date, "%-d") %></div>
-          <div class="mt-2 text-lg font-normal "><%= Calendar.strftime(date, "%b") %></div>
+          <div class="mt-2 text-lg font-normal ">{Calendar.strftime(date, "%a")}</div>
+          <div class="my-2 font-serif text-3xl">{Calendar.strftime(date, "%-d")}</div>
+          <div class="mt-2 text-lg font-normal ">{Calendar.strftime(date, "%b")}</div>
         </div>
         <div class="w-full py-2 text-center bg-gray-900 border-t-2 border-b-2 border-gray-400 sm:hidden">
           <div class="flex items-center justify-center gap-2 font-serif text-xl font-semibold">
-            <div class=""><%= Calendar.strftime(date, "%a") %></div>
-            <div class=""><%= Calendar.strftime(date, "%b") %></div>
-            <div class=""><%= Calendar.strftime(date, "%-d") %></div>
+            <div class="">{Calendar.strftime(date, "%a")}</div>
+            <div class="">{Calendar.strftime(date, "%b")}</div>
+            <div class="">{Calendar.strftime(date, "%-d")}</div>
           </div>
         </div>
         <div class="flex flex-col mb-5 space-y-1 border-gray-400 divide-y ml-14">
@@ -63,17 +63,17 @@
             -->
             <div class="flex flex-col space-y-3">
               <h2 class="mt-2 font-serif text-2xl font-medium">
-                <%= campaign_or_opportunity.program.name %>
+                {campaign_or_opportunity.program.name}
               </h2>
               <div class="flex items-center text-sm text-gray-300">
                 <Heroicons.clock
                   aria-label="Pickup Time"
                   class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
                 />
-                <%= time_interval(
+                {time_interval(
                   campaign_or_opportunity.delivery_start,
                   campaign_or_opportunity.delivery_end
-                ) %>
+                )}
               </div>
               <div class="flex items-center text-sm text-gray-300">
                 <Heroicons.map_pin class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
@@ -84,15 +84,15 @@
                       target="_blank"
                       class="mr-1 underline hover:text-gray-300"
                     >
-                      <%= campaign_or_opportunity.location.address %>
+                      {campaign_or_opportunity.location.address}
                     </.link>
                     <div class="font-medium">
-                      (<%= Locations.neighborhood(campaign_or_opportunity.location) %>)
+                      ({Locations.neighborhood(campaign_or_opportunity.location)})
                     </div>
                   </div>
                 <% else %>
                   <div class="font-medium">
-                    <%= Locations.neighborhood(campaign_or_opportunity.location) %>
+                    {Locations.neighborhood(campaign_or_opportunity.location)}
                   </div>
                 <% end %>
               </div>
@@ -104,7 +104,7 @@
                   aria-label="Pickup Time"
                   class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
                 />
-                <%= campaign_or_opportunity.program.campaign_blurb %>
+                {campaign_or_opportunity.program.campaign_blurb}
               </div>
               <.show_items campaign_or_opportunity={campaign_or_opportunity} />
               <div>

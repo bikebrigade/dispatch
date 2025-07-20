@@ -124,7 +124,7 @@ defmodule BikeBrigadeWeb.Layouts do
             <:icon>
               <BikeBrigadeWeb.Components.Icons.dynamic_icon name={link.icon} />
             </:icon>
-            <%= link.name %>
+            {link.name}
           </.sidebar_link>
         </div>
       </.sidebar_section>
@@ -145,7 +145,7 @@ defmodule BikeBrigadeWeb.Layouts do
         <:icon>
           <BikeBrigadeWeb.Components.Icons.dynamic_icon name={link.icon} />
         </:icon>
-        <%= link.name %>
+        {link.name}
       </.sidebar_link>
     </div>
     """
@@ -155,10 +155,10 @@ defmodule BikeBrigadeWeb.Layouts do
     ~H"""
     <div open class="rounded-md [&_.arrow-icon]:open:-rotate-180">
       <div class="flex items-center px-2 py-2 text-base font-medium leading-6 text-gray-600 transition duration-150 ease-in-out rounded-md select-none group focus:outline-none focus:text-gray-900 focus:bg-gray-100">
-        <%= @name %>
+        {@name}
       </div>
 
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </div>
     """
   end
@@ -176,9 +176,9 @@ defmodule BikeBrigadeWeb.Layouts do
       {@rest}
     >
       <span class="w-6 h-6 mr-4 text-gray-500 transition duration-150 ease-in-out group-hover:text-gray-500 group-focus:text-gray-600">
-        <%= render_slot(@icon) %>
+        {render_slot(@icon)}
       </span>
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </.link>
     """
   end
@@ -190,9 +190,9 @@ defmodule BikeBrigadeWeb.Layouts do
       {@rest}
     >
       <span class="w-6 h-6 mr-4 text-gray-400 transition duration-150 ease-in-out group-hover:text-gray-500 group-focus:text-gray-500">
-        <%= render_slot(@icon) %>
+        {render_slot(@icon)}
       </span>
-      <%= render_slot(@inner_block) %>
+      {render_slot(@inner_block)}
     </.link>
     """
   end

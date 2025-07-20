@@ -224,7 +224,7 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
 
     ~H"""
     <div class="flex flex-col sm:flex-row">
-      <span class={@class}><%= @name %></span>
+      <span class={@class}>{@name}</span>
       <.button
         :if={@is_current_rider}
         size={:xsmall}
@@ -232,7 +232,7 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
         class="mt-1 ml-0 sm:ml-1 sm:mt-0"
         phx-click="toggle_rider_anon"
       >
-        <%= if @is_anonymous, do: "Show", else: "Hide" %> me
+        {if @is_anonymous, do: "Show", else: "Hide"} me
       </.button>
     </div>
     """
