@@ -53,7 +53,7 @@
       </div>
       <.sms_message_list
         rider_link_fn={fn rider_id -> ~p"/messages/#{rider_id}" end}
-        conversations={@conversations}
+        conversations={@streams.conversations}
       />
     </div>
   </div>

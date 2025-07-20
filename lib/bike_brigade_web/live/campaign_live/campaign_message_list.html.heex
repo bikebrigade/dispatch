@@ -10,7 +10,7 @@
           rider_link_fn={
             fn rider_id -> ~p"/campaigns/#{@campaign_id}/messaging/riders/#{rider_id}" end
           }
-          conversations={@conversations}
+          conversations={@streams.conversations}
         />
       </div>
 

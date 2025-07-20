@@ -27,7 +27,7 @@ defmodule BikeBrigadeWeb.Components.SMSMessageListComponent do
       />
   """
 
-  attr :conversations, :list, required: true
+  attr :conversations, :any, required: true
   attr :rider_link_fn, :any, required: true
 
   def sms_message_list(assigns) do
@@ -36,11 +36,11 @@ defmodule BikeBrigadeWeb.Components.SMSMessageListComponent do
       class="flex-grow-0 h-full max-h-full overflow-y-auto scrolling-touch overscroll-contain"
       id="conversation-list"
       phx-hook="ConversationList"
-      phx-update="append"
+      phx-update="stream"
     >
       <li
-        :for={{rider, last_message} <- @conversations}
-        id={"conversation-list-item:#{rider.id}"}
+        :for={{dom_id, {rider, last_message}} <- @conversations}
+        id={dom_id}
         data-rider-id={rider.id}
       >
         <.link

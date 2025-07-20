@@ -13,7 +13,7 @@ defmodule BikeBrigadeWeb.Components.ConversationComponent do
       |> allow_upload(:media, accept: ~w(.gif .png .jpg .jpeg), max_entries: 10)
       |> assign_confirm_send_warning()
 
-    {:ok, socket, temporary_assigns: [scrollback: [], conversation: []]}
+    {:ok, socket}
   end
 
   def assign_confirm_send_warning(socket) do
@@ -34,9 +34,8 @@ defmodule BikeBrigadeWeb.Components.ConversationComponent do
      socket
      |> assign(assigns)
      |> assign_new_sms_message()
-     |> assign(conversation: conversation)
-     |> assign(earliest_timestamp: earliest_timestamp)
-     |> assign(phx_update: "append")}
+     |> stream(:conversation, conversation, dom_id: fn message -> "message:#{message.id}" end)
+     |> assign(earliest_timestamp: earliest_timestamp)}
   end
 
   @impl Phoenix.LiveComponent
@@ -44,8 +43,7 @@ defmodule BikeBrigadeWeb.Components.ConversationComponent do
     {:ok,
      socket
      |> assign(assigns)
-     |> assign(conversation: conversation)
-     |> assign(phx_update: "append")
+     |> stream(:conversation, conversation)
      |> push_event("message_list:new_message", %{})}
   end
 
@@ -93,9 +91,8 @@ defmodule BikeBrigadeWeb.Components.ConversationComponent do
       [first | _] ->
         {:reply, %{},
          socket
-         |> assign(:conversation, conversation)
-         |> assign(:earliest_timestamp, first.sent_at)
-         |> assign(:phx_update, "prepend")}
+         |> stream(:conversation, conversation, at: 0)
+         |> assign(:earliest_timestamp, first.sent_at)}
 
       [] ->
         {:reply, %{}, socket}

@@ -45,7 +45,7 @@
   </div>
 
   <%= if @rider do %>
-    <%= if Enum.empty?(@conversation) do %>
+    <%= if @streams.conversation.inserts == [] do %>
       <div id="conversation:empty" class="flex flex-col flex-grow px-4 py-5 sm:p-6">
         <div class="italic text-gray-700">
           No messages yet
@@ -55,13 +55,13 @@
       <div
         phx-hook="MessageList"
         id={"conversation:#{@rider.id}"}
-        phx-update={@phx_update}
+        phx-update="stream"
         data-target={@myself}
         class="flex flex-col flex-1 px-4 py-5 overflow-y-scroll scrolling-touch overscroll-contain sm:p-6"
       >
-        <%= for message <- @conversation do %>
+        <%= for {dom_id, message} <- @streams.conversation do %>
           <div
-            id={"message:#{message.id}"}
+            id={dom_id}
             class={
               "flex flex-shrink-0 #{if message.incoming, do: "flex-row", else: "flex-row-reverse"}"
             }

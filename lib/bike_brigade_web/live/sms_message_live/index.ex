@@ -27,7 +27,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
       |> assign(:page, :messages)
       |> assign(:presence, [])
       |> assign(:others_present, [])
-      |> assign(:conversations, conversations)
+      |> stream(:conversations, conversations, dom_id: fn {rider, _} -> "conversation-list-item:#{rider.id}" end)
       |> assign(:rider_search_value, "")
       |> assign_rider(rider)
 
@@ -58,7 +58,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
         socket
       end
 
-    {:ok, socket, temporary_assigns: [conversations: []]}
+    {:ok, socket}
   end
 
   @impl true
@@ -119,9 +119,8 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
 
   @impl true
   def handle_info(:load_all_conversations, socket) do
-    socket =
-      socket
-      |> assign(:conversations, Messaging.list_sms_conversations())
+    conversations = Messaging.list_sms_conversations()
+    socket = stream(socket, :conversations, conversations, reset: true)
 
     {:noreply, socket}
   end
@@ -135,7 +134,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
     socket =
       if rider = Riders.get_rider(message.rider_id) do
         socket
-        |> assign(:conversations, [{rider, message}])
+        |> stream_insert(:conversations, {rider, message}, at: 0)
         |> push_event("conversation_list:new_message", %{"riderId" => rider.id})
       else
         socket
