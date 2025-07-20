@@ -36,16 +36,21 @@ defmodule BikeBrigadeWeb.ConnCase do
     end
   end
 
+  defp wait_for_children(children_lookup) when is_function(children_lookup) do
+    Process.sleep(100)
+
+    for pid <- children_lookup.() do
+      ref = Process.monitor(pid)
+      assert_receive {:DOWN, ^ref, _, _, _}, 1000
+    end
+  end
+
   setup tags do
     repo_pid = Ecto.Adapters.SQL.Sandbox.start_owner!(BikeBrigade.Repo, shared: not tags[:async])
+    on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(repo_pid) end)
 
     on_exit(fn ->
-      Ecto.Adapters.SQL.Sandbox.stop_owner(repo_pid)
-
-      # for pid <- BikeBrigade.Presence.fetchers_pids() do
-      #   ref = Process.monitor(pid)
-      #   assert_receive {:DOWN, ^ref, _, _, _}, 1000
-      # end
+      wait_for_children(fn -> BikeBrigade.Presence.fetchers_pids() end)
     end)
 
     {:ok, conn: Phoenix.ConnTest.build_conn()}
