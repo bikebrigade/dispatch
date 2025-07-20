@@ -16,7 +16,7 @@ defmodule BikeBrigadeWeb.StatsLive.NavComponent do
       case to do
         "dashboard" -> socket |> push_navigate(to: ~p"/stats")
         "leaderboard" -> socket |> push_navigate(to: ~p"/stats/leaderboard")
-        "analytics-dashboard" -> socket |> push_redirect(to: "/analytics")
+        "analytics-dashboard" -> socket |> push_navigate(to: "/analytics")
       end
 
     {:noreply, socket}

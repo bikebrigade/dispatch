@@ -15,14 +15,14 @@ defmodule BikeBrigadeWeb.LiveHooks.Authentication do
     else
       {:halt,
        socket
-       |> push_redirect(to: "/login")}
+       |> push_navigate(to: "/login")}
     end
   end
 
   def on_mount(:default, _params, %{}, socket) do
     {:halt,
      socket
-     |> push_redirect(to: "/login")}
+     |> push_navigate(to: "/login")}
   end
 
   def on_mount(:require_dispatcher, _params, %{"user_id" => user_id}, socket) do
@@ -40,7 +40,7 @@ defmodule BikeBrigadeWeb.LiveHooks.Authentication do
         {:halt,
          socket
          |> put_flash(:error, "Must be a dispatcher to access this page")
-         |> push_redirect(to: "/login")}
+         |> push_navigate(to: "/login")}
     end
   end
 end
