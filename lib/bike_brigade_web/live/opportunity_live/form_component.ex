@@ -3,7 +3,6 @@ defmodule BikeBrigadeWeb.OpportunityLive.FormComponent do
 
   alias BikeBrigade.Locations.Location
   alias BikeBrigade.Delivery
-  alias BikeBrigade.Delivery.Program
   alias BikeBrigade.LocalizedDateTime
 
   alias BikeBrigadeWeb.Components.LiveLocation
