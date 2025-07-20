@@ -100,9 +100,4 @@ defmodule BikeBrigade.DeliveryTest do
 
   def item_name(%Task{task_items: [%{item: %{name: item_name}}]}), do: item_name
 
-  defp to_uri(location) do
-    location
-    |> String.Chars.to_string()
-    |> URI.encode_www_form()
-  end
 end

@@ -59,7 +59,7 @@
         </div>
       </div>
 
-      <ul id="campaign-list" role="list" class="w-full divide-y divide-gray-200">
+      <ul id={"campaign-list-#{date}"} role="list" class="w-full divide-y divide-gray-200">
         <%= for c_or_o <- campaigns_and_opportunities do %>
           <li
             id={campaign_or_opportunity_element_id(c_or_o)}
