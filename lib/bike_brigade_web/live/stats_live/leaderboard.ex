@@ -201,7 +201,7 @@ defmodule BikeBrigadeWeb.StatsLive.Leaderboard do
          } = assigns
        ) do
     is_anonymous =
-      if override_anonymity, do: !override_anonymity, else: rider.anonymous_in_leaderboard
+      if override_anonymity, do: false, else: rider.anonymous_in_leaderboard
 
     is_current_rider = current_rider && rider.id == current_rider.id
 

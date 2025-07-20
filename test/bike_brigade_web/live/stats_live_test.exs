@@ -10,6 +10,7 @@ defmodule BikeBrigadeWeb.StatsLive.LeaderboardTest do
       {:ok, leaderboard_live, _html} = live(conn, ~p"/leaderboard")
 
       assert render(leaderboard_live)
+             |> Floki.parse_document!()
              |> Floki.find("td")
              |> Enum.filter(fn f -> Floki.text(f) == "Anonymous" end)
              |> length() == 7
@@ -25,6 +26,7 @@ defmodule BikeBrigadeWeb.StatsLive.LeaderboardTest do
       send(leaderboard_live.pid, {:handle_event, "toggle_all_riders_anonymity", %{}})
 
       assert render(leaderboard_live)
+             |> Floki.parse_document!()
              |> Floki.find("td")
              |> Enum.filter(fn f -> Floki.text(f) == "Anonymous" end)
              |> length() == 7
@@ -45,6 +47,7 @@ defmodule BikeBrigadeWeb.StatsLive.LeaderboardTest do
       {:ok, leaderboard_live, _html} = live(conn, ~p"/leaderboard")
 
       assert render(leaderboard_live)
+             |> Floki.parse_document!()
              |> Floki.find("td")
              |> Enum.filter(fn f -> Floki.text(f) == "Anonymous" end)
              |> length() == 7
@@ -52,6 +55,7 @@ defmodule BikeBrigadeWeb.StatsLive.LeaderboardTest do
       leaderboard_live |> element("a", "Show All Riders") |> render_click()
 
       assert render(leaderboard_live)
+             |> Floki.parse_document!()
              |> Floki.find("td")
              |> Enum.filter(fn f -> Floki.text(f) == "Anonymous" end)
              |> length() == 0
