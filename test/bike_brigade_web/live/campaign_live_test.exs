@@ -197,14 +197,22 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
       task = fixture(:task, %{campaign: ctx.campaign})
       {:ok, view, _html} = live(ctx.conn, ~p"/campaigns/#{ctx.campaign}")
 
-      html = view |> element("a", task.dropoff_name) |> render_click()
+      html =
+        view |> element("[id='tasks-list:#{task.id}'] a", task.dropoff_name) |> render_click()
+
       assert html =~ "Unassigned"
 
       html = view |> element("a", rider.name) |> render_click()
       assert html =~ "No tasks"
 
       # assign the task
-      view |> element("a", "Assign to #{rider.name}") |> render_click()
+      view
+      |> element("[id='tasks-list:#{task.id}'] a", "Assign to #{rider.name}")
+      |> render_click()
+
+      # Note we have to render the view for background database tasks to complete
+      assert view |> element("[id='tasks-list:#{task.id}'] a", task.dropoff_name) |> render =~
+               "Assigned"
 
       task = Delivery.get_task(task.id)
       assert task.assigned_rider_id == rider.id
@@ -222,12 +230,18 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
       task = fixture(:task, %{campaign: ctx.campaign, assigned_rider_id: rider.id})
       {:ok, view, _html} = live(ctx.conn, ~p"/campaigns/#{ctx.campaign}")
 
-      view |> element("a", task.dropoff_name) |> render_click()
+      view |> element("[id='tasks-list:#{task.id}'] a", task.dropoff_name) |> render_click()
 
-      assert view |> element("a", task.dropoff_name) |> render =~ "Assigned"
+      # Note we have to render the view for background database tasks to complete
+      assert view |> element("[id='tasks-list:#{task.id}'] a", task.dropoff_name) |> render =~
+               "Assigned"
 
       # unassign the task
-      view |> element("a", "Unassign") |> render_click()
+      view |> element("[id='tasks-list:#{task.id}'] a", "Unassign") |> render_click()
+
+      # Note we have to render the view for background database tasks to complete
+      refute view |> element("[id='tasks-list:#{task.id}'] a", task.dropoff_name) |> render =~
+               "Assigned"
 
       task = Delivery.get_task(task.id)
       assert task.assigned_rider_id == nil
