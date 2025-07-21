@@ -341,8 +341,6 @@ defmodule BikeBrigadeWeb.CoreComponents do
     |> input()
   end
 
-
-
   def input(%{type: "checkbox"} = assigns) do
     assigns = assign_new(assigns, :checked, fn -> input_equals?(assigns.value, "true") end)
 
@@ -507,7 +505,6 @@ defmodule BikeBrigadeWeb.CoreComponents do
     """
   end
 
-
   attr :id, :any
   attr :name, :any
   attr :field, :any, doc: "a %Phoenix.HTML.FormField{} struct, for example: f[:email]"
@@ -527,7 +524,6 @@ defmodule BikeBrigadeWeb.CoreComponents do
     |> assign_new(:id, fn -> field.id end)
     |> rider_select()
   end
-
 
   def rider_select(assigns) do
     ~H"""
@@ -581,7 +577,6 @@ defmodule BikeBrigadeWeb.CoreComponents do
     </div>
     """
   end
-
 
   defp input_border([] = _errors),
     do: "border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"

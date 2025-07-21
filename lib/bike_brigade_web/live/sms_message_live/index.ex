@@ -27,7 +27,9 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
       |> assign(:page, :messages)
       |> assign(:presence, [])
       |> assign(:others_present, [])
-      |> stream(:conversations, conversations, dom_id: fn {rider, _} -> "conversation-list-item:#{rider.id}" end)
+      |> stream(:conversations, conversations,
+        dom_id: fn {rider, _} -> "conversation-list-item:#{rider.id}" end
+      )
       |> assign(:rider_search_value, "")
       |> assign_rider(rider)
 

@@ -99,5 +99,4 @@ defmodule BikeBrigade.DeliveryTest do
   end
 
   def item_name(%Task{task_items: [%{item: %{name: item_name}}]}), do: item_name
-
 end
