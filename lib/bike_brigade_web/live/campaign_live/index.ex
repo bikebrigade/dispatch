@@ -97,7 +97,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
     <p>
       Message scheduled for
       <time datetime={@send_at}>
-        <%= datetime(@send_at) %>
+        {datetime(@send_at)}
       </time>
     </p>
     """
@@ -113,7 +113,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
     <p>
       Last messaged at
       <time datetime={@sent_at}>
-        <%= datetime(@sent_at) %>
+        {datetime(@sent_at)}
       </time>
     </p>
     """

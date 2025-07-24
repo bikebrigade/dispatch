@@ -10,33 +10,33 @@
     phx-change="validate"
     phx-submit="save"
   >
-    <.input type="select" field={{f, :program_id}} options={@program_options} label="Program" />
+    <.input type="select" field={f[:program_id]} options={@program_options} label="Program" />
     <.link navigate={~p"/programs/new"} class="text-xs link">
       Create New Program
     </.link>
     <div class="flex space-x-2">
-      <.input type="date" field={{f, :delivery_date}} label="Delivery Date" />
-      <.input type="time" field={{f, :start_time}} label="Start" />
-      <.input type="time" field={{f, :end_time}} label="End" />
+      <.input type="date" field={f[:delivery_date]} label="Delivery Date" />
+      <.input type="time" field={f[:start_time]} label="Start" />
+      <.input type="time" field={f[:end_time]} label="End" />
     </div>
 
     <.live_component
       module={LiveLocation}
       id="location-form"
-      field={{f, :location}}
+      field={f[:location]}
       label="Pickup Location"
     />
 
     <.input
       type="checkbox"
-      field={{f, :hide_address}}
+      field={f[:hide_address]}
       label="Hide Address"
       help_text="Hide Pickup Address from Calendar"
     />
 
-    <.input type="text" field={{f, :signup_link}} label="Signup Link" />
+    <.input type="text" field={f[:signup_link]} label="Signup Link" />
 
-    <.input type="checkbox" field={{f, :published}} label="Published" />
+    <.input type="checkbox" field={f[:published]} label="Published" />
 
     <div :if={@opportunity.program_id}>
       <a href={~p"/programs/#{@opportunity.program_id}/edit"} class="text-sm link">

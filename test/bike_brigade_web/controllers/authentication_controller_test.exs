@@ -1,6 +1,6 @@
 defmodule BikeBrigadeWeb.AuthenticationControllerTest do
   use BikeBrigadeWeb.ConnCase
-  alias BikeBrigade.{Accounts, AuthenticationMessenger}
+  alias BikeBrigade.Accounts
 
   describe "login" do
     setup do

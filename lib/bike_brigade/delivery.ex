@@ -9,7 +9,7 @@ defmodule BikeBrigade.Delivery do
 
   alias BikeBrigade.History
   alias BikeBrigade.Messaging
-  alias BikeBrigade.Delivery.{Task, CampaignRider, TaskAssignmentLog}
+  alias BikeBrigade.Delivery.{Task, CampaignRider}
 
   import BikeBrigade.Utils, only: [task_count: 1, humanized_task_count: 1]
 

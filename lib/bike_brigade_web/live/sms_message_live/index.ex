@@ -27,7 +27,9 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
       |> assign(:page, :messages)
       |> assign(:presence, [])
       |> assign(:others_present, [])
-      |> assign(:conversations, conversations)
+      |> stream(:conversations, conversations,
+        dom_id: fn {rider, _} -> "conversation-list-item:#{rider.id}" end
+      )
       |> assign(:rider_search_value, "")
       |> assign_rider(rider)
 
@@ -58,7 +60,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
         socket
       end
 
-    {:ok, socket, temporary_assigns: [conversations: []]}
+    {:ok, socket}
   end
 
   @impl true
@@ -119,9 +121,8 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
 
   @impl true
   def handle_info(:load_all_conversations, socket) do
-    socket =
-      socket
-      |> assign(:conversations, Messaging.list_sms_conversations())
+    conversations = Messaging.list_sms_conversations()
+    socket = stream(socket, :conversations, conversations, reset: true)
 
     {:noreply, socket}
   end
@@ -135,7 +136,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
     socket =
       if rider = Riders.get_rider(message.rider_id) do
         socket
-        |> assign(:conversations, [{rider, message}])
+        |> stream_insert(:conversations, {rider, message}, at: 0)
         |> push_event("conversation_list:new_message", %{"riderId" => rider.id})
       else
         socket
@@ -257,14 +258,14 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
           </div>
           <div class="flex flex-wrap items-center">
             <h3 class="text-lg font-medium leading-6 text-gray-900">
-              <%= Enum.count(@others_present) %> Currently Viewing
+              {Enum.count(@others_present)} Currently Viewing
             </h3>
           </div>
         </div>
         <ul class="px-2 py-3">
           <%= for user <- @others_present
           do %>
-            <li><%= user.name %></li>
+            <li>{user.name}</li>
           <% end %>
         </ul>
       </div>
@@ -277,7 +278,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
           rounded={:full}
         >
           <Heroicons.eye solid class="w-5 h-5" />
-          <span class="ml-1 text-sm font-semibold"><%= Enum.count(@others_present) %></span>
+          <span class="ml-1 text-sm font-semibold">{Enum.count(@others_present)}</span>
         </.button>
       </div>
     </div>

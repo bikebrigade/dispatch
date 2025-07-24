@@ -37,7 +37,9 @@ defmodule BikeBrigadeWeb.CampaignLive.CampaignMessageList do
      socket
      |> assign(:selected_rider, rider)
      |> assign(:live_action, assigns.live_action)
-     |> assign(:conversations, conversations)
+     |> stream(:conversations, conversations,
+       dom_id: fn {rider, _} -> "conversation-list-item:#{rider.id}" end
+     )
      |> assign(:current_user, assigns.current_user)
      |> assign(:campaign_id, assigns.campaign.id)}
   end

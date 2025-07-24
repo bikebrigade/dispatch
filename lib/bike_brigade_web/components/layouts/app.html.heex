@@ -10,7 +10,7 @@
         <Heroicons.bars_3 class="w-6 h-6" />
       </button>
     </div>
-    <div class="w-full p-3 text-center text-gray-600 md:hidden"><%= @page_title %></div>
+    <div class="w-full p-3 text-center text-gray-600 md:hidden">{@page_title}</div>
   </div>
   <!-- Off-canvas menu for mobile, show/hide based on off-canvas menu state. -->
   <div id="mobile-menu-container" class="relative z-40 hidden " role="dialog" aria-modal="true">
@@ -95,7 +95,7 @@
               </div>
               <div class="ml-3">
                 <p class="text-base font-medium text-gray-700 group-hover:text-gray-900">
-                  <%= @current_user.name %>
+                  {@current_user.name}
                 </p>
                 <p class="text-sm font-medium text-gray-500 group-hover:text-gray-700">
                   View profile
@@ -140,7 +140,7 @@
             </div>
             <div class="ml-3">
               <p class="text-sm font-medium text-gray-700 group-hover:text-gray-900">
-                <%= @current_user.name %>
+                {@current_user.name}
               </p>
               <p class="text-xs font-medium text-gray-500 group-hover:text-gray-700">
                 View profile
@@ -169,7 +169,7 @@
           >
             Reconnecting.... <Heroicons.arrow_path class="inline w-3 h-3 ml-1 animate-spin" />
           </.flash>
-          <%= @inner_content %>
+          {@inner_content}
         </div>
       </div>
     </main>

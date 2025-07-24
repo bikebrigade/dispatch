@@ -2,11 +2,11 @@
   <.flash kind={:info} title="Success!" flash={@flash} />
   <.flash kind={:warn} title="Warning!" flash={@flash} />
   <.flash kind={:error} title="Error!" flash={@flash} />
-  <.header><%= @title %></.header>
+  <.header>{@title}</.header>
 
   <%= if @campaign.program.items == [] do %>
     <div class="mt-2">
-      You'll have to set up the kinds of items that we delivery for <%= @campaign.program.name %> (Meals, Foodshare Boxes, etc) before you can add a task.
+      You'll have to set up the kinds of items that we delivery for {@campaign.program.name} (Meals, Foodshare Boxes, etc) before you can add a task.
       <div class="mt-1">
         <.button size={:small} navigate={~p"/programs/#{@campaign.program}/edit"}>
           Set up delivery items
@@ -22,13 +22,13 @@
       phx-change="validate"
       phx-submit="save"
     >
-      <.input type="text" field={{f, :dropoff_name}} label="Dropoff Name" />
-      <.input type="tel" field={{f, :dropoff_phone}} label="Dropoff Phone" />
+      <.input type="text" field={f[:dropoff_name]} label="Dropoff Name" />
+      <.input type="tel" field={f[:dropoff_phone]} label="Dropoff Phone" />
 
       <.live_component
         module={LiveLocation}
         id="location-form"
-        field={{f, :dropoff_location}}
+        field={f[:dropoff_location]}
         label="Dropoff Location"
       />
 
@@ -43,10 +43,10 @@
         </.header>
         <.inputs_for :let={g} field={f[:task_items]}>
           <div class="flex items-center mt-1 space-x-2">
-            <div class="w-16"><.input type="number" field={{g, :count}} /></div>
+            <div class="w-16"><.input type="number" field={g[:count]} /></div>
             <.input
               type="select"
-              field={{g, :item_id}}
+              field={g[:item_id]}
               options={item_options(@campaign.program.items)}
             />
             <div :if={g.index > 0} class="flex items-center justify-center">
@@ -70,12 +70,12 @@
 
       <.input
         type="textarea"
-        field={{f, :delivery_instructions}}
+        field={f[:delivery_instructions]}
         label="Delivery Instructions (sent to rider when doing delivery)"
       />
       <.input
         type="textarea"
-        field={{f, :signup_notes}}
+        field={f[:signup_notes]}
         label="Signup Notes (shown on rider signup - No personal information in this notes, please!)"
       />
 

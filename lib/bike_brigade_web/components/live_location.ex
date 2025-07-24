@@ -37,9 +37,9 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
   end
 
   @impl Phoenix.LiveComponent
-  def update(%{field: {f, field}} = assigns, socket) do
-    as = input_name(f, field)
-    value = input_value(f, field)
+  def update(%{field: %Phoenix.HTML.FormField{} = field} = assigns, socket) do
+    as = field.name
+    value = field.value
 
     {location, changeset} =
       case value do
@@ -133,10 +133,10 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
   def render(assigns) do
     ~H"""
     <div id={@id} class="my-2">
-      <%= hidden_input(@form, :coords, value: dump_coords(@location)) %>
+      {hidden_input(@form, :coords, value: dump_coords(@location))}
 
       <div class="text-sm font-medium leading-5 text-gray-700">
-        <%= @label %>
+        {@label}
       </div>
       <div class={"#{if @open, do: "border-2 border-dashed"} px-2 py-0.5 -mx-2 my-0.5"}>
         <div class="flex mt-1">
@@ -161,7 +161,7 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
                 }
               />
             </div>
-            <%= error_tag(@form, :location, show_field: false) %>
+            {error_tag(@form, :location, show_field: false)}
           </div>
           <button
             type="button"
@@ -178,14 +178,14 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
                 Address
               </label>
               <div class="mt-1 rounded-md shadow-sm">
-                <%= text_input(@form, :address,
+                {text_input(@form, :address,
                   phx_change: "change",
                   phx_target: @myself,
                   class:
                     "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-                ) %>
+                )}
               </div>
-              <%= error_tag(@form, :address, show_field: false) %>
+              {error_tag(@form, :address, show_field: false)}
             </div>
             <div class="flex w-full md:w-1/2 items-baseline">
               <div class="w-1/2 mr-1">
@@ -193,12 +193,12 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
                   Unit
                 </label>
                 <div class="mt-1 rounded-md shadow-sm">
-                  <%= text_input(@form, :unit,
+                  {text_input(@form, :unit,
                     phx_change: "change",
                     phx_target: @myself,
                     class:
                       "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-                  ) %>
+                  )}
                 </div>
               </div>
               <div class="mt-2 w-1/2">
@@ -206,12 +206,12 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
                   Buzzer
                 </label>
                 <div class="mt-1 rounded-md shadow-sm">
-                  <%= text_input(@form, :buzzer,
+                  {text_input(@form, :buzzer,
                     phx_change: "change",
                     phx_target: @myself,
                     class:
                       "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-                  ) %>
+                  )}
                 </div>
               </div>
             </div>
@@ -222,60 +222,60 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
                 Postal Code
               </label>
               <div class="mt-1 rounded-md shadow-sm">
-                <%= text_input(@form, :postal,
+                {text_input(@form, :postal,
                   phx_change: "change",
                   #                  phx_debounce: "1000",
                   phx_target: @myself,
                   class:
                     "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-                ) %>
+                )}
               </div>
-              <%= error_tag(@form, :postal, show_field: false) %>
+              {error_tag(@form, :postal, show_field: false)}
             </div>
             <div class="w-1/4">
               <label class="block text-xs font-medium leading-5 text-gray-700">
                 City
               </label>
               <div class="mt-1 rounded-md shadow-sm">
-                <%= text_input(@form, :city,
+                {text_input(@form, :city,
                   disabled: true,
                   phx_change: "change",
                   phx_target: @myself,
                   class:
                     "disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-                ) %>
+                )}
               </div>
-              <%= # error_tag(@location, :city) %>
+              {# error_tag(@location, :city)}
             </div>
             <div class="w-1/4">
               <label class="block text-xs font-medium leading-5 text-gray-700">
                 Province
               </label>
               <div class="mt-1 rounded-md shadow-sm">
-                <%= text_input(@form, :province,
+                {text_input(@form, :province,
                   disabled: true,
                   phx_change: "change",
                   phx_target: @myself,
                   class:
                     " disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-                ) %>
+                )}
               </div>
-              <%= # error_tag(@location, :province) %>
+              {# error_tag(@location, :province)}
             </div>
             <div class="w-1/4">
               <label class="block text-xs font-medium leading-5 text-gray-700">
                 Country
               </label>
               <div class="mt-1 rounded-md shadow-sm">
-                <%= text_input(@form, :country,
+                {text_input(@form, :country,
                   disabled: true,
                   phx_change: "change",
                   phx_target: @myself,
                   class:
                     "disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
-                ) %>
+                )}
               </div>
-              <%= # error_tag(@location, :country) %>
+              {# error_tag(@location, :country)}
             </div>
           </div>
           <.map

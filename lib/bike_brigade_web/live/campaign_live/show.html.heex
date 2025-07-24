@@ -80,7 +80,7 @@
       <div class="flex">
         <.date date={campaign_date(@campaign)} />
         <h1 class="flex items-center pl-2 text-lg font-medium leading-6 text-gray-900">
-          <%= name(@campaign) %>
+          {name(@campaign)}
           <span
             :if={!public?(@campaign)}
             class="inline-flex items-center px-2 py-1 ml-2 text-xs font-medium text-pink-700 rounded-md bg-pink-50 ring-1 ring-inset ring-pink-700/10"
@@ -91,11 +91,11 @@
       </div>
       <div class="text-sm text-right text-gray-500">
         <div :if={has_latest_message?(@campaign)}>
-          Last messaged: <%= datetime(@campaign.latest_message.sent_at) %>
+          Last messaged: {datetime(@campaign.latest_message.sent_at)}
         </div>
 
         <div :if={has_scheduled_message?(@campaign)}>
-          Scheduled to message: <%= datetime(@campaign.scheduled_message.send_at) %>
+          Scheduled to message: {datetime(@campaign.scheduled_message.send_at)}
         </div>
       </div>
     </div>

@@ -53,7 +53,7 @@
       </div>
       <.sms_message_list
         rider_link_fn={fn rider_id -> ~p"/messages/#{rider_id}" end}
-        conversations={@conversations}
+        conversations={@streams.conversations}
       />
     </div>
   </div>
@@ -80,7 +80,7 @@
         </div>
         <div class="h-10 mt-2 ml-4">
           <h3 class="text-lg font-medium leading-6 text-gray-900">
-            <%= @selected_rider.name %> - <%= Enum.count(@latest_campaign_tasks) %> tasks
+            {@selected_rider.name} - {Enum.count(@latest_campaign_tasks)} tasks
           </h3>
         </div>
       </div>
@@ -90,12 +90,12 @@
         href={~p"/campaigns/#{campaign}"}
         class="text-lg font-medium leading-6 text-indigo-600 hover:text-indigo-500"
       >
-        <%= campaign_name(campaign) %>
+        {campaign_name(campaign)}
       </a>
       <p class="mt-1 text-sm font-medium 1text-gray-500">
-        <%= format_date(campaign.delivery_start) %>
+        {format_date(campaign.delivery_start)}
         <br />
-        <%= pickup_window(campaign, @selected_rider) %>
+        {pickup_window(campaign, @selected_rider)}
       </p>
       <div class="flex items-center my-1">
         <a
@@ -117,10 +117,10 @@
 
       <%= for task <- campaign.tasks do %>
         <div class="p-2 mb-2 bg-white border-b border-gray-200 shadow sm:rounded-lg">
-          <div><%= task.dropoff_name %></div>
-          <div><%= task.dropoff_location.address %></div>
-          <div><%= task.dropoff_phone %></div>
-          <div><%= request_type(task) %></div>
+          <div>{task.dropoff_name}</div>
+          <div>{task.dropoff_location.address}</div>
+          <div>{task.dropoff_phone}</div>
+          <div>{request_type(task)}</div>
 
           <div class="flex flex-wrap p-3 -mx-2">
             <%= for delivery_status <- ~W(pending picked_up completed failed) do %>
@@ -134,7 +134,7 @@
                       "px-1.5 py-0.5 rounded-full border-solid border-2 border-gray-400 bg-opacity-50 text-gray-800 justify-center hover:border-gray-600 #{if task.delivery_status == String.to_atom(delivery_status), do: "bg-gray-400"}"
                     }>
                     <div class="text-xs text-center">
-                      <%= delivery_status %>
+                      {delivery_status}
                     </div>
                   </div>
                 </.link>

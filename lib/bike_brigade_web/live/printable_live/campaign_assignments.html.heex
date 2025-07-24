@@ -1,7 +1,7 @@
 <div class="flex flex-col h-full max-h-full py-6 mx-auto print:fixed print:top-0">
   <div class="px-4 mt-1 mb-2 sm:px-6 md:px-8">
-    <h1 class="font-semibold text-gray-400 text-l"><%= @campaign_date %></h1>
-    <h6 class="text-2xl font-semibold text-gray-900"><%= @campaign_title %></h6>
+    <h1 class="font-semibold text-gray-400 text-l">{@campaign_date}</h1>
+    <h6 class="text-2xl font-semibold text-gray-900">{@campaign_title}</h6>
   </div>
 </div>
 
@@ -41,7 +41,7 @@
                 <%= if task.assigned_rider do %>
                   <div class="flex items-center justify-between">
                     <div>
-                      <%= task.assigned_rider.name %> (<%= task.assigned_rider.pronouns %>)
+                      {task.assigned_rider.name} ({task.assigned_rider.pronouns})
                     </div>
                     <%= if new_rider?(task.assigned_rider) do %>
                       <div class="px-2 text-xs border rounded-full">
@@ -52,13 +52,13 @@
                 <% end %>
               </td>
               <td class="w-24 px-3 text-xs leading-5 text-gray-500 truncate">
-                <%= request_type(task) %>
+                {request_type(task)}
               </td>
               <td class="w-1/4 px-3 text-xs leading-5 text-gray-500 truncate">
-                <%= task.dropoff_name %>
+                {task.dropoff_name}
               </td>
               <td class="w-1/4 px-3 text-xs leading-5 text-gray-500 truncate">
-                <%= task.dropoff_location.address %>
+                {task.dropoff_location.address}
               </td>
             </tr>
           <% end %>

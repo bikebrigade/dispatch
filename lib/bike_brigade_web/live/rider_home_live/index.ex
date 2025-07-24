@@ -44,7 +44,7 @@ defmodule BikeBrigadeWeb.RiderHomeLive.Index do
     <div class="sm:flex sm:justify-between">
       <p class="flex items-center">
         <Heroicons.map_pin aria-label="Location" class="flex-shrink-0 w-4 h-4 mr-1 text-gray-400" />
-        <%= @campaign.location.address %>
+        {@campaign.location.address}
       </p>
     </div>
     """
@@ -55,7 +55,7 @@ defmodule BikeBrigadeWeb.RiderHomeLive.Index do
     <div class="sm:flex sm:justify-between">
       <p class="flex items-center">
         <Heroicons.clock aria-label="Pickup Time" class="flex-shrink-0 w-4 h-4 mr-1 text-gray-400" />
-        <%= pickup_window(@campaign) %>
+        {pickup_window(@campaign)}
       </p>
     </div>
     """

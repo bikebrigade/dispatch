@@ -2,7 +2,7 @@
   <.flash kind={:info} title="Success!" flash={@flash} />
   <.flash kind={:warn} title="Warning!" flash={@flash} />
   <.flash kind={:error} title="Error!" flash={@flash} />
-  <.header><%= @title %></.header>
+  <.header>{@title}</.header>
   <.simple_form
     :let={f}
     for={@changeset}
@@ -11,14 +11,14 @@
     phx-change="validate"
     phx-submit="save"
   >
-    <.input type="text" field={{f, :name}} label="Name" />
+    <.input type="text" field={f[:name]} label="Name" />
 
-    <.input type="email" field={{f, :email}} label="Email" />
+    <.input type="email" field={f[:email]} label="Email" />
 
-    <.input type="tel" field={{f, :phone}} label="Phone Number" />
+    <.input type="tel" field={f[:phone]} label="Phone Number" />
 
     <.rider_select
-      field={{f, :rider_id}}
+      field={f[:rider_id]}
       label="Associated Rider"
       help_text="This will eventually allow all riders to login. Be careful if changing 😸"
       selected_rider={@user.rider}
@@ -26,7 +26,7 @@
 
     <.input
       type="checkbox"
-      field={{f, :is_dispatcher}}
+      field={f[:is_dispatcher]}
       label="Dispatcher"
       help_text="Is this user a dispatcher?"
     />

@@ -16,7 +16,7 @@ defmodule BikeBrigadeWeb.UserLive.Index do
        socket
        |> put_flash(:error, "You must be a dispatcher to view this page")
        # TODO redirect where?
-       |> push_redirect(to: "/riders")}
+       |> push_navigate(to: "/riders")}
     end
   end
 

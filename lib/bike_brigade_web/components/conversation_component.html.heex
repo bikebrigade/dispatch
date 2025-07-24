@@ -19,16 +19,16 @@
               <div class="pii">
                 <span>
                   <.link navigate={~p"/riders/#{@rider}"} class="link">
-                    <%= @rider.name %>
+                    {@rider.name}
                   </.link>
                 </span>
                 <span class="ml-1 text-sm text-gray-500">
-                  (<%= if @rider.pronouns, do: @rider.pronouns, else: "pronouns unknown" %>)
+                  ({if @rider.pronouns, do: @rider.pronouns, else: "pronouns unknown"})
                 </span>
               </div>
               <div class="inline-flex items-center text-sm text-gray-500 flex-shrink-1">
                 <Heroicons.device_phone_mobile mini class="w-4 h-4" />
-                <span class="pii"><%= @rider.phone %></span>
+                <span class="pii">{@rider.phone}</span>
               </div>
             </div>
           <% else %>
@@ -45,7 +45,7 @@
   </div>
 
   <%= if @rider do %>
-    <%= if Enum.empty?(@conversation) do %>
+    <%= if @streams.conversation.inserts == [] do %>
       <div id="conversation:empty" class="flex flex-col flex-grow px-4 py-5 sm:p-6">
         <div class="italic text-gray-700">
           No messages yet
@@ -55,13 +55,13 @@
       <div
         phx-hook="MessageList"
         id={"conversation:#{@rider.id}"}
-        phx-update={@phx_update}
+        phx-update="stream"
         data-target={@myself}
         class="flex flex-col flex-1 px-4 py-5 overflow-y-scroll scrolling-touch overscroll-contain sm:p-6"
       >
-        <%= for message <- @conversation do %>
+        <%= for {dom_id, message} <- @streams.conversation do %>
           <div
-            id={"message:#{message.id}"}
+            id={dom_id}
             class={
               "flex flex-shrink-0 #{if message.incoming, do: "flex-row", else: "flex-row-reverse"}"
             }
@@ -93,13 +93,13 @@
                     <% end %>
                   </div>
                 <% end %>
-                <span class="whitespace-pre-wrap"><%= render_raw(message.body) %></span>
+                <span class="whitespace-pre-wrap">{render_raw(message.body)}</span>
               </div>
               <div class="px-1 my-0.5 flex justify-between">
                 <div class="text-xs font-bold">
                   <.with_tooltip>
-                    <%= datetime(message.sent_at) %>
-                    <:tooltip>Twilio SID: <%= message.twilio_sid %></:tooltip>
+                    {datetime(message.sent_at)}
+                    <:tooltip>Twilio SID: {message.twilio_sid}</:tooltip>
                   </.with_tooltip>
                 </div>
                 <div class="flex flex-row space-x-1">
@@ -109,11 +109,11 @@
                         href={~p"/campaigns/#{message.campaign_id}"}
                         class="text-xs font-semibold link"
                       >
-                        <%= Messaging.campaign_name(message) %>
+                        {Messaging.campaign_name(message)}
                       </a>
                     <% message.sent_by_user_id -> %>
                       <div class="text-xs font-semibold">
-                        Sent by <%= Messaging.sent_by_user_name(message) %>
+                        Sent by {Messaging.sent_by_user_name(message)}
                       </div>
                     <% true -> %>
                   <% end %>
@@ -171,7 +171,7 @@
         >
           <div class="flex flex-row items-center -mt-2 -ml-4 space-x-2">
             <div class="w-full">
-              <.input type="textarea" field={{f, :body}} />
+              <.input type="textarea" field={f[:body]} />
             </div>
 
             <div class="flex flex-col space-y-1">
@@ -203,12 +203,12 @@
               </div>
             </div>
           </div>
-          <%= error_tag(f, :other_error) %>
+          {error_tag(f, :other_error)}
           <div class="grid grid-cols-3 gap-4 mt-2">
             <figure :for={entry <- @uploads.media.entries}>
               <.live_img_preview entry={entry} class="w-32" />
               <figcaption class="flex">
-                <div class="mr-1"><%= entry.client_name %></div>
+                <div class="mr-1">{entry.client_name}</div>
                 <button
                   type="button"
                   phx-click={JS.push("cancel_upload", value: %{ref: entry.ref}, target: @myself)}
@@ -218,7 +218,7 @@
                 </button>
               </figcaption>
               <p :for={err <- upload_errors(@uploads.media, entry)} class="text-sm text-red-600">
-                <%= error_to_string(err) %>
+                {error_to_string(err)}
               </p>
             </figure>
           </div>

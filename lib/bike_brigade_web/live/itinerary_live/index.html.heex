@@ -4,17 +4,17 @@
 >
   <div class="items-center block text-sm xl:flex">
     <p>
-      Itinerary for <%= Calendar.strftime(@date, "%a %B %-d, %Y") %>
+      Itinerary for {Calendar.strftime(@date, "%a %B %-d, %Y")}
     </p>
     <div class="flex justify-between flex-1 text-gray-500 xl:ml-3">
       <%= if @campaign_riders != [] do %>
-        <%= get_task_count(@campaign_riders) %> <%= Inflex.inflect(
+        {get_task_count(@campaign_riders)} {Inflex.inflect(
           "delivery",
           get_task_count(@campaign_riders)
-        ) %> for <%= length(@campaign_riders) %> <%= Inflex.inflect(
+        )} for {length(@campaign_riders)} {Inflex.inflect(
           "campaign",
           length(@campaign_riders)
-        ) %>
+        )}
       <% end %>
     </div>
   </div>
@@ -55,7 +55,7 @@
           <div class="items-center justify-between md:flex">
             <div class="flex items-center mb-2 space-x-1">
               <p class="font-bold">
-                <%= name(cr.campaign) %>
+                {name(cr.campaign)}
               </p>
             </div>
             <div class="flex-shrink-0 space-y-1 md:space-y-0 md:space-x-2 md:flex">
@@ -71,7 +71,7 @@
                   aria-label="Pickup Time"
                   class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
                 />
-                <%= pickup_window(cr.campaign) %>
+                {pickup_window(cr.campaign)}
               </p>
             </div>
           </div>
@@ -83,7 +83,7 @@
                   aria-label="Location"
                   class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
                 />
-                <%= humanized_task_count(cr.campaign.tasks) %>
+                {humanized_task_count(cr.campaign.tasks)}
               </p>
             </div>
           </div>

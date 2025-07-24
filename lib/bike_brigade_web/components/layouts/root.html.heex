@@ -7,7 +7,7 @@
     <meta property="og:title" content="Bike Brigade Dispatch" />
     <meta name="csrf-token" content={get_csrf_token()} />
     <.live_title suffix=" ·  Bike Brigade Dispatch">
-      <%= assigns[:page_title] || "" %>
+      {assigns[:page_title] || ""}
     </.live_title>
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
@@ -20,6 +20,6 @@
   </head>
 
   <body class="h-full bg-gray-50">
-    <%= @inner_content %>
+    {@inner_content}
   </body>
 </html>

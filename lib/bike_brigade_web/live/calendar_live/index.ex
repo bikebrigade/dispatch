@@ -106,7 +106,7 @@ defmodule BikeBrigadeWeb.CalendarLive.Index do
             :for={item when not item.hidden <- @campaign_or_opportunity.program.items}
             class="text-sm text-gray-300"
           >
-            <span class="font-bold"><%= item.name %></span> - <%= item.description %>
+            <span class="font-bold">{item.name}</span> - {item.description}
           </p>
         </div>
       </div>

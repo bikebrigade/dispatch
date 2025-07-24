@@ -27,7 +27,7 @@ defmodule BikeBrigadeWeb.Components.SMSMessageListComponent do
       />
   """
 
-  attr :conversations, :list, required: true
+  attr :conversations, :any, required: true
   attr :rider_link_fn, :any, required: true
 
   def sms_message_list(assigns) do
@@ -36,11 +36,11 @@ defmodule BikeBrigadeWeb.Components.SMSMessageListComponent do
       class="flex-grow-0 h-full max-h-full overflow-y-auto scrolling-touch overscroll-contain"
       id="conversation-list"
       phx-hook="ConversationList"
-      phx-update="append"
+      phx-update="stream"
     >
       <li
-        :for={{rider, last_message} <- @conversations}
-        id={"conversation-list-item:#{rider.id}"}
+        :for={{dom_id, {rider, last_message}} <- @conversations}
+        id={dom_id}
         data-rider-id={rider.id}
       >
         <.link
@@ -64,10 +64,10 @@ defmodule BikeBrigadeWeb.Components.SMSMessageListComponent do
                         else: "font-semibold"
                       )
                     ]}>
-                      <%= rider.name %>
+                      {rider.name}
                     </div>
                     <div class="text-xs text-gray-500 font-medium">
-                      <%= datetime(last_message.sent_at) %>
+                      {datetime(last_message.sent_at)}
                     </div>
                   </div>
                   <div class={[
@@ -75,14 +75,14 @@ defmodule BikeBrigadeWeb.Components.SMSMessageListComponent do
                     if(last_message.from == rider.phone, do: "font-extrabold", else: "font-medium")
                   ]}>
                     <span class="truncate">
-                      <%= preview_message(last_message) %>
+                      {preview_message(last_message)}
                     </span>
                   </div>
                 </div>
               <% else %>
                 <div class="flex-1 min-w-0">
                   <div class={["pii", "text-sm leading-5 text-indigo-600 truncate"]}>
-                    <%= rider.name %>
+                    {rider.name}
                   </div>
                   <div class={["flex items-center mt-2 text-sm leading-5 text-gray-500"]}>
                     <span class="truncate">

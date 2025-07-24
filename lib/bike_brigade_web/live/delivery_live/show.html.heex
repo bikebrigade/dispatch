@@ -6,13 +6,13 @@
     <div class="p-2.5 sm:p-4 flex flex-wrap items-start justify-between sm:flex-nowrap">
       <div class="mb-2 ml-3" role="heading" aria-level="1">
         <h1 class="text-lg font-medium leading-6 text-gray-900">
-          <%= campaign_name(@campaign) %>
+          {campaign_name(@campaign)}
         </h1>
         <p class="mt-1 text-sm text-gray-500">
-          <%= @rider.name %>
+          {@rider.name}
         </p>
         <p class="mt-1 text-sm text-gray-500">
-          <%= Calendar.strftime(@campaign_date, "%A, %b %d") %>
+          {Calendar.strftime(@campaign_date, "%A, %b %d")}
         </p>
 
         <.link
@@ -92,12 +92,12 @@
                 aria-label="Pickup Time"
                 class="w-4 h-4 mt-1 mr-1 text-gray-500"
               />
-              <%= CampaignHelpers.pickup_window(@campaign, @rider) %>
+              {CampaignHelpers.pickup_window(@campaign, @rider)}
             </div>
             <.location location={@campaign.location} />
             <div class="inline-flex leading-normal">
               <Heroicons.shopping_bag mini class="flex-shrink-0 w-4 h-4 mt-1 mr-1 text-gray-500 " />
-              <%= humanized_task_count(@rider.assigned_tasks) %>
+              {humanized_task_count(@rider.assigned_tasks)}
             </div>
           </div>
         </div>
@@ -119,7 +119,7 @@
               x-bind:class="{ 'max-h-20': collapsed }"
               class="overflow-hidden whitespace-pre-wrap"
             >
-              <%= render_raw(@campaign.details) %>
+              {render_raw(@campaign.details)}
             </div>
             <div
               x-show="overflows"
@@ -156,7 +156,7 @@
             aria-label={"Delivery #{i}"}
           >
             <span class="font-black text-white tabular-nums ">
-              <%= i %>
+              {i}
             </span>
           </div>
           <div class="w-full px-1 border-l border-gray-200">
@@ -195,7 +195,7 @@
                   aria-label="Dropoff Name"
                   class="w-4 h-4 mt-1 mr-1 text-gray-500"
                 />
-                <%= task.dropoff_name %>
+                {task.dropoff_name}
               </div>
               <.location location={task.dropoff_location} />
               <div class="inline-flex flex-shrink-0 leading-normal">
@@ -205,7 +205,7 @@
                   class="w-4 h-4 mt-1 mr-1 text-gray-500"
                 />
                 <%= if !is_nil(task.dropoff_phone) do %>
-                  <%= task.dropoff_phone %>
+                  {task.dropoff_phone}
                 <% else %>
                   No phone number
                 <% end %>
@@ -215,7 +215,7 @@
                   mini
                   class="flex-shrink-0 w-4 h-4 mt-1 mr-1 text-gray-500 "
                 />
-                <%= CampaignHelpers.request_type(task) %>
+                {CampaignHelpers.request_type(task)}
               </div>
             </div>
           </div>
@@ -237,7 +237,7 @@
                 <%= if is_nil(task.delivery_instructions) or task.delivery_instructions=="" do %>
                   N/A
                 <% else %>
-                  <%= render_raw(task.delivery_instructions) %>
+                  {render_raw(task.delivery_instructions)}
                 <% end %>
               </div>
               <div

@@ -198,7 +198,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
     <p class="flex flex-col items-center mt-0 text-sm text-gray-700 md:flex-row">
       <Icons.maki_bicycle_share class="flex-shrink-0 mb-2 mr-1.5 h-8 w-8 md:h-5 md:w-5 md:mb-0 text-gray-500" />
       <span class="flex space-x-2 font-bold md:font-normal">
-        <span class={@class}><%= @copy %></span>
+        <span class={@class}>{@copy}</span>
       </span>
     </p>
     """
@@ -278,7 +278,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
       color={@button_type.color}
       navigate={@signup_link}
     >
-      <%= @button_type.text %>
+      {@button_type.text}
     </.button>
     """
   end

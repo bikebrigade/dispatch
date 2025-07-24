@@ -20,18 +20,18 @@
     phx-change="validate"
     phx-submit="save"
   >
-    <.input type="text" field={{f, :name}} label="Name" />
+    <.input type="text" field={f[:name]} label="Name" />
     <.input
       type="checkbox"
-      field={{f, :anonymous_in_leaderboard}}
+      field={f[:anonymous_in_leaderboard]}
       label="Anonymize me in the leaderboard?"
     />
-    <.input type="text" field={{f, :pronouns}} label="Pronouns" />
+    <.input type="text" field={f[:pronouns]} label="Pronouns" />
     <div class="px-2 py-3 -mx-2 space-y-4 border-2 border-gray-300 border-dashed rounded-md">
-      <.input type="email" field={{f, :email}} label="Email" disabled={@action == :edit_profile} />
+      <.input type="email" field={f[:email]} label="Email" disabled={@action == :edit_profile} />
       <.input
         type="tel"
-        field={{f, :phone}}
+        field={f[:phone]}
         label="Phone Number"
         disabled={@action == :edit_profile}
         help_text={
@@ -41,7 +41,7 @@
       />
     </div>
 
-    <div :if={@current_user.is_dispatcher} phx-feedback-for={input_name(f, :tags)}>
+    <div :if={@current_user.is_dispatcher}>
       <CoreComponents.label for={input_id(f, :tags)}>Tags</CoreComponents.label>
 
       <.live_component
@@ -54,7 +54,7 @@
 
     <.input
       type="select"
-      field={{f, :capacity}}
+      field={f[:capacity]}
       label="Capacity"
       options={[{"Small", :small}, {"Medium", :medium}, {"Large", :large}]}
     />
@@ -62,24 +62,24 @@
     <.live_component
       module={LiveLocation}
       id="location-form"
-      field={{f, :location}}
+      field={f[:location]}
       label="Rider Location"
     />
 
     <.input
       :if={@current_user.is_dispatcher}
       type="textarea"
-      field={{f, :internal_notes}}
+      field={f[:internal_notes]}
       label="Notes (internal)"
       help_text="These are for Bike Brigade dispatchers, and not shared with riders"
     />
 
-    <.input type="text" field={{f, :max_distance}} label="Max Distance" />
+    <.input type="text" field={f[:max_distance]} label="Max Distance" />
 
     <.input
       :if={@current_user.is_dispatcher}
       type="date"
-      field={{f, :last_safety_check}}
+      field={f[:last_safety_check]}
       label="Last Safety Check"
       placeholder="YYYY-MM-DD"
     />
@@ -87,7 +87,7 @@
     <.input
       :if={@current_user.is_dispatcher}
       type="checkbox"
-      field={{f, :text_based_itinerary}}
+      field={f[:text_based_itinerary]}
       label="Send text-only delivery instructions"
       help_text="Enable this for riders without smartphones or data plans and they'll get a second message with instructions after you send the link."
     />
@@ -105,7 +105,7 @@
         <div class="mt-4 space-y-4">
           <.input
             type="checkbox"
-            field={{flag_form, :opt_in_to_new_number}}
+            field={flag_form[:opt_in_to_new_number]}
             label="Use toll-free number for texting"
             help_text="Use 1-855 number when messaging this rider. Note that Freedom mobile has issues with sending picture messages to this number, so this should be turned off for Freedom users, switching them to the 647 number."
           />

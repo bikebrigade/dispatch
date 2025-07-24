@@ -182,7 +182,7 @@ defmodule BikeBrigadeWeb.CampaignLive.MessagingFormComponent do
 
     ~H"""
     <div class="flex text-xs font-medium text-gray-600">
-      <span class={@color}><%= @length %>/1600</span>
+      <span class={@color}>{@length}/1600</span>
       <.with_tooltip>
         <Heroicons.question_mark_circle solid class="w-4 h-4 ml-0.5 " />
         <:tooltip>

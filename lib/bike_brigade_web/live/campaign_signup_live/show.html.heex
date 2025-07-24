@@ -1,30 +1,30 @@
 <.header class="mt-4 mb-8 text-center md:text-left">
   <div class="hidden md:flex">
-    <%= @campaign.program.name %> - <%= campaign_date(@campaign) %>
+    {@campaign.program.name} - {campaign_date(@campaign)}
   </div>
-  <div class="flex flex-col mb-4 text-xl md:hidden"><%= @campaign.program.name %></div>
-  <div class="mt-2 text-sm md:hidden">Deliveries for <%= campaign_date(@campaign) %></div>
+  <div class="flex flex-col mb-4 text-xl md:hidden">{@campaign.program.name}</div>
+  <div class="mt-2 text-sm md:hidden">Deliveries for {campaign_date(@campaign)}</div>
   <:subtitle>
-    <span class="text-sm font-bold">Pickup: <%= @campaign.location.address %></span>
-    <span :if={@campaign.program.campaign_blurb}>- <%= @campaign.program.campaign_blurb %></span>
+    <span class="text-sm font-bold">Pickup: {@campaign.location.address}</span>
+    <span :if={@campaign.program.campaign_blurb}>- {@campaign.program.campaign_blurb}</span>
   </:subtitle>
 </.header>
 <!-- Desktop Table of tasks -->
 <section class="hidden md:block">
   <.table id="tasks" rows={@tasks}>
     <:col :let={_task} label="Pickup time">
-      <%= pickup_window(@campaign) %>
+      {pickup_window(@campaign)}
     </:col>
     <:col :let={task} label="Delivery">
       <.get_delivery_size task={task} />
     </:col>
-    <:col :let={task} label="Recipient"><%= initials(task.dropoff_name) %></:col>
+    <:col :let={task} label="Recipient">{initials(task.dropoff_name)}</:col>
     <:col :let={task} label="Dropoff Neighbourhood">
-      <%= Locations.neighborhood(task.dropoff_location) %>
+      {Locations.neighborhood(task.dropoff_location)}
     </:col>
 
     <:col :let={task} label="Signup Notes">
-      <%= task.signup_notes %>
+      {task.signup_notes}
     </:col>
     <:action :let={task}>
       <.signup_button
@@ -40,8 +40,8 @@
 <ul class="flex flex-col text-xs md:hidden">
   <li :for={t <- @tasks} class="w-full mb-8">
     <div class="flex justify-between px-4 py-3 font-bold bg-slate-200">
-      <span data-test-id={"dropoff-name-#{t.id}"}><%= initials(t.dropoff_name) %></span>
-      <span>Pickup: <%= pickup_window(@campaign) %></span>
+      <span data-test-id={"dropoff-name-#{t.id}"}>{initials(t.dropoff_name)}</span>
+      <span>Pickup: {pickup_window(@campaign)}</span>
     </div>
     <div class="flex flex-col bg-white shadow">
       <div class="flex items-center p-4 py-2 border-b">
@@ -53,11 +53,11 @@
 
       <div class="flex items-start px-4 py-2 space-x-2 border-b">
         <span class="font-semibold">Dropoff Neighbourhood:</span>
-        <span><%= Locations.neighborhood(t.dropoff_location) %></span>
+        <span>{Locations.neighborhood(t.dropoff_location)}</span>
       </div>
       <div :if={t.signup_notes} class="flex items-start px-4 py-2 space-x-2 border-b">
         <span class="font-semibold">Signup Notes</span>
-        <span><%= t.signup_notes %></span>
+        <span>{t.signup_notes}</span>
       </div>
 
       <div class="flex flex-col justify-center px-4 py-2 border-b-2">
@@ -79,7 +79,7 @@
     <.header>
       Delivery photos
       <:subtitle>
-        <%= @campaign.program.photo_description %>
+        {@campaign.program.photo_description}
       </:subtitle>
     </.header>
     <div class="grid grid-cols-3 gap-4 mt-4">

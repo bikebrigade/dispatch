@@ -9,7 +9,7 @@
       Tasks
     </h3>
     <div class="text-base font-medium leading-6 text-gray-800">
-      <%= Map.values(@tasks) |> Enum.count(&task_assigned?/1) %> / <%= Enum.count(@tasks) %> assigned
+      {Map.values(@tasks) |> Enum.count(&task_assigned?/1)} / {Enum.count(@tasks)} assigned
     </div>
   </div>
   <div class="p-2 border-b">
@@ -53,8 +53,8 @@
         >
           <div class="px-4 py-4 border-b">
             <div class="text-sm font-medium">
-              <span class="pii"><%= task.dropoff_name %></span>
-              <span class="text-xs">(<%= round_distance(task.delivery_distance) %> km)</span>
+              <span class="pii">{task.dropoff_name}</span>
+              <span class="text-xs">({round_distance(task.delivery_distance)} km)</span>
             </div>
             <div class="md:flex">
               <div class="flex-shrink-0">
@@ -69,7 +69,7 @@
                 <% end %>
               </div>
               <div class="md:mx-2 mt-2 md:mt-0.5 text-xs font-medium">
-                <%= request_type(task) %>
+                {request_type(task)}
               </div>
             </div>
           </div>
@@ -79,26 +79,26 @@
             <div class="flex flex-row my-2">
               <Heroicons.map_pin mini class="flex-shrink-0 w-4 h-4 text-gray-500" />
               <div class="mx-1 text-sm leading-5 text-gray-800">
-                <span class="pii"><%= task.dropoff_location.address %></span>
+                <span class="pii">{task.dropoff_location.address}</span>
               </div>
             </div>
             <div :if={task.dropoff_phone} class="flex flex-row my-2">
               <Heroicons.device_phone_mobile mini class="flex-shrink-0 w-4 h-4" />
               <div class="mx-1 text-sm leading-5 text-gray-800">
-                <span class="pii"><%= task.dropoff_phone %></span>
+                <span class="pii">{task.dropoff_phone}</span>
               </div>
             </div>
             <div :if={task.delivery_instructions} class="flex flex-row my-2">
               <Heroicons.pencil_square mini class="flex-shrink-0 w-4 h-4 text-gray-500" />
               <div class="mx-1 text-sm leading-5 text-gray-600">
-                <span class="pii"><%= task.delivery_instructions %></span>
+                <span class="pii">{task.delivery_instructions}</span>
               </div>
             </div>
 
             <div :if={task.signup_notes} class="flex flex-row my-2">
               <Heroicons.clipboard_document_list mini class="flex-shrink-0 w-4 h-4 text-gray-500" />
               <div class="mx-1 text-sm leading-5 text-gray-600">
-                <span class="pii"><%= task.signup_notes %></span>
+                <span class="pii">{task.signup_notes}</span>
               </div>
             </div>
             <div class="flex flex-row my-2">
@@ -109,7 +109,7 @@
                     phx-click={JS.push("select_rider", value: %{id: task.assigned_rider.id})}
                     class="mx-1 text-sm leading-5 text-indigo-600"
                   >
-                    <%= task.assigned_rider.name %>
+                    {task.assigned_rider.name}
                   </.link>
                   <.button
                     phx-click={JS.push("unassign_task", value: %{task_id: @selected_task.id})}
@@ -130,7 +130,7 @@
                       size={:xsmall}
                       class=""
                     >
-                      Assign to <%= @selected_rider.name %>
+                      Assign to {@selected_rider.name}
                     </.button>
                   </div>
                 <% true -> %>
@@ -146,7 +146,7 @@
               >
                 <%= for delivery_status <- ~W(pending picked_up completed failed) do %>
                   <option selected={task.delivery_status == String.to_atom(delivery_status)}>
-                    <%= delivery_status %>
+                    {delivery_status}
                   </option>
                 <% end %>
               </select>

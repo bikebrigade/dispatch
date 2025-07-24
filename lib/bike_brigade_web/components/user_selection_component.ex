@@ -70,7 +70,7 @@ defmodule BikeBrigadeWeb.Components.UserSelectionComponent do
               <div class="flex-1 min-w-0 px-4 md:grid md:grid-cols-2 md:gap-4">
                 <div>
                   <div class="text-sm font-medium leading-5 text-indigo-600 truncate">
-                    <%= @selected_user.name %>
+                    {@selected_user.name}
                   </div>
                   <div class="flex items-center mt-2 text-sm leading-5 text-gray-500">
                     <svg
@@ -82,7 +82,7 @@ defmodule BikeBrigadeWeb.Components.UserSelectionComponent do
                       </path>
                     </svg>
                     <span class="truncate">
-                      <%= @selected_user.phone %>
+                      {@selected_user.phone}
                     </span>
                   </div>
                 </div>
@@ -116,7 +116,7 @@ defmodule BikeBrigadeWeb.Components.UserSelectionComponent do
                     <div class="flex-1 min-w-0 px-4 md:grid md:grid-cols-2 md:gap-4">
                       <div>
                         <div class="text-sm font-medium leading-5 text-indigo-600 truncate">
-                          <%= user.name %>
+                          {user.name}
                         </div>
                         <div class="flex items-center mt-2 text-sm leading-5 text-gray-500">
                           <svg
@@ -128,7 +128,7 @@ defmodule BikeBrigadeWeb.Components.UserSelectionComponent do
                             </path>
                           </svg>
                           <span class="truncate">
-                            <%= user.phone %>
+                            {user.phone}
                           </span>
                         </div>
                       </div>

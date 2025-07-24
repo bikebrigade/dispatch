@@ -18,7 +18,7 @@
       Riders
     </h3>
     <div class="text-base font-medium leading-6 text-gray-800">
-      <%= Map.values(@riders) |> Enum.count(&rider_available?/1) %> / <%= Enum.count(@riders) %> available
+      {Map.values(@riders) |> Enum.count(&rider_available?/1)} / {Enum.count(@riders)} available
     </div>
   </div>
   <div class="p-2 border-b">
@@ -56,9 +56,9 @@
         >
           <div class="flex flex-row items-center px-4 py-4">
             <div class="text-sm font-medium">
-              <%= rider.name %>
+              {rider.name}
               <span class="text-xs">
-                (<%= task_count(rider.assigned_tasks) %> / <%= rider.task_capacity %>)
+                ({task_count(rider.assigned_tasks)} / {rider.task_capacity})
               </span>
             </div>
             <%= if rider.task_enter_building do %>
@@ -101,14 +101,14 @@
             <div class="flex flex-row my-2">
               <Heroicons.clock mini class="flex-shrink-0 w-4 h-4 text-gray-500" />
               <div class="mx-1 text-sm leading-5 text-gray-800">
-                <%= pickup_window(@campaign, rider) %>
+                {pickup_window(@campaign, rider)}
               </div>
             </div>
             <%= if has_notes?(rider) do %>
               <div class="flex flex-row my-2">
                 <Heroicons.pencil_square mini class="flex-shrink-0 w-4 h-4 text-gray-500" />
                 <div class="mx-1 text-sm leading-5 text-gray-600">
-                  <%= rider.task_notes %>
+                  {rider.task_notes}
                 </div>
               </div>
             <% end %>
@@ -121,10 +121,10 @@
                     class="flex flex-col"
                   >
                     <div class="mx-1 text-sm leading-5 text-indigo-600">
-                      <span class="pii"><%= task.dropoff_location %></span>
+                      <span class="pii">{task.dropoff_location}</span>
                     </div>
                     <div class="mx-1 text-xs font-medium leading-5">
-                      <span class="pii"><%= task.dropoff_name %></span>
+                      <span class="pii">{task.dropoff_name}</span>
                     </div>
                   </.link>
                 </div>

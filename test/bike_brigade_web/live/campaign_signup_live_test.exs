@@ -196,8 +196,9 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
       assert html =~ "Sign up"
       refute html =~ "Unassign me"
-      html = live |> element("#signup-btn-desktop-sign-up-task-#{ctx.task.id}") |> render_click()
-      assert html =~ "Unassign me"
+      live |> element("#signup-btn-desktop-sign-up-task-#{ctx.task.id}") |> render_click()
+
+      assert live |> render() =~ "Unassign me"
 
       # Make sure we have a log
       assert [log] = History.list_task_assignment_logs()
@@ -221,7 +222,9 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
          ctx do
       {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
       assert html =~ "Sign up"
-      html = live |> element("#signup-btn-desktop-sign-up-task-#{ctx.task.id}") |> render_click()
+      live |> element("#signup-btn-desktop-sign-up-task-#{ctx.task.id}") |> render_click()
+
+      html = live |> render()
       assert html =~ "Unassign me"
 
       assert html =~
@@ -232,7 +235,9 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
 
       {:ok, live, _html} = live(ctx.conn, ~p"/campaigns/signup/#{campaign.id}/")
 
-      html = live |> element("#signup-btn-desktop-sign-up-task-#{task.id}") |> render_click()
+      live |> element("#signup-btn-desktop-sign-up-task-#{task.id}") |> render_click()
+
+      html = live |> render()
       assert html =~ "Unassign me"
 
       refute html =~
@@ -254,7 +259,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
     end
 
     test "we see campaign photos and description if available", ctx do
-      {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
+      {:ok, _live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
       refute html =~ "Delivery photos"
 
       Delivery.update_program(ctx.program, %{
@@ -262,7 +267,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
         photo_description: "a typical meal"
       })
 
-      {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
+      {:ok, _live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
       assert html =~ "Delivery photos"
       assert html =~ "https://example.com/photo.jpg"
       assert html =~ "a typical meal"

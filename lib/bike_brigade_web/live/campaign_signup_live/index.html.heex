@@ -17,7 +17,7 @@
         }
         class="relative items-center w-full px-4 py-2 text-sm font-medium text-center text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
       >
-        Week of <%= Calendar.strftime(@current_week, "%B %-d") %>
+        Week of {Calendar.strftime(@current_week, "%B %-d")}
       </.link>
 
       <.link
@@ -59,7 +59,7 @@
         </div>
       </div>
 
-      <ul id="campaign-list" role="list" class="w-full divide-y divide-gray-200">
+      <ul id={"campaign-list-#{date}"} role="list" class="w-full divide-y divide-gray-200">
         <%= for c_or_o <- campaigns_and_opportunities do %>
           <li
             id={campaign_or_opportunity_element_id(c_or_o)}
@@ -70,7 +70,7 @@
                 class="flex items-center justify-between w-full text-sm"
                 data-test-group="campaign-name"
               >
-                <span class="font-medium truncate"><%= name(c_or_o) %></span>
+                <span class="font-medium truncate">{name(c_or_o)}</span>
                 <.date class="border-none opacity-80" date={date} />
               </div>
             </div>
@@ -104,7 +104,7 @@
                         class="flex-shrink-0 mb-2 mr-1.5 h-8 w-8 md:h-5 md:w-5 md:mb-0 text-gray-500"
                       />
                       <span class="flex space-x-2 font-bold md:font-normal">
-                        <%= pickup_window(c_or_o) %>
+                        {pickup_window(c_or_o)}
                       </span>
                     </p>
                   </div>
@@ -118,6 +118,6 @@
   <% end %>
 <% else %>
   <div class="flex items-center justify-center w-4/5 mx-auto text-center h-96">
-    No campaigns set up yet for the week of <%= Calendar.strftime(@current_week, "%B %-d") %>.
+    No campaigns set up yet for the week of {Calendar.strftime(@current_week, "%B %-d")}.
   </div>
 <% end %>

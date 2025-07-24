@@ -190,16 +190,16 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
         <div class="flex items-center">
           <details>
             <summary class="cursor-pointer" title={task_item.item.description}>
-              <span :if={task_item.count > 1} class="mr-1"><%= task_item.count %></span><%= Inflex.inflect(
+              <span :if={task_item.count > 1} class="mr-1">{task_item.count}</span>{Inflex.inflect(
                 task_item.item.name,
                 task_item.count
-              ) %>
+              )}
             </summary>
-            <%= task_item.item.description %>
+            {task_item.item.description}
           </details>
         </div>
       <% else %>
-        <%= Inflex.inflect(task_item.item.name, task_item.count) %>
+        {Inflex.inflect(task_item.item.name, task_item.count)}
       <% end %>
     </div>
     """
@@ -222,7 +222,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
     <div class="flex flex-col space-y-2 md:items-center md:space-y-0 md:flex-row md:space-x-2">
       <%= if @task.assigned_rider do %>
         <div :if={@task.assigned_rider.id != @current_rider_id}>
-          <%= first_name_and_last_initial(@task.assigned_rider.name) %>
+          {first_name_and_last_initial(@task.assigned_rider.name)}
         </div>
 
         <div :if={@task.assigned_rider.id == @current_rider_id}>

@@ -12,7 +12,7 @@ defmodule BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent do
       <.flash kind={:info} title="Success!" flash={@flash} />
       <.flash kind={:warn} title="Warning!" flash={@flash} />
       <.flash kind={:error} title="Error!" flash={@flash} />
-      <.header><%= @title %></.header>
+      <.header>{@title}</.header>
       <.simple_form
         :let={f}
         for={%{}}
@@ -25,27 +25,27 @@ defmodule BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent do
           <.inputs_for :let={d} field={f[:date_time_form]}>
             <.input
               type="date"
-              field={{d, :delivery_date}}
+              field={d[:delivery_date]}
               label="New Delivery Date"
               value={LocalizedDateTime.to_date(@campaign.delivery_start)}
             />
             <.input
               type="time"
-              field={{d, :start_time}}
+              field={d[:start_time]}
               label="Start"
               value={LocalizedDateTime.to_time(@campaign.delivery_start)}
             />
             <.input
               type="time"
-              field={{d, :end_time}}
+              field={d[:end_time]}
               label="End"
               value={LocalizedDateTime.to_time(@campaign.delivery_end)}
             />
           </.inputs_for>
         </div>
 
-        <.input type="checkbox" checked field={{f, :duplicate_deliveries}} label="Copy Deliveries" />
-        <.input type="checkbox" field={{f, :duplicate_riders}} label="Copy Riders" />
+        <.input type="checkbox" checked field={f[:duplicate_deliveries]} label="Copy Deliveries" />
+        <.input type="checkbox" field={f[:duplicate_riders]} label="Copy Riders" />
 
         <:actions>
           <.button type="submit" phx-disable-with="Saving...">

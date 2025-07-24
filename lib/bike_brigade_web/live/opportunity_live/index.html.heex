@@ -67,7 +67,7 @@
       data-test-id="program-row-name"
       class="link"
     >
-      <%= opportunity.program.name %>
+      {opportunity.program.name}
     </.link>
   </:col>
   <:col
@@ -80,11 +80,11 @@
     <.date date={LocalizedDateTime.to_date(opportunity.delivery_start)} />
   </:col>
   <:col :let={opportunity} label="Time" show_at={:xlarge}>
-    <%= time_interval(opportunity.delivery_start, opportunity.delivery_end) %>
+    {time_interval(opportunity.delivery_start, opportunity.delivery_end)}
   </:col>
 
   <:col :let={opportunity} label="Location" unstack_at={:xlarge}>
-    <%= opportunity.location.address %>
+    {opportunity.location.address}
     <span
       :if={opportunity.hide_address}
       class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"
@@ -104,7 +104,7 @@
     sortable_field={:program_lead}
     default_order={:asc}
   >
-    <%= program_lead_name(opportunity) %>
+    {program_lead_name(opportunity)}
   </:col>
   <:col :let={opportunity} label="Published">
     <.check_mark value={opportunity.published} />
@@ -156,7 +156,7 @@
   show
   on_cancel={JS.patch(~p"/opportunities")}
 >
-  <:title><%= @page_title %></:title>
+  <:title>{@page_title}</:title>
   <.live_component
     module={BikeBrigadeWeb.OpportunityLive.FormComponent}
     id={@opportunity.id || :edit}

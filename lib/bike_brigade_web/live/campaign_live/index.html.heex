@@ -38,7 +38,7 @@
     <p class="text-sm text-gray-700">
       Showing week of
       <time datetime={@current_week} class="font-medium">
-        <%= Calendar.strftime(@current_week, "%B %-d, %Y") %>
+        {Calendar.strftime(@current_week, "%B %-d, %Y")}
       </time>
     </p>
   </div>
@@ -86,7 +86,7 @@
                     class="text-sm font-medium link"
                     data-test-group="campaign-name"
                   >
-                    <%= name(c) %>
+                    {name(c)}
                     <span
                       :if={!public?(c)}
                       class="inline-flex items-center px-2 py-1 ml-1 text-xs font-medium text-pink-700 rounded-md bg-pink-50 ring-1 ring-inset ring-pink-700/10"
@@ -125,18 +125,18 @@
                       aria-label="Pickup Time"
                       class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-500"
                     />
-                    <%= pickup_window(c) %>
+                    {pickup_window(c)}
                   </p>
                   <p class="flex items-center mt-2 text-sm text-gray-700 sm:mt-0 sm:ml-6">
                     <Icons.maki_bicycle_share class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-500" />
-                    <%= c.stats.signed_up_rider_count %>
+                    {c.stats.signed_up_rider_count}
                   </p>
                   <p class="flex items-center mt-2 text-sm text-gray-700 sm:mt-0 sm:ml-6">
                     <Heroicons.shopping_bag
                       mini
                       class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-500"
                     />
-                    <%= c.stats.task_count %>
+                    {c.stats.task_count}
                   </p>
                 </div>
                 <div class="flex items-center mt-2 text-sm text-gray-700 sm:mt-0">

@@ -536,13 +536,13 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
         <p class={"px-2.5 py-1.5 rounded-md text-md font-medium #{color(@filter.type)}"}>
           <%= case @filter.type do %>
             <% :name -> %>
-              "<%= @filter.search %>"<span class="ml-1 text-sm">in name</span>
+              "{@filter.search}"<span class="ml-1 text-sm">in name</span>
             <% :phone -> %>
-              "<%= @filter.search %>"<span class="ml-1 text-sm">in phone number</span>
+              "{@filter.search}"<span class="ml-1 text-sm">in phone number</span>
             <% :program -> %>
-              <span class="mr-0.5 text-sm"><%= @filter.type %>:</span><%= @filter.search %>
+              <span class="mr-0.5 text-sm">{@filter.type}:</span>{@filter.search}
             <% _ -> %>
-              <span class="mr-0.5 text-sm"><%= @filter.type %>:</span><%= @filter.search %>
+              <span class="mr-0.5 text-sm">{@filter.type}:</span>{@filter.search}
           <% end %>
         </p>
       </button>
@@ -566,7 +566,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
           <div class={
             "my-0.5 inline-flex items-center px-2.5 py-1.5 rounded-md text-md font-medium #{color(type)}"
           }>
-            <span class="text-700 mr-0.5 font-base"><%= type %>:</span><%= search %>
+            <span class="text-700 mr-0.5 font-base">{type}:</span>{search}
             <Heroicons.x_circle
               mini
               class="w-5 h-5 ml-1 cursor-pointer"
@@ -595,10 +595,10 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
 
     case assigns.search do
       nil ->
-        ~H(<%= @string %>)
+        ~H({@string})
 
       "" ->
-        ~H(<span class="font-bold"><%= @string %></span>)
+        ~H(<span class="font-bold">{@string}</span>)
 
       search ->
         pattern =
@@ -615,7 +615,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
 
         # Note the output is all one line cuz inline elements add spacing from spaces - which may be in the string
         ~H"""
-        <%= raw(for [s, search] <- @segments, do: ~s(#{s}<span class="font-bold">#{search}</span>)) %>
+        {raw(for [s, search] <- @segments, do: ~s(#{s}<span class="font-bold">#{search}</span>))}
         """
     end
   end

@@ -1,5 +1,5 @@
 <.header>
-  <%= @program.name %>
+  {@program.name}
   <span
     :if={!@program.active}
     class="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-600 rounded-md bg-gray-50 ring-1 ring-inset ring-gray-500/10"
@@ -13,7 +13,7 @@
     Private
   </span>
   <:subtitle>
-    <%= @program.campaign_blurb %>
+    {@program.campaign_blurb}
   </:subtitle>
   <:actions>
     <.button navigate={~p"/programs/#{@program}/campaigns/new"}>
@@ -30,18 +30,18 @@
     <.date date={campaign_date(campaign)} navigate={~p"/campaigns/#{campaign}"} />
   </:col>
   <:col :let={campaign} label="Time">
-    <%= pickup_window(campaign) %>
+    {pickup_window(campaign)}
   </:col>
   <:col :let={campaign} label="Riders">
-    <%= campaign.stats.signed_up_rider_count %>
+    {campaign.stats.signed_up_rider_count}
   </:col>
   <:col :let={campaign} label="Deliveries">
-    <%= campaign.stats.task_count %>
+    {campaign.stats.task_count}
   </:col>
 
   <:action :let={campaign}>
     <.link navigate={~p"/campaigns/#{campaign}/edit"} class="link">
-      Edit <span class="sr-only">,<%= campaign_date(campaign) %></span>
+      Edit <span class="sr-only">,{campaign_date(campaign)}</span>
     </.link>
   </:action>
   <:action :let={campaign}>
@@ -50,7 +50,7 @@
       data-confirm="Are you sure?"
       class="link"
     >
-      Delete <span class="sr-only">, <%= campaign_date(campaign) %></span>
+      Delete <span class="sr-only">, {campaign_date(campaign)}</span>
     </.link>
   </:action>
 </.table>
