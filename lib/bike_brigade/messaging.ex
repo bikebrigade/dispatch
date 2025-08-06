@@ -432,4 +432,9 @@ defmodule BikeBrigade.Messaging do
   end
 
   def get_banner!(id), do: Repo.get!(Banner, id)
+
+  def delete_banner(%Banner{} = banner) do
+    Repo.delete(banner)
+    |> broadcast(:banner_deleted)
+  end
 end
