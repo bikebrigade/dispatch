@@ -1,7 +1,7 @@
 defmodule BikeBrigadeWeb.RiderHomeLive.Index do
   use BikeBrigadeWeb, :live_view
 
-  alias BikeBrigade.{Delivery, Riders, Stats, LocalizedDateTime}
+  alias BikeBrigade.{Delivery, Messaging, Riders, Stats, LocalizedDateTime}
 
   import BikeBrigadeWeb.CampaignHelpers
 
@@ -19,6 +19,7 @@ defmodule BikeBrigadeWeb.RiderHomeLive.Index do
      |> assign(:stats, Stats.home_stats())
      |> assign(:rider, Riders.get_rider!(rider_id))
      |> assign(:urgent_campaigns, Delivery.list_urgent_campaigns())
+     |> assign(:active_banners, Messaging.list_active_banners())
      |> load_itinerary(today)}
   end
 

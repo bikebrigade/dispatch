@@ -437,4 +437,23 @@ defmodule BikeBrigade.Messaging do
     Repo.delete(banner)
     |> broadcast(:banner_deleted)
   end
+
+  @doc """
+  Returns currently active banners.
+  
+  A banner is considered active if:
+  - It is enabled
+  - The current time is between turn_on_at and turn_off_at
+  """
+  def list_active_banners() do
+    now = DateTime.utc_now()
+    
+    from(b in Banner,
+      where: b.enabled == true,
+      where: b.turn_on_at <= ^now,
+      where: b.turn_off_at >= ^now,
+      order_by: [asc: b.turn_on_at]
+    )
+    |> Repo.all()
+  end
 end

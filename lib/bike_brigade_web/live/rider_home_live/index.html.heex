@@ -1,3 +1,14 @@
+<%!-- Active Banners --%>
+<div :for={banner <- @active_banners} class="bg-blue-200 bg-opacity-30 border-dashed border border-blue-700 rounded-md p-4 justify-center mb-4">
+  <div class="flex items-center gap-x-2">
+    <span class="text-2xl mr-1">📢</span>
+    <span class="text-sm font-semibold">Important Notice</span>
+  </div>
+  <div class="text-sm mt-2">
+    {banner.message}
+  </div>
+</div>
+
 <%= if @campaign_riders != [] do %>
   <div class="bg-white shadow border">
     <div class="text-sm flex items-center justify-between font-semibold border-b border-neutral-100 py-1 px-4">
