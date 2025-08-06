@@ -23,5 +23,6 @@ defmodule BikeBrigade.Messaging.Banner do
       :enabled
     ])
     |> validate_required([:message, :created_by_id, :turn_on_at, :turn_off_at])
+    |> foreign_key_constraint(:created_by_id)
   end
 end
