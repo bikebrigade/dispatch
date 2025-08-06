@@ -17,10 +17,10 @@
     </div>
   </:col>
   <:col :let={banner} label="Turn On At">
-    <.date date={banner.turn_on_at} />
+    <div> {format_date(banner.turn_on_at, "%Y-%m-%d %H:%M:%S")} </div>
   </:col>
   <:col :let={banner} label="Turn Off At">
-    <.date date={banner.turn_off_at} />
+    <div> {format_date(banner.turn_off_at, "%Y-%m-%d %H:%M:%S")}</div>
   </:col>
   <:col :let={banner} label="Enabled">
     <span class={[

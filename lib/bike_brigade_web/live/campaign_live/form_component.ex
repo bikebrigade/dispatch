@@ -85,6 +85,8 @@ defmodule BikeBrigadeWeb.CampaignLive.FormComponent do
       campaign
       |> BikeBrigade.Repo.preload([:location, :program])
 
+      IO.inspect(campaign, label: ">>>>>>>>>>>>>>>>>>")
+
     campaign_form = CampaignForm.from_campaign(campaign)
     changeset = CampaignForm.changeset(campaign_form)
 
