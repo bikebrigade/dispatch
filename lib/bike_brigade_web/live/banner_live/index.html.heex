@@ -1,0 +1,81 @@
+<.header>
+  Banners
+  <:subtitle>
+    Banners are informational messages that can be displayed to users to communicate important information.
+  </:subtitle>
+  <:actions>
+    <.button patch={~p"/banners/new"}>
+      New Banner
+    </.button>
+  </:actions>
+</.header>
+
+<.table id="banners" rows={@banners}>
+  <:col :let={banner} label="Message">
+    <div class="max-w-md truncate">
+      {banner.message}
+    </div>
+  </:col>
+  <:col :let={banner} label="Turn On At">
+    <.date date={banner.turn_on_at} />
+  </:col>
+  <:col :let={banner} label="Turn Off At">
+    <.date date={banner.turn_off_at} />
+  </:col>
+  <:col :let={banner} label="Enabled">
+    <span class={[
+      "inline-flex items-center px-2 py-1 text-xs font-medium rounded-md ring-1 ring-inset",
+      if(banner.enabled,
+        do: "text-green-700 bg-green-50 ring-green-600/20",
+        else: "text-red-700 bg-red-50 ring-red-600/20"
+      )
+    ]}>
+      {if banner.enabled, do: "Yes", else: "No"}
+    </span>
+  </:col>
+  <:col :let={banner} label="Created By">
+    <span :if={banner.created_by} class="text-sm text-gray-600">
+      {banner.created_by.name}
+    </span>
+  </:col>
+  <:action :let={banner}>
+    <div class="sr-only">
+      <.link patch={~p"/banners/#{banner}/edit"} class="link">
+        Edit
+      </.link>
+    </div>
+    <.link patch={~p"/banners/#{banner}/edit"} class="link">
+      Edit <span class="sr-only">, {String.slice(banner.message, 0, 20)}...</span>
+    </.link>
+  </:action>
+  <:action :let={banner}>
+    <.link
+      phx-click={JS.push("delete", value: %{id: banner.id}) |> hide("##{banner.id}")}
+      data-confirm="Are you sure?"
+      class="link text-red-600 hover:text-red-900"
+    >
+      Delete
+    </.link>
+  </:action>
+</.table>
+
+<.slideover
+  :if={@live_action in [:new, :edit]}
+  id="banner-modal"
+  show
+  on_cancel={JS.navigate(~p"/banners")}
+>
+  <:title>{@page_title}</:title>
+
+  <.live_component
+    module={BikeBrigadeWeb.BannerLive.FormComponent}
+    id={@banner.id || :new}
+    title={@page_title}
+    action={@live_action}
+    banner={@banner}
+    current_user={@current_user}
+    patch={~p"/banners"}
+  />
+  <:confirm form="banner-form" type="submit" phx-disable-with="Saving...">Save</:confirm>
+  <:cancel>Cancel</:cancel>
+</.slideover>
