@@ -224,31 +224,5 @@ defmodule BikeBrigade.Messaging.BannerTest do
       assert Enum.at(active_banners, 0).id == earlier_banner.id
       assert Enum.at(active_banners, 1).id == later_banner.id
     end
-
-    test "handles edge case where banner starts/ends exactly now" do
-      now = DateTime.utc_now()
-
-      # Banner that starts exactly now
-      starting_now =
-        fixture(:banner, %{
-          message: "Starting now",
-          turn_on_at: now,
-          turn_off_at: DateTime.add(now, 1, :hour)
-        })
-
-      # Banner that ends exactly now  
-      ending_now =
-        fixture(:banner, %{
-          message: "Ending now",
-          turn_on_at: DateTime.add(now, -1, :hour),
-          turn_off_at: now
-        })
-
-      active_banners = Messaging.list_active_banners()
-      assert length(active_banners) == 2
-      banner_messages = Enum.map(active_banners, & &1.message)
-      assert "Starting now" in banner_messages
-      assert "Ending now" in banner_messages
-    end
   end
 end

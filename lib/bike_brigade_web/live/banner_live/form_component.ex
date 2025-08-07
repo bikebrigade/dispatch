@@ -125,7 +125,7 @@ defmodule BikeBrigadeWeb.BannerLive.FormComponent do
            |> put_flash(:info, "Banner created successfully!")
            |> push_patch(to: socket.assigns.patch)}
 
-        {:error, %Ecto.Changeset{} = changeset} ->
+        {:error, %Ecto.Changeset{} = _changeset} ->
           {:noreply,
            socket
            # HACK: this push patch is needed for the flash to work ¯\_(ツ)_/¯
