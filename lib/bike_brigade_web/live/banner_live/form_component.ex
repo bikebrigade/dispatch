@@ -33,7 +33,6 @@ defmodule BikeBrigadeWeb.BannerLive.FormComponent do
 
   def from_banner(%Banner{} = banner) do
     # TODO: leaving off - banner is empty with nil values, so it fails.
-    IO.inspect(banner, label: ">>>")
 
     %__MODULE__{
       message: banner.message,
@@ -60,7 +59,6 @@ defmodule BikeBrigadeWeb.BannerLive.FormComponent do
 
   @impl true
   def update(%{banner: banner} = assigns, socket) do
-    IO.inspect(banner, label: "!!1!")
     banner_form = from_banner(banner)
     changeset = changeset(banner_form, %{})
 
@@ -73,6 +71,7 @@ defmodule BikeBrigadeWeb.BannerLive.FormComponent do
   @impl true
   def handle_event("validate", %{"form_component" => banner_params}, socket) do
     banner_form = from_banner(socket.assigns.banner)
+
     changeset =
       banner_form
       |> changeset(banner_params)
@@ -91,7 +90,7 @@ defmodule BikeBrigadeWeb.BannerLive.FormComponent do
 
     if changeset.valid? do
       converted_params = changeset |> Ecto.Changeset.apply_changes() |> to_banner_params()
-      
+
       case Messaging.update_banner(socket.assigns.banner, converted_params) do
         {:ok, banner} ->
           notify_parent({:saved, banner})
@@ -116,18 +115,25 @@ defmodule BikeBrigadeWeb.BannerLive.FormComponent do
 
     if changeset.valid? do
       converted_params = changeset |> Ecto.Changeset.apply_changes() |> to_banner_params()
-      
+
       case Messaging.create_banner(converted_params) do
         {:ok, banner} ->
           notify_parent({:saved, banner})
 
           {:noreply,
            socket
-           |> put_flash(:info, "Banner created successfully")
+           |> put_flash(:info, "Banner created successfully!")
            |> push_patch(to: socket.assigns.patch)}
 
-        {:error, %Ecto.Changeset{} = _changeset} ->
-          {:noreply, assign(socket, :changeset, %{changeset | action: :insert})}
+        {:error, %Ecto.Changeset{} = changeset} ->
+          {:noreply,
+           socket
+           # HACK: this push patch is needed for the flash to work ¯\_(ツ)_/¯
+           |> push_patch(to: ~p"/banners/new")
+           |> put_flash(
+             :error,
+             "Your banner is scheduled incorrectly. Is the start time later than the stop time?"
+           )}
       end
     else
       {:noreply, assign(socket, :changeset, %{changeset | action: :insert})}

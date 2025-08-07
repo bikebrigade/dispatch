@@ -40,6 +40,7 @@ defmodule BikeBrigade.Messaging.BannerTest do
     test "delete_banner" do
       banner = fixture(:banner)
       assert {:ok, _} = Messaging.delete_banner(banner)
+
       assert_raise Ecto.NoResultsError, fn ->
         Messaging.get_banner!(banner.id)
       end
@@ -135,38 +136,42 @@ defmodule BikeBrigade.Messaging.BannerTest do
   describe "list_active_banners" do
     test "returns only banners that are currently active and enabled" do
       now = DateTime.utc_now()
-      
+
       # Active banner: started 1 hour ago, ends in 1 hour
-      active_banner = fixture(:banner, %{
-        message: "Active banner",
-        enabled: true,
-        turn_on_at: DateTime.add(now, -1, :hour),
-        turn_off_at: DateTime.add(now, 1, :hour)
-      })
-      
+      active_banner =
+        fixture(:banner, %{
+          message: "Active banner",
+          enabled: true,
+          turn_on_at: DateTime.add(now, -1, :hour),
+          turn_off_at: DateTime.add(now, 1, :hour)
+        })
+
       # Future banner: starts in 1 hour
-      _future_banner = fixture(:banner, %{
-        message: "Future banner",
-        enabled: true,
-        turn_on_at: DateTime.add(now, 1, :hour),
-        turn_off_at: DateTime.add(now, 2, :hour)
-      })
-      
+      _future_banner =
+        fixture(:banner, %{
+          message: "Future banner",
+          enabled: true,
+          turn_on_at: DateTime.add(now, 1, :hour),
+          turn_off_at: DateTime.add(now, 2, :hour)
+        })
+
       # Past banner: ended 1 hour ago
-      _past_banner = fixture(:banner, %{
-        message: "Past banner",
-        enabled: true,
-        turn_on_at: DateTime.add(now, -2, :hour),
-        turn_off_at: DateTime.add(now, -1, :hour)
-      })
-      
+      _past_banner =
+        fixture(:banner, %{
+          message: "Past banner",
+          enabled: true,
+          turn_on_at: DateTime.add(now, -2, :hour),
+          turn_off_at: DateTime.add(now, -1, :hour)
+        })
+
       # Disabled banner: would be active if enabled
-      _disabled_banner = fixture(:banner, %{
-        message: "Disabled banner",
-        enabled: false,
-        turn_on_at: DateTime.add(now, -1, :hour),
-        turn_off_at: DateTime.add(now, 1, :hour)
-      })
+      _disabled_banner =
+        fixture(:banner, %{
+          message: "Disabled banner",
+          enabled: false,
+          turn_on_at: DateTime.add(now, -1, :hour),
+          turn_off_at: DateTime.add(now, 1, :hour)
+        })
 
       active_banners = Messaging.list_active_banners()
       assert length(active_banners) == 1
@@ -176,17 +181,19 @@ defmodule BikeBrigade.Messaging.BannerTest do
 
     test "returns empty list when no banners are active" do
       now = DateTime.utc_now()
-      
+
       # All banners are in the past or future
-      _past_banner = fixture(:banner, %{
-        turn_on_at: DateTime.add(now, -2, :hour),
-        turn_off_at: DateTime.add(now, -1, :hour)
-      })
-      
-      _future_banner = fixture(:banner, %{
-        turn_on_at: DateTime.add(now, 1, :hour),
-        turn_off_at: DateTime.add(now, 2, :hour)
-      })
+      _past_banner =
+        fixture(:banner, %{
+          turn_on_at: DateTime.add(now, -2, :hour),
+          turn_off_at: DateTime.add(now, -1, :hour)
+        })
+
+      _future_banner =
+        fixture(:banner, %{
+          turn_on_at: DateTime.add(now, 1, :hour),
+          turn_off_at: DateTime.add(now, 2, :hour)
+        })
 
       active_banners = Messaging.list_active_banners()
       assert length(active_banners) == 0
@@ -194,20 +201,22 @@ defmodule BikeBrigade.Messaging.BannerTest do
 
     test "returns multiple active banners ordered by turn_on_at" do
       now = DateTime.utc_now()
-      
+
       # Banner that started 2 hours ago
-      earlier_banner = fixture(:banner, %{
-        message: "Earlier banner",
-        turn_on_at: DateTime.add(now, -2, :hour),
-        turn_off_at: DateTime.add(now, 1, :hour)
-      })
-      
+      earlier_banner =
+        fixture(:banner, %{
+          message: "Earlier banner",
+          turn_on_at: DateTime.add(now, -2, :hour),
+          turn_off_at: DateTime.add(now, 1, :hour)
+        })
+
       # Banner that started 1 hour ago
-      later_banner = fixture(:banner, %{
-        message: "Later banner",
-        turn_on_at: DateTime.add(now, -1, :hour),
-        turn_off_at: DateTime.add(now, 1, :hour)
-      })
+      later_banner =
+        fixture(:banner, %{
+          message: "Later banner",
+          turn_on_at: DateTime.add(now, -1, :hour),
+          turn_off_at: DateTime.add(now, 1, :hour)
+        })
 
       active_banners = Messaging.list_active_banners()
       assert length(active_banners) == 2
@@ -218,20 +227,22 @@ defmodule BikeBrigade.Messaging.BannerTest do
 
     test "handles edge case where banner starts/ends exactly now" do
       now = DateTime.utc_now()
-      
+
       # Banner that starts exactly now
-      starting_now = fixture(:banner, %{
-        message: "Starting now",
-        turn_on_at: now,
-        turn_off_at: DateTime.add(now, 1, :hour)
-      })
-      
+      starting_now =
+        fixture(:banner, %{
+          message: "Starting now",
+          turn_on_at: now,
+          turn_off_at: DateTime.add(now, 1, :hour)
+        })
+
       # Banner that ends exactly now  
-      ending_now = fixture(:banner, %{
-        message: "Ending now",
-        turn_on_at: DateTime.add(now, -1, :hour),
-        turn_off_at: now
-      })
+      ending_now =
+        fixture(:banner, %{
+          message: "Ending now",
+          turn_on_at: DateTime.add(now, -1, :hour),
+          turn_off_at: now
+        })
 
       active_banners = Messaging.list_active_banners()
       assert length(active_banners) == 2

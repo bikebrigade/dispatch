@@ -26,7 +26,6 @@ defmodule BikeBrigadeWeb.BannerLive.Index do
   end
 
   defp apply_action(socket, :new, _params) do
-
     today = LocalizedDateTime.today()
     start_time = ~T[17:00:00]
     end_time = ~T[19:30:00]
@@ -37,7 +36,6 @@ defmodule BikeBrigadeWeb.BannerLive.Index do
     socket
     |> assign(:page_title, "New Banner")
     |> assign(:banner, %Banner{turn_on_at: turn_on_at, turn_off_at: turn_off_at})
-      
   end
 
   defp apply_action(socket, :index, _params) do
@@ -61,8 +59,9 @@ defmodule BikeBrigadeWeb.BannerLive.Index do
 
   defp list_banners do
     Messaging.list_banners()
-    |> IO.inspect
+    |> IO.inspect()
     |> BikeBrigade.Repo.preload(:created_by)
+
     # |> Enum.sort_by(& &1.inserted_at, {:desc, DateTime})
   end
 end

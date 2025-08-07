@@ -440,14 +440,14 @@ defmodule BikeBrigade.Messaging do
 
   @doc """
   Returns currently active banners.
-  
+
   A banner is considered active if:
   - It is enabled
   - The current time is between turn_on_at and turn_off_at
   """
   def list_active_banners() do
     now = DateTime.utc_now()
-    
+
     from(b in Banner,
       where: b.enabled == true,
       where: b.turn_on_at <= ^now,
