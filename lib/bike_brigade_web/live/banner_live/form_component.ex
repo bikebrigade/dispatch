@@ -132,7 +132,7 @@ defmodule BikeBrigadeWeb.BannerLive.FormComponent do
            |> push_patch(to: ~p"/banners/new")
            |> put_flash(
              :error,
-             "Your banner is scheduled incorrectly. Is the start time later than the stop time?"
+             "Your banner is scheduled incorrectly. Please ensure the \"turn on at\" time and date are not later than the \"turn off date\""
            )}
       end
     else
