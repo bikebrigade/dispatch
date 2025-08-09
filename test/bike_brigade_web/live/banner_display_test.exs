@@ -99,51 +99,56 @@ defmodule BikeBrigadeWeb.BannerDisplayTest do
     end
   end
 
-describe "Real-time banner updates on rider home page" do
+  describe "Real-time banner updates on rider home page" do
     setup ctx do
       login_as_rider(ctx)
     end
 
     test "updates banner display in real-time when banner is created", ctx do
       {:ok, live, html} = live(ctx.conn, ~p"/home")
-      
+
       # Initially no banners
       refute html =~ "New banner message"
-      
+
       # Create a new active banner
       now = DateTime.utc_now()
-      {:ok, _banner} = BikeBrigade.Messaging.create_banner(%{
-        message: "New banner message",
-        enabled: true,
-        turn_on_at: DateTime.add(now, -1, :hour),
-        turn_off_at: DateTime.add(now, 1, :hour),
-        created_by_id: fixture(:user, %{is_dispatcher: true}).id
-      })
-      
+
+      {:ok, _banner} =
+        BikeBrigade.Messaging.create_banner(%{
+          message: "New banner message",
+          enabled: true,
+          turn_on_at: DateTime.add(now, -1, :hour),
+          turn_off_at: DateTime.add(now, 1, :hour),
+          created_by_id: fixture(:user, %{is_dispatcher: true}).id
+        })
+
       # The live view should automatically update and show the new banner
       assert render(live) =~ "New banner message"
     end
 
     test "updates banner display in real-time when banner is updated", ctx do
       now = DateTime.utc_now()
-      banner = fixture(:banner, %{
-        message: "Original message",
-        enabled: true,
-        turn_on_at: DateTime.add(now, -1, :hour),
-        turn_off_at: DateTime.add(now, 1, :hour)
-      })
-      
+
+      banner =
+        fixture(:banner, %{
+          message: "Original message",
+          enabled: true,
+          turn_on_at: DateTime.add(now, -1, :hour),
+          turn_off_at: DateTime.add(now, 1, :hour)
+        })
+
       {:ok, live, html} = live(ctx.conn, ~p"/home")
-      
+
       # Initially shows original message
       assert html =~ "Original message"
       refute html =~ "Updated message"
-      
+
       # Update the banner
-      {:ok, _updated_banner} = BikeBrigade.Messaging.update_banner(banner, %{
-        message: "Updated message"
-      })
-      
+      {:ok, _updated_banner} =
+        BikeBrigade.Messaging.update_banner(banner, %{
+          message: "Updated message"
+        })
+
       # The live view should automatically update
       updated_html = render(live)
       assert updated_html =~ "Updated message"
@@ -152,21 +157,23 @@ describe "Real-time banner updates on rider home page" do
 
     test "updates banner display in real-time when banner is deleted", ctx do
       now = DateTime.utc_now()
-      banner = fixture(:banner, %{
-        message: "Banner to delete",
-        enabled: true,
-        turn_on_at: DateTime.add(now, -1, :hour),
-        turn_off_at: DateTime.add(now, 1, :hour)
-      })
-      
+
+      banner =
+        fixture(:banner, %{
+          message: "Banner to delete",
+          enabled: true,
+          turn_on_at: DateTime.add(now, -1, :hour),
+          turn_off_at: DateTime.add(now, 1, :hour)
+        })
+
       {:ok, live, html} = live(ctx.conn, ~p"/home")
-      
+
       # Initially shows the banner
       assert html =~ "Banner to delete"
-      
+
       # Delete the banner
       {:ok, _} = BikeBrigade.Messaging.delete_banner(banner)
-      
+
       # The live view should automatically update and hide the banner
       updated_html = render(live)
       refute updated_html =~ "Banner to delete"
@@ -176,25 +183,28 @@ describe "Real-time banner updates on rider home page" do
       # This test verifies that when a banner's time window expires,
       # it gets removed from the display on the next update
       now = DateTime.utc_now()
-      
+
       # Create a banner that will be active initially
-      banner = fixture(:banner, %{
-        message: "Soon to expire",
-        enabled: true,
-        turn_on_at: DateTime.add(now, -1, :hour),
-        turn_off_at: DateTime.add(now, 1, :hour)
-      })
-      
+      banner =
+        fixture(:banner, %{
+          message: "Soon to expire",
+          enabled: true,
+          turn_on_at: DateTime.add(now, -1, :hour),
+          turn_off_at: DateTime.add(now, 1, :hour)
+        })
+
       {:ok, live, html} = live(ctx.conn, ~p"/home")
-      
+
       # Initially shows the banner
       assert html =~ "Soon to expire"
-      
+
       # Update the banner to be expired (simulate time passing)
-      {:ok, _} = BikeBrigade.Messaging.update_banner(banner, %{
-        turn_off_at: DateTime.add(now, -1, :minute) # Expired 1 minute ago
-      })
-      
+      {:ok, _} =
+        BikeBrigade.Messaging.update_banner(banner, %{
+          # Expired 1 minute ago
+          turn_off_at: DateTime.add(now, -1, :minute)
+        })
+
       # The live view should automatically update and hide the expired banner
       updated_html = render(live)
       refute updated_html =~ "Soon to expire"
@@ -202,25 +212,26 @@ describe "Real-time banner updates on rider home page" do
 
     test "updates banner display when banner is disabled", ctx do
       now = DateTime.utc_now()
-      banner = fixture(:banner, %{
-        message: "Active banner",
-        enabled: true,
-        turn_on_at: DateTime.add(now, -1, :hour),
-        turn_off_at: DateTime.add(now, 1, :hour)
-      })
-      
+
+      banner =
+        fixture(:banner, %{
+          message: "Active banner",
+          enabled: true,
+          turn_on_at: DateTime.add(now, -1, :hour),
+          turn_off_at: DateTime.add(now, 1, :hour)
+        })
+
       {:ok, live, html} = live(ctx.conn, ~p"/home")
-      
+
       # Initially shows the banner
       assert html =~ "Active banner"
-      
+
       # Disable the banner
       {:ok, _} = BikeBrigade.Messaging.update_banner(banner, %{enabled: false})
-      
+
       # The live view should automatically update and hide the disabled banner
       updated_html = render(live)
       refute updated_html =~ "Active banner"
     end
   end
-  
 end
