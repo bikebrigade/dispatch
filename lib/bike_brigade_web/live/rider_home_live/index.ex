@@ -12,6 +12,9 @@ defmodule BikeBrigadeWeb.RiderHomeLive.Index do
     today = LocalizedDateTime.today()
     rider_id = socket.assigns.current_user.rider_id
 
+    # Subscribe to banner updates
+    Messaging.subscribe()
+
     {:ok,
      socket
      |> assign(:page, :home)
@@ -71,6 +74,19 @@ defmodule BikeBrigadeWeb.RiderHomeLive.Index do
 
   defp has_urgent_campaigns?(urgent_campaigns) do
     Enum.count(urgent_campaigns) > 0
+  end
+
+  @impl true
+  def handle_info({:banner_created, _banner}, socket) do
+    {:noreply, assign(socket, :active_banners, Messaging.list_active_banners())}
+  end
+
+  def handle_info({:banner_updated, _banner}, socket) do
+    {:noreply, assign(socket, :active_banners, Messaging.list_active_banners())}
+  end
+
+  def handle_info({:banner_deleted, _banner}, socket) do
+    {:noreply, assign(socket, :active_banners, Messaging.list_active_banners())}
   end
 
   defp num_unassigned_tasks_and_campaigns(urgent_campaigns) do

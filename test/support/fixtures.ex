@@ -221,14 +221,6 @@ defmodule BikeBrigade.Fixtures do
     Map.merge(defaults, attrs)
   end
 
-  def fixture(:sms_message_from_rider, rider, attrs) do
-    fixture(:sms_message, Map.merge(attrs, %{rider_id: rider.id, from: rider.phone}))
-  end
-
-  def fixture(:sms_message_to_rider, rider, attrs) do
-    fixture(:sms_message, Map.merge(attrs, %{rider_id: rider.id, to: rider.phone}))
-  end
-
   def fixture(:banner, attrs) do
     user = fixture(:user, %{is_dispatcher: true})
 
@@ -245,6 +237,14 @@ defmodule BikeBrigade.Fixtures do
       |> Messaging.create_banner()
 
     banner
+  end
+
+  def fixture(:sms_message_from_rider, rider, attrs) do
+    fixture(:sms_message, Map.merge(attrs, %{rider_id: rider.id, from: rider.phone}))
+  end
+
+  def fixture(:sms_message_to_rider, rider, attrs) do
+    fixture(:sms_message, Map.merge(attrs, %{rider_id: rider.id, to: rider.phone}))
   end
 
   defp fake_name() do
