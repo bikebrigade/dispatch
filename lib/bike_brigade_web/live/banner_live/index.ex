@@ -59,9 +59,6 @@ defmodule BikeBrigadeWeb.BannerLive.Index do
 
   defp list_banners do
     Messaging.list_banners()
-    |> IO.inspect()
     |> BikeBrigade.Repo.preload(:created_by)
-
-    # |> Enum.sort_by(& &1.inserted_at, {:desc, DateTime})
   end
 end
