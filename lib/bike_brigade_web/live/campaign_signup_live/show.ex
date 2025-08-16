@@ -19,7 +19,8 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
      |> assign(:current_rider_id, socket.assigns.current_user.rider_id)
      |> assign(:campaign, nil)
      |> assign(:riders, nil)
-     |> assign(:tasks, nil)}
+     |> assign(:tasks, nil)
+     |> assign(:backup_riders, nil)}
   end
 
   @impl true
@@ -137,6 +138,43 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
     end
   end
 
+  def handle_event("signup_backup_rider", %{"rider_id" => rider_id}, socket) do
+    %{campaign: campaign} = socket.assigns
+
+    attrs = %{
+      "rider_capacity" => "1",
+      "pickup_window" => pickup_window(campaign),
+      "enter_building" => true,
+      "campaign_id" => campaign.id,
+      "rider_id" => rider_id,
+      "rider_signed_up" => true
+    }
+
+    case Delivery.create_backup_campaign_rider(attrs) do
+      {:ok, _cr} ->
+        {:noreply, socket |> push_patch(to: ~p"/campaigns/signup/#{campaign}", replace: true)}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:noreply, assign(socket, :changeset, changeset)}
+    end
+  end
+
+  def handle_event("cancel_backup_rider", %{"rider_id" => rider_id}, socket) do
+    %{campaign: campaign} = socket.assigns
+    rider_id = String.to_integer(rider_id)
+
+    case Delivery.remove_backup_rider_from_campaign(campaign, rider_id) do
+      {:ok, _cr} ->
+        {:noreply, socket |> push_patch(to: ~p"/campaigns/signup/#{campaign}", replace: true)}
+
+      {:error, _reason} ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "Unable to cancel backup rider signup.")
+         |> push_patch(to: ~p"/campaigns/signup/#{campaign}", replace: true)}
+    end
+  end
+
   ## -- Callbacks to handle Delivery broadcasts --
 
   @broadcasted_infos [
@@ -173,12 +211,14 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
 
   defp assign_campaign(socket, campaign) do
     {riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+    backup_riders = Delivery.get_backup_riders(campaign)
     tasks = Enum.sort_by(tasks, fn t -> Locations.neighborhood(t.dropoff_location) end)
 
     socket
     |> assign(:campaign, campaign)
     |> assign(:riders, riders)
     |> assign(:tasks, tasks)
+    |> assign(:backup_riders, backup_riders)
   end
 
   ## Module specific components
@@ -286,6 +326,10 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
 
   defp campaign_today?(campaign) do
     LocalizedDateTime.to_date(campaign.delivery_start) == LocalizedDateTime.today()
+  end
+
+  defp backup_rider_signed_up?(backup_riders, current_rider_id) do
+    Enum.any?(backup_riders, fn rider -> rider.id == current_rider_id end)
   end
 
   def initials(name) do
