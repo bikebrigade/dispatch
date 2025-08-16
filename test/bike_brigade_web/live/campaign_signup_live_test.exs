@@ -308,6 +308,29 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       assert log.rider_id == ctx.rider.id
       assert log.user_id == ctx.user.id
     end
+
+    test "Backup rider cannot sign up for regular tasks", ctx do
+      # First sign up as backup rider
+      {:ok, _backup_cr} =
+        Delivery.create_backup_campaign_rider(%{
+          "campaign_id" => ctx.campaign.id,
+          "rider_id" => ctx.rider.id,
+          "rider_capacity" => "1",
+          "pickup_window" => "10:00-11:00AM",
+          "enter_building" => true,
+          "rider_signed_up" => true
+        })
+
+      {:ok, live, _html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
+
+    
+      # Click the button and get the updated HTML
+      live |> element("#signup-btn-desktop-backup-rider-#{ctx.task.id}") |> render_click()
+      updated_html = render(live)
+      
+      # Check that the flash message appears
+      assert updated_html =~ "You are currently signed up as a backup rider. If you wish to sign up for this task, cancel being a backup rider below."
+    end
   end
 
   defp make_campaign_in_past(program_id) do

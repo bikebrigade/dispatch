@@ -252,6 +252,39 @@ defmodule BikeBrigade.DeliveryTest do
       assert length(riders) == 1
       assert hd(riders).id == regular_rider.id
     end
+
+    test "backup riders cannot sign up for regular tasks via signup_rider event", %{
+      campaign: campaign,
+      backup_rider: backup_rider
+    } do
+      # Create a backup campaign rider
+      {:ok, _backup_cr} =
+        Delivery.create_backup_campaign_rider(%{
+          "campaign_id" => campaign.id,
+          "rider_id" => backup_rider.id,
+          "rider_capacity" => "1",
+          "pickup_window" => "10:00-11:00AM",
+          "enter_building" => true,
+          "rider_signed_up" => true
+        })
+
+      # Create a task
+      task = fixture(:task, %{campaign: campaign})
+
+      # Try to create a regular campaign rider for the backup rider (this should fail)
+      attrs = %{
+        "campaign_id" => campaign.id,
+        "rider_id" => backup_rider.id,
+        "rider_capacity" => "1",
+        "pickup_window" => "10:00-11:00AM",
+        "enter_building" => true,
+        "rider_signed_up" => true
+      }
+
+      # This should fail since backup rider already exists
+      assert {:error, changeset} = Delivery.create_campaign_rider(attrs)
+      assert {"already signed up as backup rider", []} = changeset.errors[:rider_id]
+    end
   end
 
   def item_name(%Task{task_items: [%{item: %{name: item_name}}]}), do: item_name

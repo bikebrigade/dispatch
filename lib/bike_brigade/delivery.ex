@@ -345,6 +345,40 @@ defmodule BikeBrigade.Delivery do
   end
 
   def create_campaign_rider(attrs \\ %{}) do
+    # Check if rider is already signed up as backup rider for this campaign
+    campaign_id = attrs["campaign_id"] || attrs[:campaign_id]
+    rider_id = attrs["rider_id"] || attrs[:rider_id]
+
+    case {campaign_id, rider_id} do
+      {nil, _} ->
+        create_campaign_rider_without_backup_check(attrs)
+
+      {_, nil} ->
+        create_campaign_rider_without_backup_check(attrs)
+
+      {campaign_id, rider_id} ->
+        case Repo.get_by(CampaignRider,
+               campaign_id: campaign_id,
+               rider_id: rider_id,
+               backup_rider: true
+             ) do
+          nil ->
+            # No backup rider exists, proceed with normal signup
+            create_campaign_rider_without_backup_check(attrs)
+
+          _backup_rider ->
+            # Backup rider exists, prevent regular signup
+            changeset =
+              %CampaignRider{}
+              |> CampaignRider.changeset(attrs)
+              |> Ecto.Changeset.add_error(:rider_id, "already signed up as backup rider")
+
+            {:error, changeset}
+        end
+    end
+  end
+
+  defp create_campaign_rider_without_backup_check(attrs) do
     %CampaignRider{}
     |> CampaignRider.changeset(attrs)
     |> Repo.insert(
