@@ -254,22 +254,6 @@
               </div>
 
               <div class="flex flex-row mt-5 space-x-1">
-                <%= if @resent do %>
-                  <.button
-                    phx-click={JS.push("resend_message", value: %{rider_id: rider.id})}
-                    size={:xsmall}
-                    disabled
-                  >
-                    Sent!
-                  </.button>
-                <% else %>
-                  <.button
-                    phx-click={JS.push("resend_message", value: %{rider_id: rider.id})}
-                    size={:xsmall}
-                  >
-                    Resend
-                  </.button>
-                <% end %>
                 <.button navigate={~p"/messages/#{rider}"} color={:secondary} size={:xsmall}>
                   Message
                 </.button>
