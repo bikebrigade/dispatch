@@ -260,7 +260,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
 
     test "displays backup riders section when backup riders exist", ctx do
       rider = fixture(:rider)
-      
+
       # Create a backup rider
       {:ok, _backup_cr} =
         Delivery.create_backup_campaign_rider(%{
@@ -282,7 +282,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
 
     test "can select a backup rider", ctx do
       rider = fixture(:rider)
-      
+
       # Create a backup rider
       {:ok, _backup_cr} =
         Delivery.create_backup_campaign_rider(%{
@@ -307,7 +307,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
 
     test "can convert backup rider to regular rider", ctx do
       rider = fixture(:rider)
-      
+
       # Create a backup rider
       {:ok, _backup_cr} =
         Delivery.create_backup_campaign_rider(%{
@@ -323,16 +323,16 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
 
       # First click on backup rider to select them
       updated_html = view |> element("#backup-riders-list a", rider.name) |> render_click()
-      
+
       # Debug: check that backup rider details are showing
       assert updated_html =~ "Convert to Rider"
-      
+
       # Now convert should be available
       view |> element("button", "Convert to Rider") |> render_click()
 
       # Backup rider should no longer exist
       refute render(view) =~ "Backup Riders"
-      
+
       # Rider should now be in regular riders list
       regular_riders_html = view |> element("#riders-list") |> render()
       assert regular_riders_html =~ rider.name
@@ -341,7 +341,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
 
     test "can remove backup rider", ctx do
       rider = fixture(:rider)
-      
+
       # Create a backup rider
       {:ok, _backup_cr} =
         Delivery.create_backup_campaign_rider(%{
@@ -357,7 +357,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
 
       # First click on backup rider to select them
       view |> element("#backup-riders-list a", rider.name) |> render_click()
-      
+
       # Now remove should be available
       view |> element("button", "Remove Backup") |> render_click()
 
@@ -369,7 +369,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
     test "cannot assign tasks to backup riders", ctx do
       rider = fixture(:rider)
       task = fixture(:task, %{campaign: ctx.campaign})
-      
+
       # Create a backup rider
       {:ok, _backup_cr} =
         Delivery.create_backup_campaign_rider(%{
@@ -385,7 +385,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
 
       # Select the task first
       view |> element("[id='tasks-list:#{task.id}'] a", task.dropoff_name) |> render_click()
-      
+
       # Select the backup rider
       view |> element("#backup-riders-list a", rider.name) |> render_click()
 
@@ -397,7 +397,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
 
     test "can message backup riders", ctx do
       rider = fixture(:rider)
-      
+
       # Create a backup rider
       {:ok, _backup_cr} =
         Delivery.create_backup_campaign_rider(%{
@@ -413,7 +413,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
 
       # Click on backup rider
       view |> element("#backup-riders-list a", rider.name) |> render_click()
-      
+
       # Should have message button
       assert has_element?(view, "a[href='/messages/#{rider.id}']", "Message")
     end

@@ -400,14 +400,15 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
 
     test "shows confirmation dialog for same-day campaign cancellation", ctx do
       # Create a campaign that starts today
-      today_campaign = fixture(:campaign, %{
-        program_id: ctx.program.id,
-        delivery_start: DateTime.utc_now(),
-        delivery_end: DateTime.utc_now() |> DateTime.add(3600, :second)
-      })
+      today_campaign =
+        fixture(:campaign, %{
+          program_id: ctx.program.id,
+          delivery_start: DateTime.utc_now(),
+          delivery_end: DateTime.utc_now() |> DateTime.add(3600, :second)
+        })
 
       {:ok, live, _html} = live(ctx.conn, ~p"/campaigns/signup/#{today_campaign.id}/")
-      
+
       # Sign up as backup rider
       live |> element("#signup-backup-rider-btn") |> render_click()
 
@@ -419,11 +420,12 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
 
     test "does not show signup/cancel buttons for past campaigns", ctx do
       # Create a campaign in the past
-      past_campaign = fixture(:campaign, %{
-        program_id: ctx.program.id,
-        delivery_start: DateTime.utc_now() |> DateTime.add(-7 * 24 * 3600, :second),
-        delivery_end: DateTime.utc_now() |> DateTime.add(-7 * 24 * 3600 + 3600, :second)
-      })
+      past_campaign =
+        fixture(:campaign, %{
+          program_id: ctx.program.id,
+          delivery_start: DateTime.utc_now() |> DateTime.add(-7 * 24 * 3600, :second),
+          delivery_end: DateTime.utc_now() |> DateTime.add(-7 * 24 * 3600 + 3600, :second)
+        })
 
       {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup/#{past_campaign.id}/")
 
@@ -437,6 +439,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
     test "shows other backup riders in the list", ctx do
       # Create another rider and sign them up as backup
       other_rider = fixture(:rider, %{name: "Jane Doe"})
+
       {:ok, _backup_cr} =
         Delivery.create_backup_campaign_rider(%{
           "campaign_id" => ctx.campaign.id,
@@ -450,7 +453,8 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
 
       # Should show the other backup rider
-      assert html =~ "Jane D"  # first name and last initial
+      # first name and last initial
+      assert html =~ "Jane D"
       assert html =~ "Backup rider"
 
       # Current rider should still be able to sign up
@@ -474,7 +478,8 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       updated_html = render(live)
 
       # Should show the flash message
-      assert updated_html =~ "You are currently signed up as a backup rider. If you wish to sign up for this task, cancel being a backup rider below."
+      assert updated_html =~
+               "You are currently signed up as a backup rider. If you wish to sign up for this task, cancel being a backup rider below."
     end
   end
 

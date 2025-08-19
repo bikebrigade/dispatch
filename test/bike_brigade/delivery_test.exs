@@ -98,7 +98,6 @@ defmodule BikeBrigade.DeliveryTest do
     assert log.action == :unassigned
   end
 
-
   describe "Backup Riders" do
     setup do
       campaign = fixture(:campaign)
