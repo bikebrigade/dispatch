@@ -114,9 +114,12 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
   end
 
   def handle_event("backup_rider_tried_signing_up", _, socket) do
-    {:noreply, socket
-     |> put_flash(:error, "You are currently signed up as a backup rider. If you wish to sign up for this task, cancel being a backup rider below.") }
-
+    {:noreply,
+     socket
+     |> put_flash(
+       :error,
+       "You are currently signed up as a backup rider. If you wish to sign up for this task, cancel being a backup rider below."
+     )}
   end
 
   def handle_event("signup_rider", %{"rider_id" => rider_id, "task_id" => task_id}, socket) do
@@ -310,9 +313,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
       <%= if backup_rider_signed_up?(@backup_riders, @current_rider_id) && 
               task_available_but_backup_rider?(@task, @campaign) do %>
         <.button
-          phx-click={
-            JS.push("backup_rider_tried_signing_up")
-          }
+          phx-click={JS.push("backup_rider_tried_signing_up")}
           color={:secondary}
           id={"#{@id}-backup-rider-#{@task.id}"}
           size={:xsmall}

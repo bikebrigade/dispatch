@@ -98,6 +98,7 @@ defmodule BikeBrigade.DeliveryTest do
     assert log.action == :unassigned
   end
 
+
   describe "Backup Riders" do
     setup do
       campaign = fixture(:campaign)
@@ -284,6 +285,38 @@ defmodule BikeBrigade.DeliveryTest do
       # This should fail since backup rider already exists
       assert {:error, changeset} = Delivery.create_campaign_rider(attrs)
       assert {"already signed up as backup rider", []} = changeset.errors[:rider_id]
+    end
+
+    test "create_campaign_rider_without_backup_check/1 allows conversion of backup riders", %{
+      campaign: campaign,
+      backup_rider: backup_rider
+    } do
+      # Create a backup campaign rider
+      {:ok, _backup_cr} =
+        Delivery.create_backup_campaign_rider(%{
+          "campaign_id" => campaign.id,
+          "rider_id" => backup_rider.id,
+          "rider_capacity" => "3",
+          "pickup_window" => "10:00-11:00AM",
+          "enter_building" => true,
+          "rider_signed_up" => true
+        })
+
+      # Should be able to create regular campaign rider even though backup exists
+      # (this simulates the conversion process)
+      attrs = %{
+        "campaign_id" => campaign.id,
+        "rider_id" => backup_rider.id,
+        "rider_capacity" => "3",
+        "pickup_window" => "10:00-11:00AM",
+        "enter_building" => true,
+        "rider_signed_up" => true
+      }
+
+      assert {:ok, regular_cr} = Delivery.create_campaign_rider_without_backup_check(attrs)
+      assert regular_cr.backup_rider == false
+      assert regular_cr.rider_id == backup_rider.id
+      assert regular_cr.rider_capacity == 3
     end
   end
 

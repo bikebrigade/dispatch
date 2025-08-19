@@ -77,7 +77,7 @@
 <!-- Backup Rider Section -->
 <section class="mt-8">
   <div class="flex justify-between items-center mb-4">
-    <h3 class="text-lg font-medium">Backup Riders</h3>
+    <h3 class="text-sm text-center font-medium">Backup Riders</h3>
     <%= if !backup_rider_signed_up?(@backup_riders, @current_rider_id) && !campaign_in_past(@campaign) do %>
       <.button
         phx-click={JS.push("signup_backup_rider", value: %{rider_id: @current_rider_id})}

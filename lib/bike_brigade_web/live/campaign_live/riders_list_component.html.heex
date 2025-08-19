@@ -171,4 +171,129 @@
       </li>
     <% end %>
   </ul>
+  
+<!-- Backup Riders Section -->
+  <div :if={@backup_riders && Enum.count(@backup_riders) > 0} class="border-t mt-4 pt-4">
+    <div class="ml-2 mb-2">
+      <h3 class="text-sm font-medium leading-6 text-gray-900 ml-2">
+        Backup Riders ({Enum.count(@backup_riders)})
+      </h3>
+    </div>
+
+    <ul class="overflow-y-auto scrolling-touch" id="backup-riders-list">
+      <%= for {_id, rider} <- @backup_riders do %>
+        <li id={"backup-riders-list:#{rider.id}"}>
+          <.link
+            phx-click={JS.push("select_backup_rider", value: %{id: rider.id})}
+            class={
+              "block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50#{if selected?(@selected_rider, rider), do: " bg-gray-100"}"
+            }
+          >
+            <div class="flex flex-row items-center px-4 py-4">
+              <div class="text-sm font-medium">
+                {rider.name}
+                <span class="text-xs text-blue-600">(backup)</span>
+              </div>
+
+              <%= if rider.task_enter_building do %>
+                <Heroicons.building_office
+                  mini
+                  class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end"
+                />
+              <% end %>
+
+              <%= if novice_participant?(rider) do %>
+                <.with_tooltip>
+                  <Heroicons.star
+                    mini
+                    class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end"
+                  />
+                  <:tooltip>
+                    <div class="w-18">
+                      New rider (less than 5 campaigns)
+                    </div>
+                  </:tooltip>
+                </.with_tooltip>
+              <% end %>
+
+              <%= if has_notes?(rider) do %>
+                <Heroicons.pencil_square mini class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500" />
+              <% end %>
+
+              <%= if rider.text_based_itinerary do %>
+                <.with_tooltip>
+                  <Heroicons.signal_slash mini class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500" />
+                  <:tooltip>
+                    <div class="w-40">
+                      This rider will receive an extra message with text-only delivery instructions
+                    </div>
+                  </:tooltip>
+                </.with_tooltip>
+              <% end %>
+            </div>
+          </.link>
+          <%= if selected?(@selected_rider, rider) do %>
+            <div class="p-2 mx-1 rounded-b shadow-inner bg-blue-50">
+              <div class="flex flex-row my-2">
+                <Heroicons.clock mini class="flex-shrink-0 w-4 h-4 text-gray-500" />
+                <div class="mx-1 text-sm leading-5 text-gray-800">
+                  {pickup_window(@campaign, rider)}
+                </div>
+              </div>
+              <%= if has_notes?(rider) do %>
+                <div class="flex flex-row my-2">
+                  <Heroicons.pencil_square mini class="flex-shrink-0 w-4 h-4 text-gray-500" />
+                  <div class="mx-1 text-sm leading-5 text-gray-600">
+                    {rider.task_notes}
+                  </div>
+                </div>
+              <% end %>
+
+              <div class="mx-1 text-sm leading-5 text-gray-800">
+                Signed up as backup rider - no specific tasks assigned
+              </div>
+
+              <div class="flex flex-row mt-5 space-x-1">
+                <%= if @resent do %>
+                  <.button
+                    phx-click={JS.push("resend_message", value: %{rider_id: rider.id})}
+                    size={:xsmall}
+                    disabled
+                  >
+                    Sent!
+                  </.button>
+                <% else %>
+                  <.button
+                    phx-click={JS.push("resend_message", value: %{rider_id: rider.id})}
+                    size={:xsmall}
+                  >
+                    Resend
+                  </.button>
+                <% end %>
+                <.button navigate={~p"/messages/#{rider}"} color={:secondary} size={:xsmall}>
+                  Message
+                </.button>
+                <.button
+                  phx-click={JS.push("convert_backup_to_rider", value: %{rider_id: rider.id})}
+                  color={:green}
+                  size={:xsmall}
+                >
+                  Convert to Rider
+                </.button>
+              </div>
+              <div class="mt-1">
+                <.button
+                  phx-click={JS.push("remove_backup_rider", value: %{rider_id: rider.id})}
+                  color={:red}
+                  size={:xsmall}
+                >
+                  Remove Backup
+                </.button>
+              </div>
+            </div>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
 </div>

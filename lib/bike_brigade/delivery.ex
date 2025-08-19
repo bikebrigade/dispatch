@@ -378,7 +378,7 @@ defmodule BikeBrigade.Delivery do
     end
   end
 
-  defp create_campaign_rider_without_backup_check(attrs) do
+  def create_campaign_rider_without_backup_check(attrs) do
     %CampaignRider{}
     |> CampaignRider.changeset(attrs)
     |> Repo.insert(
