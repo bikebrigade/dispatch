@@ -450,7 +450,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
           "rider_signed_up" => true
         })
 
-      {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
+      {:ok, _live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
 
       # Should show the other backup rider
       # first name and last initial
@@ -462,7 +462,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
     end
 
     test "shows 'No backup riders signed up yet' when empty", ctx do
-      {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
+      {:ok, _live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
 
       # Should show empty state message
       assert html =~ "No backup riders signed up yet."

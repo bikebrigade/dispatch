@@ -303,7 +303,6 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
           id={"#{@id}-sign-up-task-#{@task.id}"}
           size={:xsmall}
           class="w-full md:w-28"
-          disabled
           replace
         >
           Sign up
