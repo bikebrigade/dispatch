@@ -229,8 +229,7 @@ defmodule BikeBrigade.DeliveryTest do
 
     test "remove_backup_rider_from_campaign/2 only removes backup riders, not regular riders", %{
       campaign: campaign,
-      rider: regular_rider,
-      backup_rider: backup_rider
+      rider: regular_rider
     } do
       # Create a regular campaign rider
       {:ok, _regular_cr} =
@@ -269,7 +268,7 @@ defmodule BikeBrigade.DeliveryTest do
         })
 
       # Create a task
-      task = fixture(:task, %{campaign: campaign})
+      fixture(:task, %{campaign: campaign})
 
       # Try to create a regular campaign rider for the backup rider (this should fail)
       attrs = %{

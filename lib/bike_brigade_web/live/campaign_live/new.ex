@@ -33,7 +33,6 @@ defmodule BikeBrigadeWeb.CampaignLive.New do
   end
 
   def handle_event("save", params, socket) do
-    IO.inspect(params)
     {:noreply, socket}
   end
 
