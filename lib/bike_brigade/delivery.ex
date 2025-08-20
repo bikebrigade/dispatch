@@ -499,20 +499,14 @@ defmodule BikeBrigade.Delivery do
   end
 
   def get_backup_riders(%Campaign{} = campaign) do
-    campaign =
-      campaign
-      |> Repo.preload(:location)
-
     backup_riders =
       Repo.all(
         from cr in CampaignRider,
           join: r in assoc(cr, :rider),
-          left_join: l in assoc(r, :location),
           where: cr.campaign_id == ^campaign.id and cr.backup_rider == true,
           order_by: r.name,
           select: r,
           select_merge: %{
-            distance: st_distance(l.coords, ^campaign.location.coords),
             task_notes: cr.notes,
             task_capacity: cr.rider_capacity,
             task_enter_building: cr.enter_building,
@@ -520,7 +514,7 @@ defmodule BikeBrigade.Delivery do
             delivery_url_token: cr.token
           }
       )
-      |> Repo.preload([:location, :total_stats])
+      |> Repo.preload([:total_stats])
 
     backup_riders
   end
