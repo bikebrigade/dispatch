@@ -401,5 +401,4 @@ defmodule BikeBrigade.Messaging do
 
     message.sent_by_user.name
   end
-
 end
