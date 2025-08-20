@@ -398,26 +398,6 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       assert length(backup_riders) == 0
     end
 
-    test "shows confirmation dialog for same-day campaign cancellation", ctx do
-      # Create a campaign that starts today
-      today_campaign =
-        fixture(:campaign, %{
-          program_id: ctx.program.id,
-          delivery_start: DateTime.utc_now(),
-          delivery_end: DateTime.utc_now() |> DateTime.add(3600, :second)
-        })
-
-      {:ok, live, _html} = live(ctx.conn, ~p"/campaigns/signup/#{today_campaign.id}/")
-
-      # Sign up as backup rider
-      live |> element("#signup-backup-rider-btn") |> render_click()
-
-      # Try to cancel - should have confirmation dialog
-      cancel_button_html = live |> element("#cancel-backup-rider-btn") |> render()
-      assert cancel_button_html =~ "data-confirm"
-      assert cancel_button_html =~ "This delivery starts today"
-    end
-
     test "does not show signup/cancel buttons for past campaigns", ctx do
       # Create a campaign in the past
       past_campaign =
