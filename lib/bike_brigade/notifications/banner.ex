@@ -1,4 +1,4 @@
-defmodule BikeBrigade.Messaging.Banner do
+defmodule BikeBrigade.Notifications.Banner do
   use BikeBrigade.Schema
   import Ecto.Changeset
 

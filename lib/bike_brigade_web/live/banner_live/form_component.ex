@@ -3,8 +3,8 @@ defmodule BikeBrigadeWeb.BannerLive.FormComponent do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias BikeBrigade.Messaging
-  alias BikeBrigade.Messaging.Banner
+  alias BikeBrigade.Notifications
+  alias BikeBrigade.Notifications.Banner
   alias BikeBrigade.LocalizedDateTime
 
   embedded_schema do
@@ -91,7 +91,7 @@ defmodule BikeBrigadeWeb.BannerLive.FormComponent do
     if changeset.valid? do
       converted_params = changeset |> Ecto.Changeset.apply_changes() |> to_banner_params()
 
-      case Messaging.update_banner(socket.assigns.banner, converted_params) do
+      case Notifications.update_banner(socket.assigns.banner, converted_params) do
         {:ok, banner} ->
           notify_parent({:saved, banner})
 
@@ -116,7 +116,7 @@ defmodule BikeBrigadeWeb.BannerLive.FormComponent do
     if changeset.valid? do
       converted_params = changeset |> Ecto.Changeset.apply_changes() |> to_banner_params()
 
-      case Messaging.create_banner(converted_params) do
+      case Notifications.create_banner(converted_params) do
         {:ok, banner} ->
           notify_parent({:saved, banner})
 

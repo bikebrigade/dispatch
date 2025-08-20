@@ -114,7 +114,7 @@ defmodule BikeBrigadeWeb.BannerDisplayTest do
       now = DateTime.utc_now()
 
       {:ok, _banner} =
-        BikeBrigade.Messaging.create_banner(%{
+        BikeBrigade.Notifications.create_banner(%{
           message: "New banner message",
           enabled: true,
           turn_on_at: DateTime.add(now, -1, :hour),
@@ -145,7 +145,7 @@ defmodule BikeBrigadeWeb.BannerDisplayTest do
 
       # Update the banner
       {:ok, _updated_banner} =
-        BikeBrigade.Messaging.update_banner(banner, %{
+        BikeBrigade.Notifications.update_banner(banner, %{
           message: "Updated message"
         })
 
@@ -172,7 +172,7 @@ defmodule BikeBrigadeWeb.BannerDisplayTest do
       assert html =~ "Banner to delete"
 
       # Delete the banner
-      {:ok, _} = BikeBrigade.Messaging.delete_banner(banner)
+      {:ok, _} = BikeBrigade.Notifications.delete_banner(banner)
 
       # The live view should automatically update and hide the banner
       updated_html = render(live)
@@ -200,7 +200,7 @@ defmodule BikeBrigadeWeb.BannerDisplayTest do
 
       # Update the banner to be expired (simulate time passing)
       {:ok, _} =
-        BikeBrigade.Messaging.update_banner(banner, %{
+        BikeBrigade.Notifications.update_banner(banner, %{
           # Expired 1 minute ago
           turn_off_at: DateTime.add(now, -1, :minute)
         })
@@ -227,7 +227,7 @@ defmodule BikeBrigadeWeb.BannerDisplayTest do
       assert html =~ "Active banner"
 
       # Disable the banner
-      {:ok, _} = BikeBrigade.Messaging.update_banner(banner, %{enabled: false})
+      {:ok, _} = BikeBrigade.Notifications.update_banner(banner, %{enabled: false})
 
       # The live view should automatically update and hide the disabled banner
       updated_html = render(live)

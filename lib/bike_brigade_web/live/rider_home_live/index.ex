@@ -1,7 +1,7 @@
 defmodule BikeBrigadeWeb.RiderHomeLive.Index do
   use BikeBrigadeWeb, :live_view
 
-  alias BikeBrigade.{Delivery, Messaging, Riders, Stats, LocalizedDateTime}
+  alias BikeBrigade.{Delivery, Notifications, Riders, Stats, LocalizedDateTime}
 
   import BikeBrigadeWeb.CampaignHelpers
 
@@ -13,7 +13,7 @@ defmodule BikeBrigadeWeb.RiderHomeLive.Index do
     rider_id = socket.assigns.current_user.rider_id
 
     # Subscribe to banner updates
-    Messaging.subscribe()
+    Notifications.subscribe()
 
     {:ok,
      socket
@@ -22,7 +22,7 @@ defmodule BikeBrigadeWeb.RiderHomeLive.Index do
      |> assign(:stats, Stats.home_stats())
      |> assign(:rider, Riders.get_rider!(rider_id))
      |> assign(:urgent_campaigns, Delivery.list_urgent_campaigns())
-     |> assign(:active_banners, Messaging.list_active_banners())
+     |> assign(:active_banners, Notifications.list_active_banners())
      |> load_itinerary(today)}
   end
 
@@ -78,15 +78,15 @@ defmodule BikeBrigadeWeb.RiderHomeLive.Index do
 
   @impl true
   def handle_info({:banner_created, _banner}, socket) do
-    {:noreply, assign(socket, :active_banners, Messaging.list_active_banners())}
+    {:noreply, assign(socket, :active_banners, Notifications.list_active_banners())}
   end
 
   def handle_info({:banner_updated, _banner}, socket) do
-    {:noreply, assign(socket, :active_banners, Messaging.list_active_banners())}
+    {:noreply, assign(socket, :active_banners, Notifications.list_active_banners())}
   end
 
   def handle_info({:banner_deleted, _banner}, socket) do
-    {:noreply, assign(socket, :active_banners, Messaging.list_active_banners())}
+    {:noreply, assign(socket, :active_banners, Notifications.list_active_banners())}
   end
 
   defp num_unassigned_tasks_and_campaigns(urgent_campaigns) do

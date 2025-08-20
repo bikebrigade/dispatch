@@ -1,5 +1,5 @@
 defmodule BikeBrigade.Fixtures do
-  alias BikeBrigade.{Accounts, Delivery, Riders, Messaging, Messaging, Repo}
+  alias BikeBrigade.{Accounts, Delivery, Riders, Messaging, Notifications, Repo}
   alias BikeBrigade.Repo.Seeds.Toronto
 
   alias BikeBrigade.Repo.Seeds.Toronto
@@ -234,7 +234,7 @@ defmodule BikeBrigade.Fixtures do
     {:ok, banner} =
       defaults
       |> Map.merge(attrs)
-      |> Messaging.create_banner()
+      |> Notifications.create_banner()
 
     banner
   end

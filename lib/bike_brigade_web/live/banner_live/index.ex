@@ -1,8 +1,8 @@
 defmodule BikeBrigadeWeb.BannerLive.Index do
   use BikeBrigadeWeb, :live_view
 
-  alias BikeBrigade.Messaging
-  alias BikeBrigade.Messaging.Banner
+  alias BikeBrigade.Notifications
+  alias BikeBrigade.Notifications.Banner
   alias BikeBrigade.LocalizedDateTime
 
   @impl true
@@ -22,7 +22,7 @@ defmodule BikeBrigadeWeb.BannerLive.Index do
   defp apply_action(socket, :edit, %{"id" => id}) do
     socket
     |> assign(:page_title, "Edit Banner")
-    |> assign(:banner, Messaging.get_banner!(id))
+    |> assign(:banner, Notifications.get_banner!(id))
   end
 
   defp apply_action(socket, :new, _params) do
@@ -51,14 +51,14 @@ defmodule BikeBrigadeWeb.BannerLive.Index do
 
   @impl true
   def handle_event("delete", %{"id" => id}, socket) do
-    banner = Messaging.get_banner!(id)
-    {:ok, _} = Messaging.delete_banner(banner)
+    banner = Notifications.get_banner!(id)
+    {:ok, _} = Notifications.delete_banner(banner)
 
     {:noreply, assign(socket, :banners, list_banners())}
   end
 
   defp list_banners do
-    Messaging.list_banners()
+    Notifications.list_banners()
     |> BikeBrigade.Repo.preload(:created_by)
   end
 end

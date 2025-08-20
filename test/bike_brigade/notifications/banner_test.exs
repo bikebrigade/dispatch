@@ -1,7 +1,7 @@
-defmodule BikeBrigade.Messaging.BannerTest do
+defmodule BikeBrigade.Notifications.BannerTest do
   use BikeBrigade.DataCase, async: true
 
-  alias BikeBrigade.Messaging
+  alias BikeBrigade.Notifications
 
   describe "Banner CRUD operations" do
     test "create_banner with valid data" do
@@ -10,7 +10,7 @@ defmodule BikeBrigade.Messaging.BannerTest do
       user = fixture(:user, %{is_dispatcher: true})
 
       result =
-        Messaging.create_banner(%{
+        Notifications.create_banner(%{
           message: "foo",
           created_by_id: user.id,
           turn_on_at: turn_on_time,
@@ -28,27 +28,27 @@ defmodule BikeBrigade.Messaging.BannerTest do
         fixture(:banner)
       end
 
-      assert Enum.count(Messaging.list_banners()) == 4
+      assert Enum.count(Notifications.list_banners()) == 4
     end
 
     test "update_banner" do
       b = fixture(:banner)
-      {:ok, b2} = Messaging.update_banner(b, %{message: "bar"})
+      {:ok, b2} = Notifications.update_banner(b, %{message: "bar"})
       assert b2.message == "bar"
     end
 
     test "delete_banner" do
       banner = fixture(:banner)
-      assert {:ok, _} = Messaging.delete_banner(banner)
+      assert {:ok, _} = Notifications.delete_banner(banner)
 
       assert_raise Ecto.NoResultsError, fn ->
-        Messaging.get_banner!(banner.id)
+        Notifications.get_banner!(banner.id)
       end
     end
 
     test "get_banner!" do
       banner = fixture(:banner)
-      retrieved = Messaging.get_banner!(banner.id)
+      retrieved = Notifications.get_banner!(banner.id)
       assert retrieved.id == banner.id
       assert retrieved.message == banner.message
     end
@@ -62,7 +62,7 @@ defmodule BikeBrigade.Messaging.BannerTest do
       user = fixture(:user, %{is_dispatcher: true})
 
       result =
-        Messaging.create_banner(%{
+        Notifications.create_banner(%{
           message: "Invalid banner",
           created_by_id: user.id,
           turn_on_at: turn_on_time,
@@ -78,7 +78,7 @@ defmodule BikeBrigade.Messaging.BannerTest do
       user = fixture(:user, %{is_dispatcher: true})
 
       result =
-        Messaging.create_banner(%{
+        Notifications.create_banner(%{
           message: "Invalid banner",
           created_by_id: user.id,
           turn_on_at: same_time,
@@ -94,7 +94,7 @@ defmodule BikeBrigade.Messaging.BannerTest do
       now = DateTime.utc_now()
 
       result =
-        Messaging.create_banner(%{
+        Notifications.create_banner(%{
           created_by_id: user.id,
           turn_on_at: now,
           turn_off_at: DateTime.add(now, 1, :day)
@@ -108,7 +108,7 @@ defmodule BikeBrigade.Messaging.BannerTest do
       now = DateTime.utc_now()
 
       result =
-        Messaging.create_banner(%{
+        Notifications.create_banner(%{
           message: "Test message",
           turn_on_at: now,
           turn_off_at: DateTime.add(now, 1, :day)
@@ -122,7 +122,7 @@ defmodule BikeBrigade.Messaging.BannerTest do
       user = fixture(:user, %{is_dispatcher: true})
 
       result =
-        Messaging.create_banner(%{
+        Notifications.create_banner(%{
           message: "Test message",
           created_by_id: user.id
         })
@@ -173,7 +173,7 @@ defmodule BikeBrigade.Messaging.BannerTest do
           turn_off_at: DateTime.add(now, 1, :hour)
         })
 
-      active_banners = Messaging.list_active_banners()
+      active_banners = Notifications.list_active_banners()
       assert length(active_banners) == 1
       assert hd(active_banners).id == active_banner.id
       assert hd(active_banners).message == "Active banner"
@@ -195,7 +195,7 @@ defmodule BikeBrigade.Messaging.BannerTest do
           turn_off_at: DateTime.add(now, 2, :hour)
         })
 
-      active_banners = Messaging.list_active_banners()
+      active_banners = Notifications.list_active_banners()
       assert length(active_banners) == 0
     end
 
@@ -218,7 +218,7 @@ defmodule BikeBrigade.Messaging.BannerTest do
           turn_off_at: DateTime.add(now, 1, :hour)
         })
 
-      active_banners = Messaging.list_active_banners()
+      active_banners = Notifications.list_active_banners()
       assert length(active_banners) == 2
       # Should be ordered by turn_on_at ascending (earlier first)
       assert Enum.at(active_banners, 0).id == earlier_banner.id
