@@ -32,7 +32,8 @@ defmodule BikeBrigadeWeb.CampaignLive.New do
     {:noreply, assign(socket, :changeset, changeset)}
   end
 
-  def handle_event("save", params, socket) do
+
+  def handle_event("save", _params, socket) do
     {:noreply, socket}
   end
 
