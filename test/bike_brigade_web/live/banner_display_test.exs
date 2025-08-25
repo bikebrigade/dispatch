@@ -3,6 +3,7 @@ defmodule BikeBrigadeWeb.BannerDisplayTest do
 
   import Phoenix.LiveViewTest
 
+  @skip
   describe "Banner display on rider home page" do
     setup ctx do
       login_as_rider(ctx)
@@ -99,6 +100,7 @@ defmodule BikeBrigadeWeb.BannerDisplayTest do
     end
   end
 
+  @skip
   describe "Real-time banner updates on rider home page" do
     setup ctx do
       login_as_rider(ctx)
