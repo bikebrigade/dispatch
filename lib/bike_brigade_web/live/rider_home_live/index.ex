@@ -89,13 +89,11 @@ defmodule BikeBrigadeWeb.RiderHomeLive.Index do
     {:noreply, assign(socket, :active_banners, get_active_banners())}
   end
 
-
   defp get_active_banners() do
     # currently broken, due to a missed-migration.
     []
     # do note use below, replace when db is fixed:
     # Notifications.list_active_banners()
-    
   end
 
   defp num_unassigned_tasks_and_campaigns(urgent_campaigns) do
