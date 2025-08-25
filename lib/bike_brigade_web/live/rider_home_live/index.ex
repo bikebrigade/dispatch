@@ -22,7 +22,7 @@ defmodule BikeBrigadeWeb.RiderHomeLive.Index do
      |> assign(:stats, Stats.home_stats())
      |> assign(:rider, Riders.get_rider!(rider_id))
      |> assign(:urgent_campaigns, Delivery.list_urgent_campaigns())
-     |> assign(:active_banners, Notifications.list_active_banners())
+     |> assign(:active_banners, get_active_banners())
      |> load_itinerary(today)}
   end
 
@@ -78,15 +78,24 @@ defmodule BikeBrigadeWeb.RiderHomeLive.Index do
 
   @impl true
   def handle_info({:banner_created, _banner}, socket) do
-    {:noreply, assign(socket, :active_banners, Notifications.list_active_banners())}
+    {:noreply, assign(socket, :active_banners, get_active_banners())}
   end
 
   def handle_info({:banner_updated, _banner}, socket) do
-    {:noreply, assign(socket, :active_banners, Notifications.list_active_banners())}
+    {:noreply, assign(socket, :active_banners, get_active_banners())}
   end
 
   def handle_info({:banner_deleted, _banner}, socket) do
-    {:noreply, assign(socket, :active_banners, Notifications.list_active_banners())}
+    {:noreply, assign(socket, :active_banners, get_active_banners())}
+  end
+
+
+  defp get_active_banners() do
+    # currently broken, due to a missed-migration.
+    []
+    # do note use below, replace when db is fixed:
+    # Notifications.list_active_banners()
+    
   end
 
   defp num_unassigned_tasks_and_campaigns(urgent_campaigns) do
