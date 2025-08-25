@@ -32,6 +32,7 @@
         campaign={@campaign}
         task={task}
         current_rider_id={@current_rider_id}
+        backup_riders={@backup_riders}
       />
     </:action>
   </.table>
@@ -66,11 +67,57 @@
           campaign={@campaign}
           task={t}
           current_rider_id={@current_rider_id}
+          backup_riders={@backup_riders}
         />
       </div>
     </div>
   </li>
 </ul>
+
+<!-- Backup Rider Section -->
+<section class="mt-8">
+  <div class="flex justify-between items-center mb-4">
+    <h3 class="text-sm text-center font-medium">Backup Riders</h3>
+    <%= if !backup_rider_signed_up?(@backup_riders, @current_rider_id) && !campaign_in_past(@campaign) do %>
+      <.button
+        phx-click={JS.push("signup_backup_rider", value: %{rider_id: @current_rider_id})}
+        color={:secondary}
+        size={:small}
+        id="signup-backup-rider-btn"
+      >
+        Sign up as backup rider
+      </.button>
+    <% end %>
+    <%= if backup_rider_signed_up?(@backup_riders, @current_rider_id) && !campaign_in_past(@campaign) do %>
+      <.button
+        phx-click={JS.push("cancel_backup_rider", value: %{rider_id: @current_rider_id})}
+        color={:red}
+        size={:small}
+        id="cancel-backup-rider-btn"
+      >
+        Cancel backup signup
+      </.button>
+    <% end %>
+  </div>
+
+  <%= if Enum.empty?(@backup_riders) do %>
+    <p class="text-sm text-gray-600 italic">No backup riders signed up yet.</p>
+  <% else %>
+    <div class="bg-white shadow rounded-lg">
+      <ul class="divide-y divide-gray-200">
+        <li :for={rider <- @backup_riders} class="px-4 py-3 flex justify-between items-center">
+          <span class="text-sm font-medium">{first_name_and_last_initial(rider.name)}</span>
+          <%= if rider.id == @current_rider_id do %>
+            <span class="text-xs text-green-600 font-medium">You (backup)</span>
+          <% else %>
+            <span class="text-xs text-gray-500">Backup rider</span>
+          <% end %>
+        </li>
+      </ul>
+    </div>
+  <% end %>
+</section>
+
 <div
   :if={!Enum.empty?(@campaign.program.photos)}
   class="mt-4 overflow-hidden bg-white rounded-lg shadow"
