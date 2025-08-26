@@ -308,6 +308,159 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       assert log.rider_id == ctx.rider.id
       assert log.user_id == ctx.user.id
     end
+
+    test "Backup rider cannot sign up for regular tasks", ctx do
+      # First sign up as backup rider
+      {:ok, _backup_cr} =
+        Delivery.create_backup_campaign_rider(%{
+          "campaign_id" => ctx.campaign.id,
+          "rider_id" => ctx.rider.id,
+          "rider_capacity" => "1",
+          "pickup_window" => "10:00-11:00AM",
+          "enter_building" => true,
+          "rider_signed_up" => true
+        })
+
+      {:ok, live, _html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
+
+      # Click the button and get the updated HTML
+      live |> element("#signup-btn-desktop-backup-rider-#{ctx.task.id}") |> render_click()
+      updated_html = render(live)
+
+      # Check that the flash message appears
+      assert updated_html =~
+               "You are currently signed up as a backup rider. If you wish to sign up for this task, cancel being a backup rider below."
+    end
+  end
+
+  describe "Backup Rider Functionality" do
+    setup ctx do
+      program = fixture(:program, %{name: "ACME Delivery"})
+      res = login_as_rider(ctx)
+      campaign = fixture(:campaign, %{program_id: program.id})
+      task = fixture(:task, %{campaign: campaign, rider: nil, dropoff_name: "Carl Jo-Hanssen"})
+
+      Map.merge(res, %{program: program, campaign: campaign, task: task})
+    end
+
+    test "displays backup riders section", ctx do
+      {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
+
+      # Should show backup riders section with signup button
+      assert html =~ "Backup Riders"
+      assert html =~ "Sign up as backup rider"
+      assert has_element?(live, "#signup-backup-rider-btn")
+    end
+
+    test "can sign up as backup rider", ctx do
+      {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
+
+      # Should show signup button initially
+      assert html =~ "Sign up as backup rider"
+      refute html =~ "Cancel backup signup"
+
+      # Click signup button
+      live |> element("#signup-backup-rider-btn") |> render_click()
+      updated_html = render(live)
+
+      # Should now show cancel button and rider in list
+      assert updated_html =~ "Cancel backup signup"
+      refute updated_html =~ "Sign up as backup rider"
+      assert updated_html =~ "You (backup)"
+
+      # Check that backup rider was created in database
+      backup_riders = Delivery.get_backup_riders(ctx.campaign)
+      assert length(backup_riders) == 1
+      assert hd(backup_riders).id == ctx.rider.id
+    end
+
+    test "can cancel backup rider signup", ctx do
+      # First sign up as backup rider
+      {:ok, live, _html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
+      live |> element("#signup-backup-rider-btn") |> render_click()
+
+      # Should show cancel button
+      updated_html = render(live)
+      assert updated_html =~ "Cancel backup signup"
+      assert has_element?(live, "#cancel-backup-rider-btn")
+
+      # Click cancel button
+      live |> element("#cancel-backup-rider-btn") |> render_click()
+      final_html = render(live)
+
+      # Should show signup button again
+      assert final_html =~ "Sign up as backup rider"
+      refute final_html =~ "Cancel backup signup"
+      refute final_html =~ "You (backup)"
+
+      # Check that backup rider was removed from database
+      backup_riders = Delivery.get_backup_riders(ctx.campaign)
+      assert length(backup_riders) == 0
+    end
+
+    test "does not show signup/cancel buttons for past campaigns", ctx do
+      # Create a campaign in the past
+      past_campaign =
+        fixture(:campaign, %{
+          program_id: ctx.program.id,
+          delivery_start: DateTime.utc_now() |> DateTime.add(-7 * 24 * 3600, :second),
+          delivery_end: DateTime.utc_now() |> DateTime.add(-7 * 24 * 3600 + 3600, :second)
+        })
+
+      {:ok, live, html} = live(ctx.conn, ~p"/campaigns/signup/#{past_campaign.id}/")
+
+      # Should not show signup or cancel buttons
+      refute html =~ "Sign up as backup rider"
+      refute html =~ "Cancel backup signup"
+      refute has_element?(live, "#signup-backup-rider-btn")
+      refute has_element?(live, "#cancel-backup-rider-btn")
+    end
+
+    test "shows other backup riders in the list", ctx do
+      # Create another rider and sign them up as backup
+      other_rider = fixture(:rider, %{name: "Jane Doe"})
+
+      {:ok, _backup_cr} =
+        Delivery.create_backup_campaign_rider(%{
+          "campaign_id" => ctx.campaign.id,
+          "rider_id" => other_rider.id,
+          "rider_capacity" => "3",
+          "pickup_window" => "10:00-11:00AM",
+          "enter_building" => false,
+          "rider_signed_up" => true
+        })
+
+      {:ok, _live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
+
+      # Should show the other backup rider
+      # first name and last initial
+      assert html =~ "Jane D"
+      assert html =~ "Backup rider"
+
+      # Current rider should still be able to sign up
+      assert html =~ "Sign up as backup rider"
+    end
+
+    test "shows 'No backup riders signed up yet' when empty", ctx do
+      {:ok, _live, html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
+
+      # Should show empty state message
+      assert html =~ "No backup riders signed up yet."
+    end
+
+    test "regular rider cannot sign up for tasks when they are backup rider", ctx do
+      # Sign up as backup rider
+      {:ok, live, _html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
+      live |> element("#signup-backup-rider-btn") |> render_click()
+
+      # Try to sign up for a task - should show flash message
+      live |> element("#signup-btn-desktop-backup-rider-#{ctx.task.id}") |> render_click()
+      updated_html = render(live)
+
+      # Should show the flash message
+      assert updated_html =~
+               "You are currently signed up as a backup rider. If you wish to sign up for this task, cancel being a backup rider below."
+    end
   end
 
   defp make_campaign_in_past(program_id) do

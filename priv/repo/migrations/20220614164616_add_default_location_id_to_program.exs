@@ -14,8 +14,6 @@ defmodule BikeBrigade.Repo.Migrations.AddDefaultLocationIdToProgram do
 
     flush()
 
-    now = DateTime.utc_now()
-
     {program_ids, locations} =
       from(
         p in "programs",

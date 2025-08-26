@@ -31,4 +31,12 @@ defmodule BikeBrigadeWeb.CampaignLive.TasksListComponent do
 
     {:noreply, socket}
   end
+
+  defp is_backup_rider?(backup_riders, selected_rider) do
+    case backup_riders do
+      nil -> false
+      riders when is_map(riders) -> Map.has_key?(riders, selected_rider.id)
+      _ -> false
+    end
+  end
 end

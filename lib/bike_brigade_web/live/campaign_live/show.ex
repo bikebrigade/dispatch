@@ -71,9 +71,15 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
 
   defp assign_campaign(socket, campaign) do
     {riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+    backup_riders = Delivery.get_backup_riders(campaign)
 
     riders =
       for r <- riders, into: %{} do
+        {r.id, r}
+      end
+
+    backup_riders =
+      for r <- backup_riders, into: %{} do
         {r.id, r}
       end
 
@@ -85,11 +91,17 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
     socket
     |> assign(:campaign, campaign)
     |> assign(:riders, riders)
+    |> assign(:backup_riders, backup_riders)
     |> assign(:tasks, tasks)
   end
 
   defp get_rider(socket, id) when is_binary(id), do: get_rider(socket, String.to_integer(id))
   defp get_rider(socket, id) when is_integer(id), do: socket.assigns.riders[id]
+
+  defp get_backup_rider(socket, id) when is_binary(id),
+    do: get_backup_rider(socket, String.to_integer(id))
+
+  defp get_backup_rider(socket, id) when is_integer(id), do: socket.assigns.backup_riders[id]
 
   defp get_task(socket, id) when is_binary(id), do: get_task(socket, String.to_integer(id))
   defp get_task(socket, id) when is_integer(id), do: socket.assigns.tasks[id]
@@ -298,6 +310,62 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   end
 
   @impl Phoenix.LiveView
+  def handle_event("select_backup_rider", %{"id" => id}, socket) do
+    previously_selected_rider = socket.assigns.selected_rider
+    rider = get_backup_rider(socket, id)
+
+    socket =
+      if selected?(previously_selected_rider, rider) do
+        # If we already selected the backup rider, we will unselect it
+        socket
+        |> assign(selected_rider: nil)
+        |> push_map_events(previously_selected_rider)
+      else
+        # If we select a new backup rider, we will select it
+        socket
+        |> assign(selected_rider: rider)
+        |> push_map_events(rider)
+      end
+
+    {:noreply, socket}
+  end
+
+  @impl Phoenix.LiveView
+  def handle_event("convert_backup_to_rider", %{"rider_id" => rider_id}, socket) do
+    backup_rider = get_backup_rider(socket, rider_id)
+
+    # Remove the backup rider record
+    Delivery.remove_backup_rider_from_campaign(socket.assigns.campaign, backup_rider.id)
+
+    # Create a new regular campaign rider record
+    attrs = %{
+      "campaign_id" => socket.assigns.campaign.id,
+      "rider_id" => backup_rider.id,
+      "rider_capacity" => backup_rider.task_capacity || 1,
+      "pickup_window" => backup_rider.pickup_window,
+      "enter_building" => backup_rider.task_enter_building,
+      "rider_signed_up" => true
+    }
+
+    case Delivery.create_campaign_rider_without_backup_check(attrs) do
+      {:ok, _cr} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Successfully converted #{backup_rider.name} to a regular rider")}
+
+      {:error, _changeset} ->
+        {:noreply, socket |> put_flash(:error, "Failed to convert backup rider to regular rider")}
+    end
+  end
+
+  @impl Phoenix.LiveView
+  def handle_event("remove_backup_rider", %{"rider_id" => rider_id}, socket) do
+    backup_rider = get_backup_rider(socket, rider_id)
+    Delivery.remove_backup_rider_from_campaign(socket.assigns.campaign, backup_rider.id)
+    {:noreply, socket}
+  end
+
+  @impl Phoenix.LiveView
   def handle_event("delete_task", %{"task_id" => task_id}, socket) do
     task = get_task(socket, task_id)
     Delivery.delete_task(task)
@@ -374,11 +442,18 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
     if campaign_id == campaign.id do
       # TODO this will call `Delivery.campaign_riders_and_tasks` on every change
       socket = assign_campaign(socket, campaign)
-      rider = Map.get(socket.assigns.riders, rider_id)
 
-      {:noreply,
-       socket
-       |> push_event("leaflet:add_layers", %{layers: [rider_marker(rider)]})}
+      rider =
+        Map.get(socket.assigns.riders, rider_id) ||
+          Map.get(socket.assigns.backup_riders, rider_id)
+
+      if rider do
+        {:noreply,
+         socket
+         |> push_event("leaflet:add_layers", %{layers: [rider_marker(rider)]})}
+      else
+        {:noreply, socket}
+      end
     else
       {:noreply, socket}
     end
