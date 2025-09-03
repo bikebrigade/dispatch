@@ -345,6 +345,40 @@ defmodule BikeBrigade.Delivery do
   end
 
   def create_campaign_rider(attrs \\ %{}) do
+    # Check if rider is already signed up as backup rider for this campaign
+    campaign_id = attrs["campaign_id"] || attrs[:campaign_id]
+    rider_id = attrs["rider_id"] || attrs[:rider_id]
+
+    case {campaign_id, rider_id} do
+      {nil, _} ->
+        create_campaign_rider_without_backup_check(attrs)
+
+      {_, nil} ->
+        create_campaign_rider_without_backup_check(attrs)
+
+      {campaign_id, rider_id} ->
+        case Repo.get_by(CampaignRider,
+               campaign_id: campaign_id,
+               rider_id: rider_id,
+               backup_rider: true
+             ) do
+          nil ->
+            # No backup rider exists, proceed with normal signup
+            create_campaign_rider_without_backup_check(attrs)
+
+          _backup_rider ->
+            # Backup rider exists, prevent regular signup
+            changeset =
+              %CampaignRider{}
+              |> CampaignRider.changeset(attrs)
+              |> Ecto.Changeset.add_error(:rider_id, "already signed up as backup rider")
+
+            {:error, changeset}
+        end
+    end
+  end
+
+  def create_campaign_rider_without_backup_check(attrs) do
     %CampaignRider{}
     |> CampaignRider.changeset(attrs)
     |> Repo.insert(
@@ -442,7 +476,7 @@ defmodule BikeBrigade.Delivery do
         from cr in CampaignRider,
           join: r in assoc(cr, :rider),
           left_join: l in assoc(r, :location),
-          where: cr.campaign_id == ^campaign.id,
+          where: cr.campaign_id == ^campaign.id and cr.backup_rider == false,
           order_by: r.name,
           select: r,
           select_merge: %{
@@ -462,6 +496,55 @@ defmodule BikeBrigade.Delivery do
     riders = Repo.preload(all_riders, assigned_tasks: fn _ -> all_tasks end)
 
     {riders, tasks}
+  end
+
+  def get_backup_riders(%Campaign{} = campaign) do
+    backup_riders =
+      Repo.all(
+        from cr in CampaignRider,
+          join: r in assoc(cr, :rider),
+          where: cr.campaign_id == ^campaign.id and cr.backup_rider == true,
+          order_by: r.name,
+          select: r,
+          select_merge: %{
+            task_notes: cr.notes,
+            task_capacity: cr.rider_capacity,
+            task_enter_building: cr.enter_building,
+            pickup_window: cr.pickup_window,
+            delivery_url_token: cr.token
+          }
+      )
+      |> Repo.preload([:total_stats])
+
+    backup_riders
+  end
+
+  def create_backup_campaign_rider(attrs \\ %{}) do
+    attrs = Map.put(attrs, "backup_rider", true)
+
+    %CampaignRider{}
+    |> CampaignRider.changeset(attrs)
+    |> Repo.insert(
+      on_conflict:
+        {:replace, [:rider_capacity, :notes, :pickup_window, :enter_building, :backup_rider]},
+      conflict_target: [:rider_id, :campaign_id]
+    )
+    |> broadcast(:campaign_rider_created)
+  end
+
+  def remove_backup_rider_from_campaign(%Campaign{} = campaign, rider_id) do
+    case Repo.get_by(CampaignRider,
+           campaign_id: campaign.id,
+           rider_id: rider_id,
+           backup_rider: true
+         ) do
+      nil ->
+        {:error, :not_found}
+
+      campaign_rider ->
+        Repo.delete(campaign_rider)
+        |> broadcast(:campaign_rider_deleted)
+    end
   end
 
   # TODO RENAME TO TODAYS TASKS

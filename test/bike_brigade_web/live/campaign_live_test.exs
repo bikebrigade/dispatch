@@ -255,6 +255,159 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
     end
   end
 
+  describe "Show with backup riders" do
+    setup [:create_campaign, :login]
+
+    test "displays backup riders section when backup riders exist", ctx do
+      rider = fixture(:rider)
+
+      # Create a backup rider
+      {:ok, _backup_cr} =
+        Delivery.create_backup_campaign_rider(%{
+          "campaign_id" => ctx.campaign.id,
+          "rider_id" => rider.id,
+          "rider_capacity" => "5",
+          "pickup_window" => "10:00-11:00AM",
+          "enter_building" => true,
+          "rider_signed_up" => true
+        })
+
+      {:ok, _view, html} = live(ctx.conn, ~p"/campaigns/#{ctx.campaign}")
+
+      # Check backup riders section is present
+      assert html =~ "Backup Riders (1)"
+      assert html =~ rider.name
+      assert html =~ "(backup)"
+    end
+
+    test "can select a backup rider", ctx do
+      rider = fixture(:rider)
+
+      # Create a backup rider
+      {:ok, _backup_cr} =
+        Delivery.create_backup_campaign_rider(%{
+          "campaign_id" => ctx.campaign.id,
+          "rider_id" => rider.id,
+          "rider_capacity" => "5",
+          "pickup_window" => "10:00-11:00AM",
+          "enter_building" => true,
+          "rider_signed_up" => true
+        })
+
+      {:ok, view, _html} = live(ctx.conn, ~p"/campaigns/#{ctx.campaign}")
+
+      view |> element("#backup-riders-list a", rider.name) |> render_click()
+      assert view |> element("a", "Convert to Rider") |> has_element?()
+    end
+
+    test "can convert backup rider to regular rider", ctx do
+      rider = fixture(:rider)
+
+      # Create a backup rider
+      {:ok, _backup_cr} =
+        Delivery.create_backup_campaign_rider(%{
+          "campaign_id" => ctx.campaign.id,
+          "rider_id" => rider.id,
+          "rider_capacity" => "5",
+          "pickup_window" => "10:00-11:00AM",
+          "enter_building" => true,
+          "rider_signed_up" => true
+        })
+
+      {:ok, view, _html} = live(ctx.conn, ~p"/campaigns/#{ctx.campaign}")
+
+      # First click on backup rider to select them
+      updated_html = view |> element("#backup-riders-list a", rider.name) |> render_click()
+
+      # check that backup rider details are showing
+      assert updated_html =~ "Convert to Rider"
+
+      # Now convert should be available
+      view |> element("a", "Convert to Rider") |> render_click()
+      # after converting to a rider, confirm the button no longer exists.
+      refute view |> element("a", "Convert to Rider") |> has_element?
+    end
+
+    test "can remove backup rider", ctx do
+      rider = fixture(:rider)
+
+      # Create a backup rider
+      {:ok, _backup_cr} =
+        Delivery.create_backup_campaign_rider(%{
+          "campaign_id" => ctx.campaign.id,
+          "rider_id" => rider.id,
+          "rider_capacity" => "5",
+          "pickup_window" => "10:00-11:00AM",
+          "enter_building" => true,
+          "rider_signed_up" => true
+        })
+
+      {:ok, view, _html} = live(ctx.conn, ~p"/campaigns/#{ctx.campaign}")
+
+      # First click on backup rider to select them
+      view |> element("#backup-riders-list a", rider.name) |> render_click()
+
+      # Now remove should be available
+      view |> element("a", "Remove Backup") |> render_click()
+
+      # Backup rider should no longer exist
+      # refute render(view) =~ "Backup Riders"
+      refute render(view) =~ rider.name
+    end
+
+    test "cannot assign tasks to backup riders", ctx do
+      rider = fixture(:rider)
+      task = fixture(:task, %{campaign: ctx.campaign})
+
+      # Create a backup rider
+      {:ok, _backup_cr} =
+        Delivery.create_backup_campaign_rider(%{
+          "campaign_id" => ctx.campaign.id,
+          "rider_id" => rider.id,
+          "rider_capacity" => "5",
+          "pickup_window" => "10:00-11:00AM",
+          "enter_building" => true,
+          "rider_signed_up" => true
+        })
+
+      {:ok, view, _html} = live(ctx.conn, ~p"/campaigns/#{ctx.campaign}")
+
+      # Select the task first
+      view |> element("[id='tasks-list:#{task.id}'] a", task.dropoff_name) |> render_click()
+
+      # Select the backup rider
+      view |> element("#backup-riders-list a", rider.name) |> render_click()
+
+      # Should show message that backup rider cannot be assigned tasks
+      task_html = view |> element("[id='tasks-list:#{task.id}']") |> render()
+      assert task_html =~ "#{rider.name} is a backup rider - cannot assign tasks"
+      refute task_html =~ "Assign to #{rider.name}"
+    end
+
+    test "can message backup riders", ctx do
+      rider = fixture(:rider)
+
+      # Create a backup rider
+      {:ok, _backup_cr} =
+        Delivery.create_backup_campaign_rider(%{
+          "campaign_id" => ctx.campaign.id,
+          "rider_id" => rider.id,
+          "rider_capacity" => "5",
+          "pickup_window" => "10:00-11:00AM",
+          "enter_building" => true,
+          "rider_signed_up" => true
+        })
+
+      {:ok, view, _html} = live(ctx.conn, ~p"/campaigns/#{ctx.campaign}")
+
+      # Click on backup rider
+      view |> element("#backup-riders-list a", rider.name) |> render_click()
+
+      # Should have message button
+      assert has_element?(view, "a[href='/messages/#{rider.id}']", "Message")
+    end
+  end
+
   # Still a work in progress
   @tag :skip
   describe "New" do

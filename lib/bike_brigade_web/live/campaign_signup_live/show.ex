@@ -19,7 +19,8 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
      |> assign(:current_rider_id, socket.assigns.current_user.rider_id)
      |> assign(:campaign, nil)
      |> assign(:riders, nil)
-     |> assign(:tasks, nil)}
+     |> assign(:tasks, nil)
+     |> assign(:backup_riders, nil)}
   end
 
   @impl true
@@ -112,6 +113,15 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
     {:noreply, socket}
   end
 
+  def handle_event("backup_rider_tried_signing_up", _, socket) do
+    {:noreply,
+     socket
+     |> put_flash(
+       :error,
+       "You are currently signed up as a backup rider. If you wish to sign up for this task, cancel being a backup rider below."
+     )}
+  end
+
   def handle_event("signup_rider", %{"rider_id" => rider_id, "task_id" => task_id}, socket) do
     %{campaign: campaign, tasks: tasks} = socket.assigns
     task = Enum.find(tasks, fn task -> task.id == task_id end)
@@ -134,6 +144,42 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, :changeset, changeset)}
+    end
+  end
+
+  def handle_event("signup_backup_rider", %{"rider_id" => rider_id}, socket) do
+    %{campaign: campaign} = socket.assigns
+
+    attrs = %{
+      "rider_capacity" => "1",
+      "pickup_window" => pickup_window(campaign),
+      "enter_building" => true,
+      "campaign_id" => campaign.id,
+      "rider_id" => rider_id,
+      "rider_signed_up" => true
+    }
+
+    case Delivery.create_backup_campaign_rider(attrs) do
+      {:ok, _cr} ->
+        {:noreply, socket |> push_patch(to: ~p"/campaigns/signup/#{campaign}", replace: true)}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:noreply, assign(socket, :changeset, changeset)}
+    end
+  end
+
+  def handle_event("cancel_backup_rider", %{"rider_id" => rider_id}, socket) do
+    %{campaign: campaign} = socket.assigns
+
+    case Delivery.remove_backup_rider_from_campaign(campaign, rider_id) do
+      {:ok, _cr} ->
+        {:noreply, socket |> push_patch(to: ~p"/campaigns/signup/#{campaign}", replace: true)}
+
+      {:error, _reason} ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "Unable to cancel backup rider signup.")
+         |> push_patch(to: ~p"/campaigns/signup/#{campaign}", replace: true)}
     end
   end
 
@@ -173,12 +219,14 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
 
   defp assign_campaign(socket, campaign) do
     {riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+    backup_riders = Delivery.get_backup_riders(campaign)
     tasks = Enum.sort_by(tasks, fn t -> Locations.neighborhood(t.dropoff_location) end)
 
     socket
     |> assign(:campaign, campaign)
     |> assign(:riders, riders)
     |> assign(:tasks, tasks)
+    |> assign(:backup_riders, backup_riders)
   end
 
   ## Module specific components
@@ -215,6 +263,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
   attr :task, :any, required: true
   attr :campaign, :any, required: true
   attr :current_rider_id, :integer, required: true
+  attr :backup_riders, :list, required: true
   attr :id, :string, required: true
 
   def signup_button(assigns) do
@@ -245,7 +294,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
         </.button>
       <% end %>
 
-      <%= if task_eligible_for_signup?(@task, @campaign) do %>
+      <%= if task_eligible_for_signup?(@task, @campaign, @backup_riders, @current_rider_id) do %>
         <.button
           phx-click={
             JS.push("signup_rider", value: %{task_id: @task.id, rider_id: @current_rider_id})
@@ -255,6 +304,19 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
           size={:xsmall}
           class="w-full md:w-28"
           replace
+        >
+          Sign up
+        </.button>
+      <% end %>
+
+      <%= if backup_rider_signed_up?(@backup_riders, @current_rider_id) && 
+              task_available_but_backup_rider?(@task, @campaign) do %>
+        <.button
+          phx-click={JS.push("backup_rider_tried_signing_up")}
+          color={:secondary}
+          id={"#{@id}-backup-rider-#{@task.id}"}
+          size={:xsmall}
+          class="w-full md:w-28 bg-neutral-100 cursor-not-allowed text-neutral-800"
         >
           Sign up
         </.button>
@@ -274,8 +336,15 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
     """
   end
 
-  defp task_eligible_for_signup?(task, campaign) do
-    # campaign not in past, assigned rider not nil.
+  defp task_eligible_for_signup?(task, campaign, backup_riders, current_rider_id) do
+    # campaign not in past, task available, and rider is not a backup rider
+    task.assigned_rider == nil &&
+      !campaign_in_past(campaign) &&
+      !backup_rider_signed_up?(backup_riders, current_rider_id)
+  end
+
+  defp task_available_but_backup_rider?(task, campaign) do
+    # task is available but user is backup rider
     task.assigned_rider == nil && !campaign_in_past(campaign)
   end
 
@@ -286,6 +355,10 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
 
   defp campaign_today?(campaign) do
     LocalizedDateTime.to_date(campaign.delivery_start) == LocalizedDateTime.today()
+  end
+
+  defp backup_rider_signed_up?(backup_riders, current_rider_id) do
+    Enum.any?(backup_riders, fn rider -> rider.id == current_rider_id end)
   end
 
   def initials(name) do
