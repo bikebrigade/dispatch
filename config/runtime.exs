@@ -97,7 +97,11 @@ case config_env() do
     config :bike_brigade, BikeBrigade.Repo,
       url: database_url,
       ssl: false,
-      pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
+      pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
+      queue_target: 5_000,
+      queue_interval: 2_000,
+      timeout: 60_000,
+      connect_timeout: 60_000
 
     secret_key_base =
       System.get_env("SECRET_KEY_BASE") ||
