@@ -117,7 +117,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
   defp fetch_campaigns_and_opportunities({:campaign_ids, campaign_ids}) do
     Delivery.list_campaigns(
       campaign_ids: campaign_ids,
-      preload: [:program, :stats, :latest_message, :scheduled_message],
+      preload: [:program, :latest_message, :scheduled_message],
       public: true
     )
     |> Enum.reverse()
@@ -138,7 +138,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
         start_date: current_week,
         end_date: Date.add(current_week, 6),
         public: true,
-        preload: [:program, :stats, :latest_message, :scheduled_message]
+        preload: [:program, :latest_message, :scheduled_message]
       )
 
     (opportunities ++ campaigns)
