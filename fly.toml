@@ -16,6 +16,7 @@ release_command = "/app/bin/bike_brigade eval BikeBrigade.Release.migrate"
 
 [env]
 APP_ENV = "production"
+POOL_SIZE = "75"
 
 [[services]]
 protocol = "tcp"
