@@ -30,6 +30,29 @@ defmodule BikeBrigadeWeb.DeliveryLive.Show do
      |> assign(:campaign, campaign)
      |> assign(:campaign_date, campaign_date)
      |> assign(:page_title, "#{campaign_name(campaign)} - #{campaign_date}")
-     |> assign(:rider, rider)}
+     |> assign(:rider, rider)
+     |> assign(:show_note_form, false)
+     |> assign(:note_text, "")}
+  end
+
+  @impl Phoenix.LiveView
+  def handle_event("toggle_note_form", _params, socket) do
+    {:noreply, assign(socket, :show_note_form, !socket.assigns.show_note_form)}
+  end
+
+  @impl Phoenix.LiveView
+  def handle_event("update_note", %{"note" => note}, socket) do
+    {:noreply, assign(socket, :note_text, note)}
+  end
+
+  @impl Phoenix.LiveView
+  def handle_event("submit_note", %{"note" => note}, socket) do
+    # TODO: Implement note submission logic here
+    # For now, just reset the form
+    {:noreply,
+     socket
+     |> assign(:show_note_form, false)
+     |> assign(:note_text, "")
+     |> put_flash(:info, "Note submitted")}
   end
 end
