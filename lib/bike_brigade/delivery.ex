@@ -1154,4 +1154,85 @@ defmodule BikeBrigade.Delivery do
   def change_opportunity(%Opportunity{} = opportunity, attrs \\ %{}) do
     Opportunity.changeset(opportunity, attrs)
   end
+
+  alias BikeBrigade.Delivery.DeliveryNote
+
+  @doc """
+  Returns the list of delivery notes.
+
+  ## Examples
+
+      iex> list_delivery_notes()
+      [%DeliveryNote{}, ...]
+
+  """
+  def list_delivery_notes(opts \\ []) do
+    preload = Keyword.get(opts, :preload, [:rider, :task])
+
+    from(dn in DeliveryNote,
+      order_by: [desc: dn.inserted_at]
+    )
+    |> Repo.all()
+    |> Repo.preload(preload)
+  end
+
+  @doc """
+  Creates a delivery note.
+
+  ## Examples
+
+      iex> create_delivery_note(%{note: "value", rider_id: 1, task_id: 1})
+      {:ok, %DeliveryNote{}}
+
+      iex> create_delivery_note(%{note: ""})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_delivery_note(attrs \\ %{}) do
+    %DeliveryNote{}
+    |> DeliveryNote.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Gets a single delivery note.
+
+  Raises `Ecto.NoResultsError` if the DeliveryNote does not exist.
+  """
+  def get_delivery_note!(id, opts \\ []) do
+    preload = Keyword.get(opts, :preload, [:rider, :task, :resolved_by])
+
+    Repo.get!(DeliveryNote, id)
+    |> Repo.preload(preload)
+  end
+
+  @doc """
+  Marks a delivery note as resolved.
+
+  ## Examples
+
+      iex> resolve_delivery_note(delivery_note, user_id)
+      {:ok, %DeliveryNote{}}
+
+  """
+  def resolve_delivery_note(%DeliveryNote{} = delivery_note, user_id) do
+    delivery_note
+    |> DeliveryNote.resolve_changeset(user_id)
+    |> Repo.update()
+  end
+
+  @doc """
+  Marks a delivery note as unresolved.
+
+  ## Examples
+
+      iex> unresolve_delivery_note(delivery_note)
+      {:ok, %DeliveryNote{}}
+
+  """
+  def unresolve_delivery_note(%DeliveryNote{} = delivery_note) do
+    delivery_note
+    |> DeliveryNote.unresolve_changeset()
+    |> Repo.update()
+  end
 end

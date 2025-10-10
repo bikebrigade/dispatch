@@ -31,13 +31,25 @@ defmodule BikeBrigadeWeb.DeliveryLive.Show do
      |> assign(:campaign_date, campaign_date)
      |> assign(:page_title, "#{campaign_name(campaign)} - #{campaign_date}")
      |> assign(:rider, rider)
-     |> assign(:show_note_form, false)
+     |> assign(:active_note_task_id, nil)
      |> assign(:note_text, "")}
   end
 
   @impl Phoenix.LiveView
-  def handle_event("toggle_note_form", _params, socket) do
-    {:noreply, assign(socket, :show_note_form, !socket.assigns.show_note_form)}
+  def handle_event("toggle_note_form", %{"task-id" => task_id}, socket) do
+    task_id = String.to_integer(task_id)
+
+    active_task_id =
+      if socket.assigns.active_note_task_id == task_id do
+        nil
+      else
+        task_id
+      end
+
+    {:noreply,
+     socket
+     |> assign(:active_note_task_id, active_task_id)
+     |> assign(:note_text, "")}
   end
 
   @impl Phoenix.LiveView
@@ -46,13 +58,23 @@ defmodule BikeBrigadeWeb.DeliveryLive.Show do
   end
 
   @impl Phoenix.LiveView
-  def handle_event("submit_note", %{"note" => note}, socket) do
-    # TODO: Implement note submission logic here
-    # For now, just reset the form
-    {:noreply,
-     socket
-     |> assign(:show_note_form, false)
-     |> assign(:note_text, "")
-     |> put_flash(:info, "Note submitted")}
+  def handle_event("submit_note", %{"task_id" => task_id, "note" => note}, socket) do
+    task_id = String.to_integer(task_id)
+
+    case Delivery.create_delivery_note(%{
+           note: note,
+           rider_id: socket.assigns.rider.id,
+           task_id: task_id
+         }) do
+      {:ok, _delivery_note} ->
+        {:noreply,
+         socket
+         |> assign(:active_note_task_id, nil)
+         |> assign(:note_text, "")
+         |> put_flash(:info, "Note submitted")}
+
+      {:error, _changeset} ->
+        {:noreply, put_flash(socket, :error, "Failed to submit note")}
+    end
   end
 end
