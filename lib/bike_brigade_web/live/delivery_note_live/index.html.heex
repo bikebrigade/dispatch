@@ -7,94 +7,94 @@
       </p>
     </div>
   </div>
-  <div class="mt-8 -mx-4 overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:-mx-6 md:mx-0 md:rounded-lg">
-    <table class="min-w-full divide-y divide-gray-300">
-      <thead class="bg-gray-50">
-        <tr>
-          <th
-            scope="col"
-            class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
-          >
-            Rider
-          </th>
-          <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-            Task ID
-          </th>
-          <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-            Note
-          </th>
-          <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-            Created
-          </th>
-          <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-            Status
-          </th>
-          <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
-            <span class="sr-only">Actions</span>
-          </th>
-        </tr>
-      </thead>
-      <tbody class="bg-white divide-y divide-gray-200">
-        <%= if Enum.empty?(@delivery_notes) do %>
+  <%= if @notes_count == 0 do %>
+    <div class="mt-8 text-center">
+      <p class="text-sm text-gray-500">No delivery notes found.</p>
+    </div>
+  <% else %>
+    <div class="mt-8 -mx-4 overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:-mx-6 md:mx-0 md:rounded-lg">
+      <table class="min-w-full divide-y divide-gray-300">
+        <thead class="bg-gray-50">
           <tr>
-            <td colspan="6" class="py-4 text-sm text-center text-gray-500">
-              No delivery notes found.
-            </td>
+            <th
+              scope="col"
+              class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
+            >
+              Rider
+            </th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+              Task ID
+            </th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+              Note
+            </th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+              Created
+            </th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+              Status
+            </th>
+            <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+              <span class="sr-only">Actions</span>
+            </th>
           </tr>
-        <% else %>
-          <%= for note <- @delivery_notes do %>
-            <tr class={if note.resolved, do: "bg-gray-50", else: ""}>
-              <td class="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 whitespace-nowrap sm:pl-6">
-                {note.rider.name}
-              </td>
-              <td class="px-3 py-4 text-sm text-gray-500 whitespace-nowrap">
-                {note.task_id}
-              </td>
-              <td class="px-3 py-4 text-sm text-gray-900">
-                <div class="max-w-md break-words">{note.note}</div>
-              </td>
-              <td class="px-3 py-4 text-sm text-gray-500 whitespace-nowrap">
-                {Calendar.strftime(note.inserted_at, "%Y-%m-%d %H:%M")}
-              </td>
-              <td class="px-3 py-4 text-sm whitespace-nowrap">
-                <%= if note.resolved do %>
-                  <span class="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">
-                    Resolved
-                  </span>
-                  <%= if note.resolved_by do %>
-                    <div class="mt-1 text-xs text-gray-500">
-                      by {note.resolved_by.name}
-                    </div>
-                  <% end %>
-                <% else %>
-                  <span class="inline-flex px-2 text-xs font-semibold leading-5 text-yellow-800 bg-yellow-100 rounded-full">
-                    Unresolved
-                  </span>
-                <% end %>
-              </td>
-              <td class="py-4 pl-3 pr-4 text-sm font-medium text-right whitespace-nowrap sm:pr-6">
-                <%= if note.resolved do %>
-                  <button
-                    phx-click="unresolve"
-                    phx-value-id={note.id}
-                    class="text-indigo-600 hover:text-indigo-900"
-                  >
-                    Mark as Unresolved
-                  </button>
-                <% else %>
-                  <button
-                    phx-click="resolve"
-                    phx-value-id={note.id}
-                    class="text-indigo-600 hover:text-indigo-900"
-                  >
-                    Mark as Resolved
-                  </button>
-                <% end %>
-              </td>
-            </tr>
-          <% end %>
-        <% end %>
+        </thead>
+        <tbody id="delivery-notes" phx-update="stream" class="bg-white divide-y divide-gray-200">
+          <tr
+            :for={{dom_id, note} <- @streams.delivery_notes}
+            id={dom_id}
+            class={if note.resolved, do: "bg-gray-50", else: ""}
+          >
+          <td class="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 whitespace-nowrap sm:pl-6">
+            {note.rider.name}
+          </td>
+          <td class="px-3 py-4 text-sm text-gray-500 whitespace-nowrap">
+            {note.task_id}
+          </td>
+          <td class="px-3 py-4 text-sm text-gray-900">
+            <div class="max-w-md break-words">{note.note}</div>
+          </td>
+          <td class="px-3 py-4 text-sm text-gray-500 whitespace-nowrap">
+            {Calendar.strftime(note.inserted_at, "%Y-%m-%d %H:%M")}
+          </td>
+          <td class="px-3 py-4 text-sm whitespace-nowrap">
+            <%= if note.resolved do %>
+              <span class="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">
+                Resolved
+              </span>
+              <%= if note.resolved_by do %>
+                <div class="mt-1 text-xs text-gray-500">
+                  by {note.resolved_by.name}
+                </div>
+              <% end %>
+            <% else %>
+              <span class="inline-flex px-2 text-xs font-semibold leading-5 text-yellow-800 bg-yellow-100 rounded-full">
+                Unresolved
+              </span>
+            <% end %>
+          </td>
+          <td class="py-4 pl-3 pr-4 text-sm font-medium text-right whitespace-nowrap sm:pr-6">
+            <%= if note.resolved do %>
+              <button
+                phx-click="unresolve"
+                phx-value-id={note.id}
+                class="text-indigo-600 hover:text-indigo-900"
+              >
+                Mark as Unresolved
+              </button>
+            <% else %>
+              <button
+                phx-click="resolve"
+                phx-value-id={note.id}
+                class="text-indigo-600 hover:text-indigo-900"
+              >
+                Mark as Resolved
+              </button>
+            <% end %>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>
+  <% end %>
 </div>

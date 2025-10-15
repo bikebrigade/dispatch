@@ -1192,6 +1192,16 @@ defmodule BikeBrigade.Delivery do
     %DeliveryNote{}
     |> DeliveryNote.changeset(attrs)
     |> Repo.insert()
+    |> case do
+      {:ok, delivery_note} = result ->
+        # Preload associations for broadcasting
+        delivery_note = Repo.preload(delivery_note, [:rider, :task, :resolved_by])
+        broadcast({:ok, delivery_note}, :delivery_note_created)
+        result
+
+      error ->
+        error
+    end
   end
 
   @doc """
@@ -1219,6 +1229,15 @@ defmodule BikeBrigade.Delivery do
     delivery_note
     |> DeliveryNote.resolve_changeset(user_id)
     |> Repo.update()
+    |> case do
+      {:ok, updated_note} ->
+        updated_note = Repo.preload(updated_note, [:rider, :task, :resolved_by], force: true)
+        broadcast({:ok, updated_note}, :delivery_note_updated)
+        {:ok, updated_note}
+
+      error ->
+        error
+    end
   end
 
   @doc """
@@ -1234,5 +1253,14 @@ defmodule BikeBrigade.Delivery do
     delivery_note
     |> DeliveryNote.unresolve_changeset()
     |> Repo.update()
+    |> case do
+      {:ok, updated_note} ->
+        updated_note = Repo.preload(updated_note, [:rider, :task, :resolved_by], force: true)
+        broadcast({:ok, updated_note}, :delivery_note_updated)
+        {:ok, updated_note}
+
+      error ->
+        error
+    end
   end
 end
