@@ -33,7 +33,7 @@ defmodule BikeBrigade.Delivery.DeliveryNote do
     delivery_note
     |> change(%{
       resolved: true,
-      resolved_at: DateTime.utc_now(),
+      resolved_at: DateTime.utc_now() |> DateTime.truncate(:second),
       resolved_by_id: user_id
     })
   end
