@@ -10,13 +10,16 @@ defmodule BikeBrigadeWeb.DeliveryNoteLive.Index do
     end
 
     delivery_notes = list_delivery_notes()
+    {unresolved_notes, resolved_notes} = Enum.split_with(delivery_notes, &is_nil(&1.resolved_at))
 
     {:ok,
      socket
      |> assign(:page, :delivery_notes)
      |> assign(:page_title, "Delivery Notes")
-     |> assign(:notes_count, length(delivery_notes))
-     |> stream(:delivery_notes, delivery_notes)}
+     |> assign(:unresolved_count, length(unresolved_notes))
+     |> assign(:resolved_count, length(resolved_notes))
+     |> stream(:unresolved_notes, unresolved_notes)
+     |> stream(:resolved_notes, resolved_notes)}
   end
 
   @impl Phoenix.LiveView
@@ -34,7 +37,10 @@ defmodule BikeBrigadeWeb.DeliveryNoteLive.Index do
         {:noreply,
          socket
          |> put_flash(:info, "Delivery note marked as resolved")
-         |> stream_insert(:delivery_notes, updated_note)}
+         |> update(:unresolved_count, &(&1 - 1))
+         |> update(:resolved_count, &(&1 + 1))
+         |> stream_delete(:unresolved_notes, updated_note)
+         |> stream_insert(:resolved_notes, updated_note, at: 0)}
 
       {:error, _changeset} ->
         {:noreply, put_flash(socket, :error, "Failed to resolve delivery note")}
@@ -50,7 +56,10 @@ defmodule BikeBrigadeWeb.DeliveryNoteLive.Index do
         {:noreply,
          socket
          |> put_flash(:info, "Delivery note marked as unresolved")
-         |> stream_insert(:delivery_notes, updated_note)}
+         |> update(:unresolved_count, &(&1 + 1))
+         |> update(:resolved_count, &(&1 - 1))
+         |> stream_delete(:resolved_notes, updated_note)
+         |> stream_insert(:unresolved_notes, updated_note, at: 0)}
 
       {:error, _changeset} ->
         {:noreply, put_flash(socket, :error, "Failed to unresolve delivery note")}
@@ -63,15 +72,21 @@ defmodule BikeBrigadeWeb.DeliveryNoteLive.Index do
 
   @impl Phoenix.LiveView
   def handle_info({:delivery_note_created, delivery_note}, socket) do
+    # New notes are always unresolved
     {:noreply,
      socket
-     |> update(:notes_count, &(&1 + 1))
-     |> stream_insert(:delivery_notes, delivery_note, at: 0)}
+     |> update(:unresolved_count, &(&1 + 1))
+     |> stream_insert(:unresolved_notes, delivery_note, at: 0)}
   end
 
   @impl Phoenix.LiveView
   def handle_info({:delivery_note_updated, delivery_note}, socket) do
-    {:noreply, stream_insert(socket, :delivery_notes, delivery_note)}
+    # Update the note in the appropriate stream based on its resolution status
+    if is_nil(delivery_note.resolved_at) do
+      {:noreply, stream_insert(socket, :unresolved_notes, delivery_note)}
+    else
+      {:noreply, stream_insert(socket, :resolved_notes, delivery_note)}
+    end
   end
 
   defp list_delivery_notes do
