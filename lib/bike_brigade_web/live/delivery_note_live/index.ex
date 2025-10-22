@@ -2,6 +2,8 @@ defmodule BikeBrigadeWeb.DeliveryNoteLive.Index do
   use BikeBrigadeWeb, :live_view
 
   alias BikeBrigade.Delivery
+  import BikeBrigadeWeb.DeliveryHelpers
+  import BikeBrigadeWeb.CampaignHelpers
 
   @impl Phoenix.LiveView
   def mount(_params, _session, socket) do
@@ -90,6 +92,6 @@ defmodule BikeBrigadeWeb.DeliveryNoteLive.Index do
   end
 
   defp list_delivery_notes do
-    Delivery.list_delivery_notes(preload: [:rider, :task, :resolved_by])
+    Delivery.list_delivery_notes(preload: [:rider, :resolved_by, task: [campaign: :program]])
   end
 end

@@ -24,7 +24,10 @@
               Rider
             </th>
             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-              Task ID
+              Campaign
+            </th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+              Recipient
             </th>
             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
               Note
@@ -42,8 +45,16 @@
             <td class="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 whitespace-nowrap sm:pl-6">
               {note.rider.name}
             </td>
-            <td class="px-3 py-4 text-sm text-gray-500 whitespace-nowrap">
-              {note.task_id}
+            <td class="px-3 py-4 text-sm whitespace-nowrap">
+              <.link
+                navigate={~p"/campaigns/#{note.task.campaign_id}"}
+                class="text-indigo-600 hover:text-indigo-900"
+              >
+                {campaign_name(note.task.campaign)} ({campaign_date(note.task.campaign)})
+              </.link>
+            </td>
+            <td class="px-3 py-4 text-sm text-gray-900 whitespace-nowrap">
+              {note.task.dropoff_name}
             </td>
             <td class="px-3 py-4 text-sm text-gray-900">
               <div class="max-w-md break-words">{note.note}</div>
@@ -91,7 +102,10 @@
               Rider
             </th>
             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-              Task ID
+              Campaign
+            </th>
+            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+              Recipient
             </th>
             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
               Note
@@ -112,8 +126,16 @@
             <td class="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 whitespace-nowrap sm:pl-6">
               {note.rider.name}
             </td>
-            <td class="px-3 py-4 text-sm text-gray-500 whitespace-nowrap">
-              {note.task_id}
+            <td class="px-3 py-4 text-sm whitespace-nowrap">
+              <.link
+                navigate={~p"/campaigns/#{note.task.campaign_id}"}
+                class="text-indigo-600 hover:text-indigo-900"
+              >
+                {campaign_name(note.task.campaign)} ({campaign_date(note.task.campaign)})
+              </.link>
+            </td>
+            <td class="px-3 py-4 text-sm text-gray-900 whitespace-nowrap">
+              {note.task.dropoff_name}
             </td>
             <td class="px-3 py-4 text-sm text-gray-900">
               <div class="max-w-md break-words">{note.note}</div>
