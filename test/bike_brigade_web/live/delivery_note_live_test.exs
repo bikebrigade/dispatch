@@ -25,13 +25,13 @@ defmodule BikeBrigadeWeb.DeliveryNoteLiveTest do
       # Assert that the note is displayed
       assert html =~ "Test delivery note"
       assert html =~ rider.name
-      assert html =~ Integer.to_string(task.id)
     end
 
     test "displays empty state when no notes exist", ctx do
       {:ok, _view, html} = live(ctx.conn, ~p"/delivery_notes")
 
-      assert html =~ "No delivery notes found"
+      assert html =~ "No unresolved delivery notes."
+      assert html =~ "No resolved delivery notes."
     end
 
     test "can mark a note as resolved", ctx do

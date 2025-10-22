@@ -1196,13 +1196,13 @@ defmodule BikeBrigade.Delivery do
     |> case do
       {:ok, delivery_note} = result ->
         # Preload associations for broadcasting
-        delivery_note = Repo.preload(delivery_note, [:rider, :resolved_by, task: :campaign])
+        delivery_note = Repo.preload(delivery_note,  [:rider, :resolved_by, task: [campaign: :program]])
         broadcast({:ok, delivery_note}, :delivery_note_created)
-        
-        Task.start(fn ->
+
+        Elixir.Task.start(fn ->
           Slack.DeliveryNotes.notify_note_created!(delivery_note)
         end)
-        
+
         result
 
       error ->
@@ -1237,14 +1237,17 @@ defmodule BikeBrigade.Delivery do
     |> Repo.update()
     |> case do
       {:ok, updated_note} ->
-        updated_note = Repo.preload(updated_note, [:rider, :resolved_by, task: [campaign: :program]], force: true)
+        updated_note =
+          Repo.preload(updated_note, [:rider, :resolved_by, task: [campaign: :program]],
+            force: true
+          )
+
         broadcast({:ok, updated_note}, :delivery_note_updated)
-        
-        # Send Slack notification asynchronously
-        Task.start(fn ->
+
+        Elixir.Task.start(fn ->
           Slack.DeliveryNotes.notify_note_resolved!(updated_note, updated_note.resolved_by)
         end)
-        
+
         {:ok, updated_note}
 
       error ->
@@ -1267,7 +1270,11 @@ defmodule BikeBrigade.Delivery do
     |> Repo.update()
     |> case do
       {:ok, updated_note} ->
-        updated_note = Repo.preload(updated_note, [:rider, :resolved_by, task: [campaign: :program]], force: true)
+        updated_note =
+          Repo.preload(updated_note, [:rider, :resolved_by, task: [campaign: :program]],
+            force: true
+          )
+
         broadcast({:ok, updated_note}, :delivery_note_updated)
         {:ok, updated_note}
 

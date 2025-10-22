@@ -17,6 +17,7 @@ defmodule BikeBrigade.Messaging.Slack do
   end
 
   defmodule DeliveryNotes do
+    import BikeBrigadeWeb.DeliveryHelpers, only: [campaign_name: 1]
     def post_message!(message) do
       payload = SlackApi.PayloadBuilder.build(get_config(:channel_id), message)
       :ok = SlackApi.post_message!(payload)
@@ -26,7 +27,7 @@ defmodule BikeBrigade.Messaging.Slack do
       message = """
       📙 *New Delivery Note*
       *Rider:* #{delivery_note.rider.name}
-      *Campaign:* #{delivery_note.task.campaign.name}
+      *Campaign:* #{campaign_name(delivery_note.task.campaign)}
       *Recipient:* #{delivery_note.task.dropoff_name}
       *Note:* #{delivery_note.note}
       """
@@ -39,7 +40,7 @@ defmodule BikeBrigade.Messaging.Slack do
       ✅ *Delivery Note Resolved*
       *Resolved by:* #{resolved_by.name}
       *Rider:* #{delivery_note.rider.name}
-      *Campaign:* #{delivery_note.task.campaign.name}
+      *Campaign:* #{campaign_name(delivery_note.task.campaign)}
       *Recipient:* #{delivery_note.task.dropoff_name}
       *Note:* #{delivery_note.note}
       """
