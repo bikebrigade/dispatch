@@ -92,6 +92,6 @@ defmodule BikeBrigadeWeb.DeliveryNoteLive.Index do
   end
 
   defp list_delivery_notes do
-    Delivery.list_delivery_notes(preload: [:rider, :resolved_by, task: [campaign: :program]])
+    Delivery.list_delivery_notes()
   end
 end

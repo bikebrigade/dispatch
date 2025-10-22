@@ -1167,7 +1167,7 @@ defmodule BikeBrigade.Delivery do
 
   """
   def list_delivery_notes(opts \\ []) do
-    preload = Keyword.get(opts, :preload, [:rider, :task])
+    preload = Keyword.get(opts, :preload, [:rider, :resolved_by, task: [campaign: :program]])
 
     from(dn in DeliveryNote,
       order_by: [desc: dn.inserted_at]
@@ -1231,7 +1231,7 @@ defmodule BikeBrigade.Delivery do
     |> Repo.update()
     |> case do
       {:ok, updated_note} ->
-        updated_note = Repo.preload(updated_note, [:rider, :task, :resolved_by], force: true)
+        updated_note = Repo.preload(updated_note, [:rider, :resolved_by, task: [campaign: :program]], force: true)
         broadcast({:ok, updated_note}, :delivery_note_updated)
         {:ok, updated_note}
 
@@ -1255,7 +1255,7 @@ defmodule BikeBrigade.Delivery do
     |> Repo.update()
     |> case do
       {:ok, updated_note} ->
-        updated_note = Repo.preload(updated_note, [:rider, :task, :resolved_by], force: true)
+        updated_note = Repo.preload(updated_note, [:rider, :resolved_by, task: [campaign: :program]], force: true)
         broadcast({:ok, updated_note}, :delivery_note_updated)
         {:ok, updated_note}
 
