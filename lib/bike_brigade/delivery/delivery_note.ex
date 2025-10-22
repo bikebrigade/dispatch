@@ -9,7 +9,6 @@ defmodule BikeBrigade.Delivery.DeliveryNote do
 
   schema "delivery_notes" do
     field :note, :string
-    field :resolved, :boolean, default: false
     field :resolved_at, :utc_datetime
 
     belongs_to :rider, Rider
@@ -32,7 +31,6 @@ defmodule BikeBrigade.Delivery.DeliveryNote do
   def resolve_changeset(delivery_note, user_id) do
     delivery_note
     |> change(%{
-      resolved: true,
       resolved_at: DateTime.utc_now() |> DateTime.truncate(:second),
       resolved_by_id: user_id
     })
@@ -42,7 +40,6 @@ defmodule BikeBrigade.Delivery.DeliveryNote do
   def unresolve_changeset(delivery_note) do
     delivery_note
     |> change(%{
-      resolved: false,
       resolved_at: nil,
       resolved_by_id: nil
     })

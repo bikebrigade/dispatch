@@ -43,7 +43,7 @@
           <tr
             :for={{dom_id, note} <- @streams.delivery_notes}
             id={dom_id}
-            class={if note.resolved, do: "bg-gray-50", else: ""}
+            class={if note.resolved_at, do: "bg-gray-50", else: ""}
           >
           <td class="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 whitespace-nowrap sm:pl-6">
             {note.rider.name}
@@ -58,7 +58,7 @@
             {Calendar.strftime(note.inserted_at, "%Y-%m-%d %H:%M")}
           </td>
           <td class="px-3 py-4 text-sm whitespace-nowrap">
-            <%= if note.resolved do %>
+            <%= if note.resolved_at do %>
               <span class="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">
                 Resolved
               </span>
@@ -74,7 +74,7 @@
             <% end %>
           </td>
           <td class="py-4 pl-3 pr-4 text-sm font-medium text-right whitespace-nowrap sm:pr-6">
-            <%= if note.resolved do %>
+            <%= if note.resolved_at do %>
               <button
                 phx-click="unresolve"
                 phx-value-id={note.id}
