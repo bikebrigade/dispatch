@@ -9,6 +9,7 @@ defmodule BikeBrigade.Delivery do
 
   alias BikeBrigade.History
   alias BikeBrigade.Messaging
+  alias BikeBrigade.Messaging.Slack
   alias BikeBrigade.Delivery.{Task, CampaignRider}
 
   import BikeBrigade.Utils, only: [task_count: 1, humanized_task_count: 1]
@@ -1195,8 +1196,13 @@ defmodule BikeBrigade.Delivery do
     |> case do
       {:ok, delivery_note} = result ->
         # Preload associations for broadcasting
-        delivery_note = Repo.preload(delivery_note, [:rider, :task, :resolved_by])
+        delivery_note = Repo.preload(delivery_note, [:rider, :resolved_by, task: :campaign])
         broadcast({:ok, delivery_note}, :delivery_note_created)
+        
+        Task.start(fn ->
+          Slack.DeliveryNotes.notify_note_created!(delivery_note)
+        end)
+        
         result
 
       error ->
@@ -1233,6 +1239,12 @@ defmodule BikeBrigade.Delivery do
       {:ok, updated_note} ->
         updated_note = Repo.preload(updated_note, [:rider, :resolved_by, task: [campaign: :program]], force: true)
         broadcast({:ok, updated_note}, :delivery_note_updated)
+        
+        # Send Slack notification asynchronously
+        Task.start(fn ->
+          Slack.DeliveryNotes.notify_note_resolved!(updated_note, updated_note.resolved_by)
+        end)
+        
         {:ok, updated_note}
 
       error ->
