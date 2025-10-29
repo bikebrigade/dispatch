@@ -150,6 +150,10 @@ case config_env() do
           channel_id: "C01QU0YVACW",
           channel_name: "dispatch"
 
+        config :bike_brigade, BikeBrigade.Messaging.Slack.DeliveryNotes,
+          channel_id: "C016VGHETS4",
+          channel_name: "software"
+
         # Honeybadger
         config :honeybadger,
           app: :bike_brigade,
@@ -194,6 +198,10 @@ case config_env() do
           channel_name: "api-playground"
 
         config :bike_brigade, BikeBrigade.Messaging.Slack.RiderSms,
+          channel_id: "C022R3HU9B9",
+          channel_name: "api-playground"
+
+        config :bike_brigade, BikeBrigade.Messaging.Slack.DeliveryNotes,
           channel_id: "C022R3HU9B9",
           channel_name: "api-playground"
     end

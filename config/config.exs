@@ -95,6 +95,10 @@ config :bike_brigade, BikeBrigade.Messaging.Slack.RiderSms,
   channel_id: "C022R3HU9B9",
   channel_name: "api-playground"
 
+config :bike_brigade, BikeBrigade.Messaging.Slack.DeliveryNotes,
+  channel_id: "C022R3HU9B9",
+  channel_name: "api-playground"
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

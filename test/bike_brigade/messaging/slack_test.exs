@@ -4,6 +4,7 @@ defmodule BikeBrigade.Messaging.SlackTest do
   alias BikeBrigade.SlackApi.FakeSlack
   alias BikeBrigade.Messaging.Slack.RiderSms
   alias BikeBrigade.Messaging.Slack.Operations
+  alias BikeBrigade.Messaging.Slack.DeliveryNotes
 
   describe "RiderSms" do
     test "post_message! posts expected payload to Slack" do
@@ -18,6 +19,16 @@ defmodule BikeBrigade.Messaging.SlackTest do
   describe "Operations" do
     test "post_message! posts expected payload to Slack" do
       assert :ok == Operations.post_message!("hello")
+
+      call = FakeSlack.get_last_call()
+      payload = body(call)
+      assert payload["channel"] == "C022R3HU9B9"
+    end
+  end
+
+  describe "DeliveryNotes" do
+    test "post_message! posts expected payload to Slack" do
+      assert :ok == DeliveryNotes.post_message!("hello")
 
       call = FakeSlack.get_last_call()
       payload = body(call)

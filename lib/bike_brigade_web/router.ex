@@ -174,6 +174,8 @@ defmodule BikeBrigadeWeb.Router do
       live "/banners", BannerLive.Index, :index
       live "/banners/new", BannerLive.Index, :new
       live "/banners/:id/edit", BannerLive.Index, :edit
+
+      live "/delivery_notes", DeliveryNoteLive.Index, :index
     end
 
     get "/stats/leaderboard/download", ExportStatsController, :leaderboard

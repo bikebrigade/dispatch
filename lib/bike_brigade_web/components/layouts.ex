@@ -35,6 +35,7 @@ defmodule BikeBrigadeWeb.Layouts do
       :stats,
       :users,
       :messages,
+      :delivery_notes,
       :profile,
       :campaigns_signup,
       :leaderboard
@@ -85,6 +86,12 @@ defmodule BikeBrigadeWeb.Layouts do
             <Heroicons.chat_bubble_oval_left_ellipsis />
           </:icon>
           Messages
+        </.sidebar_link>
+        <.sidebar_link selected={@current_page == :delivery_notes} navigate={~p"/delivery_notes"}>
+          <:icon>
+            <Heroicons.document_text />
+          </:icon>
+          Delivery Notes
         </.sidebar_link>
         <.sidebar_link selected={@current_page == :banners} navigate={~p"/banners"}>
           <:icon>

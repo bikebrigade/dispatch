@@ -9,6 +9,7 @@ defmodule BikeBrigade.Delivery do
 
   alias BikeBrigade.History
   alias BikeBrigade.Messaging
+  alias BikeBrigade.Messaging.Slack
   alias BikeBrigade.Delivery.{Task, CampaignRider}
 
   import BikeBrigade.Utils, only: [task_count: 1, humanized_task_count: 1]
@@ -1153,5 +1154,134 @@ defmodule BikeBrigade.Delivery do
 
   def change_opportunity(%Opportunity{} = opportunity, attrs \\ %{}) do
     Opportunity.changeset(opportunity, attrs)
+  end
+
+  alias BikeBrigade.Delivery.DeliveryNote
+
+  @doc """
+  Returns the list of delivery notes.
+
+  ## Examples
+
+      iex> list_delivery_notes()
+      [%DeliveryNote{}, ...]
+
+  """
+  def list_delivery_notes(opts \\ []) do
+    preload = Keyword.get(opts, :preload, [:rider, :resolved_by, task: [campaign: :program]])
+
+    from(dn in DeliveryNote,
+      order_by: [desc: dn.inserted_at]
+    )
+    |> Repo.all()
+    |> Repo.preload(preload)
+  end
+
+  @doc """
+  Creates a delivery note.
+
+  ## Examples
+
+      iex> create_delivery_note(%{note: "value", rider_id: 1, task_id: 1})
+      {:ok, %DeliveryNote{}}
+
+      iex> create_delivery_note(%{note: ""})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_delivery_note(attrs \\ %{}) do
+    %DeliveryNote{}
+    |> DeliveryNote.changeset(attrs)
+    |> Repo.insert()
+    |> case do
+      {:ok, delivery_note} = result ->
+        # Preload associations for broadcasting
+        delivery_note =
+          Repo.preload(delivery_note, [:rider, :resolved_by, task: [campaign: :program]])
+
+        broadcast({:ok, delivery_note}, :delivery_note_created)
+
+        Elixir.Task.start(fn ->
+          Slack.DeliveryNotes.notify_note_created!(delivery_note)
+        end)
+
+        result
+
+      error ->
+        error
+    end
+  end
+
+  @doc """
+  Gets a single delivery note.
+
+  Raises `Ecto.NoResultsError` if the DeliveryNote does not exist.
+  """
+  def get_delivery_note!(id, opts \\ []) do
+    preload = Keyword.get(opts, :preload, [:rider, :task, :resolved_by])
+
+    Repo.get!(DeliveryNote, id)
+    |> Repo.preload(preload)
+  end
+
+  @doc """
+  Marks a delivery note as resolved.
+
+  ## Examples
+
+      iex> resolve_delivery_note(delivery_note, user_id)
+      {:ok, %DeliveryNote{}}
+
+  """
+  def resolve_delivery_note(%DeliveryNote{} = delivery_note, user_id) do
+    delivery_note
+    |> DeliveryNote.resolve_changeset(user_id)
+    |> Repo.update()
+    |> case do
+      {:ok, updated_note} ->
+        updated_note =
+          Repo.preload(updated_note, [:rider, :resolved_by, task: [campaign: :program]],
+            force: true
+          )
+
+        broadcast({:ok, updated_note}, :delivery_note_updated)
+
+        Elixir.Task.start(fn ->
+          Slack.DeliveryNotes.notify_note_resolved!(updated_note, updated_note.resolved_by)
+        end)
+
+        {:ok, updated_note}
+
+      error ->
+        error
+    end
+  end
+
+  @doc """
+  Marks a delivery note as unresolved.
+
+  ## Examples
+
+      iex> unresolve_delivery_note(delivery_note)
+      {:ok, %DeliveryNote{}}
+
+  """
+  def unresolve_delivery_note(%DeliveryNote{} = delivery_note) do
+    delivery_note
+    |> DeliveryNote.unresolve_changeset()
+    |> Repo.update()
+    |> case do
+      {:ok, updated_note} ->
+        updated_note =
+          Repo.preload(updated_note, [:rider, :resolved_by, task: [campaign: :program]],
+            force: true
+          )
+
+        broadcast({:ok, updated_note}, :delivery_note_updated)
+        {:ok, updated_note}
+
+      error ->
+        error
+    end
   end
 end
