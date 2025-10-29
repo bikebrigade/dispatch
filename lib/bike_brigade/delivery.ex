@@ -1196,7 +1196,9 @@ defmodule BikeBrigade.Delivery do
     |> case do
       {:ok, delivery_note} = result ->
         # Preload associations for broadcasting
-        delivery_note = Repo.preload(delivery_note,  [:rider, :resolved_by, task: [campaign: :program]])
+        delivery_note =
+          Repo.preload(delivery_note, [:rider, :resolved_by, task: [campaign: :program]])
+
         broadcast({:ok, delivery_note}, :delivery_note_created)
 
         Elixir.Task.start(fn ->
