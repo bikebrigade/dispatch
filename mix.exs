@@ -59,7 +59,7 @@ defmodule BikeBrigade.MixProject do
       {:plug_cowboy, "~> 2.6", override: true},
       {:httpoison, "~> 1.6"},
       {:nimble_csv, "~> 1.2.0"},
-      {:ex_phone_number, "~> 0.2"},
+      {:ex_phone_number, "~> 0.4.10"},
       {:ecto_enum, "~> 1.4"},
       {:geo_postgis, "~> 3.4.0"},
       {:lib_lat_lon, "~> 0.8"},
