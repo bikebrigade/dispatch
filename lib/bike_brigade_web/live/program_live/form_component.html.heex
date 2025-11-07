@@ -241,6 +241,14 @@
           options={[Foodshare: :foodshare, "Mutual Aid Parkdale": :map]}
         />
 
+        <.input
+          type="select"
+          field={f[:slack_channel_id]}
+          label="Slack Channel"
+          options={[{"(None)", nil} | @slack_channels]}
+          prompt="Select a Slack channel"
+        />
+
         <.input type="checkbox" field={f[:active]} label="Active" />
       </div>
     </.inputs_for>
