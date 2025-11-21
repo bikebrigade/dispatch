@@ -202,7 +202,7 @@ defmodule BikeBrigadeWeb.ProgramLive.FormComponent do
 
       channels
       |> Enum.filter(fn channel ->
-        String.starts_with?(channel["name"], "campaigns")
+        String.starts_with?(channel["name"], "campaigns") || channel["name"] == "api-playground"
       end)
       |> Enum.map(fn channel ->
         {channel["name"], channel["id"]}
