@@ -27,6 +27,7 @@ defmodule BikeBrigade.Messaging.Slack do
 
     def notify_note_created!(delivery_note) do
       channel = get_channel_id(delivery_note)
+
       message = """
       📙 *New Delivery Note*
       *Rider:* #{delivery_note.rider.name}
@@ -54,7 +55,9 @@ defmodule BikeBrigade.Messaging.Slack do
     end
 
     defp get_channel_id(delivery_note) do
-      delivery_note = Repo.preload(delivery_note, [:rider, :resolved_by, task: [campaign: :program]])
+      delivery_note =
+        Repo.preload(delivery_note, [:rider, :resolved_by, task: [campaign: :program]])
+
       delivery_note.task.campaign.program.slack_channel_id || get_config(:channel_id)
     end
   end
