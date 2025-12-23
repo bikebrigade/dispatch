@@ -19,7 +19,11 @@ defmodule BikeBrigadeWeb.OpportunityLiveTest do
       assert html =~ opportunity.signup_link
     end
 
-    test "redirects to show opportunity", %{conn: conn, opportunity: opportunity, program: program} do
+    test "redirects to show opportunity", %{
+      conn: conn,
+      opportunity: opportunity,
+      program: program
+    } do
       {:ok, view, _html} = live(conn, ~p"/opportunities")
 
       # Select a program
