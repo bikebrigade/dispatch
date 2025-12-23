@@ -168,8 +168,8 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
 
       # open edit form directly and see that the value prepopulate the form.
       {:ok, view, _html} = live(conn, ~p"/campaigns/#{campaign}/edit_rider/#{rider}")
-      assert has_element?(view, ~s|[data-test-rider-capacity=113]|)
-      assert has_element?(view, ~s|[data-test-rider-window=1-11]|)
+      assert has_element?(view, ~s|[data-test-rider-capacity="113"]|)
+      assert has_element?(view, ~s|[data-test-rider-window="1-11"]|)
     end
 
     test "'Rider Messaging' button is not visible without riders.", %{
