@@ -5,7 +5,7 @@ defmodule BikeBrigadeWeb.Gettext do
   By using [Gettext](https://hexdocs.pm/gettext),
   your module gains a set of macros for translations, for example:
 
-      import BikeBrigadeWeb.Gettext
+      use Gettext, backend: BikeBrigadeWeb.Gettext
 
       # Simple translation
       gettext("Here is the string to translate")
@@ -20,5 +20,5 @@ defmodule BikeBrigadeWeb.Gettext do
 
   See the [Gettext Docs](https://hexdocs.pm/gettext) for detailed usage.
   """
-  use Gettext, otp_app: :bike_brigade
+  use Gettext.Backend, otp_app: :bike_brigade
 end
