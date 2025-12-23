@@ -62,6 +62,13 @@ defmodule BikeBrigade.Notifications do
     |> Repo.all()
   end
 
+  @doc """
+  Renders a banner message with URLs converted to clickable links.
+  """
+  def render_banner_message(%Banner{message: message}) do
+    Linkify.link(message, class: "link break-all", new_window: true)
+  end
+
   def subscribe do
     Phoenix.PubSub.subscribe(BikeBrigade.PubSub, "notifications")
   end
