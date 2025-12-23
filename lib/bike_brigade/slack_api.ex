@@ -6,12 +6,14 @@ defmodule BikeBrigade.SlackApi do
   @type headers :: list({String.t(), String.t()})
 
   @callback post!(url, body, headers) :: :ok
+  @callback get!(url, headers) :: map()
 
   @headers [
     {"content-type", "application/json"},
     {"charset", "utf-8"}
   ]
-  @url "https://slack.com/api/chat.postMessage"
+  @post_message_url "https://slack.com/api/chat.postMessage"
+  @conversations_list_url "https://slack.com/api/conversations.list"
 
   defmodule Error do
     defexception [:message, :response]
@@ -21,9 +23,15 @@ defmodule BikeBrigade.SlackApi do
     end
   end
 
+  def list_channels() do
+    headers = [auth_header() | @headers]
+    response = adapter().get!(@conversations_list_url, headers)
+    response["channels"] || []
+  end
+
   def post_message!(body) do
     headers = [auth_header() | @headers]
-    adapter().post!(@url, body, headers)
+    adapter().post!(@post_message_url, body, headers)
   end
 
   defp auth_header() do

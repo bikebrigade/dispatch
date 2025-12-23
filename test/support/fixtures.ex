@@ -221,6 +221,25 @@ defmodule BikeBrigade.Fixtures do
     Map.merge(defaults, attrs)
   end
 
+  def fixture(:delivery_note, attrs) do
+    {task, attrs} = Map.pop_lazy(attrs, :task, fn -> fixture(:task) end)
+    {rider, attrs} = Map.pop_lazy(attrs, :rider, fn -> fixture(:rider) end)
+
+    defaults = %{
+      note: Faker.Lorem.sentence(),
+      task_id: task.id,
+      rider_id: rider.id
+    }
+
+    {:ok, delivery_note} =
+      defaults
+      |> Map.merge(attrs)
+      |> Delivery.create_delivery_note()
+
+    delivery_note
+    |> Repo.preload([:rider, task: [campaign: :program]])
+  end
+
   def fixture(:banner, attrs) do
     user = fixture(:user, %{is_dispatcher: true})
 

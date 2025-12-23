@@ -133,6 +133,46 @@ defmodule BikeBrigade.Notifications.BannerTest do
     end
   end
 
+  describe "link support" do
+    test "render_banner_message/1 converts URLs to clickable links" do
+      banner = fixture(:banner, %{message: "Check out https://example.com for more info"})
+
+      html = Notifications.render_banner_message(banner)
+
+      assert html =~ ~s(<a href="https://example.com")
+      assert html =~ "https://example.com"
+      assert html =~ "</a>"
+    end
+
+    test "render_banner_message/1 handles multiple links" do
+      banner =
+        fixture(:banner, %{
+          message: "Visit https://one.com and https://two.com"
+        })
+
+      html = Notifications.render_banner_message(banner)
+
+      assert html =~ ~s(<a href="https://one.com")
+      assert html =~ ~s(<a href="https://two.com")
+    end
+
+    test "render_banner_message/1 returns plain text when no links" do
+      banner = fixture(:banner, %{message: "Just a plain message"})
+
+      html = Notifications.render_banner_message(banner)
+
+      assert html =~ "Just a plain message"
+    end
+
+    test "render_banner_message/1 opens links in new window" do
+      banner = fixture(:banner, %{message: "Check https://example.com"})
+
+      html = Notifications.render_banner_message(banner)
+
+      assert html =~ ~s(target="_blank")
+    end
+  end
+
   describe "list_active_banners" do
     test "returns only banners that are currently active and enabled" do
       now = DateTime.utc_now()
