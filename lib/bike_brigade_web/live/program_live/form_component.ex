@@ -1,15 +1,18 @@
 defmodule BikeBrigadeWeb.ProgramLive.FormComponent do
   use BikeBrigadeWeb, :live_component
 
-  alias BikeBrigade.{Delivery, MediaStorage}
+  alias BikeBrigade.{Delivery, MediaStorage, SlackApi}
 
   alias BikeBrigadeWeb.ProgramLive.ProgramForm
 
   @impl Phoenix.LiveComponent
   def mount(socket) do
+    slack_channels = load_slack_channels()
+
     socket =
       socket
       |> allow_upload(:photos, accept: ~w(.gif .png .jpg .jpeg), max_entries: 10)
+      |> assign(:slack_channels, slack_channels)
 
     {:ok, socket}
   end
@@ -192,4 +195,21 @@ defmodule BikeBrigadeWeb.ProgramLive.FormComponent do
   defp error_to_string(:too_large), do: "Too large"
   defp error_to_string(:too_many_files), do: "You have selected too many files"
   defp error_to_string(:not_accepted), do: "You have selected an unacceptable file type"
+
+  defp load_slack_channels() do
+    try do
+      channels = SlackApi.list_channels()
+
+      channels
+      |> Enum.filter(fn channel ->
+        String.starts_with?(channel["name"], "campaigns") || channel["name"] == "api-playground"
+      end)
+      |> Enum.map(fn channel ->
+        {channel["name"], channel["id"]}
+      end)
+      |> Enum.sort_by(fn {name, _id} -> name end)
+    rescue
+      _ -> []
+    end
+  end
 end
