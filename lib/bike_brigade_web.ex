@@ -32,7 +32,7 @@ defmodule BikeBrigadeWeb do
   def channel do
     quote do
       use Phoenix.Channel
-      import BikeBrigadeWeb.Gettext
+      use Gettext, backend: BikeBrigadeWeb.Gettext
     end
   end
 
@@ -44,7 +44,7 @@ defmodule BikeBrigadeWeb do
         layouts: [html: BikeBrigadeWeb.Layouts]
 
       import Plug.Conn
-      import BikeBrigadeWeb.Gettext
+      use Gettext, backend: BikeBrigadeWeb.Gettext
 
       unquote(verified_routes())
     end
@@ -107,7 +107,7 @@ defmodule BikeBrigadeWeb do
 
       # Core UI components and translation
       import BikeBrigadeWeb.CoreComponents
-      import BikeBrigadeWeb.Gettext
+      use Gettext, backend: BikeBrigadeWeb.Gettext
 
       # TODO remove this?
       import BikeBrigadeWeb.LiveHelpers
