@@ -10,36 +10,71 @@
       "max-h-[calc(100vh-6rem)] sm:max-h-[calc(100vh-6.75rem)] md:max-h-[calc(100vh-3rem)]"
     ]}>
       <div class="px-4 py-5 bg-white border-b border-gray-200 sm:px-6 sm:rounded-t-lg">
-        <div class="flex flex-wrap items-center justify-between -mt-2 -ml-4 sm:flex-nowrap">
-          <div class="w-full h-10 ml-4">
-            <form phx-change="search_riders">
-              <div class="relative">
-                <.input
-                  id="rider-search"
+        <div class="flex flex-col space-y-3">
+          <!-- Program Filter Search -->
+          <div class="relative flex-1">
+            <form
+              id="program-search"
+              phx-change="suggest_program"
+              phx-submit="filter"
+              phx-click-away="clear_program_search"
+            >
+              <div class="relative flex items-baseline w-full px-1 py-0 bg-white border border-gray-300 rounded-md shadow-sm sm:text-sm focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500">
+                <.filter_list filters={@message_search.filters} />
+                <input
                   type="text"
-                  name="search"
-                  placeholder="Search for Riders"
-                  value={@rider_search_value}
-                  errors={[]}
+                  id="program-search-input"
+                  name="value"
+                  value={@program_search}
                   autocomplete="off"
-                  phx-keydown={JS.push("search_riders", value: %{search: ""})}
-                  phx-key="escape"
+                  class="w-full placeholder-gray-400 border-transparent appearance-none focus:border-transparent outline-transparent ring-transparent focus:ring-0"
+                  placeholder="Filter by program"
+                  tabindex="1"
                 />
                 <button
-                  :if={@rider_search_value != ""}
+                  :if={@message_search.filters != []}
                   type="button"
-                  phx-click={JS.push("search_riders", value: %{search: ""})}
+                  phx-click="clear_filters"
                   class="absolute right-1 text-gray-400 rounded-md top-2.5 hover:text-gray-500"
                 >
-                  <span class="sr-only">Clear Search</span>
+                  <span class="sr-only">Clear Filters</span>
                   <Heroicons.x_mark mini class="w-6 h-6" />
                 </button>
               </div>
+              <.suggestion_list suggestions={@suggestions} open={@show_suggestions} />
+              <button id="submit" type="submit" class="sr-only" />
             </form>
           </div>
-          <div class="flex-shrink-0 mt-2 ml-4">
-            <div class="flex items-center">
-              <span class="inline-flex ml-3 rounded-md shadow-sm">
+          <!-- Rider Name Search -->
+          <div class="flex items-center space-x-2">
+            <div class="flex-1">
+              <form phx-change="search_riders">
+                <div class="relative">
+                  <.input
+                    id="rider-search"
+                    type="text"
+                    name="search"
+                    placeholder="Search for Riders"
+                    value={@rider_search_value}
+                    errors={[]}
+                    autocomplete="off"
+                    phx-keydown={JS.push("search_riders", value: %{search: ""})}
+                    phx-key="escape"
+                  />
+                  <button
+                    :if={@rider_search_value != ""}
+                    type="button"
+                    phx-click={JS.push("search_riders", value: %{search: ""})}
+                    class="absolute right-1 text-gray-400 rounded-md top-2.5 hover:text-gray-500"
+                  >
+                    <span class="sr-only">Clear Search</span>
+                    <Heroicons.x_mark mini class="w-6 h-6" />
+                  </button>
+                </div>
+              </form>
+            </div>
+            <div class="flex-shrink-0">
+              <span class="inline-flex rounded-md shadow-sm">
                 <.link
                   patch={~p"/messages/new"}
                   class="inline-flex items-center px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:ring-indigo active:bg-indigo-700"

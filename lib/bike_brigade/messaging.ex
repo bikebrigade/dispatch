@@ -37,9 +37,15 @@ defmodule BikeBrigade.Messaging do
   end
 
   @doc """
-  Returns pairs of riders and the last message, sorted by last message sent
+  Returns pairs of riders and the last message, sorted by last message sent.
+
+  ## Options
+    - `:limit` - Limits the number of conversations returned
+    - `:program_ids` - Filters conversations to riders who messaged on days they worked for these programs
   """
   def list_sms_conversations(opts \\ []) do
+    alias BikeBrigade.Delivery.{Campaign, Task}
+
     query =
       from r in Rider,
         as: :rider,
@@ -47,6 +53,29 @@ defmodule BikeBrigade.Messaging do
         on: true,
         order_by: [desc: latest_message.sent_at],
         select: {r, latest_message}
+
+    # Add program filtering based on inferred programs
+    # This filters to riders who have messages on days they worked for the selected programs
+    query =
+      case opts[:program_ids] do
+        program_ids when is_list(program_ids) and program_ids != [] ->
+          # Find rider IDs who have messages that can be inferred to belong to these programs
+          # Check: did the rider have a task for any of these programs on the same day as their messages?
+          rider_ids_subquery =
+            from m in SmsMessage,
+              join: c in Campaign,
+              on: fragment("DATE(?)", c.delivery_start) == fragment("DATE(?)", m.sent_at),
+              join: t in Task,
+              on: t.campaign_id == c.id and t.assigned_rider_id == m.rider_id,
+              where: c.program_id in ^program_ids,
+              select: m.rider_id,
+              distinct: true
+
+          where(query, [rider: r], r.id in subquery(rider_ids_subquery))
+
+        _ ->
+          query
+      end
 
     query =
       if limit = opts[:limit] do
@@ -117,6 +146,70 @@ defmodule BikeBrigade.Messaging do
   def get_sms_message!(id), do: Repo.get!(SmsMessage, id)
 
   def get_sms_message_by_twilio_sid(sid), do: Repo.get_by(SmsMessage, twilio_sid: sid)
+
+  @doc """
+  Infers the program_id for a message based on the rider's campaign assignments
+  on the day the message was sent.
+
+  Logic:
+  - Finds campaigns where the rider had a task assigned on the same day as the message
+  - Returns the program_id from that campaign
+  - If multiple campaigns on same day, prioritizes the one closest to message time
+  - Returns nil if no matching campaign found
+
+  ## Examples
+
+      iex> infer_program_for_message(%SmsMessage{rider_id: 1, sent_at: ~U[2024-01-05 14:00:00Z]})
+      123  # program_id
+
+      iex> infer_program_for_message(%SmsMessage{rider_id: 999, sent_at: ~U[2024-01-05 14:00:00Z]})
+      nil
+  """
+  def infer_program_for_message(%SmsMessage{} = message) do
+    alias BikeBrigade.Delivery.{Campaign, Task}
+
+    message_date = DateTime.to_date(message.sent_at)
+
+    # Find campaigns where rider had tasks on the same day
+    campaign_query =
+      from c in Campaign,
+        join: t in Task,
+        on: t.campaign_id == c.id,
+        where: t.assigned_rider_id == ^message.rider_id,
+        where: fragment("DATE(?)", c.delivery_start) == ^message_date,
+        select: %{
+          program_id: c.program_id,
+          delivery_start: c.delivery_start,
+          delivery_end: c.delivery_end
+        }
+
+    case Repo.all(campaign_query) do
+      [] ->
+        nil
+
+      [campaign] ->
+        campaign.program_id
+
+      campaigns ->
+        # Multiple campaigns on same day - pick closest to message time
+        campaigns
+        |> Enum.min_by(fn c ->
+          # Calculate time difference from delivery window
+          cond do
+            DateTime.compare(message.sent_at, c.delivery_start) == :lt ->
+              DateTime.diff(c.delivery_start, message.sent_at)
+
+            DateTime.compare(message.sent_at, c.delivery_end) == :gt ->
+              DateTime.diff(message.sent_at, c.delivery_end)
+
+            true ->
+              # Within window
+              0
+          end
+        end)
+        |> Map.get(:program_id)
+    end
+  end
 
   @doc """
   Creates a sms_message.
