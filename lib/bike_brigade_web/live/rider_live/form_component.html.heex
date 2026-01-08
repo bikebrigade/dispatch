@@ -56,7 +56,12 @@
       type="select"
       field={f[:capacity]}
       label="Capacity"
-      options={[{"Small", :small}, {"Medium", :medium}, {"Large", :large}]}
+      options={[
+        {"Small (backpack)", :small},
+        {"Medium (rack/panniers)", :medium},
+        {"Large (trailer)", :large}
+      ]}
+      help_text="Capacities are examples, and if your configuration is different use your judgement."
     />
 
     <.live_component

@@ -382,6 +382,9 @@ defmodule BikeBrigadeWeb.CoreComponents do
         <option :if={@prompt}>{@prompt}</option>
         {Phoenix.HTML.Form.options_for_select(@options, @value)}
       </select>
+      <p :if={@help_text} class="mt-2 text-sm text-gray-500">
+        {@help_text}
+      </p>
       <.error :for={msg <- @errors}>{msg}</.error>
     </div>
     """
