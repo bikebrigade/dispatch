@@ -318,6 +318,4 @@ defmodule BikeBrigade.Riders.RiderSearch do
     query
     |> where(as(:latest_campaign).delivery_start > ago(1, ^period))
   end
-
-
 end
