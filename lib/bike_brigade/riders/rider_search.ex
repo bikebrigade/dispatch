@@ -37,6 +37,17 @@ defmodule BikeBrigade.Riders.RiderSearch do
     preload: []
   ]
 
+  @weekdays %{
+    "monday" => 1,
+    "tuesday" => 2,
+    "wednesday" => 3,
+    "thursday" => 4,
+    "friday" => 5,
+    "saturday" => 6,
+    "sunday" => 7
+  }
+  @weekday_names Map.keys(@weekdays)
+
   defmodule Filter do
     @derive Jason.Encoder
     defstruct [:type, :search, :id]
@@ -279,8 +290,34 @@ defmodule BikeBrigade.Riders.RiderSearch do
     |> where(not is_nil(as(:latest_campaign).id))
   end
 
+  defp apply_filter(%Filter{type: :active, search: weekday}, query)
+       when weekday in @weekday_names do
+    day_number = @weekdays[weekday]
+
+    # Use exists subquery to avoid distinct/count conflicts
+    campaigns_subquery =
+      from(c in BikeBrigade.Delivery.Campaign,
+        join: cr in "campaigns_riders",
+        on: cr.campaign_id == c.id,
+        where:
+          cr.rider_id == parent_as(:rider).id and
+            c.delivery_start > ago(7, "day") and
+            fragment(
+              "EXTRACT(ISODOW FROM ? AT TIME ZONE 'America/Toronto') = ?",
+              c.delivery_start,
+              ^day_number
+            ),
+        select: 1
+      )
+
+    query
+    |> where(exists(campaigns_subquery))
+  end
+
   defp apply_filter(%Filter{type: :active, search: period}, query) do
     query
     |> where(as(:latest_campaign).delivery_start > ago(1, ^period))
   end
+
+
 end
