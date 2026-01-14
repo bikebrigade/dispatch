@@ -7,7 +7,6 @@ defmodule BikeBrigadeWeb.RiderLive.SuggestionsTest do
   describe "weekday suggestions" do
     test "typing 'active:mon' suggests 'monday' and 'month'" do
       suggestions = Suggestions.suggest(%Suggestions{}, "active:mon")
-      IO.inspect suggestions
       weekday_searches = Enum.map(suggestions.active, & &1.search)
 
       assert "monday" in weekday_searches
@@ -51,6 +50,5 @@ defmodule BikeBrigadeWeb.RiderLive.SuggestionsTest do
 
       assert "hour" in weekday_searches
     end
-
   end
 end
