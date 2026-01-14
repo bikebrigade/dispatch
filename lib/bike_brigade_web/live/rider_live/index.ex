@@ -22,7 +22,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   end
 
   defmodule Suggestions do
-    @actives ~w(hour day week month year all_time never)
+    @actives ~w(hour day week month year all_time never monday tuesday wednesday thursday friday saturday sunday)
              |> Enum.map(&%Filter{type: :active, search: &1})
     @capacities ~w(large medium small)
                 |> Enum.map(&%Filter{type: :capacity, search: &1})
