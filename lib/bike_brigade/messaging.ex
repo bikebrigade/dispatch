@@ -6,6 +6,7 @@ defmodule BikeBrigade.Messaging do
   import Ecto.Query, warn: false
   alias BikeBrigade.Repo
 
+  alias BikeBrigade.Accounts
   alias BikeBrigade.Messaging.{SmsMessage, ScheduledMessage}
   alias BikeBrigade.Riders
   alias BikeBrigade.Riders.Rider
@@ -212,6 +213,34 @@ defmodule BikeBrigade.Messaging do
     }
   end
 
+  @doc """
+  Appends the dispatcher's signature to a message body if the user has signatures enabled.
+  Returns the original body unchanged if no sent_by_user_id, user has setting disabled, or user not found.
+  """
+  def maybe_append_signature(body, nil), do: body
+
+  def maybe_append_signature(body, sent_by_user_id) when is_integer(sent_by_user_id) do
+    case Accounts.get_user(sent_by_user_id) do
+      %{signature_on_messages: true, name: name} when is_binary(name) ->
+        first_name = name |> String.split() |> List.first()
+        "#{body}\n\n(sent by: #{first_name})"
+
+      _ ->
+        body
+    end
+  end
+
+  def maybe_append_signature(body, _), do: body
+
+  defp apply_signature_to_attrs(attrs, sent_by_user_id) do
+    body_key = if Map.has_key?(attrs, :body), do: :body, else: "body"
+
+    case Map.get(attrs, body_key) do
+      nil -> attrs
+      body -> Map.put(attrs, body_key, maybe_append_signature(body, sent_by_user_id))
+    end
+  end
+
   @doc "Send a message and save it in the database"
   def send_sms_message(%SmsMessage{} = sms_message, attrs \\ %{}) do
     # TODO this preload is because we update rider later, would be nice to just have a special changeset for this bit so we dont need to preload
@@ -220,7 +249,9 @@ defmodule BikeBrigade.Messaging do
     Ecto.Multi.new()
     |> maybe_send_initial_message(sms_message.rider)
     |> Ecto.Multi.run(:create_message, fn _repo, _changes ->
-      send_sms_message_changeset(sms_message, attrs)
+      attrs_with_signature = apply_signature_to_attrs(attrs, sms_message.sent_by_user_id)
+
+      send_sms_message_changeset(sms_message, attrs_with_signature)
       |> Ecto.Changeset.apply_action(:insert)
     end)
     |> Ecto.Multi.run(:send_message, fn _repo, %{create_message: sms_message} ->

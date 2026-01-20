@@ -31,6 +31,13 @@
       help_text="Is this user a dispatcher?"
     />
 
+    <.input
+      type="checkbox"
+      field={f[:signature_on_messages]}
+      label="Signature on Messages"
+      help_text="Append '(sent by: name)' to outgoing SMS messages"
+    />
+
     <:actions>
       <.button type="submit" phx-disable-with="Saving...">Save</.button>
     </:actions>
