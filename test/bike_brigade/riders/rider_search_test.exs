@@ -6,28 +6,46 @@ defmodule BikeBrigade.Riders.RiderSearchTest do
   alias BikeBrigade.Riders.RiderSearch.Filter
 
   describe "weekday filtering" do
-    setup do
-      rider_monday = fixture(:rider, %{name: "Monday Rider"})
-      rider_none = fixture(:rider, %{name: "No Campaign Rider"})
+    setup [:setup_riders, :setup_monday_campaign, :link_riders_to_campaigns]
 
+    defp get_monday_date do
       today = Date.utc_today()
-
       days_since_monday = Date.day_of_week(today) - 1
-      monday_date = Date.add(today, -days_since_monday)
+      Date.add(today, -days_since_monday)
+    end
 
-      monday_datetime = DateTime.new!(monday_date, ~T[12:00:00], "Etc/UTC")
-      campaign_monday = fixture(:campaign, %{delivery_start: monday_datetime})
+    defp create_campaign_for_date(date) do
+      datetime = DateTime.new!(date, ~T[12:00:00], "Etc/UTC")
+      fixture(:campaign, %{delivery_start: datetime})
+    end
 
+    defp link_rider_to_campaign(rider_id, campaign_id) do
       Delivery.create_campaign_rider(%{
-        campaign_id: campaign_monday.id,
-        rider_id: rider_monday.id
+        campaign_id: campaign_id,
+        rider_id: rider_id
       })
+    end
+
+    defp setup_riders(_context) do
+      %{
+        rider_monday: fixture(:rider, %{name: "Monday Rider"}),
+        rider_none: fixture(:rider, %{name: "No Campaign Rider"})
+      }
+    end
+
+    defp setup_monday_campaign(_context) do
+      monday_date = get_monday_date()
+      campaign_monday = create_campaign_for_date(monday_date)
 
       %{
-        rider_monday: rider_monday,
-        rider_none: rider_none,
-        monday_date: monday_date
+        monday_date: monday_date,
+        campaign_monday: campaign_monday
       }
+    end
+
+    defp link_riders_to_campaigns(context) do
+      link_rider_to_campaign(context.rider_monday.id, context.campaign_monday.id)
+      :ok
     end
 
     test "filters riders by monday activity", %{

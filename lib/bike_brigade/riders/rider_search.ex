@@ -299,9 +299,10 @@ defmodule BikeBrigade.Riders.RiderSearch do
       from(c in BikeBrigade.Delivery.Campaign,
         join: cr in "campaigns_riders",
         on: cr.campaign_id == c.id,
+
         where:
           cr.rider_id == parent_as(:rider).id and
-            c.delivery_start > ago(7, "day") and
+            c.delivery_start > ago(1, "year") and
             fragment(
               "EXTRACT(ISODOW FROM ? AT TIME ZONE 'America/Toronto') = ?",
               c.delivery_start,
