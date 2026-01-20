@@ -8,6 +8,31 @@ defmodule BikeBrigade.Riders.RiderSearchTest do
   describe "weekday filtering" do
     setup [:setup_riders, :setup_monday_campaign, :link_riders_to_campaigns]
 
+    test "filters riders by monday activity", %{
+      rider_monday: rider_monday,
+      monday_date: monday_date
+    } do
+      assert Date.day_of_week(monday_date) == 1
+
+      {_rs, results} =
+        RiderSearch.new(filters: [%Filter{type: :active, search: "monday"}])
+        |> RiderSearch.fetch()
+
+      rider_ids = Enum.map(results.page, & &1.id)
+
+      assert rider_monday.id in rider_ids
+    end
+
+    test "excludes riders with no campaigns", %{rider_none: rider_none} do
+      {_rs, results} =
+        RiderSearch.new(filters: [%Filter{type: :active, search: "monday"}])
+        |> RiderSearch.fetch()
+
+      rider_ids = Enum.map(results.page, & &1.id)
+
+      refute rider_none.id in rider_ids
+    end
+
     defp get_monday_date do
       today = Date.utc_today()
       days_since_monday = Date.day_of_week(today) - 1
@@ -46,31 +71,6 @@ defmodule BikeBrigade.Riders.RiderSearchTest do
     defp link_riders_to_campaigns(context) do
       link_rider_to_campaign(context.rider_monday.id, context.campaign_monday.id)
       :ok
-    end
-
-    test "filters riders by monday activity", %{
-      rider_monday: rider_monday,
-      monday_date: monday_date
-    } do
-      assert Date.day_of_week(monday_date) == 1
-
-      {_rs, results} =
-        RiderSearch.new(filters: [%Filter{type: :active, search: "monday"}])
-        |> RiderSearch.fetch()
-
-      rider_ids = Enum.map(results.page, & &1.id)
-
-      assert rider_monday.id in rider_ids
-    end
-
-    test "excludes riders with no campaigns", %{rider_none: rider_none} do
-      {_rs, results} =
-        RiderSearch.new(filters: [%Filter{type: :active, search: "monday"}])
-        |> RiderSearch.fetch()
-
-      rider_ids = Enum.map(results.page, & &1.id)
-
-      refute rider_none.id in rider_ids
     end
   end
 end

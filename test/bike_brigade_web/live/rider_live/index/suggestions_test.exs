@@ -22,7 +22,10 @@ defmodule BikeBrigadeWeb.RiderLive.Index.SuggestionsTest do
     test "all weekdays are available in suggestions" do
       searches = suggestions_for("active:")
 
-      assert Enum.all?(~w(monday tuesday wednesday thursday friday saturday sunday), &(&1 in searches))
+      assert Enum.all?(
+               ~w(monday tuesday wednesday thursday friday saturday sunday),
+               &(&1 in searches)
+             )
     end
 
     test "weekday suggestions have correct Filter type" do
