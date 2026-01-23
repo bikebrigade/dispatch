@@ -1,14 +1,13 @@
 defmodule BikeBrigade.Riders.RiderSearchTest do
-  use BikeBrigade.DataCase
+  use BikeBrigade.DataCase, async: true
 
   alias BikeBrigade.Delivery
   alias BikeBrigade.Riders.RiderSearch
   alias BikeBrigade.Riders.RiderSearch.Filter
 
-  setup_all :setup_riders_with_thresholds
-
   describe "monday + week combined filter" do
-    test "includes rider with 1 monday campaign in the current week", %{rider: rider} do
+    test "includes rider with 1 monday campaign in the current week" do
+      rider = fixture(:rider, %{name: "Rider"})
       create_and_link_monday_campaign(rider.id)
 
       {_rs, results} =
@@ -23,7 +22,8 @@ defmodule BikeBrigade.Riders.RiderSearchTest do
       assert rider.id in Enum.map(results.page, & &1.id)
     end
 
-    test "excludes rider with monday campaign outside the current week", %{rider: rider} do
+    test "excludes rider with monday campaign outside the current week" do
+      rider = fixture(:rider, %{name: "Rider"})
       create_and_link_monday_campaign(rider.id, weeks_ago: 2)
 
       {_rs, results} =
@@ -40,7 +40,8 @@ defmodule BikeBrigade.Riders.RiderSearchTest do
   end
 
   describe "monday + month combined filter" do
-    test "includes rider with 1 monday campaign in the current month", %{rider: rider} do
+    test "includes rider with 1 monday campaign in the current month" do
+      rider = fixture(:rider, %{name: "Rider"})
       create_and_link_monday_campaign(rider.id, weeks_ago: 2)
 
       {_rs, results} =
@@ -57,7 +58,7 @@ defmodule BikeBrigade.Riders.RiderSearchTest do
   end
 
   describe "weekday filtering with thresholds" do
-    setup [:setup_campaigns_with_thresholds]
+    setup [:setup_riders_with_thresholds, :setup_campaigns_with_thresholds]
 
     test "includes rider meeting all thresholds (volume, density, recency)", %{
       rider_all_thresholds: rider
@@ -92,9 +93,7 @@ defmodule BikeBrigade.Riders.RiderSearchTest do
     %{
       rider_all_thresholds: fixture(:rider, %{name: "All Thresholds Rider"}),
       rider_low_volume: fixture(:rider, %{name: "Low Volume Rider"}),
-      rider_old_activity: fixture(:rider, %{name: "Old Activity Rider"}),
-      rider_none: fixture(:rider, %{name: "No Campaign Rider"}),
-      rider: fixture(:rider, %{name: "Rider"})
+      rider_none: fixture(:rider, %{name: "No Campaign Rider"})
     }
   end
 
@@ -144,6 +143,5 @@ defmodule BikeBrigade.Riders.RiderSearchTest do
       |> create_campaign_for_date()
 
     link_rider_to_campaign(rider_id, campaign.id)
-    campaign
   end
 end
