@@ -309,57 +309,40 @@ defmodule BikeBrigade.Riders.RiderSearch do
         f.type == :active and f.search in ["week", "month"]
       end)
 
-    if has_period_filter do
-      # Combined weekday + period: check only weekday matching, no volume/recency thresholds
-      # Note: lookback_period_years is applied to both combined and solo filters
-      campaigns_subquery =
-        from(c in BikeBrigade.Delivery.Campaign,
-          join: cr in "campaigns_riders",
-          on: cr.campaign_id == c.id,
-          where:
-            cr.rider_id == parent_as(:rider).id and
-              c.delivery_start > ago(@lookback_period_years, "year") and
-              fragment(
-                "EXTRACT(ISODOW FROM ? AT TIME ZONE ?) = ?",
-                c.delivery_start,
-                ^@timezone,
-                ^day_number
-              ),
-          select: 1
-        )
+    # Build base campaigns subquery (common structure)
+    # Lookback_period_years: applied to BOTH combined and solo filters
+    base_subquery =
+      from(c in BikeBrigade.Delivery.Campaign,
+        join: cr in "campaigns_riders",
+        on: cr.campaign_id == c.id,
+        where:
+          cr.rider_id == parent_as(:rider).id and
+            c.delivery_start > ago(@lookback_period_years, "year") and
+            fragment(
+              "EXTRACT(ISODOW FROM ? AT TIME ZONE ?) = ?",
+              c.delivery_start,
+              ^@timezone,
+              ^day_number
+            )
+      )
 
-      query
-      |> where(exists(campaigns_subquery))
-    else
-      # Solo weekday filter: apply volume + recency thresholds in addition to lookback period
-      # Lookback_period_years: applied to BOTH combined and solo filters
-      # Volume_threshold + recency_threshold: applied ONLY to solo weekday searches
-      campaigns_subquery =
-        from(c in BikeBrigade.Delivery.Campaign,
-          join: cr in "campaigns_riders",
-          on: cr.campaign_id == c.id,
-          where:
-            cr.rider_id == parent_as(:rider).id and
-              c.delivery_start > ago(@lookback_period_years, "year") and
-              fragment(
-                "EXTRACT(ISODOW FROM ? AT TIME ZONE ?) = ?",
-                c.delivery_start,
-                ^@timezone,
-                ^day_number
-              ),
-          group_by: cr.rider_id,
-          # Volume threshold: minimum deliveries on this weekday (prevents single-time riders)
-          # Recency threshold: most recent delivery must be recent (prevents stale riders)
-          # NOTE: These thresholds (volume + recency) are ONLY applied when searching by weekday alone
-          having:
-            count(c.id) >= ^@volume_threshold and
-              max(c.delivery_start) > ago(@recency_threshold_months, "month"),
-          select: 1
+    # Conditionally apply volume + recency thresholds (ONLY for solo weekday searches)
+    campaigns_subquery =
+      if has_period_filter do
+        base_subquery |> select(1)
+      else
+        base_subquery
+        |> group_by([c, cr], cr.rider_id)
+        |> having(
+          [c, cr],
+          count(c.id) >= ^@volume_threshold and
+            max(c.delivery_start) > ago(@recency_threshold_months, "month")
         )
+        |> select(1)
+      end
 
-      query
-      |> where(exists(campaigns_subquery))
-    end
+    query
+    |> where(exists(campaigns_subquery))
   end
 
   defp apply_filter(%Filter{type: :active, search: period}, query, _filters) do
