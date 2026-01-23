@@ -243,11 +243,20 @@ defmodule BikeBrigade.Riders.RiderSearch do
 
   @spec filter_query(Ecto.Query.t(), list()) :: Ecto.Query.t()
   defp filter_query(query, filters) do
-    Enum.reduce(filters, query, fn filter, q -> apply_filter(filter, q, filters) end)
+    Enum.reduce(filters, query, fn
+      %Filter{type: :active, search: weekday} =
+          filter,
+      q
+      when weekday in @weekday_names ->
+        apply_weekday_filter(filter, q, filters)
+
+      filter, q ->
+        apply_filter(filter, q)
+    end)
   end
 
-  @spec apply_filter(Filter.t(), Ecto.Query.t(), list()) :: Ecto.Query.t()
-  defp apply_filter(%Filter{type: :name, search: search}, query, _filters) do
+  @spec apply_filter(Filter.t(), Ecto.Query.t()) :: Ecto.Query.t()
+  defp apply_filter(%Filter{type: :name, search: search}, query) do
     query
     |> where(
       fragment("unaccent(?) ilike unaccent(?)", as(:rider).name, ^"#{search}%") or
@@ -255,12 +264,12 @@ defmodule BikeBrigade.Riders.RiderSearch do
     )
   end
 
-  defp apply_filter(%Filter{type: :phone, search: search}, query, _filters) do
+  defp apply_filter(%Filter{type: :phone, search: search}, query) do
     query
     |> where(like(as(:rider).phone, ^"%#{search}%"))
   end
 
-  defp apply_filter(%Filter{type: :name_or_phone, search: search}, query, _filters) do
+  defp apply_filter(%Filter{type: :name_or_phone, search: search}, query) do
     query
     |> where(
       fragment("unaccent(?) ilike unaccent(?)", as(:rider).name, ^"#{search}%") or
@@ -269,19 +278,19 @@ defmodule BikeBrigade.Riders.RiderSearch do
     )
   end
 
-  defp apply_filter(%Filter{type: :program, id: id}, query, _filters) do
+  defp apply_filter(%Filter{type: :program, id: id}, query) do
     query
     |> join(:inner, [rider: r], rs in RiderStats,
       on: rs.rider_id == r.id and rs.program_id == ^id
     )
   end
 
-  defp apply_filter(%Filter{type: :tag, search: tag}, query, _filters) do
+  defp apply_filter(%Filter{type: :tag, search: tag}, query) do
     query
     |> where(fragment("? = ANY(?)", ^tag, as(:tags).tags))
   end
 
-  defp apply_filter(%Filter{type: :capacity, search: capacity}, query, _filters) do
+  defp apply_filter(%Filter{type: :capacity, search: capacity}, query) do
     # TODO this may be easier with Ecto.Enum instead of EctoEnum
     {:ok, capacity} = Rider.CapacityEnum.dump(capacity)
 
@@ -289,17 +298,47 @@ defmodule BikeBrigade.Riders.RiderSearch do
     |> where(as(:rider).capacity == ^capacity)
   end
 
-  defp apply_filter(%Filter{type: :active, search: "never"}, query, _filters) do
+  defp apply_filter(%Filter{type: :active, search: "never"}, query) do
     query
     |> where(is_nil(as(:latest_campaign).id))
   end
 
-  defp apply_filter(%Filter{type: :active, search: "all_time"}, query, _filters) do
+  defp apply_filter(%Filter{type: :active, search: "all_time"}, query) do
     query
     |> where(not is_nil(as(:latest_campaign).id))
   end
 
-  defp apply_filter(%Filter{type: :active, search: weekday}, query, filters)
+  defp apply_filter(%Filter{type: :active, search: period}, query) do
+    query
+    |> where(as(:latest_campaign).delivery_start > ago(1, ^period))
+  end
+
+  @doc """
+  Applies weekday filtering for rider searches.
+
+  This function handles filtering riders based on their activity on specific weekdays.
+  It supports two modes:
+
+  1. **Combined filters** (e.g., "monday + week"): Checks for existence of campaigns
+     on the specified weekday within the time period. No volume/recency thresholds applied.
+
+  2. **Solo weekday filters** (e.g., just "monday"): Applies volume and recency thresholds
+     to ensure riders have sufficient activity on that weekday.
+
+  ## Parameters
+
+    - `filter`: A Filter struct with type `:active` and search containing a weekday name
+    - `query`: The Ecto query to modify
+    - `filters`: List of all active filters to check for period filters
+
+  ## Thresholds
+
+  For solo weekday searches, applies:
+  - Volume threshold: Minimum number of deliveries on the weekday
+  - Recency threshold: Most recent delivery on the weekday within specified months
+  - Lookback period: Campaigns considered within the last N years
+  """
+  defp apply_weekday_filter(%Filter{type: :active, search: weekday}, query, filters)
        when weekday in @weekday_names do
     day_number = @weekdays[weekday]
 
@@ -343,10 +382,5 @@ defmodule BikeBrigade.Riders.RiderSearch do
 
     query
     |> where(exists(campaigns_subquery))
-  end
-
-  defp apply_filter(%Filter{type: :active, search: period}, query, _filters) do
-    query
-    |> where(as(:latest_campaign).delivery_start > ago(1, ^period))
   end
 end
