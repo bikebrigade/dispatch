@@ -50,9 +50,12 @@ defmodule BikeBrigade.Riders.RiderSearch do
   @timezone "America/Toronto"
 
   # Thresholds for weekday filtering
-  @lookback_period_years 1         # Applied to ALL weekday searches (solo and combined with time period)
-  @volume_threshold 3              # Applied ONLY to solo weekday searches (min deliveries on a weekday)
-  @recency_threshold_months 3      # Applied ONLY to solo weekday searches (recent delivery requirement)
+  # Applied to ALL weekday searches (solo and combined with time period)
+  @lookback_period_years 1
+  # Applied ONLY to solo weekday searches (min deliveries on a weekday)
+  @volume_threshold 3
+  # Applied ONLY to solo weekday searches (recent delivery requirement)
+  @recency_threshold_months 3
 
   defmodule Filter do
     @derive Jason.Encoder
@@ -301,9 +304,10 @@ defmodule BikeBrigade.Riders.RiderSearch do
     day_number = @weekdays[weekday]
 
     # Check if a time period filter exists (week, month, etc.)
-    has_period_filter = Enum.any?(filters, fn f ->
-      f.type == :active and f.search in ["week", "month"]
-    end)
+    has_period_filter =
+      Enum.any?(filters, fn f ->
+        f.type == :active and f.search in ["week", "month"]
+      end)
 
     if has_period_filter do
       # Combined weekday + period: check only weekday matching, no volume/recency thresholds

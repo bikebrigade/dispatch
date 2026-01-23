@@ -145,7 +145,11 @@ defmodule BikeBrigade.Riders.RiderSearchTest do
   end
 
   describe "weekday filtering" do
-    setup [:setup_riders_for_weekday_filtering, :setup_multiple_monday_campaigns, :link_riders_to_campaigns]
+    setup [
+      :setup_riders_for_weekday_filtering,
+      :setup_multiple_monday_campaigns,
+      :link_riders_to_campaigns
+    ]
 
     test "filters riders by monday activity", %{
       rider_monday: rider_monday
