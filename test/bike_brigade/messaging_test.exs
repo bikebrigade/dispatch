@@ -8,27 +8,26 @@ defmodule BikeBrigade.MessagingTest do
       assert Messaging.maybe_append_signature("Hello", nil) == "Hello"
     end
 
-    test "returns body unchanged when user has signature_on_messages disabled" do
-      user = fixture(:user, %{signature_on_messages: false, name: "Chad Smith"})
+    test "returns body unchanged when user has no signature set" do
+      user = fixture(:user, %{signature_on_messages: nil, name: "Chad Smith"})
       assert Messaging.maybe_append_signature("Hello", user.id) == "Hello"
     end
 
-    test "appends signature when user has signature_on_messages enabled" do
-      user = fixture(:user, %{signature_on_messages: true, name: "Chad Smith"})
+    test "returns body unchanged when user has empty signature" do
+      user = fixture(:user, %{signature_on_messages: "", name: "Chad Smith"})
+      assert Messaging.maybe_append_signature("Hello", user.id) == "Hello"
+    end
+
+    test "appends signature when user has signature_on_messages set" do
+      user = fixture(:user, %{signature_on_messages: "Chad", name: "Chad Smith"})
       result = Messaging.maybe_append_signature("Hello", user.id)
       assert result == "Hello\n\n(sent by: Chad)"
     end
 
-    test "uses first name only" do
-      user = fixture(:user, %{signature_on_messages: true, name: "Jane Doe"})
+    test "uses custom signature text" do
+      user = fixture(:user, %{signature_on_messages: "Jane S", name: "Jane Doe"})
       result = Messaging.maybe_append_signature("Test message", user.id)
-      assert result == "Test message\n\n(sent by: Jane)"
-    end
-
-    test "handles single-word names" do
-      user = fixture(:user, %{signature_on_messages: true, name: "Prince"})
-      result = Messaging.maybe_append_signature("Test", user.id)
-      assert result == "Test\n\n(sent by: Prince)"
+      assert result == "Test message\n\n(sent by: Jane S)"
     end
 
     test "returns body unchanged when user does not exist" do

@@ -3,7 +3,7 @@ defmodule BikeBrigade.Repo.Migrations.AddSignatureOnMessagesToUsers do
 
   def change do
     alter table(:users) do
-      add :signature_on_messages, :boolean, default: false
+      add :signature_on_messages, :string
     end
   end
 end

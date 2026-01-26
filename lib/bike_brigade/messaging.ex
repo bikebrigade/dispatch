@@ -221,9 +221,8 @@ defmodule BikeBrigade.Messaging do
 
   def maybe_append_signature(body, sent_by_user_id) when is_integer(sent_by_user_id) do
     case Accounts.get_user(sent_by_user_id) do
-      %{signature_on_messages: true, name: name} when is_binary(name) ->
-        first_name = name |> String.split() |> List.first()
-        "#{body}\n\n(sent by: #{first_name})"
+      %{signature_on_messages: signature} when is_binary(signature) and signature != "" ->
+        "#{body}\n\n(sent by: #{signature})"
 
       _ ->
         body

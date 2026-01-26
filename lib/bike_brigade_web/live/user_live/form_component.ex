@@ -7,7 +7,7 @@ defmodule BikeBrigadeWeb.UserLive.FormComponent do
   @impl true
   def update(%{user: user} = assigns, socket) do
     user = Repo.preload(user, :rider)
-    changeset = Accounts.change_user(user)
+    changeset = Accounts.change_user_as_admin(user)
 
     {:ok,
      socket
@@ -20,7 +20,7 @@ defmodule BikeBrigadeWeb.UserLive.FormComponent do
   def handle_event("validate", %{"user" => user_params}, socket) do
     changeset =
       socket.assigns.user
-      |> Accounts.change_user(user_params)
+      |> Accounts.change_user_as_admin(user_params)
       |> Map.put(:action, :validate)
 
     {:noreply, assign(socket, :changeset, changeset)}
@@ -57,6 +57,14 @@ defmodule BikeBrigadeWeb.UserLive.FormComponent do
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, changeset: changeset)}
+    end
+  end
+
+  defp signature_preview(changeset) do
+    case Ecto.Changeset.get_field(changeset, :signature_on_messages) do
+      nil -> "<name>"
+      "" -> "<name>"
+      signature -> signature
     end
   end
 end

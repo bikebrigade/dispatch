@@ -11,7 +11,7 @@ defmodule BikeBrigade.Accounts.User do
     field :name, :string
     field :phone, EctoPhoneNumber.Canadian
     field :is_dispatcher, :boolean, default: false
-    field :signature_on_messages, :boolean, default: false
+    field :signature_on_messages, :string
     belongs_to :rider, Rider
 
     timestamps()

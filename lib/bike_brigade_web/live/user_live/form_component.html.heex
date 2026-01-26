@@ -32,10 +32,11 @@
     />
 
     <.input
-      type="checkbox"
+      type="text"
       field={f[:signature_on_messages]}
       label="Signature on Messages"
-      help_text="Append '(sent by: name)' to outgoing SMS messages"
+      help_text={"If set, \"(sent by: #{signature_preview(@changeset)})\" will be appended to outgoing SMS messages"}
+      autocomplete="off"
     />
 
     <:actions>
