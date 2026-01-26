@@ -82,18 +82,18 @@ defmodule BikeBrigade.AccountsTest do
     end
 
     test "update_user_as_admin/2 can update signature_on_messages" do
-      user = fixture(:user, %{signature_on_messages: false})
-      assert user.signature_on_messages == false
+      user = fixture(:user, %{signature_on_messages: nil})
+      assert user.signature_on_messages == nil
 
       assert {:ok, %User{} = updated_user} =
-               Accounts.update_user_as_admin(user, %{signature_on_messages: true})
+               Accounts.update_user_as_admin(user, %{signature_on_messages: "John"})
 
-      assert updated_user.signature_on_messages == true
+      assert updated_user.signature_on_messages == "John"
     end
 
-    test "signature_on_messages defaults to false" do
+    test "signature_on_messages defaults to nil" do
       user = fixture(:user)
-      assert user.signature_on_messages == false
+      assert user.signature_on_messages == nil
     end
   end
 end
