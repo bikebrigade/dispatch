@@ -37,6 +37,26 @@ defmodule BikeBrigade.Riders.RiderSearch do
     preload: []
   ]
 
+  @weekdays %{
+    "monday" => 1,
+    "tuesday" => 2,
+    "wednesday" => 3,
+    "thursday" => 4,
+    "friday" => 5,
+    "saturday" => 6,
+    "sunday" => 7
+  }
+  @weekday_names Map.keys(@weekdays)
+  @timezone "America/Toronto"
+
+  # Thresholds for weekday filtering
+  # Applied to ALL weekday searches (solo and combined with time period)
+  @lookback_period_years 1
+  # Applied ONLY to solo weekday searches (min deliveries on a weekday)
+  @volume_threshold 3
+  # Applied ONLY to solo weekday searches (recent delivery requirement)
+  @recency_threshold_months 3
+
   defmodule Filter do
     @derive Jason.Encoder
     defstruct [:type, :search, :id]
@@ -223,11 +243,11 @@ defmodule BikeBrigade.Riders.RiderSearch do
 
   @spec filter_query(Ecto.Query.t(), list()) :: Ecto.Query.t()
   defp filter_query(query, filters) do
-    Enum.reduce(filters, query, &apply_filter/2)
+    Enum.reduce(filters, query, fn filter, q -> apply_filter(filter, q, filters) end)
   end
 
-  @spec apply_filter(Filter.t(), Ecto.Query.t()) :: Ecto.Query.t()
-  defp apply_filter(%Filter{type: :name, search: search}, query) do
+  @spec apply_filter(Filter.t(), Ecto.Query.t(), list()) :: Ecto.Query.t()
+  defp apply_filter(%Filter{type: :name, search: search}, query, _filters) do
     query
     |> where(
       fragment("unaccent(?) ilike unaccent(?)", as(:rider).name, ^"#{search}%") or
@@ -235,12 +255,12 @@ defmodule BikeBrigade.Riders.RiderSearch do
     )
   end
 
-  defp apply_filter(%Filter{type: :phone, search: search}, query) do
+  defp apply_filter(%Filter{type: :phone, search: search}, query, _filters) do
     query
     |> where(like(as(:rider).phone, ^"%#{search}%"))
   end
 
-  defp apply_filter(%Filter{type: :name_or_phone, search: search}, query) do
+  defp apply_filter(%Filter{type: :name_or_phone, search: search}, query, _filters) do
     query
     |> where(
       fragment("unaccent(?) ilike unaccent(?)", as(:rider).name, ^"#{search}%") or
@@ -249,19 +269,19 @@ defmodule BikeBrigade.Riders.RiderSearch do
     )
   end
 
-  defp apply_filter(%Filter{type: :program, id: id}, query) do
+  defp apply_filter(%Filter{type: :program, id: id}, query, _filters) do
     query
     |> join(:inner, [rider: r], rs in RiderStats,
       on: rs.rider_id == r.id and rs.program_id == ^id
     )
   end
 
-  defp apply_filter(%Filter{type: :tag, search: tag}, query) do
+  defp apply_filter(%Filter{type: :tag, search: tag}, query, _filters) do
     query
     |> where(fragment("? = ANY(?)", ^tag, as(:tags).tags))
   end
 
-  defp apply_filter(%Filter{type: :capacity, search: capacity}, query) do
+  defp apply_filter(%Filter{type: :capacity, search: capacity}, query, _filters) do
     # TODO this may be easier with Ecto.Enum instead of EctoEnum
     {:ok, capacity} = Rider.CapacityEnum.dump(capacity)
 
@@ -269,17 +289,63 @@ defmodule BikeBrigade.Riders.RiderSearch do
     |> where(as(:rider).capacity == ^capacity)
   end
 
-  defp apply_filter(%Filter{type: :active, search: "never"}, query) do
+  defp apply_filter(%Filter{type: :active, search: "never"}, query, _filters) do
     query
     |> where(is_nil(as(:latest_campaign).id))
   end
 
-  defp apply_filter(%Filter{type: :active, search: "all_time"}, query) do
+  defp apply_filter(%Filter{type: :active, search: "all_time"}, query, _filters) do
     query
     |> where(not is_nil(as(:latest_campaign).id))
   end
 
-  defp apply_filter(%Filter{type: :active, search: period}, query) do
+  defp apply_filter(%Filter{type: :active, search: weekday}, query, filters)
+       when weekday in @weekday_names do
+    day_number = @weekdays[weekday]
+
+    # Check if a time period filter exists (week, month, etc.)
+    has_period_filter =
+      Enum.any?(filters, fn f ->
+        f.type == :active and f.search in ["week", "month"]
+      end)
+
+    # Build base campaigns subquery (common structure)
+    # Lookback_period_years: applied to BOTH combined and solo filters
+    base_subquery =
+      from(c in BikeBrigade.Delivery.Campaign,
+        join: cr in "campaigns_riders",
+        on: cr.campaign_id == c.id,
+        where:
+          cr.rider_id == parent_as(:rider).id and
+            c.delivery_start > ago(@lookback_period_years, "year") and
+            fragment(
+              "EXTRACT(ISODOW FROM ? AT TIME ZONE ?) = ?",
+              c.delivery_start,
+              ^@timezone,
+              ^day_number
+            )
+      )
+
+    # Conditionally apply volume + recency thresholds (ONLY for solo weekday searches)
+    campaigns_subquery =
+      if has_period_filter do
+        base_subquery |> select(1)
+      else
+        base_subquery
+        |> group_by([c, cr], cr.rider_id)
+        |> having(
+          [c, cr],
+          count(c.id) >= ^@volume_threshold and
+            max(c.delivery_start) > ago(@recency_threshold_months, "month")
+        )
+        |> select(1)
+      end
+
+    query
+    |> where(exists(campaigns_subquery))
+  end
+
+  defp apply_filter(%Filter{type: :active, search: period}, query, _filters) do
     query
     |> where(as(:latest_campaign).delivery_start > ago(1, ^period))
   end
