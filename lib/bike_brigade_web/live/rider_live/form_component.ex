@@ -72,7 +72,7 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
 
     # `:edit_profile` - the rider is editing their own profile.
     def changeset_impl(form, :edit_profile, attrs) do
-      form |> cast(attrs, @shared_permitted_keys)
+      form |> cast(attrs, @shared_permitted_keys ++ [:tags])
     end
 
     def from_rider(%Rider{} = rider) do
@@ -104,12 +104,19 @@ defmodule BikeBrigadeWeb.RiderLive.FormComponent do
     form = RiderForm.from_rider(rider)
     changeset = RiderForm.changeset(form, assigns.action)
 
+    # Get names of restricted tags for the TagsComponent
+    restricted_tag_names =
+      rider.tags
+      |> Enum.filter(& &1.restricted)
+      |> Enum.map(& &1.name)
+
     {:ok,
      socket
      |> assign(assigns)
      |> assign(:rider, rider)
      |> assign(:form, form)
-     |> assign(:changeset, changeset)}
+     |> assign(:changeset, changeset)
+     |> assign(:restricted_tag_names, restricted_tag_names)}
   end
 
   @impl true
