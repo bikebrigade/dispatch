@@ -3,6 +3,8 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
 
   import Phoenix.LiveViewTest
 
+  alias BikeBrigade.Riders
+
   describe "Index" do
     setup [:create_rider, :login]
 
@@ -76,9 +78,9 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
   describe "Show: rider logged-in" do
     setup [:create_rider, :login_as_rider]
 
-    test "Logged in rider cannot see their tag or capacity", %{conn: conn} do
+    test "Logged in rider cannot see their capacity", %{conn: conn} do
       {:ok, _view, html} = live(conn, ~p"/profile")
-      refute html =~ "dispatch-data-tags-and-capacity"
+      refute html =~ "dispatch-data-capacity"
     end
   end
 
@@ -147,7 +149,7 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
 
       assert html =~ rider.name
       assert html =~ rider.location.address
-      assert html =~ "dispatch-data-tags-and-capacity"
+      assert html =~ "dispatch-data-capacity"
     end
 
     test "Logged in dispatcher can edit admin-only fields.", %{conn: conn, rider: rider} do
@@ -183,6 +185,62 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
       assert html =~ "Flags"
       assert html =~ "Last Safety Check"
       assert html =~ "Notes (internal)"
+    end
+  end
+
+  describe "Tag visibility on profile: dispatcher" do
+    setup [:create_rider, :login]
+
+    test "dispatcher can see all tags including restricted on rider profile", %{
+      conn: conn,
+      rider: rider
+    } do
+      normal_tag = fixture(:tag, %{name: "Normal Tag", restricted: false})
+      restricted_tag = fixture(:tag, %{name: "Restricted Tag", restricted: true})
+
+      rider = rider |> BikeBrigade.Repo.preload(:tags)
+      {:ok, _} = Riders.update_rider_with_tags(rider, %{}, [normal_tag.name, restricted_tag.name])
+
+      {:ok, _view, html} = live(conn, ~p"/riders/#{rider}")
+
+      assert html =~ "Normal Tag"
+      assert html =~ "Restricted Tag"
+    end
+
+    test "dispatcher can see restricted tags in edit form", %{conn: conn, rider: rider} do
+      _restricted_tag = fixture(:tag, %{name: "Admin Only Tag", restricted: true})
+
+      {:ok, _view, html} = live(conn, ~p"/riders/#{rider}/show/edit")
+
+      # Should see the restricted tag as an available option
+      assert html =~ "Admin Only Tag"
+    end
+  end
+
+  describe "Tag visibility on profile: rider" do
+    setup [:create_rider, :login_as_rider]
+
+    test "rider cannot see restricted tags on their profile", %{conn: conn, rider: rider} do
+      normal_tag = fixture(:tag, %{name: "Visible Tag", restricted: false})
+      restricted_tag = fixture(:tag, %{name: "Hidden Tag", restricted: true})
+
+      rider = rider |> BikeBrigade.Repo.preload(:tags)
+      {:ok, _} = Riders.update_rider_with_tags(rider, %{}, [normal_tag.name, restricted_tag.name])
+
+      {:ok, _view, html} = live(conn, ~p"/profile")
+
+      assert html =~ "Visible Tag"
+      refute html =~ "Hidden Tag"
+    end
+
+    test "rider cannot see restricted tags in edit form", %{conn: conn} do
+      _normal_tag = fixture(:tag, %{name: "Public Tag", restricted: false})
+      _restricted_tag = fixture(:tag, %{name: "Secret Tag", restricted: true})
+
+      {:ok, _view, html} = live(conn, ~p"/profile/edit")
+
+      assert html =~ "Public Tag"
+      refute html =~ "Secret Tag"
     end
   end
 end
