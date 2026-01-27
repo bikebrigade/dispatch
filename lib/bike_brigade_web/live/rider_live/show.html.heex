@@ -70,7 +70,7 @@
       </p>
       <p
         :if={@current_user.is_dispatcher}
-        data-testid="dispatch-data-tags-and-capacity"
+        data-testid="dispatch-data-capacity"
         class="text-sm !leading-relaxed xl:text-base"
       >
         <span class="">
@@ -95,25 +95,31 @@
             /> Text-only delivery instructions
           </span>
         <% end %>
+      </p>
+      <% visible_tags =
+        if @current_user.is_dispatcher,
+          do: @rider.tags,
+          else: Enum.reject(@rider.tags, & &1.restricted) %>
+      <p :if={visible_tags != []} class="text-sm !leading-relaxed xl:text-base">
         <span class="block xl:inline">
           <Heroicons.tag
             mini
             aria-label="Tag"
-            class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 xl:ml-2 sm:mr-.5"
+            class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 sm:mr-.5"
           />
-          <%= if Enum.empty?(@rider.tags) do %>
-            No tags
-          <% else %>
-            <span class="inline-flex flex-wrap">
-              <%= for tag <- @rider.tags do %>
-                <span class="before:content-[','] first:before:content-['']">
+          <span class="inline-flex flex-wrap">
+            <%= for tag <- visible_tags do %>
+              <span class="before:content-[','] first:before:content-['']">
+                <%= if @current_user.is_dispatcher do %>
                   <.link navigate={~p"/riders?#{%{filters: ["tag:#{tag.name}"]}}"} class="link">
                     {tag.name}
                   </.link>
-                </span>
-              <% end %>
-            </span>
-          <% end %>
+                <% else %>
+                  {tag.name}
+                <% end %>
+              </span>
+            <% end %>
+          </span>
         </span>
       </p>
     </div>

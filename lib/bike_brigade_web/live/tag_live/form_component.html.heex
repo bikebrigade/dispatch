@@ -1,0 +1,24 @@
+<div>
+  <.header>{@title}</.header>
+  <.simple_form
+    :let={f}
+    for={@changeset}
+    id="tag-form"
+    phx-target={@myself}
+    phx-change="validate"
+    phx-submit="save"
+  >
+    <.input type="text" field={f[:name]} label="Name" />
+
+    <.input
+      type="checkbox"
+      field={f[:restricted]}
+      label="Restricted"
+      help_text="Restricted tags are hidden from riders on their profile"
+    />
+
+    <:actions>
+      <.button type="submit" phx-disable-with="Saving...">Save</.button>
+    </:actions>
+  </.simple_form>
+</div>

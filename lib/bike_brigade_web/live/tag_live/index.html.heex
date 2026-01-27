@@ -1,0 +1,63 @@
+<.header>
+  Tags
+  <:subtitle>
+    Manage rider tags. Restricted tags are hidden from riders on their profile.
+  </:subtitle>
+  <:actions>
+    <.button patch={~p"/tags/new"}>New Tag</.button>
+  </:actions>
+</.header>
+
+<.table id="tags" rows={@tags}>
+  <:col :let={tag} label="Name">
+    {tag.name}
+  </:col>
+  <:col :let={tag} label="Restricted">
+    <button
+      type="button"
+      phx-click={JS.push("toggle_restricted", value: %{id: tag.id})}
+      class="p-1 rounded hover:bg-gray-100"
+      title={if tag.restricted, do: "Click to unrestrict", else: "Click to restrict"}
+    >
+      <%= if tag.restricted do %>
+        <Heroicons.lock_closed mini class="w-5 h-5 text-amber-600" />
+      <% else %>
+        <Heroicons.lock_open mini class="w-5 h-5 text-gray-400" />
+      <% end %>
+    </button>
+  </:col>
+  <:col :let={tag} label="Riders">
+    {tag.rider_count}
+  </:col>
+
+  <:action :let={tag}>
+    <.link patch={~p"/tags/#{tag.id}/edit"} class="link">
+      Edit
+    </.link>
+  </:action>
+  <:action :let={tag}>
+    <.link
+      phx-click={JS.push("delete", value: %{id: tag.id})}
+      data-confirm={"Are you sure you want to delete \"#{tag.name}\"?" <> if(tag.rider_count > 0, do: " This tag is used by #{tag.rider_count} rider(s).", else: "")}
+      class="link"
+    >
+      Delete
+    </.link>
+  </:action>
+</.table>
+
+<.modal
+  :if={@live_action in [:new, :edit]}
+  id="tag-modal"
+  show
+  on_cancel={JS.navigate(~p"/tags")}
+>
+  <.live_component
+    module={BikeBrigadeWeb.TagLive.FormComponent}
+    id={@tag.id || :new}
+    action={@live_action}
+    title={@page_title}
+    tag={@tag}
+    navigate={~p"/tags"}
+  />
+</.modal>

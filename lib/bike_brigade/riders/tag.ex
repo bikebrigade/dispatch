@@ -5,6 +5,7 @@ defmodule BikeBrigade.Riders.Tag do
 
   schema "tags" do
     field :name, :string
+    field :restricted, :boolean, default: false
     many_to_many :riders, Rider, join_through: RidersTag
 
     timestamps()
@@ -12,7 +13,7 @@ defmodule BikeBrigade.Riders.Tag do
 
   def changeset(struct, params \\ %{}) do
     struct
-    |> Ecto.Changeset.cast(params, [:name])
+    |> Ecto.Changeset.cast(params, [:name, :restricted])
     |> Ecto.Changeset.validate_required([:name])
   end
 end

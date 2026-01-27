@@ -36,18 +36,57 @@ defmodule BikeBrigade.Riders do
     if tag, do: tag.riders, else: []
   end
 
-  # TODO cache this
   def list_tags() do
     Tag
+    |> order_by([t], asc: t.name)
     |> Repo.all()
   end
 
-  # TODO we can do this in memory
-  def search_tags(search \\ "", limit \\ 10) do
+  def search_tags(search, limit \\ 10) do
     Tag
-    |> where([u], ilike(u.name, ^"%#{search}%"))
+    |> where([t], ilike(t.name, ^"%#{search}%"))
     |> limit(^limit)
     |> Repo.all()
+  end
+
+  def get_tag!(id) do
+    Repo.get!(Tag, id)
+  end
+
+  def toggle_tag_restricted(%Tag{} = tag) do
+    tag
+    |> Tag.changeset(%{restricted: !tag.restricted})
+    |> Repo.update()
+  end
+
+  def list_tags_with_rider_count() do
+    Tag
+    |> join(:left, [t], rt in "riders_tags", on: rt.tag_id == t.id)
+    |> group_by([t], t.id)
+    |> select([t, rt], {t, count(rt.rider_id)})
+    |> order_by([t], asc: t.name)
+    |> Repo.all()
+    |> Enum.map(fn {tag, count} -> Map.put(tag, :rider_count, count) end)
+  end
+
+  def create_tag(attrs \\ %{}) do
+    %Tag{}
+    |> Tag.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  def update_tag(%Tag{} = tag, attrs) do
+    tag
+    |> Tag.changeset(attrs)
+    |> Repo.update()
+  end
+
+  def delete_tag(%Tag{} = tag) do
+    Repo.delete(tag)
+  end
+
+  def change_tag(%Tag{} = tag, attrs \\ %{}) do
+    Tag.changeset(tag, attrs)
   end
 
   @doc """

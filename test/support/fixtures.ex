@@ -258,6 +258,18 @@ defmodule BikeBrigade.Fixtures do
     banner
   end
 
+  def fixture(:tag, attrs) do
+    {:ok, tag} =
+      %{
+        name: "#{Faker.Lorem.word()}-#{System.unique_integer([:positive])}",
+        restricted: false
+      }
+      |> Map.merge(attrs)
+      |> Riders.create_tag()
+
+    tag
+  end
+
   def fixture(:sms_message_from_rider, rider, attrs) do
     fixture(:sms_message, Map.merge(attrs, %{rider_id: rider.id, from: rider.phone}))
   end

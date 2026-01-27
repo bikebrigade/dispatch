@@ -41,7 +41,7 @@
       />
     </div>
 
-    <div :if={@current_user.is_dispatcher}>
+    <div>
       <CoreComponents.label for={input_id(f, :tags)}>Tags</CoreComponents.label>
 
       <.live_component
@@ -49,6 +49,8 @@
         id={:rider_tags}
         tags={@form.tags}
         input_name={"#{input_name(f, :tags)}[]"}
+        is_dispatcher={@current_user.is_dispatcher}
+        restricted_tag_names={@restricted_tag_names}
       />
     </div>
 

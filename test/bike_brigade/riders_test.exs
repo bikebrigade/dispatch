@@ -4,7 +4,7 @@ defmodule BikeBrigade.RidersTest do
   alias BikeBrigade.Utils
   alias BikeBrigade.LocalizedDateTime
   alias BikeBrigade.Riders
-  alias BikeBrigade.Riders.Rider
+  alias BikeBrigade.Riders.{Rider, Tag}
 
   alias BikeBrigade.Accounts
   alias BikeBrigade.Accounts.User
@@ -104,6 +104,94 @@ defmodule BikeBrigade.RidersTest do
 
       assert is_nil(Repo.get(SmsMessage, sms1.id))
       assert is_nil(Repo.get(SmsMessage, sms2.id))
+    end
+  end
+
+  describe "tags" do
+    test "create_tag/1 creates a tag" do
+      assert {:ok, tag} = Riders.create_tag(%{name: "Test Tag"})
+      assert tag.name == "Test Tag"
+      assert tag.restricted == false
+    end
+
+    test "create_tag/1 creates a restricted tag" do
+      assert {:ok, tag} = Riders.create_tag(%{name: "Restricted Tag", restricted: true})
+      assert tag.name == "Restricted Tag"
+      assert tag.restricted == true
+    end
+
+    test "create_tag/1 validates name is required" do
+      assert {:error, changeset} = Riders.create_tag(%{name: ""})
+      assert "can't be blank" in errors_on(changeset).name
+    end
+
+    test "update_tag/2 updates a tag" do
+      tag = fixture(:tag)
+      assert {:ok, updated} = Riders.update_tag(tag, %{name: "Updated Name"})
+      assert updated.name == "Updated Name"
+    end
+
+    test "delete_tag/1 deletes a tag" do
+      tag = fixture(:tag)
+      assert {:ok, _} = Riders.delete_tag(tag)
+      assert is_nil(Repo.get(Tag, tag.id))
+    end
+
+    test "list_tags/0 returns all tags ordered by name" do
+      _tag_c = fixture(:tag, %{name: "Charlie"})
+      _tag_a = fixture(:tag, %{name: "Alpha"})
+      _tag_b = fixture(:tag, %{name: "Bravo"})
+
+      tags = Riders.list_tags()
+      assert Enum.map(tags, & &1.name) == ["Alpha", "Bravo", "Charlie"]
+    end
+
+    test "list_tags_with_rider_count/0 returns tags with rider counts" do
+      tag1 = fixture(:tag, %{name: "Tag With Riders"})
+      _tag2 = fixture(:tag, %{name: "Tag Without Riders"})
+
+      rider = fixture(:rider) |> Repo.preload(:tags)
+      {:ok, _} = Riders.update_rider_with_tags(rider, %{}, [tag1.name])
+
+      tags = Riders.list_tags_with_rider_count()
+
+      tag1_result = Enum.find(tags, &(&1.name == "Tag With Riders"))
+      tag2_result = Enum.find(tags, &(&1.name == "Tag Without Riders"))
+
+      assert tag1_result.rider_count == 1
+      assert tag2_result.rider_count == 0
+    end
+
+    test "toggle_tag_restricted/1 flips restricted status" do
+      tag = fixture(:tag, %{restricted: false})
+      assert tag.restricted == false
+
+      {:ok, tag} = Riders.toggle_tag_restricted(tag)
+      assert tag.restricted == true
+
+      {:ok, tag} = Riders.toggle_tag_restricted(tag)
+      assert tag.restricted == false
+    end
+
+    test "change_tag/2 returns a changeset" do
+      tag = fixture(:tag)
+      changeset = Riders.change_tag(tag, %{name: "New Name"})
+      assert %Ecto.Changeset{} = changeset
+    end
+
+    test "get_tag!/1 returns a tag" do
+      tag = fixture(:tag)
+      assert Riders.get_tag!(tag.id).id == tag.id
+    end
+
+    test "search_tags/2 searches tags by name" do
+      fixture(:tag, %{name: "Delivery"})
+      fixture(:tag, %{name: "Express Delivery"})
+      fixture(:tag, %{name: "Pickup"})
+
+      results = Riders.search_tags("deliv")
+      assert length(results) == 2
+      assert Enum.all?(results, &String.contains?(String.downcase(&1.name), "deliv"))
     end
   end
 end
