@@ -20,7 +20,7 @@ defmodule BikeBrigade.Accounts.User do
   @doc false
   def changeset(user, attrs) do
     user
-    |> cast(attrs, [:name, :email, :phone])
+    |> cast(attrs, [:name, :email, :phone, :signature_on_messages])
     |> validate_required([:name, :email, :phone])
     |> unique_constraint(:phone)
     |> unique_constraint(:email)
@@ -30,6 +30,6 @@ defmodule BikeBrigade.Accounts.User do
   def admin_changeset(user, attrs) do
     user
     |> changeset(attrs)
-    |> cast(attrs, [:is_dispatcher, :rider_id, :signature_on_messages])
+    |> cast(attrs, [:is_dispatcher, :rider_id])
   end
 end

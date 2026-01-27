@@ -30,6 +30,15 @@ defmodule BikeBrigadeWeb.UserLive.FormComponent do
     save_user(socket, socket.assigns.action, user_params)
   end
 
+  def handle_event("clear_signature", _params, socket) do
+    changeset =
+      socket.assigns.user
+      |> Accounts.change_user_as_admin(%{"signature_on_messages" => ""})
+      |> Map.put(:action, :validate)
+
+    {:noreply, assign(socket, :changeset, changeset)}
+  end
+
   defp save_user(socket, :edit, user_params) do
     # TODO: We should probably not allow users to have no rider associated
     # But for now let's make it possible for consistency
@@ -60,11 +69,19 @@ defmodule BikeBrigadeWeb.UserLive.FormComponent do
     end
   end
 
-  defp signature_preview(changeset) do
+  defp has_signature?(changeset) do
     case Ecto.Changeset.get_field(changeset, :signature_on_messages) do
-      nil -> "<name>"
-      "" -> "<name>"
-      signature -> signature
+      nil -> false
+      "" -> false
+      _ -> true
+    end
+  end
+
+  defp signature_help_text(changeset) do
+    case Ecto.Changeset.get_field(changeset, :signature_on_messages) do
+      nil -> nil
+      "" -> nil
+      signature -> "\"(sent by: #{signature})\" will be appended to outgoing SMS messages"
     end
   end
 end
