@@ -7,7 +7,7 @@ defmodule BikeBrigadeWeb.UserLive.FormComponent do
   @impl true
   def update(%{user: user} = assigns, socket) do
     user = Repo.preload(user, :rider)
-    changeset = Accounts.change_user_as_admin(user)
+    changeset = Accounts.change_user(user)
 
     {:ok,
      socket
