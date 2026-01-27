@@ -19,7 +19,7 @@ defmodule BikeBrigade.Riders.RiderSearchTest do
         )
         |> RiderSearch.fetch()
 
-      assert rider.id in Enum.map(results.page, & &1.id)
+      assert rider_in_results?(results, rider.id)
     end
 
     test "excludes rider with monday campaign outside the current week" do
@@ -35,7 +35,7 @@ defmodule BikeBrigade.Riders.RiderSearchTest do
         )
         |> RiderSearch.fetch()
 
-      refute rider.id in Enum.map(results.page, & &1.id)
+      refute rider_in_results?(results, rider.id)
     end
   end
 
@@ -53,7 +53,7 @@ defmodule BikeBrigade.Riders.RiderSearchTest do
         )
         |> RiderSearch.fetch()
 
-      assert rider.id in Enum.map(results.page, & &1.id)
+      assert rider_in_results?(results, rider.id)
     end
   end
 
@@ -67,7 +67,7 @@ defmodule BikeBrigade.Riders.RiderSearchTest do
         RiderSearch.new(filters: [%Filter{type: :active, search: "monday"}])
         |> RiderSearch.fetch()
 
-      assert rider.id in Enum.map(results.page, & &1.id)
+      assert rider_in_results?(results, rider.id)
     end
 
     test "excludes rider failing volume threshold (< 3 deliveries)", %{
@@ -77,7 +77,7 @@ defmodule BikeBrigade.Riders.RiderSearchTest do
         RiderSearch.new(filters: [%Filter{type: :active, search: "monday"}])
         |> RiderSearch.fetch()
 
-      refute rider.id in Enum.map(results.page, & &1.id)
+      refute rider_in_results?(results, rider.id)
     end
 
     test "excludes riders with no campaigns", %{rider_none: rider_none} do
@@ -85,7 +85,7 @@ defmodule BikeBrigade.Riders.RiderSearchTest do
         RiderSearch.new(filters: [%Filter{type: :active, search: "monday"}])
         |> RiderSearch.fetch()
 
-      refute rider_none.id in Enum.map(results.page, & &1.id)
+      refute rider_in_results?(results, rider_none.id)
     end
   end
 
@@ -143,5 +143,9 @@ defmodule BikeBrigade.Riders.RiderSearchTest do
       |> create_campaign_for_date()
 
     link_rider_to_campaign(rider_id, campaign.id)
+  end
+
+  defp rider_in_results?(results, id) do
+    Enum.find(results.page, &(&1.id == id))
   end
 end

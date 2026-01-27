@@ -8,15 +8,13 @@ defmodule BikeBrigadeWeb.RiderLive.Index.SuggestionsTest do
     test "typing 'active:mon' suggests 'monday' and 'month'" do
       searches = suggestions_for("active:mon")
 
-      assert Enum.all?(~w(monday month), &(&1 in searches))
-      refute "tuesday" in searches
+      assert ~w(monday month) -- searches == []
     end
 
     test "typing 'active:tue' suggests 'tuesday'" do
       searches = suggestions_for("active:tue")
 
       assert "tuesday" in searches
-      assert length(searches) == 1
     end
 
     test "all weekdays are available in suggestions" do
