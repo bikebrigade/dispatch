@@ -11,6 +11,7 @@ defmodule BikeBrigade.Accounts.User do
     field :name, :string
     field :phone, EctoPhoneNumber.Canadian
     field :is_dispatcher, :boolean, default: false
+    field :signature_on_messages, :string
     belongs_to :rider, Rider
 
     timestamps()
@@ -19,7 +20,7 @@ defmodule BikeBrigade.Accounts.User do
   @doc false
   def changeset(user, attrs) do
     user
-    |> cast(attrs, [:name, :email, :phone])
+    |> cast(attrs, [:name, :email, :phone, :signature_on_messages])
     |> validate_required([:name, :email, :phone])
     |> unique_constraint(:phone)
     |> unique_constraint(:email)

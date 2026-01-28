@@ -150,6 +150,10 @@ defmodule BikeBrigade.Accounts do
     User.changeset(user, attrs)
   end
 
+  def change_user_as_admin(%User{} = user, attrs \\ %{}) do
+    User.admin_changeset(user, attrs)
+  end
+
   def get_dispatcher_phone_numbers() do
     query =
       from u in User,
