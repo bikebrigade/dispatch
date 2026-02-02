@@ -91,42 +91,69 @@ defmodule BikeBrigadeWeb.RiderLive.TagsComponent do
     end
   end
 
-  defp tag_restricted?(tag_name, restricted_tag_names) do
-    tag_name in restricted_tag_names
+  defp visible_selected_tags(tags, restricted_tag_names, is_dispatcher) do
+    tags
+    |> Enum.with_index()
+    |> Enum.map(fn {name, index} ->
+      %{name: name, index: index, restricted: name in restricted_tag_names}
+    end)
+    |> Enum.filter(fn tag -> is_dispatcher || !tag.restricted end)
+  end
+
+  attr :tag, :map, required: true
+  attr :input_name, :string, required: true
+  attr :target, :any, required: true
+
+  defp selected_tag(assigns) do
+    ~H"""
+    <span class="my-0.5 inline-flex items-center px-2.5 py-1.5 rounded-md text-md font-medium bg-indigo-100 text-indigo-800">
+      {@tag.name}
+      <Heroicons.lock_closed :if={@tag.restricted} mini class="w-4 h-4 ml-1 text-amber-600" />
+      <Heroicons.x_circle
+        solid
+        class="w-5 h-5 ml-1 cursor-pointer"
+        phx-click={JS.push("remove_tag", value: %{index: @tag.index}, target: @target)}
+      />
+    </span>
+    <input type="hidden" name={@input_name} value={@tag.name} />
+    """
+  end
+
+  attr :tag, :map, required: true
+  attr :target, :any, required: true
+
+  defp suggested_tag(assigns) do
+    ~H"""
+    <span
+      class={[
+        "my-0.5 inline-flex items-center px-2.5 py-1.5 rounded-md text-md font-medium cursor-pointer hover:bg-gray-200",
+        if(@tag.restricted, do: "bg-gray-200 text-gray-500", else: "bg-gray-100 text-gray-500")
+      ]}
+      phx-click={JS.push("select", value: %{name: @tag.name}, target: @target)}
+    >
+      <Heroicons.plus mini class="w-4 h-4 mr-1" />
+      {@tag.name}
+      <Heroicons.lock_closed :if={@tag.restricted} mini class="w-4 h-4 ml-1 text-amber-600" />
+    </span>
+    """
   end
 
   @impl Phoenix.LiveComponent
   def render(assigns) do
     ~H"""
-    <div class="flex flex-wrap gap-1 w-full px-3 py-2 my-1 border border-gray-300 rounded-md">
-      <%= for {tag, i} <- Enum.with_index(@tags) do %>
-        <% is_restricted = tag_restricted?(tag, @restricted_tag_names) %>
-        <%= if @is_dispatcher || !is_restricted do %>
-          <span class="my-0.5 inline-flex items-center px-2.5 py-1.5 rounded-md text-md font-medium bg-indigo-100 text-indigo-800">
-            {tag}
-            <Heroicons.lock_closed :if={is_restricted} mini class="w-4 h-4 ml-1 text-amber-600" />
-            <Heroicons.x_circle
-              solid
-              class="w-5 h-5 ml-1 cursor-pointer"
-              phx-click={JS.push("remove_tag", value: %{index: i}, target: @myself)}
-            />
-          </span>
-          <input type="hidden" name={@input_name} value={tag} />
-        <% end %>
-      <% end %>
-      <%= for tag <- @suggested_tags do %>
-        <span
-          class={[
-            "my-0.5 inline-flex items-center px-2.5 py-1.5 rounded-md text-md font-medium cursor-pointer hover:bg-gray-200",
-            if(tag.restricted, do: "bg-gray-200 text-gray-500", else: "bg-gray-100 text-gray-500")
-          ]}
-          phx-click={JS.push("select", value: %{name: tag.name}, target: @myself)}
-        >
-          <Heroicons.plus mini class="w-4 h-4 mr-1" />
-          {tag.name}
-          <Heroicons.lock_closed :if={tag.restricted} mini class="w-4 h-4 ml-1 text-amber-600" />
-        </span>
-      <% end %>
+    <div>
+      <div class="flex flex-wrap gap-1 w-full px-3 py-2 my-1 border border-gray-300 rounded-md">
+        <.selected_tag
+          :for={tag <- visible_selected_tags(@tags, @restricted_tag_names, @is_dispatcher)}
+          tag={tag}
+          input_name={@input_name}
+          target={@myself}
+        />
+        <.suggested_tag :for={tag <- @suggested_tags} tag={tag} target={@myself} />
+      </div>
+      <.link :if={@is_dispatcher} navigate={~p"/tags"} class="text-sm text-gray-500 hover:text-gray-700">
+        Manage tags
+      </.link>
     </div>
     """
   end
