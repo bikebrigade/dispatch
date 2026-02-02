@@ -98,7 +98,7 @@ defmodule BikeBrigadeWeb.RiderLive.TagsComponent do
   @impl Phoenix.LiveComponent
   def render(assigns) do
     ~H"""
-    <div class="block w-full px-3 py-2 my-1 border border-gray-300 rounded-md">
+    <div class="flex flex-wrap gap-1 w-full px-3 py-2 my-1 border border-gray-300 rounded-md">
       <%= for {tag, i} <- Enum.with_index(@tags) do %>
         <% is_restricted = tag_restricted?(tag, @restricted_tag_names) %>
         <%= if @is_dispatcher || !is_restricted do %>
