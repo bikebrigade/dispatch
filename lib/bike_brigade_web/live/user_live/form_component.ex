@@ -20,7 +20,7 @@ defmodule BikeBrigadeWeb.UserLive.FormComponent do
   def handle_event("validate", %{"user" => user_params}, socket) do
     changeset =
       socket.assigns.user
-      |> Accounts.change_user_as_admin(user_params)
+      |> Accounts.change_user(user_params)
       |> Map.put(:action, :validate)
 
     {:noreply, assign(socket, :changeset, changeset)}
@@ -33,7 +33,7 @@ defmodule BikeBrigadeWeb.UserLive.FormComponent do
   def handle_event("clear_signature", _params, socket) do
     changeset =
       socket.assigns.user
-      |> Accounts.change_user_as_admin(%{"signature_on_messages" => ""})
+      |> Accounts.change_user(%{"signature_on_messages" => ""})
       |> Map.put(:action, :validate)
 
     {:noreply, assign(socket, :changeset, changeset)}
