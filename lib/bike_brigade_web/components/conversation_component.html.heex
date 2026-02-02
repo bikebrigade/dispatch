@@ -204,6 +204,7 @@
             </div>
           </div>
           {error_tag(f, :other_error)}
+          <.signature_status user={@current_user} />
           <div class="grid grid-cols-3 gap-4 mt-2">
             <figure :for={entry <- @uploads.media.entries}>
               <.live_img_preview entry={entry} class="w-32" />

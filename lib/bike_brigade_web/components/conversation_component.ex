@@ -129,4 +129,22 @@ defmodule BikeBrigadeWeb.Components.ConversationComponent do
     |> List.first()
     |> String.to_atom()
   end
+
+  defp signature_status(assigns) do
+    ~H"""
+    <div class="flex items-center text-sm mt-1">
+      <%= if @user.signature_on_messages && @user.signature_on_messages != "" do %>
+        <Heroicons.check_circle mini class="w-4 h-4 mr-1 text-green-600" />
+        <span class="text-gray-500">Signature:</span>
+        <span class="ml-1 text-gray-600 italic">(sent by: {@user.signature_on_messages})</span>
+      <% else %>
+        <Heroicons.exclamation_circle mini class="w-4 h-4 mr-1 text-amber-500" />
+        <span class="text-gray-600">No signature set</span>
+      <% end %>
+      <.link navigate={~p"/users/#{@user}/edit"} class="ml-2 text-indigo-600 hover:text-indigo-800">
+        Edit
+      </.link>
+    </div>
+    """
+  end
 end
