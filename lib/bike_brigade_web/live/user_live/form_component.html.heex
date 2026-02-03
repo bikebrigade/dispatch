@@ -31,6 +31,27 @@
       help_text="Is this user a dispatcher?"
     />
 
+    <div class="relative">
+      <.input
+        type="text"
+        field={f[:signature_on_messages]}
+        label="Signature on Messages"
+        help_text={signature_help_text(@changeset)}
+        autocomplete="off"
+      />
+      <%= if has_signature?(@changeset) do %>
+        <button
+          type="button"
+          phx-click="clear_signature"
+          phx-target={@myself}
+          class="absolute right-2 top-8 text-gray-400 hover:text-gray-600"
+          aria-label="Clear signature"
+        >
+          <Heroicons.x_mark mini class="mt-0.5  w-5 h-5" />
+        </button>
+      <% end %>
+    </div>
+
     <:actions>
       <.button type="submit" phx-disable-with="Saving...">Save</.button>
     </:actions>
