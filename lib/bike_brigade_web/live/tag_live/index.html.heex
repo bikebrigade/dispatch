@@ -10,7 +10,9 @@
 
 <.table id="tags" rows={@tags}>
   <:col :let={tag} label="Name">
-    {tag.name}
+    <.link navigate={~p"/riders?filters[]=tag:#{tag.name}"} class="link">
+      {tag.name}
+    </.link>
   </:col>
   <:col :let={tag} label="Restricted">
     <button
