@@ -87,7 +87,7 @@ defmodule BikeBrigadeWeb.TagLiveTest do
 
       assert html =~ tag.name
 
-      html = view |> element("a", "Delete") |> render_click()
+      html = view |> element("a[data-confirm]", "Delete") |> render_click()
 
       refute html =~ tag.name
     end

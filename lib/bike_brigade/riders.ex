@@ -38,7 +38,7 @@ defmodule BikeBrigade.Riders do
 
   def list_tags() do
     Tag
-    |> order_by([t], asc: t.name)
+    |> order_by([t], asc: t.restricted, asc: t.name)
     |> Repo.all()
   end
 
@@ -64,7 +64,7 @@ defmodule BikeBrigade.Riders do
     |> join(:left, [t], rt in "riders_tags", on: rt.tag_id == t.id)
     |> group_by([t], t.id)
     |> select([t, rt], {t, count(rt.rider_id)})
-    |> order_by([t], asc: t.name)
+    |> order_by([t], asc: t.restricted, asc: t.name)
     |> Repo.all()
     |> Enum.map(fn {tag, count} -> Map.put(tag, :rider_count, count) end)
   end
