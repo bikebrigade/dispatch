@@ -99,6 +99,12 @@ defmodule BikeBrigadeWeb.Layouts do
           </:icon>
           Banners
         </.sidebar_link>
+        <.sidebar_link selected={@current_page == :tags} navigate={~p"/tags"}>
+          <:icon>
+            <Heroicons.tag />
+          </:icon>
+          Tags
+        </.sidebar_link>
       </div>
 
       <.rider_links is_rider={@is_rider} is_dispatcher={@is_dispatcher} current_page={@current_page} />

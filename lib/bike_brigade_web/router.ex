@@ -175,6 +175,10 @@ defmodule BikeBrigadeWeb.Router do
       live "/banners/new", BannerLive.Index, :new
       live "/banners/:id/edit", BannerLive.Index, :edit
 
+      live "/tags", TagLive.Index, :index
+      live "/tags/new", TagLive.Index, :new
+      live "/tags/:id/edit", TagLive.Index, :edit
+
       live "/delivery_notes", DeliveryNoteLive.Index, :index
     end
 
