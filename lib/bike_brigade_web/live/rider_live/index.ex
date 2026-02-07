@@ -196,7 +196,8 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
           nil
       end
 
-    new_filters = socket.assigns.rider_search.filters ++ if(new_filter, do: [new_filter], else: [])
+    new_filters =
+      socket.assigns.rider_search.filters ++ if(new_filter, do: [new_filter], else: [])
 
     {:noreply,
      socket
