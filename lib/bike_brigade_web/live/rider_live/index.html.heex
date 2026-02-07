@@ -121,7 +121,12 @@
       </ul>
     </:col>
     <:col :let={rider} label="Capacity" sortable_field={:capacity} default_order={:desc}>
-      <button type="button" phx-click={add_filter(:capacity, rider.capacity)} } class="link whitespace-nowrap">
+      <button
+        type="button"
+        phx-click={add_filter(:capacity, rider.capacity)}
+        }
+        class="link whitespace-nowrap"
+      >
         <%= if get_filter(@rider_search.filters, :capacity, rider.capacity) do %>
           <span class="font-bold">{capacity_description(rider.capacity)}</span>
         <% else %>

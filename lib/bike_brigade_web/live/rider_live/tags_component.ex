@@ -151,10 +151,13 @@ defmodule BikeBrigadeWeb.RiderLive.TagsComponent do
         />
         <.suggested_tag :for={tag <- @suggested_tags} tag={tag} target={@myself} />
       </div>
+      <p class="text-sm text-gray-500">
+        Select tags that describe you here, like Winter Rider or Rapid Response.
+      </p>
       <.link
         :if={@is_dispatcher}
         navigate={~p"/tags"}
-        class="text-sm text-gray-500 hover:text-gray-700"
+        class="text-sm link"
       >
         Manage tags
       </.link>
