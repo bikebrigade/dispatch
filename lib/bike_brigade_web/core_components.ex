@@ -458,6 +458,33 @@ defmodule BikeBrigadeWeb.CoreComponents do
     """
   end
 
+  attr :enabled, :boolean, required: true
+  attr :label, :string, default: nil
+  attr :rest, :global
+
+  def toggle(assigns) do
+    ~H"""
+    <div class="flex items-center gap-3">
+      <button
+        type="button"
+        role="switch"
+        aria-checked={to_string(@enabled)}
+        class={[
+          "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2",
+          if(@enabled, do: "bg-indigo-600", else: "bg-gray-200")
+        ]}
+        {@rest}
+      >
+        <span class={[
+          "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
+          if(@enabled, do: "translate-x-5", else: "translate-x-0")
+        ]} />
+      </button>
+      <span :if={@label} class="text-sm font-medium text-gray-900">{@label}</span>
+    </div>
+    """
+  end
+
   attr :id, :any
   attr :name, :any
   attr :label, :string, default: nil
