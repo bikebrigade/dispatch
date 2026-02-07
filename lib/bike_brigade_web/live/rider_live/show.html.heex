@@ -69,7 +69,6 @@
         </span>
       </p>
       <p
-        :if={@current_user.is_dispatcher}
         data-testid="dispatch-data-capacity"
         class="text-sm !leading-relaxed xl:text-base"
       >
@@ -79,14 +78,18 @@
             aria-label="Briefcase"
             class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 sm:mr-.5"
           />
-          <.link
-            navigate={~p"/riders?#{%{filters: ["capacity:#{@rider.capacity}"]}}"}
-            class="link"
-          >
+          <%= if @current_user.is_dispatcher do %>
+            <.link
+              navigate={~p"/riders?#{%{filters: ["capacity:#{@rider.capacity}"]}}"}
+              class="link"
+            >
+              {capacity_description(@rider.capacity)}
+            </.link>
+          <% else %>
             {capacity_description(@rider.capacity)}
-          </.link>
+          <% end %>
         </span>
-        <%= if @rider.text_based_itinerary do %>
+        <%= if @current_user.is_dispatcher && @rider.text_based_itinerary do %>
           <span class="">
             <Heroicons.signal_slash
               mini
