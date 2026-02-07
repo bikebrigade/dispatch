@@ -4,6 +4,30 @@
     All of the users who have access to the Dispatch app. This includes Dispatchers and Riders.
   </:subtitle>
 </.header>
+
+<div class="flex items-center justify-between mt-4 mb-2 space-x-4">
+  <form phx-submit="search" class="flex-1 max-w-md">
+    <div class="relative">
+      <input
+        type="text"
+        name="search"
+        value={@search}
+        placeholder="Search by name..."
+        class="w-full px-3 py-2 pr-8 border border-gray-300 rounded-md shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500"
+      />
+      <button
+        :if={@search != ""}
+        type="button"
+        phx-click="clear_search"
+        class="absolute inset-y-0 right-0 flex items-center pr-2 text-gray-400 hover:text-gray-500"
+      >
+        <Heroicons.x_mark mini class="w-5 h-5" />
+      </button>
+    </div>
+  </form>
+  <.toggle enabled={@dispatchers_only} label="Dispatchers only" phx-click="toggle_dispatchers" />
+</div>
+
 <.table id="users" rows={@users} row_class="user-row">
   <:col :let={user} label="Name">
     <div class="flex items-center">
@@ -46,6 +70,34 @@
       Delete <span class="sr-only">, {user.name}</span>
     </.link>
   </:action>
+
+  <:footer>
+    <nav
+      class="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6"
+      aria-label="Pagination"
+    >
+      <div class="hidden sm:block">
+        <p class="text-sm text-gray-700">
+          Showing <span class="font-medium">{@page_first}</span>
+          to <span class="font-medium">{@page_last}</span>
+          of <span class="font-medium">{@total}</span>
+          results
+        </p>
+      </div>
+      <div class="flex justify-between flex-1 sm:justify-end">
+        <%= if @page_first > 1 do %>
+          <.button phx-click="prev_page" color={:white}>
+            Previous
+          </.button>
+        <% end %>
+        <%= if @page_last < @total do %>
+          <.button phx-click="next_page" color={:white} class="ml-3">
+            Next
+          </.button>
+        <% end %>
+      </div>
+    </nav>
+  </:footer>
 </.table>
 
 <.modal

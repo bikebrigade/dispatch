@@ -74,6 +74,44 @@ defmodule BikeBrigade.Accounts do
     Repo.all(query)
   end
 
+  @per_page 20
+
+  @doc """
+  Returns a paginated, filterable list of users.
+
+  Options:
+    - `:search` - filter by name (ilike), default ""
+    - `:dispatchers_only` - when true, only show dispatchers, default true
+    - `:page` - 1-indexed page number, default 1
+  """
+  def list_users_paginated(opts \\ %{}) do
+    search = Map.get(opts, :search, "")
+    dispatchers_only = Map.get(opts, :dispatchers_only, true)
+    page = Map.get(opts, :page, 1)
+    offset = (page - 1) * @per_page
+
+    query = from(u in User, order_by: u.name)
+
+    query =
+      if search != "" do
+        from(u in query, where: ilike(u.name, ^"%#{search}%"))
+      else
+        query
+      end
+
+    query =
+      if dispatchers_only do
+        from(u in query, where: u.is_dispatcher == true)
+      else
+        query
+      end
+
+    total = Repo.aggregate(query, :count)
+    users = Repo.all(from(u in query, offset: ^offset, limit: ^@per_page))
+
+    {users, total}
+  end
+
   @doc """
   Creates a user (using the admin changeset).
   """
