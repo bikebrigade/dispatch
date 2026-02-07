@@ -83,7 +83,7 @@
             navigate={~p"/riders?#{%{filters: ["capacity:#{@rider.capacity}"]}}"}
             class="link"
           >
-            {@rider.capacity}
+            {capacity_description(@rider.capacity)}
           </.link>
         </span>
         <%= if @rider.text_based_itinerary do %>

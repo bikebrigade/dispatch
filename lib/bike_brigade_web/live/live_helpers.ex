@@ -92,6 +92,10 @@ defmodule BikeBrigadeWeb.LiveHelpers do
     round(metres / 100) / 10
   end
 
+  def capacity_description(:small), do: "Small (backpack)"
+  def capacity_description(:medium), do: "Medium (rack/panniers)"
+  def capacity_description(:large), do: "Large (trailer)"
+
   @doc """
   Render content preserving spacing and phone numbers as links
   """

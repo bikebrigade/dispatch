@@ -59,9 +59,9 @@
       field={f[:capacity]}
       label="Capacity"
       options={[
-        {"Small (backpack)", :small},
-        {"Medium (rack/panniers)", :medium},
-        {"Large (trailer)", :large}
+        {capacity_description(:small), :small},
+        {capacity_description(:medium), :medium},
+        {capacity_description(:large), :large}
       ]}
       help_text="Capacities are examples, and if your configuration is different use your judgement."
     />
