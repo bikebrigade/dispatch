@@ -80,6 +80,9 @@ The application follows Phoenix context patterns with these main domains:
 
 ## Development Notes
 
+### Code Style
+- Always run `scripts/format` before committing changes
+
 ### Database
 The application uses PostgreSQL with several extensions including PostGIS for geographic data, fuzzystrmatch for fuzzy matching, and unaccent for text processing.
 
