@@ -153,7 +153,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
       )
 
     socket
-    |> assign_new(:rider_search, fn -> rider_search end)
+    |> assign(:rider_search, rider_search)
     |> fetch_results()
     |> remove_selected_riders()
   end
@@ -196,14 +196,13 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
           nil
       end
 
-    new_filters = if new_filter, do: [new_filter], else: []
+    new_filters = socket.assigns.rider_search.filters ++ if(new_filter, do: [new_filter], else: [])
 
     {:noreply,
      socket
-     |> update(:rider_search, &RiderSearch.filter(&1, &1.filters ++ new_filters))
-     |> fetch_results()
      |> clear_search()
-     |> clear_selected()}
+     |> clear_selected()
+     |> push_filter_patch(new_filters)}
   end
 
   def handle_event("clear_search", _params, socket) do
@@ -215,10 +214,9 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   def handle_event("clear_filters", _params, socket) do
     {:noreply,
      socket
-     |> update(:rider_search, &RiderSearch.filter(&1, []))
-     |> fetch_results()
      |> clear_search()
-     |> clear_selected()}
+     |> clear_selected()
+     |> push_filter_patch([])}
   end
 
   def handle_event("choose", %{"choose" => choose}, socket) do
@@ -236,11 +234,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
   def handle_event("remove_filter", %{"index" => i}, socket) do
     filters = List.delete_at(socket.assigns.rider_search.filters, i)
 
-    {:noreply,
-     socket
-     |> update(:rider_search, &RiderSearch.filter(&1, filters))
-     |> fetch_results()
-     |> remove_selected_riders()}
+    {:noreply, push_filter_patch(socket, filters)}
   end
 
   def handle_event(
@@ -387,6 +381,14 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
 
     socket
     |> assign(:selected, selected)
+  end
+
+  defp encode_filter(%Filter{type: :name, search: search}), do: search
+  defp encode_filter(%Filter{type: type, search: search}), do: "#{type}:#{search}"
+
+  defp push_filter_patch(socket, filters) do
+    params = if filters == [], do: %{}, else: %{"filters" => Enum.map(filters, &encode_filter/1)}
+    push_patch(socket, to: ~p"/riders?#{params}")
   end
 
   defp fetch_results(socket) do
