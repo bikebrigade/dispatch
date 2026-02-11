@@ -304,7 +304,7 @@ defmodule BikeBrigade.Riders.RiderSearch do
     day_number = @weekdays[weekday]
 
     # Check if a time period filter exists (week, month, etc.)
-    has_period_filter =
+    has_period_filter? =
       Enum.any?(filters, fn f ->
         f.type == :active and f.search in ["week", "month"]
       end)
@@ -339,7 +339,7 @@ defmodule BikeBrigade.Riders.RiderSearch do
         as: :weekday_stats
       )
 
-    if has_period_filter do
+    if has_period_filter? do
       # Combined with period filter: just check if they have any deliveries on this weekday
       query
       |> where([weekday_stats: ws], not is_nil(ws.rider_id))
