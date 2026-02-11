@@ -304,45 +304,54 @@ defmodule BikeBrigade.Riders.RiderSearch do
     day_number = @weekdays[weekday]
 
     # Check if a time period filter exists (week, month, etc.)
-    has_period_filter =
+    has_period_filter? =
       Enum.any?(filters, fn f ->
         f.type == :active and f.search in ["week", "month"]
       end)
 
-    # Build base campaigns subquery (common structure)
-    # Lookback_period_years: applied to BOTH combined and solo filters
-    base_subquery =
+    # Build aggregated weekday stats subquery (executed once, not per-rider)
+    # This replaces the correlated EXISTS subquery for better performance
+    weekday_stats_subquery =
       from(c in BikeBrigade.Delivery.Campaign,
         join: cr in "campaigns_riders",
         on: cr.campaign_id == c.id,
         where:
-          cr.rider_id == parent_as(:rider).id and
-            c.delivery_start > ago(@lookback_period_years, "year") and
+          c.delivery_start > ago(@lookback_period_years, "year") and
             fragment(
               "EXTRACT(ISODOW FROM ? AT TIME ZONE ?) = ?",
               c.delivery_start,
               ^@timezone,
               ^day_number
-            )
+            ),
+        group_by: cr.rider_id,
+        select: %{
+          rider_id: cr.rider_id,
+          delivery_count: count(c.id),
+          last_delivery: max(c.delivery_start)
+        }
       )
 
-    # Conditionally apply volume + recency thresholds (ONLY for solo weekday searches)
-    campaigns_subquery =
-      if has_period_filter do
-        base_subquery |> select(1)
-      else
-        base_subquery
-        |> group_by([c, cr], cr.rider_id)
-        |> having(
-          [c, cr],
-          count(c.id) >= ^@volume_threshold and
-            max(c.delivery_start) > ago(@recency_threshold_months, "month")
-        )
-        |> select(1)
-      end
+    # LEFT JOIN the aggregated stats and filter based on the joined data
+    query =
+      query
+      |> join(:left, [rider: r], ws in subquery(weekday_stats_subquery),
+        on: ws.rider_id == r.id,
+        as: :weekday_stats
+      )
 
-    query
-    |> where(exists(campaigns_subquery))
+    if has_period_filter? do
+      # Combined with period filter: just check if they have any deliveries on this weekday
+      query
+      |> where([weekday_stats: ws], not is_nil(ws.rider_id))
+    else
+      # Solo weekday search: apply volume + recency thresholds
+      query
+      |> where(
+        [weekday_stats: ws],
+        ws.delivery_count >= ^@volume_threshold and
+          ws.last_delivery > ago(@recency_threshold_months, "month")
+      )
+    end
   end
 
   defp apply_filter(%Filter{type: :active, search: period}, query, _filters) do
