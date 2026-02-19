@@ -309,8 +309,7 @@ defmodule BikeBrigade.Riders.RiderSearch do
         f.type == :active and f.search in ["week", "month"]
       end)
 
-    # Build aggregated weekday stats subquery (executed once, not per-rider)
-    # This replaces the correlated EXISTS subquery for better performance
+    # Build aggregated weekday stats subquery
     weekday_stats_subquery =
       from(c in BikeBrigade.Delivery.Campaign,
         join: cr in "campaigns_riders",
