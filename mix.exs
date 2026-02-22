@@ -124,7 +124,9 @@ defmodule BikeBrigade.MixProject do
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate", "test"],
-      "assets.deploy": ["esbuild default --minify", "tailwind default --minify", "phx.digest"]
+      "assets.deploy": ["esbuild default --minify", "tailwind default --minify", "phx.digest"],
+      # REVIEW: Sometimes this hangs on a query - `INSERT INTO "tasks_items"...`
+      "test.e2e": ["ecto.drop", "phx.server"]
     ]
   end
 
