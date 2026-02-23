@@ -26,7 +26,9 @@ defmodule BikeBrigadeWeb.DeliveryLive.Show do
     end
 
     # Subscribe to delivery topic to receive real-time task updates
-    Delivery.subscribe()
+    if connected?(socket) do
+      Delivery.subscribe()
+    end
 
     {:ok,
      socket
