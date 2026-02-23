@@ -25,6 +25,9 @@ defmodule BikeBrigadeWeb.DeliveryLive.Show do
       raise DeliveryExpiredError
     end
 
+    # Subscribe to delivery topic to receive real-time task updates
+    Delivery.subscribe()
+
     {:ok,
      socket
      |> assign(:campaign, campaign)
@@ -76,5 +79,74 @@ defmodule BikeBrigadeWeb.DeliveryLive.Show do
       {:error, _changeset} ->
         {:noreply, put_flash(socket, :error, "Failed to submit note")}
     end
+  end
+
+  @impl Phoenix.LiveView
+  def handle_event("mark_complete", %{"task-id" => task_id}, socket) do
+    task_id = String.to_integer(task_id)
+
+    case Delivery.get_task(task_id) do
+      nil ->
+        {:noreply, put_flash(socket, :error, "Task not found")}
+
+      task ->
+        # Verify the task is assigned to the current rider
+        if task.assigned_rider_id != socket.assigns.rider.id do
+          {:noreply, put_flash(socket, :error, "You cannot complete this task")}
+        else
+          # Verify the task is in a valid state (pending or picked_up)
+          case task.delivery_status do
+            status when status in [:pending, :picked_up] ->
+              case Delivery.update_task(task, %{delivery_status: :completed}) do
+                {:ok, _updated_task} ->
+                  {:noreply, put_flash(socket, :info, "Delivery marked as completed")}
+
+                {:error, _changeset} ->
+                  {:noreply, put_flash(socket, :error, "Failed to mark delivery as completed")}
+              end
+
+            :completed ->
+              {:noreply, put_flash(socket, :error, "This delivery is already completed")}
+
+            :failed ->
+              {:noreply,
+               put_flash(
+                 socket,
+                 :error,
+                 "This delivery has been marked as failed and cannot be completed"
+               )}
+
+            :removed ->
+              {:noreply, put_flash(socket, :error, "This delivery has been removed")}
+          end
+        end
+    end
+  end
+
+  @impl Phoenix.LiveView
+  def handle_info({:task_updated, updated_task}, socket) do
+    # Only process if the updated task belongs to the current rider
+    if updated_task.assigned_rider_id == socket.assigns.rider.id do
+      # Update the task in the rider's assigned_tasks list
+      updated_tasks =
+        socket.assigns.rider.assigned_tasks
+        |> Enum.map(fn task ->
+          if task.id == updated_task.id do
+            updated_task
+          else
+            task
+          end
+        end)
+
+      # Update the socket with the new tasks
+      {:noreply, assign(socket, :rider, %{socket.assigns.rider | assigned_tasks: updated_tasks})}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  # Ignore other broadcast events
+  def handle_info(_msg, socket) do
+    {:noreply, socket}
   end
 end

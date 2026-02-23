@@ -255,7 +255,17 @@
             </dd>
           </div>
           <div class="px-6 py-2 pl-14 sm:py-5">
-            <div class="flex flex-row items-center justify-start">
+            <div class="flex flex-row items-center justify-start gap-2">
+              <.button
+                phx-click="mark_complete"
+                phx-value-task-id={task.id}
+                size={:small}
+                color={:green}
+                disabled={task.delivery_status not in [:pending, :picked_up]}
+              >
+                <Heroicons.check_circle mini class="w-5 h-5 mr-1 -ml-0.5" />
+                {if task.delivery_status == :completed, do: "Completed", else: "Mark Complete"}
+              </.button>
               <.button
                 phx-click="toggle_note_form"
                 phx-value-task-id={task.id}
