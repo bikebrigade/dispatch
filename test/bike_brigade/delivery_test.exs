@@ -318,5 +318,34 @@ defmodule BikeBrigade.DeliveryTest do
     end
   end
 
+  describe "mark_task_complete_by_rider/2" do
+    setup do
+      campaign = fixture(:campaign)
+      rider = fixture(:rider)
+      task = fixture(:task, %{campaign: campaign, assigned_rider_id: rider.id})
+
+      %{campaign: campaign, rider: rider, task: task}
+    end
+
+    test "marks pending task as completed", %{rider: rider, task: task} do
+      assert task.delivery_status == :pending
+
+      assert {:ok, completed_task} = Delivery.mark_task_complete_by_rider(task.id, rider.id)
+      assert completed_task.delivery_status == :completed
+    end
+
+    test "returns success when task is already completed (idempotent)", %{
+      rider: rider,
+      task: task
+    } do
+      # Complete task first time
+      {:ok, _task} = Delivery.mark_task_complete_by_rider(task.id, rider.id)
+
+      # Complete task second time (should succeed, not error)
+      assert {:ok, completed_task} = Delivery.mark_task_complete_by_rider(task.id, rider.id)
+      assert completed_task.delivery_status == :completed
+    end
+  end
+
   def item_name(%Task{task_items: [%{item: %{name: item_name}}]}), do: item_name
 end
