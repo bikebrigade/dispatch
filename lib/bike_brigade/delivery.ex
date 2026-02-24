@@ -116,6 +116,45 @@ defmodule BikeBrigade.Delivery do
   end
 
   @doc """
+  Mark a task as completed by a specific rider, with idempotent semantics.
+
+  Returns `{:ok, task}` in all valid cases:
+  - Task is pending/picked_up → transitions to completed
+  - Task is already completed → returns success (idempotent)
+
+  Returns `{:error, reason}` for invalid cases:
+  - Task not found
+  - Task not assigned to the given rider
+  - Task in failed/removed state
+  """
+  def mark_task_complete_by_rider(task_id, rider_id) when is_integer(task_id) and is_integer(rider_id) do
+    query =
+      from t in Task,
+        where: t.id == ^task_id and t.assigned_rider_id == ^rider_id
+
+    case Repo.one(query) do
+      nil ->
+        {:error, "Task not found or not assigned to this rider"}
+
+      task ->
+        case task.delivery_status do
+          status when status in [:pending, :picked_up] ->
+            update_task(task, %{delivery_status: :completed})
+
+          :completed ->
+            # Idempotent: already completed, return success
+            {:ok, task}
+
+          :failed ->
+            {:error, "This delivery has been marked as failed and cannot be completed"}
+
+          :removed ->
+            {:error, "This delivery has been removed"}
+        end
+    end
+  end
+
+  @doc """
   Assign a task to a given rider (tracking the user that made the assignment)
   """
 

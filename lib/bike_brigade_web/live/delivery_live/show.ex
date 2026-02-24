@@ -87,41 +87,12 @@ defmodule BikeBrigadeWeb.DeliveryLive.Show do
   def handle_event("mark_complete", %{"task-id" => task_id}, socket) do
     task_id = String.to_integer(task_id)
 
-    case Delivery.get_task(task_id) do
-      nil ->
-        {:noreply, put_flash(socket, :error, "Task not found")}
+    case Delivery.mark_task_complete_by_rider(task_id, socket.assigns.rider.id) do
+      {:ok, _updated_task} ->
+        {:noreply, put_flash(socket, :info, "Delivery marked as completed")}
 
-      task ->
-        # Verify the task is assigned to the current rider
-        if task.assigned_rider_id != socket.assigns.rider.id do
-          {:noreply, put_flash(socket, :error, "You cannot complete this task")}
-        else
-          # Verify the task is in a valid state (pending or picked_up)
-          case task.delivery_status do
-            status when status in [:pending, :picked_up] ->
-              case Delivery.update_task(task, %{delivery_status: :completed}) do
-                {:ok, _updated_task} ->
-                  {:noreply, put_flash(socket, :info, "Delivery marked as completed")}
-
-                {:error, _changeset} ->
-                  {:noreply, put_flash(socket, :error, "Failed to mark delivery as completed")}
-              end
-
-            :completed ->
-              {:noreply, put_flash(socket, :error, "This delivery is already completed")}
-
-            :failed ->
-              {:noreply,
-               put_flash(
-                 socket,
-                 :error,
-                 "This delivery has been marked as failed and cannot be completed"
-               )}
-
-            :removed ->
-              {:noreply, put_flash(socket, :error, "This delivery has been removed")}
-          end
-        end
+      {:error, reason} ->
+        {:noreply, put_flash(socket, :error, reason)}
     end
   end
 
