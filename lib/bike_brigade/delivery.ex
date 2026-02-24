@@ -116,7 +116,7 @@ defmodule BikeBrigade.Delivery do
   end
 
   @doc """
-  Mark a task as completed by a specific rider, with idempotent semantics.
+  Mark a task as completed by a specific rider.
 
   Returns `{:ok, task}` in all valid cases:
   - Task is pending/picked_up → transitions to completed
@@ -127,7 +127,8 @@ defmodule BikeBrigade.Delivery do
   - Task not assigned to the given rider
   - Task in failed/removed state
   """
-  def mark_task_complete_by_rider(task_id, rider_id) when is_integer(task_id) and is_integer(rider_id) do
+  def mark_task_complete_by_rider(task_id, rider_id)
+      when is_integer(task_id) and is_integer(rider_id) do
     query =
       from t in Task,
         where: t.id == ^task_id and t.assigned_rider_id == ^rider_id
