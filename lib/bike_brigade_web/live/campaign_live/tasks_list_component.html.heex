@@ -55,6 +55,9 @@
             <div class="text-sm font-medium">
               <span class="pii">{task.dropoff_name}</span>
               <span class="text-xs">({round_distance(task.delivery_distance)} km)</span>
+              <%= if task.delivery_status == :completed do %>
+                <span class="ml-2 text-lg font-bold text-blue-600">✓</span>
+              <% end %>
             </div>
             <div class="md:flex">
               <div class="flex-shrink-0">
