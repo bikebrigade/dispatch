@@ -75,20 +75,10 @@ defmodule BikeBrigadeWeb.ItineraryLiveTest do
     } do
       # TODO: make this a fixture
       # Add rider to campaign
-      {:ok, campaign_rider} =
-        Delivery.create_campaign_rider(%{
-          campaign_id: campaign.id,
-          rider_id: rider.id
-        })
+      campaign_rider = create_campaign_rider_for_test(campaign, rider)
 
       # Create a task assigned to rider
-      {:ok, _task} =
-        Delivery.create_task_for_campaign(campaign, %{
-          dropoff_name: Faker.Person.first_name(),
-          dropoff_location: Toronto.random_location(),
-          task_items: [%{item_id: hd(program.items).id, count: 1}],
-          assigned_rider_id: rider.id
-        })
+      {_task, _dropoff_name, _item} = create_task_for_test(campaign, rider, program)
 
       {:ok, view, html} = live(conn, ~p"/itinerary")
 
@@ -102,5 +92,90 @@ defmodule BikeBrigadeWeb.ItineraryLiveTest do
         |> render_click()
         |> follow_redirect(conn, "/app/delivery/#{campaign_rider.token}")
     end
+  end
+
+  describe "Delivery status display" do
+    setup [:create_campaign, :login_as_rider]
+
+    test "displays Mark Complete button for unfinished tasks", %{
+      conn: conn,
+      rider: rider,
+      campaign: campaign,
+      program: program
+    } do
+      campaign_rider = create_campaign_rider_for_test(campaign, rider)
+
+      {_task, dropoff_name, item} = create_task_for_test(campaign, rider, program)
+
+      {:ok, view, html} = live(conn, ~p"/app/delivery/#{campaign_rider.token}")
+
+      # Check that the specific delivery item is displayed
+      assert html =~ dropoff_name
+      assert html =~ "1 #{item.name}"
+
+      # Check for Mark Complete button (rendered as a link element)
+      assert has_element?(view, "a", "Mark Complete")
+    end
+
+    test "displays Completed label for completed tasks", %{
+      conn: conn,
+      rider: rider,
+      campaign: campaign,
+      program: program
+    } do
+      dropoff_name = Faker.Person.first_name()
+      item = hd(program.items)
+
+      campaign_rider = create_campaign_rider_for_test(campaign, rider)
+
+      {:ok, _task} =
+        Delivery.create_task_for_campaign(campaign, %{
+          dropoff_name: dropoff_name,
+          dropoff_location: Toronto.random_location(),
+          task_items: [%{item_id: item.id, count: 1}],
+          assigned_rider_id: rider.id,
+          delivery_status: :completed
+        })
+
+      {:ok, view, html} = live(conn, ~p"/app/delivery/#{campaign_rider.token}")
+
+      # Check that the specific delivery item is displayed
+      assert html =~ dropoff_name
+      assert html =~ "1 #{item.name}"
+
+      # Check for Completed label in div element
+      assert has_element?(view, "div", "Completed")
+
+      # Verify Mark Complete button is NOT present
+      refute has_element?(view, "a", "Mark Complete")
+    end
+  end
+
+  # Helper function to create a campaign rider
+  defp create_campaign_rider_for_test(campaign, rider) do
+    {:ok, campaign_rider} =
+      Delivery.create_campaign_rider(%{
+        campaign_id: campaign.id,
+        rider_id: rider.id
+      })
+
+    campaign_rider
+  end
+
+  # Helper function to create a task for testing
+  defp create_task_for_test(campaign, rider, program, opts \\ []) do
+    dropoff_name = Keyword.get(opts, :dropoff_name, Faker.Person.first_name())
+
+    item = hd(program.items)
+
+    task_attrs = %{
+      dropoff_name: dropoff_name,
+      dropoff_location: Toronto.random_location(),
+      task_items: [%{item_id: item.id, count: 1}],
+      assigned_rider_id: rider.id
+    }
+
+    {:ok, task} = Delivery.create_task_for_campaign(campaign, task_attrs)
+    {task, dropoff_name, item}
   end
 end
