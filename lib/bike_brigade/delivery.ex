@@ -138,20 +138,24 @@ defmodule BikeBrigade.Delivery do
         {:error, "Task not found or not assigned to this rider"}
 
       task ->
-        case task.delivery_status do
-          status when status in [:pending, :picked_up] ->
-            update_task(task, %{delivery_status: :completed})
+        attempt_task_completion(task)
+    end
+  end
 
-          :completed ->
-            # Idempotent: already completed, return success
-            {:ok, task}
+  defp attempt_task_completion(%Task{} = task) do
+    case task.delivery_status do
+      status when status in [:pending, :picked_up] ->
+        update_task(task, %{delivery_status: :completed})
 
-          :failed ->
-            {:error, "This delivery has been marked as failed and cannot be completed"}
+      :completed ->
+        # Idempotent: already completed, return success
+        {:ok, task}
 
-          :removed ->
-            {:error, "This delivery has been removed"}
-        end
+      :failed ->
+        {:error, "This delivery has been marked as failed and cannot be completed"}
+
+      :removed ->
+        {:error, "This delivery has been removed"}
     end
   end
 
