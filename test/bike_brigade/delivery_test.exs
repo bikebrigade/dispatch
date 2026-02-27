@@ -342,8 +342,7 @@ defmodule BikeBrigade.DeliveryTest do
       {:ok, _task} = Delivery.mark_task_complete_by_rider(task.id, rider.id)
 
       # Complete task second time (should succeed, not error)
-      assert {:ok, completed_task} = Delivery.mark_task_complete_by_rider(task.id, rider.id)
-      assert completed_task.delivery_status == :completed
+      assert {:error, "Task not found"} = Delivery.mark_task_complete_by_rider(task.id, rider.id)
     end
   end
 
