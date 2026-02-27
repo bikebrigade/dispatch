@@ -130,69 +130,40 @@ defmodule BikeBrigade.Delivery do
   def mark_task_complete_by_rider(task_id, rider_id)
       when is_integer(task_id) and is_integer(rider_id) do
     # Attempt to update only if task is assigned to rider and in valid status
-    update_query =
+    complete_task_query =
       from t in Task,
         where:
           t.id == ^task_id and
             t.assigned_rider_id == ^rider_id and
-            t.delivery_status in [:pending, :picked_up]
+            t.delivery_status in [:pending, :picked_up],
+        update: [set: [delivery_status: :completed]]
 
-    Ecto.Multi.new()
-    |> Ecto.Multi.update_all(:update_task, update_query, set: [delivery_status: :completed])
-    |> Ecto.Multi.run(:validate_update, fn _repo, %{update_task: {count, _}} ->
-      case count do
-        1 -> {:ok, :updated}
-        0 -> {:error, :no_update}
-        _ -> {:error, :multiple_updates}
+    Repo.transact(fn ->
+      case Repo.update_all(complete_task_query, []) do
+        {1, _} ->
+          {:ok, "successful"}
+
+        {0, _} ->
+          Repo.rollback(:not_found)
+
+        {n, _} when n > 1 ->
+          Repo.rollback(:multiple_updates)
       end
     end)
-    |> Ecto.Multi.run(:fetch_task, fn _repo, _changes ->
-      {:ok, get_task(task_id)}
-    end)
-    |> Repo.transaction()
-    |> handle_completion_result(task_id, rider_id)
+    |> handle_completion_result(task_id)
   end
 
-  defp handle_completion_result(transaction_result, task_id, rider_id) do
+  defp handle_completion_result(transaction_result, task_id) do
     case transaction_result do
-      {:ok, %{fetch_task: task}} ->
-        broadcast({:ok, task}, :task_updated)
+      {:ok, _} ->
+        broadcast({:ok, get_task(task_id)}, :task_updated)
 
-      {:error, :validate_update, :no_update, _} ->
-        handle_no_update_error(task_id, rider_id)
+      {:error, :not_found} ->
+        {:error, "Task not found"}
 
-      {:error, :validate_update, :multiple_updates, _} ->
+      {:error, :multiple_updates} ->
         {:error,
          "Unable to update delivery. Please refresh the page and try again, or contact support if the issue persists."}
-
-      {:error, _failed_operation, reason, _changes} ->
-        {:error, reason}
-    end
-  end
-
-  defp handle_no_update_error(task_id, rider_id) do
-    check_query =
-      from t in Task,
-        where: t.id == ^task_id and t.assigned_rider_id == ^rider_id,
-        select: t.delivery_status
-
-    case Repo.one(check_query) do
-      nil ->
-        {:error, "Task not found or not assigned to this rider"}
-
-      :completed ->
-        # Idempotent: already completed, return success
-        task = get_task(task_id)
-        {:ok, task}
-
-      :failed ->
-        {:error, "This delivery has been marked as failed and cannot be completed"}
-
-      :removed ->
-        {:error, "This delivery has been removed"}
-
-      _other_status ->
-        {:error, "Task is not in a valid status to be completed"}
     end
   end
 
