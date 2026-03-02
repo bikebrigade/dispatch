@@ -133,14 +133,14 @@
             <td class="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 whitespace-nowrap sm:pl-6">
               {note.rider.name}
             </td>
-            <td class="px-3 py-4 text-sm max-w-[10rem]">
+            <td class="px-3 py-4 text-sm max-w-[15rem]">
               <% full_campaign = "#{campaign_name(note.task.campaign)} (#{campaign_date(note.task.campaign)})" %>
               <.link
                 navigate={~p"/campaigns/#{note.task.campaign_id}"}
                 class="text-indigo-600 hover:text-indigo-900"
                 title={full_campaign}
               >
-                {String.slice(full_campaign, 0, 70)}<%= if String.length(full_campaign) > 70 do %>…<% end %>
+                {String.slice(full_campaign, 0, 30)}<%= if String.length(full_campaign) > 70 do %>…<% end %>
               </.link>
             </td>
             <td class="px-3 py-4 text-sm text-gray-900 whitespace-nowrap">
