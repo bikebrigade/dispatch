@@ -334,14 +334,13 @@ defmodule BikeBrigade.DeliveryTest do
       assert completed_task.delivery_status == :completed
     end
 
-    test "returns success when task is already completed (idempotent)", %{
+    test "returns error when task is already completed", %{
       rider: rider,
       task: task
     } do
       # Complete task first time
       {:ok, _task} = Delivery.mark_task_complete_by_rider(task.id, rider.id)
 
-      # Complete task second time (should succeed, not error)
       assert {:error, "Task not found"} = Delivery.mark_task_complete_by_rider(task.id, rider.id)
     end
   end

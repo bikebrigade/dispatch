@@ -141,30 +141,16 @@ defmodule BikeBrigade.Delivery do
     Repo.transact(fn ->
       case Repo.update_all(complete_task_query, []) do
         {1, _} ->
-          {:ok, "successful"}
+          broadcast({:ok, get_task(task_id)}, :task_updated)
 
         {0, _} ->
-          Repo.rollback(:not_found)
+          {:error, "Task not found"}
 
         {n, _} when n > 1 ->
-          Repo.rollback(:multiple_updates)
+          {:error,
+           "Unable to update delivery. Please refresh the page and try again, or contact support if the issue persists."}
       end
     end)
-    |> handle_completion_result(task_id)
-  end
-
-  defp handle_completion_result(transaction_result, task_id) do
-    case transaction_result do
-      {:ok, _} ->
-        broadcast({:ok, get_task(task_id)}, :task_updated)
-
-      {:error, :not_found} ->
-        {:error, "Task not found"}
-
-      {:error, :multiple_updates} ->
-        {:error,
-         "Unable to update delivery. Please refresh the page and try again, or contact support if the issue persists."}
-    end
   end
 
   @doc """
