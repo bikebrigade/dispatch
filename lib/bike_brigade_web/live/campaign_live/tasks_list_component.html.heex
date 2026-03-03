@@ -52,15 +52,14 @@
           }
         >
           <div class="px-4 py-4 border-b">
-            <div class="text-sm font-medium">
+            <div class="flex items-center gap-1 text-sm font-medium">
               <span class="pii">{task.dropoff_name}</span>
               <span class="text-xs">({round_distance(task.delivery_distance)} km)</span>
-              <span
+              <Heroicons.check
                 :if={task.delivery_status == :completed}
-                class="ml-2 text-lg font-bold text-blue-600"
-              >
-                ✓
-              </span>
+                mini
+                class="w-5 h-5 mr-1 -ml-0.5"
+              />
             </div>
             <div class="md:flex">
               <div class="flex-shrink-0">

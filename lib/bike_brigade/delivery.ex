@@ -130,13 +130,15 @@ defmodule BikeBrigade.Delivery do
   def mark_task_complete_by_rider(task_id, rider_id)
       when is_integer(task_id) and is_integer(rider_id) do
     # Attempt to update only if task is assigned to rider and in valid status
+    updated_at = DateTime.utc_now()
+
     complete_task_query =
       from t in Task,
         where:
           t.id == ^task_id and
             t.assigned_rider_id == ^rider_id and
             t.delivery_status in [:pending, :picked_up],
-        update: [set: [delivery_status: :completed]]
+        update: [set: [delivery_status: :completed, updated_at: ^updated_at]]
 
     Repo.transact(fn ->
       case Repo.update_all(complete_task_query, []) do
