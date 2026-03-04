@@ -97,29 +97,30 @@ defmodule BikeBrigadeWeb.DeliveryLive.Show do
   end
 
   @impl Phoenix.LiveView
-  def handle_info({:task_updated, updated_task}, socket) do
-    # Only process if the updated task belongs to the current rider
-    if updated_task.assigned_rider_id == socket.assigns.rider.id do
-      # Update the task in the rider's assigned_tasks list
-      updated_tasks =
-        socket.assigns.rider.assigned_tasks
-        |> Enum.map(fn task ->
-          if task.id == updated_task.id do
-            updated_task
-          else
-            task
-          end
-        end)
-
-      # Update the socket with the new tasks
-      {:noreply, assign(socket, :rider, %{socket.assigns.rider | assigned_tasks: updated_tasks})}
-    else
-      {:noreply, socket}
-    end
+  def handle_info({:task_updated, task}, socket) do
+    {:noreply, update_task(socket, task)}
   end
 
-  # Ignore other broadcast events
   def handle_info(_msg, socket) do
     {:noreply, socket}
+  end
+
+  defp update_task(socket, task) do
+    cond do
+      task.assigned_rider_id == socket.assigns.rider.id ->
+        updated_tasks =
+          Enum.map(
+            socket.assigns.rider.assigned_tasks,
+            fn
+              %{id: id} = _original_task when id == task.id -> task
+              original_task -> original_task
+            end
+          )
+
+        assign(socket, :rider, %{socket.assigns.rider | assigned_tasks: updated_tasks})
+
+      true ->
+        socket
+    end
   end
 end
