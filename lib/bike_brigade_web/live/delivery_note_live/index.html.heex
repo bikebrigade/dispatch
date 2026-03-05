@@ -53,10 +53,7 @@
                 class="text-indigo-600 hover:text-indigo-900"
                 title={full_campaign}
               >
-                {String.slice(full_campaign, 0, 30)}
-                <%= if String.length(full_campaign) > 70 do %>
-                  …
-                <% end %>
+                {truncate(full_campaign, 30)}
               </.link>
             </td>
             <td class="px-3 py-4 text-sm text-gray-900 whitespace-nowrap">
@@ -65,10 +62,7 @@
             <td class="px-3 py-4 text-sm text-gray-900 max-w-xs">
               <details>
                 <summary class="cursor-pointer">
-                  {String.slice(note.note, 0, 60)}
-                  <%= if String.length(note.note) > 60 do %>
-                    …
-                  <% end %>
+                  {truncate(note.note, 60)}
                 </summary>
                 <div class="mt-2">{note.note}</div>
               </details>
@@ -148,10 +142,7 @@
                 class="text-indigo-600 hover:text-indigo-900"
                 title={full_campaign}
               >
-                {String.slice(full_campaign, 0, 30)}
-                <%= if String.length(full_campaign) > 70 do %>
-                  …
-                <% end %>
+                {truncate(full_campaign, 30)}
               </.link>
             </td>
             <td class="px-3 py-4 text-sm text-gray-900 whitespace-nowrap">
@@ -160,10 +151,7 @@
             <td class="px-3 py-4 text-sm text-gray-900 max-w-xs">
               <details>
                 <summary class="cursor-pointer">
-                  {String.slice(note.note, 0, 60)}
-                  <%= if String.length(note.note) > 60 do %>
-                    …
-                  <% end %>
+                  {truncate(note.note, 60)}
                 </summary>
                 <div class="mt-2">{note.note}</div>
               </details>
