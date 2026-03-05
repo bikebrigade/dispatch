@@ -94,4 +94,12 @@ defmodule BikeBrigadeWeb.DeliveryNoteLive.Index do
   defp list_delivery_notes do
     Delivery.list_delivery_notes()
   end
+
+  defp truncate(text, limit) do
+    if String.length(text) > limit do
+      String.slice(text, 0, limit) <> "…"
+    else
+      text
+    end
+  end
 end
