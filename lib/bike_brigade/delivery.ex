@@ -48,9 +48,9 @@ defmodule BikeBrigade.Delivery do
   """
   def get_task(id, opts \\ []) do
     preload =
-      Keyword.get(opts, :prelaod, [
+      Keyword.get(opts, :preload, [
         :assigned_rider,
-        :task_items,
+        [task_items: :item],
         :pickup_location,
         :dropoff_location
       ])
@@ -113,6 +113,46 @@ defmodule BikeBrigade.Delivery do
     |> Task.changeset(attrs, opts)
     |> Repo.update()
     |> broadcast(:task_updated)
+  end
+
+  @doc """
+  Mark a task as completed by a specific rider.
+
+  Returns `{:ok, task}` in all valid cases:
+  - Task is pending/picked_up → transitions to completed
+  - Task is already completed → returns success (idempotent)
+
+  Returns `{:error, reason}` for invalid cases:
+  - Task not found
+  - Task not assigned to the given rider
+  - Task in failed/removed state
+  """
+  def mark_task_complete_by_rider(task_id, rider_id)
+      when is_integer(task_id) and is_integer(rider_id) do
+    # Attempt to update only if task is assigned to rider and in valid status
+    updated_at = DateTime.utc_now()
+
+    complete_task_query =
+      from t in Task,
+        where:
+          t.id == ^task_id and
+            t.assigned_rider_id == ^rider_id and
+            t.delivery_status in [:pending, :picked_up],
+        update: [set: [delivery_status: :completed, updated_at: ^updated_at]]
+
+    Repo.transact(fn ->
+      case Repo.update_all(complete_task_query, []) do
+        {1, _} ->
+          broadcast({:ok, get_task(task_id)}, :task_updated)
+
+        {0, _} ->
+          {:error, "Task not found"}
+
+        {n, _} when n > 1 ->
+          {:error,
+           "Unable to update delivery. Please refresh the page and try again, or contact support if the issue persists."}
+      end
+    end)
   end
 
   @doc """

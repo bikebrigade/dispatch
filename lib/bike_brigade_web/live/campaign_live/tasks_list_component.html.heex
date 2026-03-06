@@ -42,7 +42,7 @@
       placeholder="Search Deliveries"
     />
   </div>
-  <ul class="flex-1 overflow-y-auto scrolling-touch" id="tasks-list" phx-hook="TasksList">
+  <ul class="flex-1 pt-10 overflow-y-auto scrolling-touch" id="tasks-list" phx-hook="TasksList">
     <%= for {_id, task} <- @tasks_list do %>
       <li id={"tasks-list:#{task.id}"}>
         <.link
@@ -52,9 +52,23 @@
           }
         >
           <div class="px-4 py-4 border-b">
-            <div class="text-sm font-medium">
+            <div class="flex flex-wrap items-center gap-1 text-sm font-medium">
               <span class="pii">{task.dropoff_name}</span>
               <span class="text-xs">({round_distance(task.delivery_distance)} km)</span>
+
+              <%= if task.delivery_status == :completed do %>
+                <.with_tooltip>
+                  <Heroicons.check
+                    mini
+                    class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end"
+                  />
+                  <:tooltip>
+                    <div class="w-18">
+                      Marked as completed
+                    </div>
+                  </:tooltip>
+                </.with_tooltip>
+              <% end %>
             </div>
             <div class="md:flex">
               <div class="flex-shrink-0">

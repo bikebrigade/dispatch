@@ -25,6 +25,11 @@ defmodule BikeBrigadeWeb.DeliveryLive.Show do
       raise DeliveryExpiredError
     end
 
+    # Subscribe to delivery topic to receive real-time task updates
+    if connected?(socket) do
+      Delivery.subscribe()
+    end
+
     {:ok,
      socket
      |> assign(:campaign, campaign)
@@ -75,6 +80,47 @@ defmodule BikeBrigadeWeb.DeliveryLive.Show do
 
       {:error, _changeset} ->
         {:noreply, put_flash(socket, :error, "Failed to submit note")}
+    end
+  end
+
+  @impl Phoenix.LiveView
+  def handle_event("mark_complete", %{"task-id" => task_id}, socket) do
+    task_id = String.to_integer(task_id)
+
+    case Delivery.mark_task_complete_by_rider(task_id, socket.assigns.rider.id) do
+      {:ok, _updated_task} ->
+        {:noreply, put_flash(socket, :info, "Delivery marked as completed")}
+
+      {:error, reason} ->
+        {:noreply, put_flash(socket, :error, reason)}
+    end
+  end
+
+  @impl Phoenix.LiveView
+  def handle_info({:task_updated, task}, socket) do
+    {:noreply, update_task(socket, task)}
+  end
+
+  def handle_info(_msg, socket) do
+    {:noreply, socket}
+  end
+
+  defp update_task(socket, task) do
+    cond do
+      task.assigned_rider_id == socket.assigns.rider.id ->
+        updated_tasks =
+          Enum.map(
+            socket.assigns.rider.assigned_tasks,
+            fn
+              %{id: id} = _original_task when id == task.id -> task
+              original_task -> original_task
+            end
+          )
+
+        assign(socket, :rider, %{socket.assigns.rider | assigned_tasks: updated_tasks})
+
+      true ->
+        socket
     end
   end
 end
