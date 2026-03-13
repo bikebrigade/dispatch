@@ -62,89 +62,37 @@ defmodule BikeBrigade.SlackApi.PayloadBuilder do
   def build_delivery_summary(channel_id, %Campaign{} = campaign, {riders, tasks}) do
     date_line = format_campaign_date_range(campaign)
 
-    total = length(tasks)
-    completed = Enum.count(tasks, &(&1.delivery_status == :completed))
+    # Transform data in single pass
+    summary_data = prepare_summary_data(tasks, riders)
 
+    # Build blocks from structured data
     header = ":bar_chart: #{campaign.program.name} Summary #{url(~p"/campaigns/#{campaign}")}"
-    summary = "#{date_line}\n\nDeliveries: #{total}\nCompleted: #{completed}"
 
-    rider_sections = build_rider_sections(riders)
+    summary =
+      "#{date_line}\n\nDeliveries: #{summary_data.total}\nCompleted: #{summary_data.completed}"
 
-    # Find tasks that aren't assigned to any rider in the riders list
-    assigned_task_ids =
-      riders
-      |> Enum.flat_map(& &1.assigned_tasks)
-      |> MapSet.new(& &1.id)
+    rider_blocks =
+      summary_data.riders
+      |> Map.to_list()
+      |> Enum.sort_by(fn {name, _tasks} -> name end)
+      |> Enum.map(&build_rider_block/1)
 
-    unassigned_tasks =
-      tasks
-      |> Enum.reject(&MapSet.member?(assigned_task_ids, &1.id))
-
-    unassigned_sections = build_unassigned_sections(unassigned_tasks)
+    unassigned_blocks = build_unassigned_block(summary_data.unassigned)
 
     blocks =
       [
         %{type: "section", text: %{type: "mrkdwn", text: header}},
         %{type: "section", text: %{type: "mrkdwn", text: summary}},
         %{type: "divider"}
-      ] ++ rider_sections ++ unassigned_sections
+      ] ++ rider_blocks ++ unassigned_blocks
 
     %{channel: channel_id, blocks: blocks}
     |> Jason.encode!()
   end
 
-  defp build_rider_sections(riders) do
-    riders
-    |> Enum.filter(fn rider -> rider.assigned_tasks != [] end)
-    |> Enum.flat_map(fn rider ->
-      total_tasks = length(rider.assigned_tasks)
-      completed_tasks = Enum.count(rider.assigned_tasks, &(&1.delivery_status == :completed))
-
-      status_text = "(#{completed_tasks}/#{total_tasks})"
-
-      task_lines =
-        rider.assigned_tasks
-        |> Enum.map_join("\n", fn task ->
-          items_text = format_task_items(task)
-          status_icon = delivery_status_icon(task.delivery_status)
-          "#{filter_mrkdwn(task.dropoff_name)} - #{items_text} #{status_icon}"
-        end)
-
-      [
-        %{
-          type: "section",
-          text: %{
-            type: "mrkdwn",
-            text: ":biking_woman: *#{filter_mrkdwn(rider.name)}* #{status_text}\n#{task_lines}"
-          }
-        }
-      ]
-    end)
-  end
-
-  defp build_unassigned_sections([]), do: []
-
-  defp build_unassigned_sections(tasks) do
-    task_lines =
-      tasks
-      |> Enum.map_join("\n", fn task ->
-        items_text = format_task_items(task)
-        status_icon = delivery_status_icon(task.delivery_status)
-        "#{filter_mrkdwn(task.dropoff_name)} - #{items_text} #{status_icon}"
-      end)
-
-    [
-      %{type: "divider"},
-      %{
-        type: "section",
-        text: %{type: "mrkdwn", text: ":package: *Unassigned Deliveries*\n#{task_lines}"}
-      }
-    ]
-  end
-
   defp format_task_items(task) do
     task.task_items
-    |> Enum.map_join(", ", fn ti -> "#{ti.count} #{ti.item.name}" end)
+    |> Enum.map_join(", ", fn ti -> ti.item.name end)
     |> filter_mrkdwn()
   end
 
@@ -153,6 +101,85 @@ defmodule BikeBrigade.SlackApi.PayloadBuilder do
       :completed -> ":white_check_mark:"
       _ -> ":x:"
     end
+  end
+
+  defp prepare_summary_data(tasks, riders) do
+    # Build rider ID to name mapping
+    rider_names = Map.new(riders, fn rider -> {rider.id, rider.name} end)
+
+    # Reduce tasks to gather statistics
+    data =
+      Enum.reduce(tasks, %{total: 0, completed: 0, riders: %{}, unassigned: []}, fn task, acc ->
+        acc = %{
+          acc
+          | total: acc.total + 1,
+            completed: acc.completed + if(task.delivery_status == :completed, do: 1, else: 0)
+        }
+
+        task_data = %{
+          dropoff_name: task.dropoff_name,
+          task_items: format_task_items(task),
+          delivery_status: task.delivery_status
+        }
+
+        case task.assigned_rider do
+          nil ->
+            %{acc | unassigned: [task_data | acc.unassigned]}
+
+          rider ->
+            rider_tasks = Map.get(acc.riders, rider.id, [])
+            %{acc | riders: Map.put(acc.riders, rider.id, [task_data | rider_tasks])}
+        end
+      end)
+
+    # Replace rider IDs with names
+    riders_with_names =
+      Map.new(data.riders, fn {rider_id, tasks} ->
+        {Map.get(rider_names, rider_id, "Unknown"), tasks}
+      end)
+
+    %{data | riders: riders_with_names}
+  end
+
+  defp format_task_line(task_data) do
+    status_icon = delivery_status_icon(task_data.delivery_status)
+    "#{filter_mrkdwn(task_data.dropoff_name)} - #{task_data.task_items} #{status_icon}"
+  end
+
+  defp build_rider_block({rider_name, tasks}) do
+    total = length(tasks)
+    completed = Enum.count(tasks, &(&1.delivery_status == :completed))
+    status_text = "(#{completed}/#{total})"
+
+    task_lines =
+      tasks
+      |> Enum.reverse()
+      |> Enum.map_join("\n", &format_task_line/1)
+
+    %{
+      type: "section",
+      text: %{
+        type: "mrkdwn",
+        text: ":bicyclist: *#{filter_mrkdwn(rider_name)}* #{status_text}\n#{task_lines}"
+      }
+    }
+  end
+
+  defp build_unassigned_block([]), do: []
+
+  defp build_unassigned_block(unassigned_tasks) do
+    task_lines =
+      unassigned_tasks
+      |> Enum.reverse()
+      |> Enum.map_join("\n", &format_task_line/1)
+
+    [
+      %{type: "divider"},
+      %{
+        type: "section",
+        text: %{type: "mrkdwn", text: ":package: *Unassigned Deliveries*\n#{task_lines}"}
+      }
+    ]
   end
 
   defp format_campaign_date_range(%Campaign{delivery_start: start, delivery_end: end_dt}) do
