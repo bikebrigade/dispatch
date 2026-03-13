@@ -1,6 +1,7 @@
 defmodule BikeBrigade.Messaging.Slack do
   alias BikeBrigade.SlackApi
   alias BikeBrigade.Repo
+  alias BikeBrigade.Delivery
   import BikeBrigade.Utils
 
   defmodule RiderSms do
@@ -14,6 +15,19 @@ defmodule BikeBrigade.Messaging.Slack do
     def post_message!(message) do
       payload = SlackApi.PayloadBuilder.build(get_config(:channel_id), message)
       :ok = SlackApi.post_message!(payload)
+    end
+  end
+
+  defmodule CampaignSummary do
+    def send_campaign_summary(campaign) do
+      {riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+
+      SlackApi.PayloadBuilder.build_delivery_summary(
+        campaign.program.slack_channel_id,
+        campaign,
+        {riders, tasks}
+      )
+      |> SlackApi.post_message!()
     end
   end
 

@@ -249,12 +249,16 @@ defmodule BikeBrigade.Delivery do
     campaign_ids = Keyword.get(opts, :campaign_ids, nil)
     start_date = Keyword.get(opts, :start_date, nil)
     end_date = Keyword.get(opts, :end_date, nil)
+    delivery_end_from = Keyword.get(opts, :delivery_end_from, nil)
+    delivery_end_to = Keyword.get(opts, :delivery_end_to, nil)
 
     true
     |> filter_public(public)
     |> filter_campaign_ids(campaign_ids)
     |> filter_start_date(start_date)
     |> filter_end_date(end_date)
+    |> filter_delivery_end_from(delivery_end_from)
+    |> filter_delivery_end_to(delivery_end_to)
   end
 
   defp filter_public(filter, nil), do: filter
@@ -285,6 +289,28 @@ defmodule BikeBrigade.Delivery do
   defp filter_end_date(filter, date) do
     date_time = LocalizedDateTime.new!(date, ~T[23:59:59])
     dynamic([campaign: c], ^filter and c.delivery_start <= ^date_time)
+  end
+
+  defp filter_delivery_end_from(filter, nil), do: filter
+
+  defp filter_delivery_end_from(filter, %Date{} = date) do
+    date_time = LocalizedDateTime.new!(date, ~T[00:00:00])
+    dynamic([campaign: c], ^filter and c.delivery_end >= ^date_time)
+  end
+
+  defp filter_delivery_end_from(filter, %DateTime{} = datetime) do
+    dynamic([campaign: c], ^filter and c.delivery_end >= ^datetime)
+  end
+
+  defp filter_delivery_end_to(filter, nil), do: filter
+
+  defp filter_delivery_end_to(filter, %Date{} = date) do
+    date_time = LocalizedDateTime.new!(date, ~T[23:59:59])
+    dynamic([campaign: c], ^filter and c.delivery_end <= ^date_time)
+  end
+
+  defp filter_delivery_end_to(filter, %DateTime{} = datetime) do
+    dynamic([campaign: c], ^filter and c.delivery_end <= ^datetime)
   end
 
   @doc """
