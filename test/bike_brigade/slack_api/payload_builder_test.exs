@@ -2,6 +2,7 @@ defmodule BikeBrigade.SlackApi.PayloadBuilderTest do
   use BikeBrigade.DataCase, async: true
 
   alias BikeBrigade.SlackApi.PayloadBuilder
+  alias BikeBrigade.Delivery
 
   use Phoenix.VerifiedRoutes, endpoint: BikeBrigadeWeb.Endpoint, router: BikeBrigadeWeb.Router
 
@@ -80,5 +81,148 @@ defmodule BikeBrigade.SlackApi.PayloadBuilderTest do
   defp create_sms(attrs, rider \\ fixture(:rider)) do
     defaults = %{rider_id: rider.id}
     fixture(:sms_message, Map.merge(defaults, attrs))
+  end
+
+  describe "build_delivery_summary" do
+
+    test "header block contains program name and campaign URL" do
+      campaign = fixture(:campaign)
+      {riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+
+      payload = PayloadBuilder.build_delivery_summary("C123", campaign, {riders, tasks})
+      %{"blocks" => [%{"text" => %{"text" => header_text}} | _]} = Jason.decode!(payload)
+
+      assert header_text =~ campaign.program.name
+      assert header_text =~ url(~p"/campaigns/#{campaign}")
+    end
+
+    test "summary block shows total and completed delivery counts" do
+      campaign = fixture(:campaign)
+      rider = fixture(:rider)
+      fixture(:task, %{campaign: campaign, rider: rider, delivery_status: :completed})
+      fixture(:task, %{campaign: campaign, rider: rider})
+
+      {riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+      payload = PayloadBuilder.build_delivery_summary("C123", campaign, {riders, tasks})
+      %{"blocks" => [_, %{"text" => %{"text" => summary_text}} | _]} = Jason.decode!(payload)
+
+      assert summary_text =~ "Deliveries: 2"
+      assert summary_text =~ "Completed: 1"
+    end
+
+    test "unassigned tasks appear in a separate block" do
+      campaign = fixture(:campaign)
+      fixture(:task, %{campaign: campaign})
+
+      {riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+      payload = PayloadBuilder.build_delivery_summary("C123", campaign, {riders, tasks})
+      %{"blocks" => blocks} = Jason.decode!(payload)
+
+      unassigned =
+        Enum.find(blocks, fn b ->
+          b["type"] == "section" and String.contains?(b["text"]["text"], "Unassigned Deliveries")
+        end)
+
+      assert unassigned != nil
+    end
+
+    test "no unassigned block when all tasks have assigned riders" do
+      campaign = fixture(:campaign)
+      rider = fixture(:rider)
+      fixture(:task, %{campaign: campaign, rider: rider})
+
+      {riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+      payload = PayloadBuilder.build_delivery_summary("C123", campaign, {riders, tasks})
+      %{"blocks" => blocks} = Jason.decode!(payload)
+
+      refute Enum.any?(blocks, fn b ->
+               b["type"] == "section" and
+                 String.contains?(b["text"]["text"], "Unassigned Deliveries")
+             end)
+    end
+
+    test "rider blocks are sorted alphabetically by name" do
+      campaign = fixture(:campaign)
+      r1 = fixture(:rider, %{name: "Zara"})
+      r2 = fixture(:rider, %{name: "Alice"})
+      fixture(:task, %{campaign: campaign, rider: r1})
+      fixture(:task, %{campaign: campaign, rider: r2})
+
+      {riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+      payload = PayloadBuilder.build_delivery_summary("C123", campaign, {riders, tasks})
+      %{"blocks" => blocks} = Jason.decode!(payload)
+
+      rider_texts =
+        blocks
+        |> Enum.filter(fn b ->
+          b["type"] == "section" and String.contains?(b["text"]["text"], ":bicyclist:")
+        end)
+        |> Enum.map(& &1["text"]["text"])
+
+      assert [first | _] = rider_texts
+      assert first =~ "Alice"
+      assert List.last(rider_texts) =~ "Zara"
+    end
+
+    test "rider block shows completed/total task count" do
+      campaign = fixture(:campaign)
+      rider = fixture(:rider)
+      fixture(:task, %{campaign: campaign, rider: rider, delivery_status: :completed})
+      fixture(:task, %{campaign: campaign, rider: rider})
+
+      {riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+      payload = PayloadBuilder.build_delivery_summary("C123", campaign, {riders, tasks})
+      %{"blocks" => blocks} = Jason.decode!(payload)
+
+      rider_block =
+        Enum.find(blocks, fn b ->
+          b["type"] == "section" and String.contains?(b["text"]["text"], ":bicyclist:")
+        end)
+
+      assert rider_block["text"]["text"] =~ "(1/2)"
+    end
+
+    test "same-day campaign shows full date with time range" do
+      campaign =
+        fixture(:campaign, %{
+          delivery_start: ~U[2026-03-16 14:00:00Z],
+          delivery_end: ~U[2026-03-16 18:00:00Z]
+        })
+
+      {riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+      payload = PayloadBuilder.build_delivery_summary("C123", campaign, {riders, tasks})
+      %{"blocks" => [_, %{"text" => %{"text" => summary_text}} | _]} = Jason.decode!(payload)
+
+      # UTC 14:00 = 10:00 AM EDT, UTC 18:00 = 2:00 PM EDT (America/Toronto)
+      assert summary_text =~ "Monday March 16, 2026"
+      assert summary_text =~ "10:00 AM - 2:00 PM"
+    end
+
+    test "multi-day campaign shows short datetime range" do
+      campaign =
+        fixture(:campaign, %{
+          delivery_start: ~U[2026-03-16 14:00:00Z],
+          delivery_end: ~U[2026-03-17 18:00:00Z]
+        })
+
+      {riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+      payload = PayloadBuilder.build_delivery_summary("C123", campaign, {riders, tasks})
+      %{"blocks" => [_, %{"text" => %{"text" => summary_text}} | _]} = Jason.decode!(payload)
+
+      assert summary_text =~ "Mon Mar 16"
+      assert summary_text =~ "Tue Mar 17"
+    end
+
+    test "special characters in names are mrkdwn-escaped" do
+      campaign = fixture(:campaign)
+      rider = fixture(:rider, %{name: "Alice & Bob"})
+      fixture(:task, %{campaign: campaign, rider: rider, dropoff_name: "Name <With> Specials"})
+
+      {riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+      payload = PayloadBuilder.build_delivery_summary("C123", campaign, {riders, tasks})
+
+      assert payload =~ "Alice &amp; Bob"
+      assert payload =~ "Name &lt;With&gt; Specials"
+    end
   end
 end
