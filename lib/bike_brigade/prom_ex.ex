@@ -1,5 +1,5 @@
 defmodule BikeBrigade.PromEx do
-  use PromEx, otp_app: :todo_list
+  # use PromEx, otp_app: :todo_list
 
   alias PromEx.Plugins
 
