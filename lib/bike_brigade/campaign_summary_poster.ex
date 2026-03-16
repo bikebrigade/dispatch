@@ -100,7 +100,10 @@ defmodule BikeBrigade.CampaignSummaryPoster do
 
   defp claim_campaign_for_summary(campaign_id) do
     %Messaging.CampaignSummary{}
-    |> Messaging.CampaignSummary.changeset(%{campaign_id: campaign_id, send_at: DateTime.utc_now()})
+    |> Messaging.CampaignSummary.changeset(%{
+      campaign_id: campaign_id,
+      send_at: DateTime.utc_now()
+    })
     |> Repo.insert(on_conflict: :nothing, conflict_target: :campaign_id)
     |> case do
       {:ok, %{id: nil}} -> {:error, :already_claimed}

@@ -84,12 +84,11 @@ defmodule BikeBrigade.SlackApi.PayloadBuilderTest do
   end
 
   describe "build_delivery_summary" do
-
     test "header block contains program name and campaign URL" do
       campaign = fixture(:campaign)
-      {riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+      {_riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
 
-      payload = PayloadBuilder.build_delivery_summary("C123", campaign, {riders, tasks})
+      payload = PayloadBuilder.build_delivery_summary("C123", campaign, tasks)
       %{"blocks" => [%{"text" => %{"text" => header_text}} | _]} = Jason.decode!(payload)
 
       assert header_text =~ campaign.program.name
@@ -102,8 +101,8 @@ defmodule BikeBrigade.SlackApi.PayloadBuilderTest do
       fixture(:task, %{campaign: campaign, rider: rider, delivery_status: :completed})
       fixture(:task, %{campaign: campaign, rider: rider})
 
-      {riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
-      payload = PayloadBuilder.build_delivery_summary("C123", campaign, {riders, tasks})
+      {_riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+      payload = PayloadBuilder.build_delivery_summary("C123", campaign, tasks)
       %{"blocks" => [_, %{"text" => %{"text" => summary_text}} | _]} = Jason.decode!(payload)
 
       assert summary_text =~ "Deliveries: 2"
@@ -114,8 +113,8 @@ defmodule BikeBrigade.SlackApi.PayloadBuilderTest do
       campaign = fixture(:campaign)
       fixture(:task, %{campaign: campaign})
 
-      {riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
-      payload = PayloadBuilder.build_delivery_summary("C123", campaign, {riders, tasks})
+      {_riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+      payload = PayloadBuilder.build_delivery_summary("C123", campaign, tasks)
       %{"blocks" => blocks} = Jason.decode!(payload)
 
       unassigned =
@@ -131,8 +130,8 @@ defmodule BikeBrigade.SlackApi.PayloadBuilderTest do
       rider = fixture(:rider)
       fixture(:task, %{campaign: campaign, rider: rider})
 
-      {riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
-      payload = PayloadBuilder.build_delivery_summary("C123", campaign, {riders, tasks})
+      {_riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+      payload = PayloadBuilder.build_delivery_summary("C123", campaign, tasks)
       %{"blocks" => blocks} = Jason.decode!(payload)
 
       refute Enum.any?(blocks, fn b ->
@@ -148,8 +147,8 @@ defmodule BikeBrigade.SlackApi.PayloadBuilderTest do
       fixture(:task, %{campaign: campaign, rider: r1})
       fixture(:task, %{campaign: campaign, rider: r2})
 
-      {riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
-      payload = PayloadBuilder.build_delivery_summary("C123", campaign, {riders, tasks})
+      {_riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+      payload = PayloadBuilder.build_delivery_summary("C123", campaign, tasks)
       %{"blocks" => blocks} = Jason.decode!(payload)
 
       rider_texts =
@@ -170,8 +169,8 @@ defmodule BikeBrigade.SlackApi.PayloadBuilderTest do
       fixture(:task, %{campaign: campaign, rider: rider, delivery_status: :completed})
       fixture(:task, %{campaign: campaign, rider: rider})
 
-      {riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
-      payload = PayloadBuilder.build_delivery_summary("C123", campaign, {riders, tasks})
+      {_riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+      payload = PayloadBuilder.build_delivery_summary("C123", campaign, tasks)
       %{"blocks" => blocks} = Jason.decode!(payload)
 
       rider_block =
@@ -189,8 +188,8 @@ defmodule BikeBrigade.SlackApi.PayloadBuilderTest do
           delivery_end: ~U[2026-03-16 18:00:00Z]
         })
 
-      {riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
-      payload = PayloadBuilder.build_delivery_summary("C123", campaign, {riders, tasks})
+      {_riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+      payload = PayloadBuilder.build_delivery_summary("C123", campaign, tasks)
       %{"blocks" => [_, %{"text" => %{"text" => summary_text}} | _]} = Jason.decode!(payload)
 
       # UTC 14:00 = 10:00 AM EDT, UTC 18:00 = 2:00 PM EDT (America/Toronto)
@@ -205,8 +204,8 @@ defmodule BikeBrigade.SlackApi.PayloadBuilderTest do
           delivery_end: ~U[2026-03-17 18:00:00Z]
         })
 
-      {riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
-      payload = PayloadBuilder.build_delivery_summary("C123", campaign, {riders, tasks})
+      {_riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+      payload = PayloadBuilder.build_delivery_summary("C123", campaign, tasks)
       %{"blocks" => [_, %{"text" => %{"text" => summary_text}} | _]} = Jason.decode!(payload)
 
       assert summary_text =~ "Mon Mar 16"
@@ -218,8 +217,8 @@ defmodule BikeBrigade.SlackApi.PayloadBuilderTest do
       rider = fixture(:rider, %{name: "Alice & Bob"})
       fixture(:task, %{campaign: campaign, rider: rider, dropoff_name: "Name <With> Specials"})
 
-      {riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
-      payload = PayloadBuilder.build_delivery_summary("C123", campaign, {riders, tasks})
+      {_riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+      payload = PayloadBuilder.build_delivery_summary("C123", campaign, tasks)
 
       assert payload =~ "Alice &amp; Bob"
       assert payload =~ "Name &lt;With&gt; Specials"

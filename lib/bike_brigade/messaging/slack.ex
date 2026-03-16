@@ -20,12 +20,12 @@ defmodule BikeBrigade.Messaging.Slack do
 
   defmodule CampaignSummary do
     def send_campaign_summary(campaign) do
-      {riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+      {_riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
 
       SlackApi.PayloadBuilder.build_delivery_summary(
         campaign.program.slack_channel_id,
         campaign,
-        {riders, tasks}
+        tasks
       )
       |> SlackApi.post_message!()
     end

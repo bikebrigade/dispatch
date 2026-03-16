@@ -59,11 +59,10 @@ defmodule BikeBrigade.SlackApi.PayloadBuilder do
     |> Jason.encode!()
   end
 
-  def build_delivery_summary(channel_id, %Campaign{} = campaign, {riders, tasks}) do
+  def build_delivery_summary(channel_id, %Campaign{} = campaign, tasks) do
     date_line = format_campaign_date_range(campaign)
 
-    # Transform data in single pass
-    summary_data = prepare_summary_data(tasks, riders)
+    summary_data = prepare_summary_data(tasks)
 
     # Build blocks from structured data
     header = ":bar_chart: #{campaign.program.name} Summary #{url(~p"/campaigns/#{campaign}")}"
@@ -96,49 +95,32 @@ defmodule BikeBrigade.SlackApi.PayloadBuilder do
     |> filter_mrkdwn()
   end
 
-  defp delivery_status_icon(status) do
-    case status do
-      :completed -> ":white_check_mark:"
-      _ -> ":x:"
-    end
-  end
+  defp delivery_status_icon(:completed), do: ":white_check_mark:"
+  defp delivery_status_icon(_), do: ":x:"
 
-  defp prepare_summary_data(tasks, riders) do
-    # Build rider ID to name mapping
-    rider_names = Map.new(riders, fn rider -> {rider.id, rider.name} end)
+  defp prepare_summary_data(tasks) do
+    Enum.reduce(tasks, %{total: 0, completed: 0, riders: %{}, unassigned: []}, fn task, acc ->
+      acc = %{
+        acc
+        | total: acc.total + 1,
+          completed: acc.completed + if(task.delivery_status == :completed, do: 1, else: 0)
+      }
 
-    # Reduce tasks to gather statistics
-    data =
-      Enum.reduce(tasks, %{total: 0, completed: 0, riders: %{}, unassigned: []}, fn task, acc ->
-        acc = %{
-          acc
-          | total: acc.total + 1,
-            completed: acc.completed + if(task.delivery_status == :completed, do: 1, else: 0)
-        }
+      task_data = %{
+        dropoff_name: task.dropoff_name,
+        task_items: format_task_items(task),
+        delivery_status: task.delivery_status
+      }
 
-        task_data = %{
-          dropoff_name: task.dropoff_name,
-          task_items: format_task_items(task),
-          delivery_status: task.delivery_status
-        }
+      case task.assigned_rider do
+        nil ->
+          %{acc | unassigned: [task_data | acc.unassigned]}
 
-        case task.assigned_rider do
-          nil ->
-            %{acc | unassigned: [task_data | acc.unassigned]}
-
-          rider ->
-            rider_tasks = Map.get(acc.riders, rider.id, [])
-            %{acc | riders: Map.put(acc.riders, rider.id, [task_data | rider_tasks])}
-        end
-      end)
-
-    # Replace rider IDs with names
-    riders_with_names =
-      Map.new(data.riders, fn {rider_id, tasks} ->
-        {Map.get(rider_names, rider_id, "Unknown"), tasks}
-      end)
-
-    %{data | riders: riders_with_names}
+        rider ->
+          rider_tasks = Map.get(acc.riders, rider.name, [])
+          %{acc | riders: Map.put(acc.riders, rider.name, [task_data | rider_tasks])}
+      end
+    end)
   end
 
   defp format_task_line(task_data) do
