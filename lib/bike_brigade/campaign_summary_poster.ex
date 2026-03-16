@@ -74,28 +74,28 @@ defmodule BikeBrigade.CampaignSummaryPoster do
   end
 
   def post_campaign_summary(campaign) do
-    case claim_campaign_for_summary(campaign.id) do
-      {:ok, _summary} ->
-        Logger.info("Claimed campaign #{campaign.id} for summary posting")
-
-        case Messaging.Slack.CampaignSummary.send_campaign_summary(campaign) do
-          :ok ->
-            Logger.info("Successfully posted campaign summary for campaign #{campaign.id}")
-            :ok
-
-          error ->
-            Logger.error(
-              "Failed to post campaign summary for campaign #{campaign.id}: #{inspect(error)}"
-            )
-
-            # Note: Record already claimed, won't retry automatically
-            {:error, error}
-        end
-
+    with {:ok, _summary} <- claim_campaign_for_summary(campaign.id),
+         :ok <- safe_send_campaign_summary(campaign) do
+      Logger.info("Successfully posted campaign summary for campaign #{campaign.id}")
+      :ok
+    else
       {:error, :already_claimed} ->
         Logger.debug("Campaign #{campaign.id} already has summary, skipping")
         :skip
+
+      {:error, reason} ->
+        Logger.error(
+          "Failed to post campaign summary for campaign #{campaign.id}: #{inspect(reason)}"
+        )
+
+        {:error, reason}
     end
+  end
+
+  defp safe_send_campaign_summary(campaign) do
+    Messaging.Slack.CampaignSummary.send_campaign_summary(campaign)
+  rescue
+    e -> {:error, e}
   end
 
   defp claim_campaign_for_summary(campaign_id) do
