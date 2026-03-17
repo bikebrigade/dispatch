@@ -40,7 +40,6 @@ defmodule BikeBrigade.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:tidewave, "~> 0.5", only: :dev},
       {:phoenix, "~> 1.7.18"},
       {:phoenix_ecto, "~> 4.6"},
       {:ecto_sql, "~> 3.12"},
@@ -85,7 +84,7 @@ defmodule BikeBrigade.MixProject do
       {:crontab, "~> 1.1.10"},
       {:tzdata, "~> 1.1"},
       {:benchee, "~> 1.0.1"},
-      # {:prom_ex, "~> 1.7.0"},
+      {:prom_ex, "~> 1.7.0"},
       {:esbuild, "~> 0.4.0", runtime: Mix.env() == :dev},
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
