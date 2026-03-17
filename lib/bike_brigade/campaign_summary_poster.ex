@@ -38,7 +38,7 @@ defmodule BikeBrigade.CampaignSummaryPoster do
 
   @impl GenServer
   def init(state) do
-    :timer.send_interval(@check_interval, :post_summaries)
+    schedule_next_check()
     {:ok, state}
   end
 
@@ -52,7 +52,13 @@ defmodule BikeBrigade.CampaignSummaryPoster do
       post_campaign_summary(campaign)
     end)
 
+    schedule_next_check()
+
     {:noreply, state}
+  end
+
+  defp schedule_next_check do
+    Process.send_after(self(), :post_summaries, @check_interval)
   end
 
   @doc """
@@ -78,24 +84,15 @@ defmodule BikeBrigade.CampaignSummaryPoster do
          :ok <- safe_send_campaign_summary(campaign) do
       Logger.info("Successfully posted campaign summary for campaign #{campaign.id}")
       :ok
-    else
-      {:error, :already_claimed} ->
-        Logger.debug("Campaign #{campaign.id} already has summary, skipping")
-        :skip
-
-      {:error, reason} ->
-        Logger.error(
-          "Failed to post campaign summary for campaign #{campaign.id}: #{inspect(reason)}"
-        )
-
-        {:error, reason}
     end
   end
 
   defp safe_send_campaign_summary(campaign) do
     Messaging.Slack.CampaignSummary.send_campaign_summary(campaign)
   rescue
-    e -> {:error, e}
+    e ->
+      Logger.error("Failed to post campaign summary for campaign #{campaign.id}: #{inspect(e)}")
+      {:error, e}
   end
 
   defp claim_campaign_for_summary(campaign_id) do
@@ -106,9 +103,19 @@ defmodule BikeBrigade.CampaignSummaryPoster do
     })
     |> Repo.insert(on_conflict: :nothing, conflict_target: :campaign_id)
     |> case do
-      {:ok, %{id: nil}} -> {:error, :already_claimed}
-      {:ok, summary} -> {:ok, summary}
-      {:error, _} = err -> err
+      {:ok, %{id: nil}} ->
+        Logger.debug("Campaign #{campaign.id} already has summary, skipping")
+        :skip
+
+      {:ok, summary} ->
+        {:ok, summary}
+
+      {:error, _} = err ->
+        Logger.error(
+          "Failed to insert campaign summary for campaign #{campaign.id}: #{inspect(reason)}"
+        )
+
+        {:error, reason}
     end
   end
 end
