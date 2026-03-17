@@ -374,8 +374,9 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
   # We don't want people to think they have to deliver to the island,
   # so let's just do a simple string replacement.
   defp render_neighbourhood_name(dropoff_location_str) do
-     neighbourhood = Locations.neighborhood(dropoff_location_str)
-     case neighbourhood do
+    neighbourhood = Locations.neighborhood(dropoff_location_str)
+
+    case neighbourhood do
       "Waterfront Communities-The Island" -> "Waterfront Communities"
       _ -> neighbourhood
     end
