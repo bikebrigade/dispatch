@@ -251,7 +251,15 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       refute html =~ ctx.task.dropoff_name
 
       assert live |> element("[data-test-id=dropoff-name-#{ctx.task.id}]") |> render =~ "CJH"
-      assert html =~ BikeBrigade.Locations.neighborhood(ctx.task.dropoff_location)
+      raw_neighbourhood = BikeBrigade.Locations.neighborhood(ctx.task.dropoff_location)
+
+      displayed_neighbourhood =
+        if raw_neighbourhood == "Waterfront Communities-The Island",
+          do: "Waterfront Communities",
+          else: raw_neighbourhood
+
+      assert html =~ displayed_neighbourhood
+      refute html =~ "Waterfront Communities-The Island"
 
       # We show the name and description of the item
       assert html =~ "Burrito"
