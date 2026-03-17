@@ -377,7 +377,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
     neighbourhood = Locations.neighborhood(dropoff_location_str)
 
     case neighbourhood do
-      "Waterfront Communities-The Island" -> "Waterfront Communities"
+      "Waterfront Communities-The Island" -> "St. Lawrence Market"
       _ -> neighbourhood
     end
   end

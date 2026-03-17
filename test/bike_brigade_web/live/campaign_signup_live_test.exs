@@ -255,7 +255,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
 
       displayed_neighbourhood =
         if raw_neighbourhood == "Waterfront Communities-The Island",
-          do: "Waterfront Communities",
+          do: "St. Lawrence Market",
           else: raw_neighbourhood
 
       assert html =~ displayed_neighbourhood
