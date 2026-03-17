@@ -368,4 +368,16 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
     |> Enum.map(&String.upcase/1)
     |> Enum.join()
   end
+
+  # This private fn handles an edgecase where certain addresses
+  # trigger a neighbourhood name called "Waterfront Communities / The Island"
+  # We don't want people to think they have to deliver to the island,
+  # so let's just do a simple string replacement.
+  defp render_neighbourhood_name(dropoff_location_str) do
+     neighbourhood = Locations.neighborhood(dropoff_location_str)
+     case neighbourhood do
+      "Waterfront Communities-The Island" -> "Waterfront Communities"
+      _ -> neighbourhood
+    end
+  end
 end
