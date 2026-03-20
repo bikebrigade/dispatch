@@ -78,9 +78,9 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
   describe "Show: rider logged-in" do
     setup [:create_rider, :login_as_rider]
 
-    test "Logged in rider cannot see their capacity", %{conn: conn} do
+    test "Logged in rider can see their capacity", %{conn: conn} do
       {:ok, _view, html} = live(conn, ~p"/profile")
-      refute html =~ "dispatch-data-capacity"
+      assert html =~ "dispatch-data-capacity"
     end
   end
 
