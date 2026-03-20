@@ -10,24 +10,7 @@ defmodule BikeBrigade.Repo.Migrations.Neighborhoods do
 
     create index(:toronto_neighborhoods, [:geog], using: :gist)
 
-    flush()
-
-    neighborhoods =
-      :code.priv_dir(:bike_brigade)
-      |> Path.join("repo/seeds/toronto_crs84.geojson")
-      |> File.read!()
-      |> Jason.decode!()
-
-    entries =
-      for neighborhood <- neighborhoods["features"] do
-        %{
-          neighborhood_id: String.to_integer(neighborhood["properties"]["AREA_S_CD"]),
-          name: Regex.replace(~r/(.*) \(\d+\)/, neighborhood["properties"]["AREA_NAME"], "\\1"),
-          geog: Geo.JSON.decode!(neighborhood["geometry"])
-        }
-      end
-
-    BikeBrigade.Repo.insert_all("toronto_neighborhoods", entries)
+    # Data seeding removed — see migration 20260319000001_reload_neighborhoods.exs
   end
 
   def down do
