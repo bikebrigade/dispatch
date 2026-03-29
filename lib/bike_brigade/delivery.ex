@@ -312,6 +312,24 @@ defmodule BikeBrigade.Delivery do
   end
 
   @doc """
+  Returns campaigns whose delivery window ended within the given time range.
+
+  ## Parameters
+    - `from_datetime` - Start of the time window (inclusive)
+    - `to_datetime` - End of the time window (inclusive)
+  """
+  def list_campaigns_ended_between(from_utc_datetime, to_utc_datetime) do
+    query =
+      from c in Campaign,
+        where:
+          c.delivery_end >= ^from_utc_datetime and
+            c.delivery_end <= ^to_utc_datetime,
+        select: c
+
+    Repo.all(query)
+  end
+
+  @doc """
   Fetches how many open vs filled tasks there are (optionally, by week)
   and groups them by campaign ID.
   Written in order to show how "full" a campaign is.
