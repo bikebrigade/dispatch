@@ -345,5 +345,32 @@ defmodule BikeBrigade.DeliveryTest do
     end
   end
 
+  describe "list_campaigns_ended_between/2" do
+    setup do
+      campaign =
+        fixture(:campaign, %{
+          delivery_start: NaiveDateTime.utc_now() |> NaiveDateTime.add(-7, :hour),
+          delivery_end: NaiveDateTime.utc_now() |> NaiveDateTime.add(-1, :hour)
+        })
+
+      %{campaign: campaign}
+    end
+
+    test "returns a campaign available in the given window", %{campaign: campaign} do
+      from_datetime = NaiveDateTime.utc_now() |> NaiveDateTime.add(-75, :minute)
+      to_datetime = NaiveDateTime.utc_now() |> NaiveDateTime.add(-60, :minute)
+
+      [ended_campaign] = Delivery.list_campaigns_ended_between(from_datetime, to_datetime)
+      assert campaign.id == ended_campaign.id
+    end
+
+    test "returns no campaign in the given window" do
+      from_datetime = NaiveDateTime.utc_now() |> NaiveDateTime.add(-45, :minute)
+      to_datetime = NaiveDateTime.utc_now() |> NaiveDateTime.add(-30, :minute)
+
+      assert [] == Delivery.list_campaigns_ended_between(from_datetime, to_datetime)
+    end
+  end
+
   def item_name(%Task{task_items: [%{item: %{name: item_name}}]}), do: item_name
 end
