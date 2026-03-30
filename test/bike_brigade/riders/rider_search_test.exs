@@ -123,7 +123,7 @@ defmodule BikeBrigade.Riders.RiderSearchTest do
   end
 
   defp create_campaign_for_date(date) do
-    datetime = DateTime.new!(date, ~T[12:00:00], "Etc/UTC")
+    datetime = DateTime.new!(date, ~T[00:00:00], "Etc/UTC")
     fixture(:campaign, %{delivery_start: datetime})
   end
 
