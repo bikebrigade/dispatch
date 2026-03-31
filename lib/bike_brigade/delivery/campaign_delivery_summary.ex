@@ -1,5 +1,6 @@
 defmodule BikeBrigade.Delivery.CampaignDeliverySummary do
   defstruct name: nil,
+            campaign_id: nil,
             delivery_start: nil,
             delivery_end: nil,
             total: 0,
@@ -12,6 +13,7 @@ defmodule BikeBrigade.Delivery.CampaignDeliverySummary do
   def new(campaign) do
     %__MODULE__{
       name: campaign.program.name,
+      campaign_id: campaign.id,
       delivery_start: campaign.delivery_start,
       delivery_end: campaign.delivery_end
     }
