@@ -37,27 +37,33 @@ defmodule BikeBrigade.CampaignSummaryPoster do
 
   def post_summary_for_campaign(campaign) do
     campaign = Repo.preload(campaign, :program)
-    {_riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
-
-    summary = Enum.into(tasks, CampaignDeliverySummary.new(campaign))
     channel_id = campaign.program.slack_channel_id
 
-    %SlackCampaignSummaryMessage{}
-    |> SlackCampaignSummaryMessage.changeset(%{
-      campaign_id: campaign.id,
-      slack_channel_id: channel_id,
-      raw_message: inspect(summary)
-    })
-    |> Repo.insert(on_conflict: :nothing, conflict_target: :campaign_id)
-    |> case do
-      {:ok, %{id: nil}} ->
-        {:ok, :already_exists}
+    if is_nil(channel_id) do
+      Logger.warning("Skipping campaign #{campaign.id}: no Slack channel configured for program")
+      {:ok, :no_channel}
+    else
+      {_riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
 
-      {:ok, record} ->
-        send_and_mark_sent(record, channel_id, summary)
+      summary = Enum.into(tasks, CampaignDeliverySummary.new(campaign))
 
-      {:error, changeset} ->
-        {:error, changeset}
+      %SlackCampaignSummaryMessage{}
+      |> SlackCampaignSummaryMessage.changeset(%{
+        campaign_id: campaign.id,
+        slack_channel_id: channel_id,
+        raw_message: inspect(summary)
+      })
+      |> Repo.insert(on_conflict: :nothing, conflict_target: :campaign_id)
+      |> case do
+        {:ok, %{id: nil}} ->
+          {:ok, :already_exists}
+
+        {:ok, record} ->
+          send_and_mark_sent(record, channel_id, summary)
+
+        {:error, changeset} ->
+          {:error, changeset}
+      end
     end
   end
 
