@@ -8,6 +8,7 @@ defmodule BikeBrigade.Delivery.CampaignDeliverySummaryTest do
   test "validate the initial structure" do
     assert %CDS{
              name: nil,
+             campaign_id: nil,
              delivery_start: nil,
              delivery_end: nil,
              completed: 0,
