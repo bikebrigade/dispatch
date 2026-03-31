@@ -30,7 +30,10 @@ defmodule BikeBrigade.Application do
         BikeBrigade.AuthenticationMessenger,
 
         # Send scheduled campaign messages
-        BikeBrigade.ScheduledMessenger
+        BikeBrigade.ScheduledMessenger,
+
+        # Post campaign delivery summaries to Slack
+        BikeBrigade.CampaignSummaryPoster
       ]
       |> BikeBrigade.TaskRunner.append_child_spec()
       |> BikeBrigade.Google.append_child_spec()

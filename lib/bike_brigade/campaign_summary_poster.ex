@@ -4,6 +4,7 @@ defmodule BikeBrigade.CampaignSummaryPoster do
   alias BikeBrigade.Repo
   alias BikeBrigade.Delivery
   alias BikeBrigade.Delivery.CampaignDeliverySummary
+  alias BikeBrigade.Messaging.Slack
   alias BikeBrigade.Messaging.SlackCampaignSummaryMessage
   use BikeBrigade.SingleGlobalGenServer, initial_state: %{}
 
@@ -38,19 +39,49 @@ defmodule BikeBrigade.CampaignSummaryPoster do
     campaign = Repo.preload(campaign, :program)
     {_riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
 
-    summary = tasks |> Enum.into(CampaignDeliverySummary.new(campaign)) |> Map.from_struct()
+    summary = Enum.into(tasks, CampaignDeliverySummary.new(campaign))
+    channel_id = campaign.program.slack_channel_id
 
     %SlackCampaignSummaryMessage{}
     |> SlackCampaignSummaryMessage.changeset(%{
       campaign_id: campaign.id,
-      slack_channel_id: campaign.program.slack_channel_id,
+      slack_channel_id: channel_id,
       raw_message: inspect(summary)
     })
     |> Repo.insert(on_conflict: :nothing, conflict_target: :campaign_id)
     |> case do
-      {:ok, %{id: nil}} -> {:ok, :already_exists}
-      {:ok, record} -> {:ok, record}
-      {:error, changeset} -> {:error, changeset}
+      {:ok, %{id: nil}} ->
+        {:ok, :already_exists}
+
+      {:ok, record} ->
+        send_and_mark_sent(record, channel_id, summary)
+
+      {:error, changeset} ->
+        {:error, changeset}
     end
+  end
+
+  defp send_and_mark_sent(record, channel_id, summary) do
+    case send_to_slack(channel_id, summary) do
+      :ok ->
+        mark_as_sent(record)
+
+      {:error, reason} ->
+        Logger.error("Failed to send Slack summary for campaign #{record.campaign_id}: #{reason}")
+        {:ok, record}
+    end
+  end
+
+  defp send_to_slack(channel_id, summary) do
+    Slack.CampaignDeliverySummary.send_summary(channel_id, summary)
+    :ok
+  rescue
+    e -> {:error, Exception.message(e)}
+  end
+
+  defp mark_as_sent(record) do
+    record
+    |> SlackCampaignSummaryMessage.changeset(%{sent_at: DateTime.utc_now()})
+    |> Repo.update()
   end
 end
