@@ -322,7 +322,7 @@ defmodule BikeBrigade.Delivery do
     query =
       from c in Campaign,
         where:
-          c.delivery_end >= ^from_utc_datetime and
+          c.delivery_end > ^from_utc_datetime and
             c.delivery_end <= ^to_utc_datetime,
         select: c
 
