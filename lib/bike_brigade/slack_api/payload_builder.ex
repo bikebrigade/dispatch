@@ -62,7 +62,8 @@ defmodule BikeBrigade.SlackApi.PayloadBuilder do
   def build_delivery_summary(channel_id, cds) do
     date_line = format_campaign_date_range(cds)
 
-    header = ":bar_chart: #{cds.name} Summary #{url(~p"/campaigns/#{cds.campaign_id}")}"
+    header =
+      ":bar_chart: #{filter_mrkdwn(cds.name)} Summary #{url(~p"/campaigns/#{cds.campaign_id}")}"
 
     summary =
       "#{date_line}\n\nDeliveries: #{cds.total}\nCompleted: #{cds.completed}"
@@ -145,7 +146,7 @@ defmodule BikeBrigade.SlackApi.PayloadBuilder do
 
   defp format_task_line(task_data) do
     status_icon = delivery_status_icon(task_data.delivery_status)
-    "#{filter_mrkdwn(task_data.dropoff_name)} - #{task_data.items} #{status_icon}"
+    "#{filter_mrkdwn(task_data.dropoff_name)} - #{filter_mrkdwn(task_data.items)} #{status_icon}"
   end
 
   defp delivery_status_icon(:completed), do: ":white_check_mark:"
