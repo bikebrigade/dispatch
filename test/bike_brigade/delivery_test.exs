@@ -347,30 +347,37 @@ defmodule BikeBrigade.DeliveryTest do
 
   describe "list_campaigns_ended_between/2" do
     setup do
+      now = get_utc_now()
+
       campaign =
         fixture(:campaign, %{
-          delivery_start: NaiveDateTime.utc_now() |> NaiveDateTime.add(-7, :hour),
-          delivery_end: NaiveDateTime.utc_now() |> NaiveDateTime.add(-1, :hour)
+          delivery_start: NaiveDateTime.add(now, -7, :hour),
+          delivery_end: NaiveDateTime.add(now, -1, :hour)
         })
 
-      %{campaign: campaign}
+      %{campaign: campaign, now: now}
     end
 
-    test "returns a campaign available in the given window", %{campaign: campaign} do
-      from_datetime = NaiveDateTime.utc_now() |> NaiveDateTime.add(-75, :minute)
-      to_datetime = NaiveDateTime.utc_now() |> NaiveDateTime.add(-60, :minute)
+    test "returns a campaign available in the given window", %{
+      campaign: campaign,
+      now: now
+    } do
+      from_datetime = NaiveDateTime.add(now, -75, :minute)
+      to_datetime = NaiveDateTime.add(now, -60, :minute)
 
       [ended_campaign] = Delivery.list_campaigns_ended_between(from_datetime, to_datetime)
       assert campaign.id == ended_campaign.id
     end
 
-    test "returns no campaign in the given window" do
-      from_datetime = NaiveDateTime.utc_now() |> NaiveDateTime.add(-45, :minute)
-      to_datetime = NaiveDateTime.utc_now() |> NaiveDateTime.add(-30, :minute)
+    test "returns no campaign in the given window", %{now: now} do
+      from_datetime = NaiveDateTime.add(now, -45, :minute)
+      to_datetime = NaiveDateTime.add(now, -30, :minute)
 
       assert [] == Delivery.list_campaigns_ended_between(from_datetime, to_datetime)
     end
   end
 
   def item_name(%Task{task_items: [%{item: %{name: item_name}}]}), do: item_name
+
+  defp get_utc_now(), do: NaiveDateTime.utc_now()
 end
