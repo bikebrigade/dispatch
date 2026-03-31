@@ -1,13 +1,21 @@
 defmodule BikeBrigade.Delivery.CampaignDeliverySummary do
-  defstruct total: 0, completed: 0, assigned: %{}, unassigned: []
+  defstruct name: nil,
+            delivery_start: nil,
+            delivery_end: nil,
+            total: 0,
+            completed: 0,
+            assigned: %{},
+            unassigned: []
 
-  @spec new() :: %BikeBrigade.Delivery.CampaignDeliverySummary{
-          assigned: %{},
-          completed: 1,
-          total: 0,
-          unassigned: []
-        }
   def new(), do: %__MODULE__{}
+
+  def new(campaign) do
+    %__MODULE__{
+      name: campaign.program.name,
+      delivery_start: campaign.delivery_start,
+      delivery_end: campaign.delivery_end
+    }
+  end
 
   def add_task(cds, task) do
     cds

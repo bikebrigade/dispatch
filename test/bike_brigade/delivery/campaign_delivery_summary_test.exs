@@ -6,7 +6,15 @@ defmodule BikeBrigade.Delivery.CampaignDeliverySummaryTest do
   alias BikeBrigade.Delivery.CampaignDeliverySummary, as: CDS
 
   test "validate the initial structure" do
-    assert %CDS{completed: 0, total: 0, unassigned: [], assigned: %{}} == CDS.new()
+    assert %CDS{
+             name: nil,
+             delivery_start: nil,
+             delivery_end: nil,
+             completed: 0,
+             total: 0,
+             unassigned: [],
+             assigned: %{}
+           } == CDS.new()
   end
 
   describe "add_task/2" do
