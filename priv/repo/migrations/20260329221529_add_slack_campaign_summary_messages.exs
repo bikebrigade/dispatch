@@ -11,7 +11,7 @@ defmodule BikeBrigade.Repo.Migrations.AddSlackCampaignSummaryMessages do
       timestamps()
     end
 
-    create index(:slack_campaign_messages, [:campaign_id])
+    create unique_index(:slack_campaign_messages, [:campaign_id])
     create index(:slack_campaign_messages, [:sent_at])
   end
 end
