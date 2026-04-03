@@ -1,4 +1,14 @@
 defmodule BikeBrigade.CampaignSummaryPoster do
+  @moduledoc """
+  A GenServer that automatically posts campaign delivery summaries to Slack.
+
+  This process runs as a singleton across the cluster and checks every 15 minutes
+  for campaigns that ended between 60-75 minutes ago. For each ended campaign,
+  it generates a delivery summary and posts it to the program's configured Slack channel.
+
+  Summaries are tracked in the database to prevent duplicate postings.
+  """
+
   require Logger
 
   alias BikeBrigade.Repo
@@ -35,6 +45,18 @@ defmodule BikeBrigade.CampaignSummaryPoster do
     Process.send_after(self(), :post_summary, @check_interval)
   end
 
+  @doc """
+  Posts a delivery summary for the given campaign to Slack.
+
+  Preloads the campaign's program to get the Slack channel ID, generates a
+  delivery summary from the campaign's tasks, and sends it to Slack.
+
+  Returns:
+    - `{:ok, :no_channel}` - if the program has no Slack channel configured
+    - `{:ok, :already_exists}` - if a summary was already posted for this campaign
+    - `{:ok, record}` - if the summary was successfully posted
+    - `{:error, changeset}` - if there was a database error
+  """
   def post_summary_for_campaign(campaign) do
     campaign = Repo.preload(campaign, :program)
     channel_id = campaign.program.slack_channel_id

@@ -59,6 +59,17 @@ defmodule BikeBrigade.SlackApi.PayloadBuilder do
     |> Jason.encode!()
   end
 
+  @doc """
+  Builds a Slack message payload for a campaign delivery summary.
+
+  Creates a formatted Block Kit message containing:
+    - Header with campaign name and link
+    - Date/time range and delivery statistics
+    - Per-rider sections showing assigned tasks with completion status
+    - Unassigned deliveries section (if any)
+
+  Returns a JSON-encoded string ready to post to the Slack API.
+  """
   def build_delivery_summary(channel_id, cds) do
     date_line = format_campaign_date_range(cds)
 

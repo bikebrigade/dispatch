@@ -64,6 +64,16 @@ defmodule BikeBrigade.Messaging.Slack do
   end
 
   defmodule CampaignDeliverySummary do
+    @moduledoc """
+    Handles posting campaign delivery summaries to Slack.
+    """
+
+    @doc """
+    Sends a campaign delivery summary to the specified Slack channel.
+
+    Builds a formatted message from the `CampaignDeliverySummary` struct
+    and posts it using the Slack API.
+    """
     def send_summary(channel, cds) do
       channel
       |> SlackApi.PayloadBuilder.build_delivery_summary(cds)

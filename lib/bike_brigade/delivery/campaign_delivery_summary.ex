@@ -1,4 +1,28 @@
 defmodule BikeBrigade.Delivery.CampaignDeliverySummary do
+  @moduledoc """
+  A struct that aggregates delivery task statistics for a campaign.
+
+  Used to generate summaries for Slack notifications after campaigns end.
+  Tracks total tasks, completed tasks, and groups deliveries by assigned rider
+  or as unassigned.
+
+  Implements the `Collectable` protocol, allowing tasks to be collected into
+  a summary using `Enum.into/2`:
+
+      summary = Enum.into(tasks, CampaignDeliverySummary.new(campaign))
+
+  ## Fields
+
+    * `:name` - The program name
+    * `:campaign_id` - The campaign ID
+    * `:delivery_start` - Campaign delivery start time
+    * `:delivery_end` - Campaign delivery end time
+    * `:total` - Total number of tasks
+    * `:completed` - Number of completed tasks
+    * `:assigned` - Map of rider names to their assigned delivery summaries
+    * `:unassigned` - List of unassigned delivery summaries
+  """
+
   defstruct name: nil,
             campaign_id: nil,
             delivery_start: nil,
@@ -8,8 +32,10 @@ defmodule BikeBrigade.Delivery.CampaignDeliverySummary do
             assigned: %{},
             unassigned: []
 
+  @doc "Creates an empty campaign delivery summary."
   def new(), do: %__MODULE__{}
 
+  @doc "Creates a campaign delivery summary initialized with campaign metadata."
   def new(campaign) do
     %__MODULE__{
       name: campaign.program.name,
@@ -19,6 +45,7 @@ defmodule BikeBrigade.Delivery.CampaignDeliverySummary do
     }
   end
 
+  @doc "Adds a task to the summary, updating totals and assignment tracking."
   def add_task(cds, task) do
     cds
     |> Map.update!(:total, &(&1 + 1))
@@ -36,7 +63,7 @@ defmodule BikeBrigade.Delivery.CampaignDeliverySummary do
   defp completed(summary, %{delivery_status: :completed}),
     do: Map.update!(summary, :completed, &(&1 + 1))
 
-  defp completed(%{completed: _completed} = summary, _task), do: summary
+  defp completed(%__MODULE__{completed: _completed} = summary, _task), do: summary
 
   defp delivery(summary, %{assigned_rider_id: nil} = task) do
     Map.update!(summary, :unassigned, &append(&1, task))
