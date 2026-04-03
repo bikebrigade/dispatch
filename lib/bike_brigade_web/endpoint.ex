@@ -1,7 +1,5 @@
 defmodule BikeBrigadeWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :bike_brigade
-  require Logger
-
 
   if sandbox = Application.compile_env(:bike_brigade, :sandbox) do
     plug Phoenix.Ecto.SQL.Sandbox, sandbox: sandbox
@@ -22,24 +20,6 @@ defmodule BikeBrigadeWeb.Endpoint do
     longpoll: false
 
   socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
-
-
-  defp log_sandbox_requests(conn, _opts) do
-    if conn.request_path == "/sandbox" do
-      Logger.info("2@@@@@@@@@@@@@@@@@@@@@ SANDBOX REQUEST: #{conn.method} #{conn.request_path}")
-    end
-    conn
-  end
-
-  plug :log_sandbox_requests
-
-  plug Phoenix.Ecto.SQL.Sandbox,
-    at: "/sandbox",
-    header: "x-session-id",
-    repo: BikeBrigade.Repo,
-    timeout: 15_000 # the default
-
-
 
   # Serve at "/static" the static files from "priv/static" directory.
   #
