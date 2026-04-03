@@ -454,6 +454,31 @@ defmodule BikeBrigade.Delivery do
   end
 
   @doc """
+  Returns true if a campaign already exists for the given program on the given date.
+  Optionally excludes a specific campaign by id.
+  """
+  def campaign_exists_for_program_on_date?(program_id, %Date{} = date, exclude_campaign_id \\ nil) do
+    start_of_day = LocalizedDateTime.new!(date, ~T[00:00:00])
+    end_of_day = LocalizedDateTime.new!(date, ~T[23:59:59])
+
+    query =
+      from c in Campaign,
+        where:
+          c.program_id == ^program_id and
+            c.delivery_start >= ^start_of_day and
+            c.delivery_start <= ^end_of_day
+
+    query =
+      if exclude_campaign_id do
+        from c in query, where: c.id != ^exclude_campaign_id
+      else
+        query
+      end
+
+    Repo.exists?(query)
+  end
+
+  @doc """
   Creates a campaign.
   """
   def create_campaign(attrs \\ %{}) do

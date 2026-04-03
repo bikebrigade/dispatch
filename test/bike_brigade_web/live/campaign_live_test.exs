@@ -55,6 +55,42 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
       assert(Enum.uniq(campaign_rows) != campaign_rows)
     end
 
+    test "Shows warning when duplicating to a date that already has a campaign for the same program",
+         ctx do
+      # Create another campaign for the same program on the same day
+      _other_campaign =
+        fixture(:campaign, %{
+          program_id: ctx.campaign.program_id,
+          delivery_start: ctx.campaign.delivery_start,
+          delivery_end: ctx.campaign.delivery_end
+        })
+
+      {:ok, view, _html} = live(ctx.conn, ~p"/campaigns/")
+      view |> element("#duplicate-campaign-#{ctx.campaign.id}") |> render_click()
+      assert_patched(view, ~p"/campaigns/#{ctx.campaign}/duplicate")
+
+      html = render(view)
+      assert html =~ "A campaign for this program already exists on"
+    end
+
+    test "Does not show warning when duplicating to a date with no existing campaign for the program",
+         ctx do
+      {:ok, view, _html} = live(ctx.conn, ~p"/campaigns/")
+      view |> element("#duplicate-campaign-#{ctx.campaign.id}") |> render_click()
+
+      # Change date to tomorrow
+      tomorrow = LocalizedDateTime.today() |> Date.add(1) |> Date.to_iso8601()
+
+      view
+      |> element("#duplicate-campaign-form")
+      |> render_change(%{
+        duplicate_form: %{date_time_form: %{delivery_date: tomorrow, start_time: "17:00", end_time: "19:30"}}
+      })
+
+      html = render(view)
+      refute html =~ "A campaign for this program already exists on"
+    end
+
     test "Can delete a campaign", ctx do
       {:ok, view, html} = live(ctx.conn, ~p"/campaigns/")
       assert html =~ CampaignHelpers.name(ctx.campaign)

@@ -6,6 +6,24 @@ defmodule BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent do
   alias BikeBrigade.{Delivery, Repo}
 
   @impl Phoenix.LiveComponent
+  def update(assigns, socket) do
+    date = LocalizedDateTime.to_date(assigns.campaign.delivery_start)
+
+    already_exists =
+      Delivery.campaign_exists_for_program_on_date?(
+        assigns.campaign.program_id,
+        date,
+        assigns.campaign.id
+      )
+
+    {:ok,
+     socket
+     |> assign(assigns)
+     |> assign(:delivery_date, date)
+     |> assign(:already_exists, already_exists)}
+  end
+
+  @impl Phoenix.LiveComponent
   def render(assigns) do
     ~H"""
     <div>
@@ -13,12 +31,28 @@ defmodule BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent do
       <.flash kind={:warn} title="Warning!" flash={@flash} />
       <.flash kind={:error} title="Error!" flash={@flash} />
       <.header>{@title}</.header>
+      <div :if={@already_exists} class="p-4 my-4 rounded-md bg-yellow-50">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <Heroicons.exclamation_triangle mini class="w-5 h-5 text-yellow-400" />
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-yellow-800">
+              A campaign for this program already exists on {Calendar.strftime(@delivery_date, "%B %-d, %Y")}
+            </h3>
+            <p class="mt-1 text-sm text-yellow-700">
+              Are you sure you want to create another one?
+            </p>
+          </div>
+        </div>
+      </div>
       <.simple_form
         :let={f}
         for={%{}}
         as={:duplicate_form}
         id="duplicate-campaign-form"
         phx-target={@myself}
+        phx-change="validate"
         phx-submit="duplicate"
       >
         <div class="flex my-2 mt-4 space-x-2">
@@ -27,7 +61,7 @@ defmodule BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent do
               type="date"
               field={d[:delivery_date]}
               label="New Delivery Date"
-              value={LocalizedDateTime.to_date(@campaign.delivery_start)}
+              value={@delivery_date}
             />
             <.input
               type="time"
@@ -58,6 +92,30 @@ defmodule BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent do
   end
 
   @impl Phoenix.LiveComponent
+  def handle_event("validate", %{"duplicate_form" => params}, socket) do
+    date_str = get_in(params, ["date_time_form", "delivery_date"])
+    campaign = socket.assigns.campaign
+
+    {delivery_date, already_exists} =
+      case Date.from_iso8601(date_str || "") do
+        {:ok, date} ->
+          {date,
+           Delivery.campaign_exists_for_program_on_date?(
+             campaign.program_id,
+             date,
+             campaign.id
+           )}
+
+        _ ->
+          {socket.assigns.delivery_date, false}
+      end
+
+    {:noreply,
+     socket
+     |> assign(:delivery_date, delivery_date)
+     |> assign(:already_exists, already_exists)}
+  end
+
   def handle_event("duplicate", %{"duplicate_form" => duplicate_form_params}, socket) do
     %{
       "date_time_form" => date_time_form_params,
