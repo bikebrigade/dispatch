@@ -99,18 +99,17 @@ defmodule BikeBrigade.SlackApi.PayloadBuilder do
   end
 
   defp format_campaign_date_range(%{delivery_start: start, delivery_end: end_dt}) do
-    dates = {LocalizedDateTime.to_date(start), LocalizedDateTime.to_date(end_dt)}
+    same_day? = LocalizedDateTime.to_date(start) == LocalizedDateTime.to_date(end_dt)
 
-    case dates do
-      {date, date} ->
-        date = format_localized(start, @full_date_format)
-        start_time = format_localized(start, @time_format)
-        end_time = format_localized(end_dt, @time_format)
-
-        "#{date} #{start_time} - #{end_time}"
-
-      {_start_date, _end_date} ->
-        "#{format_localized(start, @short_date_time_format)} - #{format_localized(end_dt, @short_date_time_format)}"
+    if same_day? do
+      date = format_localized(start, @full_date_format)
+      start_time = format_localized(start, @time_format)
+      end_time = format_localized(end_dt, @time_format)
+      "#{date} #{start_time} - #{end_time}"
+    else
+      start_str = format_localized(start, @short_date_time_format)
+      end_str = format_localized(end_dt, @short_date_time_format)
+      "#{start_str} - #{end_str}"
     end
   end
 
