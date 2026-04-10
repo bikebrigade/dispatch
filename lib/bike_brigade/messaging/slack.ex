@@ -63,7 +63,7 @@ defmodule BikeBrigade.Messaging.Slack do
     end
   end
 
-  defmodule CampaignDeliverySummary do
+  defmodule CampaignSummarySender do
     @moduledoc """
     Handles posting campaign delivery summaries to Slack.
     """

@@ -101,7 +101,7 @@ defmodule BikeBrigade.CampaignSummaryPoster do
   end
 
   defp send_to_slack(channel_id, summary) do
-    Slack.CampaignDeliverySummary.send_summary(channel_id, summary)
+    Slack.CampaignSummarySender.send_summary(channel_id, summary)
     :ok
   rescue
     e -> {:error, Exception.message(e)}
