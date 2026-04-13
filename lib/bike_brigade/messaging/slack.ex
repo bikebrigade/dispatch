@@ -1,5 +1,4 @@
 defmodule BikeBrigade.Messaging.Slack do
-  alias BikeBrigade.Delivery.CampaignDeliverySummary
   alias BikeBrigade.SlackApi
   alias BikeBrigade.Repo
   import BikeBrigade.Utils
@@ -12,9 +11,25 @@ defmodule BikeBrigade.Messaging.Slack do
   end
 
   defmodule Operations do
+    require Logger
+
     def post_message!(message) do
       payload = SlackApi.PayloadBuilder.build(get_config(:channel_id), message)
       :ok = SlackApi.post_message!(payload)
+    end
+
+    def notify_missing_channel(campaign) do
+      message = """
+      ⚠️ *Campaign Summary Not Posted*
+      Campaign ID: #{campaign.id}
+      Program: #{campaign.program.name}
+      Reason: No Slack channel configured for program
+      """
+
+      post_message!(message)
+    rescue
+      e ->
+        Logger.error("Failed to notify about missing channel: #{Exception.message(e)}")
     end
   end
 

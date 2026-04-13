@@ -59,33 +59,36 @@ defmodule BikeBrigade.CampaignSummaryPoster do
   """
   def post_summary_for_campaign(campaign) do
     campaign = Repo.preload(campaign, :program)
-    channel_id = campaign.program.slack_channel_id
+    do_post_summary(campaign, campaign.program.slack_channel_id)
+  end
 
-    if is_nil(channel_id) do
-      Logger.warning("Skipping campaign #{campaign.id}: no Slack channel configured for program")
-      {:ok, :no_channel}
-    else
-      {_riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+  defp do_post_summary(campaign, nil) do
+    Logger.warning("Skipping campaign #{campaign.id}: no Slack channel configured for program")
+    Slack.Operations.notify_missing_channel(campaign)
+    {:ok, :no_channel}
+  end
 
-      summary = Enum.into(tasks, CampaignDeliverySummary.new(campaign))
+  defp do_post_summary(campaign, channel_id) do
+    {_riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
 
-      %SlackCampaignSummaryMessage{}
-      |> SlackCampaignSummaryMessage.changeset(%{
-        campaign_id: campaign.id,
-        slack_channel_id: channel_id,
-        raw_message: inspect(summary)
-      })
-      |> Repo.insert(on_conflict: :nothing, conflict_target: :campaign_id)
-      |> case do
-        {:ok, %{id: nil}} ->
-          {:ok, :already_exists}
+    summary = Enum.into(tasks, CampaignDeliverySummary.new(campaign))
 
-        {:ok, record} ->
-          send_and_mark_sent(record, channel_id, summary)
+    %SlackCampaignSummaryMessage{}
+    |> SlackCampaignSummaryMessage.changeset(%{
+      campaign_id: campaign.id,
+      slack_channel_id: channel_id,
+      raw_message: inspect(summary)
+    })
+    |> Repo.insert(on_conflict: :nothing, conflict_target: :campaign_id)
+    |> case do
+      {:ok, %{id: nil}} ->
+        {:ok, :already_exists}
 
-        {:error, changeset} ->
-          {:error, changeset}
-      end
+      {:ok, record} ->
+        send_and_mark_sent(record, channel_id, summary)
+
+      {:error, changeset} ->
+        {:error, changeset}
     end
   end
 
