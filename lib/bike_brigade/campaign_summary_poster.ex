@@ -52,7 +52,6 @@ defmodule BikeBrigade.CampaignSummaryPoster do
   delivery summary from the campaign's tasks, and sends it to Slack.
 
   Returns:
-    - `{:ok, :no_channel}` - if the program has no Slack channel configured
     - `{:ok, :already_exists}` - if a summary was already posted for this campaign
     - `{:ok, record}` - if the summary was successfully posted
     - `{:error, changeset}` - if there was a database error
@@ -65,7 +64,6 @@ defmodule BikeBrigade.CampaignSummaryPoster do
   defp do_post_summary(campaign, nil) do
     Logger.warning("Skipping campaign #{campaign.id}: no Slack channel configured for program")
     Slack.Operations.notify_missing_channel(campaign)
-    {:ok, :no_channel}
   end
 
   defp do_post_summary(campaign, channel_id) do
