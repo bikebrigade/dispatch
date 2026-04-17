@@ -76,6 +76,9 @@ defmodule BikeBrigade.CampaignSummaryPoster do
       |> SlackCampaignSummary.changeset(%{sent_at: DateTime.utc_now()})
       |> Repo.update()
     else
+      {:error, :already_sent} ->
+        Logger.debug("Summary already sent for campaign #{campaign.id}")
+
       {:error, _reason} ->
         Slack.Operations.notify_campaign_error(campaign, "Failed to send summary")
     end
@@ -95,7 +98,7 @@ defmodule BikeBrigade.CampaignSummaryPoster do
       {:ok, %{id: nil}} ->
         # Record already exists - check if already sent
         record = Repo.get_by!(SlackCampaignSummary, campaign_id: campaign_id)
-        if record.sent_at, do: :already_sent, else: {:ok, record}
+        if record.sent_at, do: {:error, :already_sent}, else: {:ok, record}
 
       {:ok, record} ->
         {:ok, record}
