@@ -100,7 +100,14 @@ defmodule BikeBrigade.Riders.RiderSearchTest do
   defp setup_campaigns_with_thresholds(context) do
     monday_campaigns =
       for week_offset <- 0..5 do
-        monday_date = get_monday_date(Date.add(Date.utc_today(), -week_offset * 7))
+        monday_date =
+          DateTime.utc_now()
+          |> DateTime.shift_zone!("America/Toronto")
+          |> DateTime.to_date()
+          |> Date.add(-week_offset * 7)
+          |> get_monday_date()
+          |> safe_past_monday()
+
         create_campaign_for_date(monday_date)
       end
 
@@ -123,8 +130,27 @@ defmodule BikeBrigade.Riders.RiderSearchTest do
   end
 
   defp create_campaign_for_date(date) do
-    datetime = DateTime.new!(date, ~T[12:00:00], "Etc/UTC")
+    # Use noon Toronto time so the campaign is correctly identified as that
+    # day in Toronto timezone (what the monday filter checks via ISODOW).
+    datetime =
+      DateTime.new!(date, ~T[12:00:00], "America/Toronto")
+      |> DateTime.shift_zone!("Etc/UTC")
+
     fixture(:campaign, %{delivery_start: datetime})
+  end
+
+  # If noon Toronto on monday_date is still in the future, use the previous
+  # week's Monday. That Monday is 6 days 12+ hours ago, safely within
+  # `ago(1, "week")` (7 days) and definitely past the `delivery_start < NOW()`
+  # constraint in the riders_latest_campaigns view.
+  defp safe_past_monday(monday_date) do
+    candidate = DateTime.new!(monday_date, ~T[12:00:00], "America/Toronto")
+
+    if DateTime.compare(candidate, DateTime.utc_now()) == :gt do
+      Date.add(monday_date, -7)
+    else
+      monday_date
+    end
   end
 
   defp link_rider_to_campaign(rider_id, campaign_id) do
@@ -135,11 +161,15 @@ defmodule BikeBrigade.Riders.RiderSearchTest do
   end
 
   defp create_and_link_monday_campaign(rider_id, opts \\ []) do
+    weeks_ago = Keyword.get(opts, :weeks_ago, 0)
+
     campaign =
-      opts
-      |> Keyword.get(:weeks_ago, 0)
-      |> then(&Date.add(Date.utc_today(), -&1 * 7))
+      DateTime.utc_now()
+      |> DateTime.shift_zone!("America/Toronto")
+      |> DateTime.to_date()
+      |> Date.add(-weeks_ago * 7)
       |> get_monday_date()
+      |> safe_past_monday()
       |> create_campaign_for_date()
 
     link_rider_to_campaign(rider_id, campaign.id)

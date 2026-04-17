@@ -1,6 +1,8 @@
 defmodule BikeBrigade.SlackApi.PayloadBuilderTest do
   use BikeBrigade.DataCase, async: true
 
+  alias BikeBrigade.Delivery
+  alias BikeBrigade.Delivery.CampaignDeliverySummary
   alias BikeBrigade.SlackApi.PayloadBuilder
 
   use Phoenix.VerifiedRoutes, endpoint: BikeBrigadeWeb.Endpoint, router: BikeBrigadeWeb.Router
@@ -80,5 +82,169 @@ defmodule BikeBrigade.SlackApi.PayloadBuilderTest do
   defp create_sms(attrs, rider \\ fixture(:rider)) do
     defaults = %{rider_id: rider.id}
     fixture(:sms_message, Map.merge(defaults, attrs))
+  end
+
+  describe "build_delivery_summary" do
+    setup do
+      campaign = fixture(:campaign)
+      %{campaign: campaign}
+    end
+
+    test "header block contains program name and campaign URL", %{campaign: campaign} do
+      payload = build_delivery_summary_payload(campaign)
+      %{"blocks" => [%{"text" => %{"text" => header_text}} | _]} = Jason.decode!(payload)
+
+      assert header_text =~ campaign.program.name
+      assert header_text =~ url(~p"/campaigns/#{campaign.id}")
+    end
+
+    test "summary block shows total and completed delivery counts", %{campaign: campaign} do
+      rider = fixture(:rider)
+      fixture(:task, %{campaign: campaign, rider: rider, delivery_status: :completed})
+      fixture(:task, %{campaign: campaign, rider: rider})
+
+      payload = build_delivery_summary_payload(campaign)
+      %{"blocks" => [_, %{"text" => %{"text" => summary_text}} | _]} = Jason.decode!(payload)
+
+      assert summary_text =~ "Deliveries: 2"
+      assert summary_text =~ "Completed: 1"
+    end
+
+    test "unassigned tasks appear in a separate block", %{campaign: campaign} do
+      fixture(:task, %{campaign: campaign})
+
+      payload = build_delivery_summary_payload(campaign)
+      %{"blocks" => blocks} = Jason.decode!(payload)
+
+      unassigned =
+        Enum.find(blocks, fn b ->
+          b["type"] == "section" and String.contains?(b["text"]["text"], "Unassigned Deliveries")
+        end)
+
+      assert unassigned != nil
+    end
+
+    test "no unassigned block when all tasks have assigned riders", %{campaign: campaign} do
+      rider = fixture(:rider)
+      fixture(:task, %{campaign: campaign, rider: rider})
+
+      payload = build_delivery_summary_payload(campaign)
+      %{"blocks" => blocks} = Jason.decode!(payload)
+
+      refute Enum.any?(blocks, fn b ->
+               b["type"] == "section" and
+                 String.contains?(b["text"]["text"], "Unassigned Deliveries")
+             end)
+    end
+
+    test "rider blocks are sorted alphabetically by name", %{campaign: campaign} do
+      r1 = fixture(:rider, %{name: "Zara"})
+      r2 = fixture(:rider, %{name: "Alice"})
+      fixture(:task, %{campaign: campaign, rider: r1})
+      fixture(:task, %{campaign: campaign, rider: r2})
+
+      payload = build_delivery_summary_payload(campaign)
+      %{"blocks" => blocks} = Jason.decode!(payload)
+
+      rider_texts =
+        blocks
+        |> Enum.filter(fn b ->
+          b["type"] == "section" and String.contains?(b["text"]["text"], ":bicyclist:")
+        end)
+        |> Enum.map(& &1["text"]["text"])
+
+      assert [first | _] = rider_texts
+      assert first =~ "Alice"
+      assert List.last(rider_texts) =~ "Zara"
+    end
+
+    test "same-day campaign shows full date with time range" do
+      campaign =
+        fixture(:campaign, %{
+          delivery_start: ~U[2026-03-16 14:00:00Z],
+          delivery_end: ~U[2026-03-16 18:00:00Z]
+        })
+
+      payload = build_delivery_summary_payload(campaign)
+      %{"blocks" => [_, %{"text" => %{"text" => summary_text}} | _]} = Jason.decode!(payload)
+
+      # UTC 14:00 = 10:00 AM EDT, UTC 18:00 = 2:00 PM EDT (America/Toronto)
+      assert summary_text =~ "Monday March 16, 2026"
+      assert summary_text =~ "10:00 AM - 2:00 PM"
+    end
+
+    test "multi-day campaign shows short datetime range" do
+      campaign =
+        fixture(:campaign, %{
+          delivery_start: ~U[2026-03-16 14:00:00Z],
+          delivery_end: ~U[2026-03-17 18:00:00Z]
+        })
+
+      payload = build_delivery_summary_payload(campaign)
+      %{"blocks" => [_, %{"text" => %{"text" => summary_text}} | _]} = Jason.decode!(payload)
+
+      assert summary_text =~ "Mon Mar 16"
+      assert summary_text =~ "Tue Mar 17"
+    end
+
+    test "special characters in names are mrkdwn-escaped", %{campaign: campaign} do
+      rider = fixture(:rider, %{name: "Alice & Bob"})
+      fixture(:task, %{campaign: campaign, rider: rider, dropoff_name: "Name <With> Specials"})
+
+      payload = build_delivery_summary_payload(campaign)
+
+      assert payload =~ "Alice &amp; Bob"
+      assert payload =~ "Name &lt;With&gt; Specials"
+    end
+
+    test "shows condensed summary when total tasks exceed threshold", %{campaign: campaign} do
+      rider = fixture(:rider)
+
+      # Create 16 tasks (above the threshold of 15)
+      for _ <- 1..16 do
+        fixture(:task, %{campaign: campaign, rider: rider})
+      end
+
+      payload = build_delivery_summary_payload(campaign)
+      %{"blocks" => blocks} = Jason.decode!(payload)
+
+      # Should have only 1 block with condensed summary
+      assert length(blocks) == 1
+
+      [%{"text" => %{"text" => text}}] = blocks
+      assert text =~ campaign.program.name
+      assert text =~ url(~p"/campaigns/#{campaign.id}")
+      assert text =~ "Deliveries: 16"
+      assert text =~ "Completed: 0"
+    end
+
+    test "shows detailed summary when total tasks at or below threshold", %{campaign: campaign} do
+      rider = fixture(:rider)
+
+      # Create exactly 15 tasks (at the threshold)
+      for _ <- 1..15 do
+        fixture(:task, %{campaign: campaign, rider: rider})
+      end
+
+      payload = build_delivery_summary_payload(campaign)
+      %{"blocks" => blocks} = Jason.decode!(payload)
+
+      # Should have multiple blocks (header, summary, divider, rider block)
+      assert length(blocks) > 1
+
+      # Should contain rider details
+      rider_block =
+        Enum.find(blocks, fn b ->
+          b["type"] == "section" and String.contains?(b["text"]["text"], ":bicyclist:")
+        end)
+
+      assert rider_block != nil
+    end
+  end
+
+  defp build_delivery_summary_payload(campaign, channel_id \\ "C123") do
+    {_riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+    cds = Enum.into(tasks, CampaignDeliverySummary.new(campaign))
+    PayloadBuilder.build_delivery_summary(channel_id, cds)
   end
 end

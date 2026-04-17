@@ -11,9 +11,25 @@ defmodule BikeBrigade.Messaging.Slack do
   end
 
   defmodule Operations do
+    require Logger
+
     def post_message!(message) do
       payload = SlackApi.PayloadBuilder.build(get_config(:channel_id), message)
       :ok = SlackApi.post_message!(payload)
+    end
+
+    def notify_campaign_error(campaign, reason) do
+      message = """
+      ⚠️ *Campaign Summary Failed*
+      Campaign ID: #{campaign.id}
+      Program: #{campaign.program.name}
+      Reason: #{reason}
+      """
+
+      post_message!(message)
+    rescue
+      e ->
+        Logger.error("Failed to notify about campaign error: #{Exception.message(e)}")
     end
   end
 
@@ -59,6 +75,24 @@ defmodule BikeBrigade.Messaging.Slack do
         Repo.preload(delivery_note, [:rider, :resolved_by, task: [campaign: :program]])
 
       delivery_note.task.campaign.program.slack_channel_id || get_config(:channel_id)
+    end
+  end
+
+  defmodule CampaignSummarySender do
+    @moduledoc """
+    Handles posting campaign delivery summaries to Slack.
+    """
+
+    @doc """
+    Sends a campaign delivery summary to the specified Slack channel.
+
+    Builds a formatted message from the `CampaignDeliverySummary` struct
+    and posts it using the Slack API.
+    """
+    def send_summary(channel, cds) do
+      channel
+      |> SlackApi.PayloadBuilder.build_delivery_summary(cds)
+      |> SlackApi.post_message!()
     end
   end
 end

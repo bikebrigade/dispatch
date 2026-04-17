@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: "en-US"
+early_access: false
+
+reviews:
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - main
+  path_filters:
+    - "!**/*.lock"
+    - "!**/package-lock.json"
+    - "!priv/static/**"
+  path_instructions:
+    - path: "lib/bike_brigade/**/*.ex"
+      instructions: "This is an Elixir/Phoenix application. Review for Elixir best practices, proper use of pattern matching, and Phoenix context boundaries."
+    - path: "lib/bike_brigade_web/**/*.ex"
+      instructions: "Review Phoenix LiveView and controller code. Check for proper assigns handling, security considerations, and component composition."
+    - path: "test/**/*.exs"
+      instructions: "Review test coverage and ExUnit best practices. Ensure tests are focused and descriptive."
+
+chat:
+  auto_reply: true
