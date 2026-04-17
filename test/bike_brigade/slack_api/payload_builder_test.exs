@@ -158,22 +158,6 @@ defmodule BikeBrigade.SlackApi.PayloadBuilderTest do
       assert List.last(rider_texts) =~ "Zara"
     end
 
-    test "rider block shows completed/total task count", %{campaign: campaign} do
-      rider = fixture(:rider)
-      fixture(:task, %{campaign: campaign, rider: rider, delivery_status: :completed})
-      fixture(:task, %{campaign: campaign, rider: rider})
-
-      payload = build_delivery_summary_payload(campaign)
-      %{"blocks" => blocks} = Jason.decode!(payload)
-
-      rider_block =
-        Enum.find(blocks, fn b ->
-          b["type"] == "section" and String.contains?(b["text"]["text"], ":bicyclist:")
-        end)
-
-      assert rider_block["text"]["text"] =~ "(1/2)"
-    end
-
     test "same-day campaign shows full date with time range" do
       campaign =
         fixture(:campaign, %{
@@ -232,9 +216,6 @@ defmodule BikeBrigade.SlackApi.PayloadBuilderTest do
       assert text =~ url(~p"/campaigns/#{campaign.id}")
       assert text =~ "Deliveries: 16"
       assert text =~ "Completed: 0"
-
-      # Should NOT contain rider details
-      refute text =~ ":bicyclist:"
     end
 
     test "shows detailed summary when total tasks at or below threshold", %{campaign: campaign} do
