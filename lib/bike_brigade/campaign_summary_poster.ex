@@ -15,7 +15,7 @@ defmodule BikeBrigade.CampaignSummaryPoster do
   alias BikeBrigade.Delivery
   alias BikeBrigade.Delivery.CampaignDeliverySummary
   alias BikeBrigade.Messaging.Slack
-  alias BikeBrigade.Messaging.SlackCampaignSummaryMessage
+  alias BikeBrigade.Messaging.SlackCampaignSummary
   use BikeBrigade.SingleGlobalGenServer, initial_state: %{}
 
   @check_interval :timer.minutes(15)
@@ -73,7 +73,7 @@ defmodule BikeBrigade.CampaignSummaryPoster do
     with {:ok, record} <- find_or_create_record(campaign.id, channel_id, summary),
          :ok <- send_to_slack(channel_id, summary) do
       record
-      |> SlackCampaignSummaryMessage.changeset(%{sent_at: DateTime.utc_now()})
+      |> SlackCampaignSummary.changeset(%{sent_at: DateTime.utc_now()})
       |> Repo.update()
     else
       {:error, _reason} ->
@@ -88,13 +88,13 @@ defmodule BikeBrigade.CampaignSummaryPoster do
       raw_message: inspect(summary)
     }
 
-    case Repo.insert(SlackCampaignSummaryMessage.changeset(%SlackCampaignSummaryMessage{}, attrs),
+    case Repo.insert(SlackCampaignSummary.changeset(%SlackCampaignSummary{}, attrs),
            on_conflict: :nothing,
            conflict_target: :campaign_id
          ) do
       {:ok, %{id: nil}} ->
         # Record already exists - check if already sent
-        record = Repo.get_by!(SlackCampaignSummaryMessage, campaign_id: campaign_id)
+        record = Repo.get_by!(SlackCampaignSummary, campaign_id: campaign_id)
         if record.sent_at, do: :already_sent, else: {:ok, record}
 
       {:ok, record} ->

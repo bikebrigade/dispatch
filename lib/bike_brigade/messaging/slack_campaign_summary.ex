@@ -1,4 +1,4 @@
-defmodule BikeBrigade.Messaging.SlackCampaignSummaryMessage do
+defmodule BikeBrigade.Messaging.SlackCampaignSummary do
   @moduledoc """
   Schema for tracking campaign delivery summary messages sent to Slack.
 
@@ -20,7 +20,7 @@ defmodule BikeBrigade.Messaging.SlackCampaignSummaryMessage do
 
   import Ecto.Changeset
 
-  schema "slack_campaign_messages" do
+  schema "slack_campaign_summaries" do
     field :slack_channel_id, :string
     field :raw_message, :string
     field :sent_at, :utc_datetime
