@@ -212,6 +212,53 @@ defmodule BikeBrigade.SlackApi.PayloadBuilderTest do
       assert payload =~ "Alice &amp; Bob"
       assert payload =~ "Name &lt;With&gt; Specials"
     end
+
+    test "shows condensed summary when total tasks exceed threshold", %{campaign: campaign} do
+      rider = fixture(:rider)
+
+      # Create 16 tasks (above the threshold of 15)
+      for _ <- 1..16 do
+        fixture(:task, %{campaign: campaign, rider: rider})
+      end
+
+      payload = build_delivery_summary_payload(campaign)
+      %{"blocks" => blocks} = Jason.decode!(payload)
+
+      # Should have only 1 block with condensed summary
+      assert length(blocks) == 1
+
+      [%{"text" => %{"text" => text}}] = blocks
+      assert text =~ campaign.program.name
+      assert text =~ url(~p"/campaigns/#{campaign.id}")
+      assert text =~ "Deliveries: 16"
+      assert text =~ "Completed: 0"
+
+      # Should NOT contain rider details
+      refute text =~ ":bicyclist:"
+    end
+
+    test "shows detailed summary when total tasks at or below threshold", %{campaign: campaign} do
+      rider = fixture(:rider)
+
+      # Create exactly 15 tasks (at the threshold)
+      for _ <- 1..15 do
+        fixture(:task, %{campaign: campaign, rider: rider})
+      end
+
+      payload = build_delivery_summary_payload(campaign)
+      %{"blocks" => blocks} = Jason.decode!(payload)
+
+      # Should have multiple blocks (header, summary, divider, rider block)
+      assert length(blocks) > 1
+
+      # Should contain rider details
+      rider_block =
+        Enum.find(blocks, fn b ->
+          b["type"] == "section" and String.contains?(b["text"]["text"], ":bicyclist:")
+        end)
+
+      assert rider_block != nil
+    end
   end
 
   defp build_delivery_summary_payload(campaign, channel_id \\ "C123") do

@@ -7,6 +7,7 @@ defmodule BikeBrigade.SlackApi.PayloadBuilder do
   @full_date_format "%A %B %-d, %Y"
   @time_format "%-I:%M %p"
   @short_date_time_format "%a %b %-d, %-I:%M %p"
+  @task_detail_threshold 15
 
   def build(channel_id, %SmsMessage{rider: rider} = message) do
     text =
@@ -62,15 +63,36 @@ defmodule BikeBrigade.SlackApi.PayloadBuilder do
   @doc """
   Builds a Slack message payload for a campaign delivery summary.
 
-  Creates a formatted Block Kit message containing:
-    - Header with campaign name and link
-    - Date/time range and delivery statistics
-    - Per-rider sections showing assigned tasks with completion status
-    - Unassigned deliveries section (if any)
+  When total tasks exceed the threshold, returns a condensed summary with just
+  the campaign link and stats. Otherwise, returns a detailed summary with
+  per-rider task breakdowns.
 
   Returns a JSON-encoded string ready to post to the Slack API.
   """
   def build_delivery_summary(channel_id, cds) do
+    if cds.total > @task_detail_threshold do
+      build_condensed_summary(channel_id, cds)
+    else
+      build_detailed_summary(channel_id, cds)
+    end
+  end
+
+  defp build_condensed_summary(channel_id, cds) do
+    date_line = format_campaign_date_range(cds)
+    campaign_url = url(~p"/campaigns/#{cds.campaign_id}")
+
+    text =
+      ":bar_chart: #{filter_mrkdwn(cds.name)} Summary\n#{campaign_url}\n\n#{date_line}\n\nDeliveries: #{cds.total}\nCompleted: #{cds.completed}"
+
+    blocks = [
+      %{type: "section", text: %{type: "mrkdwn", text: text}}
+    ]
+
+    %{channel: channel_id, blocks: blocks}
+    |> Jason.encode!()
+  end
+
+  defp build_detailed_summary(channel_id, cds) do
     date_line = format_campaign_date_range(cds)
 
     header =
