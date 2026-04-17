@@ -142,16 +142,13 @@ defmodule BikeBrigade.SlackApi.PayloadBuilder do
   end
 
   defp build_rider_block({rider_name, tasks}) do
-    total = length(tasks)
-    completed = Enum.count(tasks, &(&1.delivery_status == :completed))
-    status_text = "(#{completed}/#{total})"
     task_lines = format_task_lines(tasks)
 
     %{
       type: "section",
       text: %{
         type: "mrkdwn",
-        text: ":bicyclist: *#{filter_mrkdwn(rider_name)}* #{status_text}\n#{task_lines}"
+        text: ":bicyclist: *#{filter_mrkdwn(rider_name)}* \n#{task_lines}"
       }
     }
   end
