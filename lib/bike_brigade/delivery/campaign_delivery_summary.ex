@@ -23,6 +23,8 @@ defmodule BikeBrigade.Delivery.CampaignDeliverySummary do
     * `:unassigned` - List of unassigned delivery summaries
   """
 
+  alias BikeBrigade.Delivery
+
   defstruct name: nil,
             campaign_id: nil,
             delivery_start: nil,
@@ -51,6 +53,11 @@ defmodule BikeBrigade.Delivery.CampaignDeliverySummary do
     |> Map.update!(:total, &(&1 + 1))
     |> completed(task)
     |> delivery(task)
+  end
+
+  def create_for(campaign) do
+    {_riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+    Enum.into(tasks, new(campaign))
   end
 
   defimpl Collectable do

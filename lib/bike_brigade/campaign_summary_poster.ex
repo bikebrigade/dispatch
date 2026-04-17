@@ -67,8 +67,7 @@ defmodule BikeBrigade.CampaignSummaryPoster do
   end
 
   defp do_post_summary(campaign, channel_id) do
-    {_riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
-    summary = Enum.into(tasks, CampaignDeliverySummary.new(campaign))
+    summary = CampaignDeliverySummary.create_for(campaign)
 
     with {:ok, record} <- find_or_create_record(campaign.id, channel_id, summary),
          :ok <- send_to_slack(channel_id, summary) do
