@@ -63,57 +63,45 @@ defmodule BikeBrigade.CampaignSummaryPoster do
 
   defp do_post_summary(campaign, nil) do
     Logger.warning("Skipping campaign #{campaign.id}: no Slack channel configured for program")
-    Slack.Operations.notify_missing_channel(campaign)
+    Slack.Operations.notify_campaign_error(campaign, "No Slack channel configured")
   end
 
   defp do_post_summary(campaign, channel_id) do
-    summary = prepare_summary(campaign)
+    {_riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+    summary = Enum.into(tasks, CampaignDeliverySummary.new(campaign))
 
-    case get_or_create_record(campaign.id, channel_id, summary) do
-      {:ok, %{id: nil}} ->
-        handle_existing_record(campaign.id, channel_id, summary)
-
-      {:ok, record} ->
-        send_and_mark_sent(record, channel_id, summary)
-
-      {:error, changeset} ->
-        {:error, changeset}
+    with {:ok, record} <- find_or_create_record(campaign.id, channel_id, summary),
+         :ok <- send_to_slack(channel_id, summary) do
+      record
+      |> SlackCampaignSummaryMessage.changeset(%{sent_at: DateTime.utc_now()})
+      |> Repo.update()
+    else
+      {:error, _reason} ->
+        Slack.Operations.notify_campaign_error(campaign, "Failed to send summary")
     end
   end
 
-  defp prepare_summary(campaign) do
-    {_riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
-    Enum.into(tasks, CampaignDeliverySummary.new(campaign))
-  end
-
-  defp get_or_create_record(campaign_id, channel_id, summary) do
-    %SlackCampaignSummaryMessage{}
-    |> SlackCampaignSummaryMessage.changeset(%{
+  defp find_or_create_record(campaign_id, channel_id, summary) do
+    attrs = %{
       campaign_id: campaign_id,
       slack_channel_id: channel_id,
       raw_message: inspect(summary)
-    })
-    |> Repo.insert(on_conflict: :nothing, conflict_target: :campaign_id)
-  end
+    }
 
-  defp handle_existing_record(campaign_id, channel_id, summary) do
-    record = Repo.get_by!(SlackCampaignSummaryMessage, campaign_id: campaign_id)
+    case Repo.insert(SlackCampaignSummaryMessage.changeset(%SlackCampaignSummaryMessage{}, attrs),
+           on_conflict: :nothing,
+           conflict_target: :campaign_id
+         ) do
+      {:ok, %{id: nil}} ->
+        # Record already exists - check if already sent
+        record = Repo.get_by!(SlackCampaignSummaryMessage, campaign_id: campaign_id)
+        if record.sent_at, do: :already_sent, else: {:ok, record}
 
-    if is_nil(record.sent_at) do
-      send_and_mark_sent(record, channel_id, summary)
-    else
-      {:ok, :already_exists}
-    end
-  end
-
-  defp send_and_mark_sent(record, channel_id, summary) do
-    case send_to_slack(channel_id, summary) do
-      :ok ->
-        mark_as_sent(record)
-
-      {:error, reason} ->
-        Logger.error("Failed to send Slack summary for campaign #{record.campaign_id}: #{reason}")
+      {:ok, record} ->
         {:ok, record}
+
+      {:error, changeset} ->
+        {:error, changeset}
     end
   end
 
@@ -121,12 +109,8 @@ defmodule BikeBrigade.CampaignSummaryPoster do
     Slack.CampaignSummarySender.send_summary(channel_id, summary)
     :ok
   rescue
-    e -> {:error, Exception.message(e)}
-  end
-
-  defp mark_as_sent(record) do
-    record
-    |> SlackCampaignSummaryMessage.changeset(%{sent_at: DateTime.utc_now()})
-    |> Repo.update()
+    e ->
+      Logger.error("Failed to send Slack summary: #{Exception.message(e)}")
+      {:error, e}
   end
 end
