@@ -179,7 +179,7 @@ defmodule BikeBrigade.SlackApi.PayloadBuilder do
   end
 
   defp delivery_status_icon(:completed), do: ":white_check_mark:"
-  defp delivery_status_icon(_), do: ":x:"
+  defp delivery_status_icon(_), do: ":bicyclist:"
 
   def filter_mrkdwn(nil) do
     ""
