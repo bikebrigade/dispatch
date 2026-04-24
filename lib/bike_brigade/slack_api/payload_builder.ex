@@ -107,14 +107,12 @@ defmodule BikeBrigade.SlackApi.PayloadBuilder do
       |> Enum.sort_by(fn {name, _tasks} -> name end)
       |> Enum.map(&build_rider_block/1)
 
-    unassigned_blocks = build_unassigned_block(cds.unassigned)
-
     blocks =
       [
         %{type: "section", text: %{type: "mrkdwn", text: header}},
         %{type: "section", text: %{type: "mrkdwn", text: summary}},
         %{type: "divider"}
-      ] ++ rider_blocks ++ unassigned_blocks
+      ] ++ rider_blocks
 
     %{channel: channel_id, blocks: blocks}
     |> Jason.encode!()
@@ -151,20 +149,6 @@ defmodule BikeBrigade.SlackApi.PayloadBuilder do
         text: ":bicyclist: *#{filter_mrkdwn(rider_name)}* \n#{task_lines}"
       }
     }
-  end
-
-  defp build_unassigned_block([]), do: []
-
-  defp build_unassigned_block(unassigned_tasks) do
-    task_lines = format_task_lines(unassigned_tasks)
-
-    [
-      %{type: "divider"},
-      %{
-        type: "section",
-        text: %{type: "mrkdwn", text: ":package: *Unassigned Deliveries*\n#{task_lines}"}
-      }
-    ]
   end
 
   defp format_task_lines(tasks) do

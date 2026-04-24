@@ -13,7 +13,6 @@ defmodule BikeBrigade.Delivery.CampaignDeliverySummaryTest do
              delivery_end: nil,
              completed: 0,
              total: 0,
-             unassigned: [],
              assigned: %{}
            } == CDS.new()
   end
@@ -51,13 +50,6 @@ defmodule BikeBrigade.Delivery.CampaignDeliverySummaryTest do
       assert updated_cds.total == original_total + 1
     end
 
-    test "validate empty unassigned task", %{completed_task: completed_task} do
-      cds = CDS.new()
-      original_unassigned = cds.unassigned
-      updated_cds = CDS.add_task(cds, completed_task)
-      assert updated_cds.unassigned == original_unassigned
-    end
-
     test "validate assigned completed task contains rider name as key", %{
       completed_task: completed_task
     } do
@@ -76,18 +68,9 @@ defmodule BikeBrigade.Delivery.CampaignDeliverySummaryTest do
       assert delivery_details.items == task_item_names
     end
 
-    test "validate unassigned task with single task", %{unassigned_task: unassigned_task} do
+    test "excludes unassigned tasks from the total count", %{unassigned_task: unassigned_task} do
       updated_cds = CDS.new() |> CDS.add_task(unassigned_task)
-      assert length(updated_cds.unassigned) == 1
-    end
-
-    test "validate items in unassigned single task", %{unassigned_task: unassigned_task} do
-      task_item_names = Enum.map_join(unassigned_task.task_items, ", ", & &1.item.name)
-
-      updated_cds = CDS.new() |> CDS.add_task(unassigned_task)
-      [delivery_details] = updated_cds.unassigned
-      assert delivery_details.dropoff_name == unassigned_task.dropoff_name
-      assert delivery_details.items == task_item_names
+      assert updated_cds.total == 0
     end
   end
 end

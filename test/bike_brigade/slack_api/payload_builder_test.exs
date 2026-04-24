@@ -110,33 +110,6 @@ defmodule BikeBrigade.SlackApi.PayloadBuilderTest do
       assert summary_text =~ "Completed: 1"
     end
 
-    test "unassigned tasks appear in a separate block", %{campaign: campaign} do
-      fixture(:task, %{campaign: campaign})
-
-      payload = build_delivery_summary_payload(campaign)
-      %{"blocks" => blocks} = Jason.decode!(payload)
-
-      unassigned =
-        Enum.find(blocks, fn b ->
-          b["type"] == "section" and String.contains?(b["text"]["text"], "Unassigned Deliveries")
-        end)
-
-      assert unassigned != nil
-    end
-
-    test "no unassigned block when all tasks have assigned riders", %{campaign: campaign} do
-      rider = fixture(:rider)
-      fixture(:task, %{campaign: campaign, rider: rider})
-
-      payload = build_delivery_summary_payload(campaign)
-      %{"blocks" => blocks} = Jason.decode!(payload)
-
-      refute Enum.any?(blocks, fn b ->
-               b["type"] == "section" and
-                 String.contains?(b["text"]["text"], "Unassigned Deliveries")
-             end)
-    end
-
     test "rider blocks are sorted alphabetically by name", %{campaign: campaign} do
       r1 = fixture(:rider, %{name: "Zara"})
       r2 = fixture(:rider, %{name: "Alice"})
