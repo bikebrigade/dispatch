@@ -40,6 +40,7 @@ defmodule BikeBrigade.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:igniter, "~> 0.6", only: [:dev, :test]},
       {:phoenix, "~> 1.7.18"},
       {:phoenix_ecto, "~> 4.6"},
       {:ecto_sql, "~> 3.12"},
@@ -53,8 +54,8 @@ defmodule BikeBrigade.MixProject do
       {:phoenix_live_reload, "~> 1.5", only: :dev},
       {:phoenix_live_dashboard, "~> 0.8.4"},
       {:reverse_proxy_plug, "~> 2.1.0"},
-      {:telemetry_metrics, "~> 0.4"},
-      {:telemetry_poller, "~> 1.0.0"},
+      {:telemetry_metrics, "~> 1.0"},
+      {:telemetry_poller, "~> 1.1"},
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.6", override: true},
@@ -84,7 +85,7 @@ defmodule BikeBrigade.MixProject do
       {:crontab, "~> 1.1.10"},
       {:tzdata, "~> 1.1"},
       {:benchee, "~> 1.0.1"},
-      {:prom_ex, "~> 1.7.0"},
+      {:prom_ex, "~> 1.11.0"},
       {:esbuild, "~> 0.4.0", runtime: Mix.env() == :dev},
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
@@ -93,6 +94,7 @@ defmodule BikeBrigade.MixProject do
       {:inflex, "~> 2.0.0"},
       {:nimble_parsec, "~> 1.0"},
       {:dotenv_parser, "~> 2.0"},
+      {:tidewave, "~> 0.5", only: [:dev]},
 
       # LiveBook Stuff
       {:kino, "~> 0.4.1"},
