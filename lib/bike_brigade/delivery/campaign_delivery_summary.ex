@@ -3,8 +3,7 @@ defmodule BikeBrigade.Delivery.CampaignDeliverySummary do
   A struct that aggregates delivery task statistics for a campaign.
 
   Used to generate summaries for Slack notifications after campaigns end.
-  Tracks total tasks, completed tasks, and groups deliveries by assigned rider
-  or as unassigned.
+  Tracks total assigned tasks, completed tasks, and groups deliveries by assigned rider.
 
   Implements the `Collectable` protocol, allowing tasks to be collected into
   a summary using `Enum.into/2`:
@@ -17,10 +16,9 @@ defmodule BikeBrigade.Delivery.CampaignDeliverySummary do
     * `:campaign_id` - The campaign ID
     * `:delivery_start` - Campaign delivery start time
     * `:delivery_end` - Campaign delivery end time
-    * `:total` - Total number of tasks
+    * `:total` - Total number of assigned tasks
     * `:completed` - Number of completed tasks
     * `:assigned` - Map of rider names to their assigned delivery summaries
-    * `:unassigned` - List of unassigned delivery summaries
   """
 
   alias BikeBrigade.Delivery
@@ -31,8 +29,7 @@ defmodule BikeBrigade.Delivery.CampaignDeliverySummary do
             delivery_end: nil,
             total: 0,
             completed: 0,
-            assigned: %{},
-            unassigned: []
+            assigned: %{}
 
   @doc "Creates an empty campaign delivery summary."
   def new(), do: %__MODULE__{}
@@ -50,7 +47,7 @@ defmodule BikeBrigade.Delivery.CampaignDeliverySummary do
   @doc "Adds a task to the summary, updating totals and assignment tracking."
   def add_task(cds, task) do
     cds
-    |> Map.update!(:total, &(&1 + 1))
+    |> total_assigned_task(task)
     |> completed(task)
     |> delivery(task)
   end
@@ -67,14 +64,15 @@ defmodule BikeBrigade.Delivery.CampaignDeliverySummary do
     def into(tasks), do: {tasks, &collect/2}
   end
 
+  defp total_assigned_task(summary, %{assigned_rider_id: nil} = _task), do: summary
+  defp total_assigned_task(summary, _task), do: Map.update!(summary, :total, &(&1 + 1))
+
   defp completed(summary, %{delivery_status: :completed}),
     do: Map.update!(summary, :completed, &(&1 + 1))
 
   defp completed(%__MODULE__{completed: _completed} = summary, _task), do: summary
 
-  defp delivery(summary, %{assigned_rider_id: nil} = task) do
-    Map.update!(summary, :unassigned, &append(&1, task))
-  end
+  defp delivery(summary, %{assigned_rider_id: nil} = _task), do: summary
 
   defp delivery(summary, task) do
     Map.update!(summary, :assigned, &append_assigned(&1, task))
@@ -85,8 +83,6 @@ defmodule BikeBrigade.Delivery.CampaignDeliverySummary do
     |> Map.put_new(name, [])
     |> Map.update!(name, &[delivery_summary(task) | &1])
   end
-
-  defp append(acc, task), do: [delivery_summary(task) | acc]
 
   defp delivery_summary(%{
          dropoff_name: dropoff_name,
