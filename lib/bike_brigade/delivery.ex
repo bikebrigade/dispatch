@@ -156,6 +156,50 @@ defmodule BikeBrigade.Delivery do
   end
 
   @doc """
+  Mark specified tasks as completed by a specific rider for a specific campaign.
+
+  Returns `{:ok, %{count: n}}` when n tasks are marked complete.
+  Returns `{:error, reason}` for invalid cases:
+  - No tasks match the given criteria
+  - Task IDs don't belong to rider/campaign
+  - Tasks not in pending/picked_up status
+
+  Only completes tasks that match ALL criteria:
+  - Assigned to given rider
+  - In given campaign
+  - Have IDs in expected_task_ids (from UI)
+  - In pending or picked_up status
+
+  This is an atomic operation - either all matching tasks complete or none do.
+  """
+  def mark_all_tasks_complete_by_rider(rider_id, campaign_id, expected_task_ids)
+      when is_integer(rider_id) and is_integer(campaign_id) and is_list(expected_task_ids) do
+    updated_at = DateTime.utc_now()
+
+    Repo.transact(fn ->
+      # Build query: only completes tasks that match expected_task_ids from UI
+      update_query =
+        from t in Task,
+          where:
+            t.assigned_rider_id == ^rider_id and
+              t.campaign_id == ^campaign_id and
+              t.id in ^expected_task_ids and
+              t.delivery_status in [:pending, :picked_up],
+          update: [set: [delivery_status: :completed, updated_at: ^updated_at]]
+
+      case Repo.update_all(update_query, returning: true) do
+        {0, _} ->
+          {:error, "No deliveries to complete"}
+
+        {count, updated_tasks} ->
+          # Broadcast batch completion as single message
+          broadcast({:ok, updated_tasks}, :tasks_batch_completed)
+          {:ok, %{count: count}}
+      end
+    end)
+  end
+
+  @doc """
   Assign a task to a given rider (tracking the user that made the assignment)
   """
 
