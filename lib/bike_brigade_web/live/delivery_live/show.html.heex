@@ -325,6 +325,42 @@
         </dl>
       </div>
     <% end %>
+    <% pending_count =
+      Enum.count(@rider.assigned_tasks, fn t -> t.delivery_status in [:pending, :picked_up] end) %>
+    <%= if pending_count >= 2 do %>
+      <div class="relative my-1 sm:my-2">
+        <div class="absolute inset-0 flex items-center" aria-hidden="true">
+          <div class="w-full border-t border-gray-300"></div>
+        </div>
+        <div class="relative flex justify-center">
+          <span class="px-2 text-gray-500 bg-gray-50">
+            <Heroicons.chevron_down class="w-5 h-5 text-gray-500" />
+          </span>
+        </div>
+      </div>
+      <div class="w-full overflow-hidden bg-white shadow-md sm:mt-2 sm:rounded-lg">
+        <div class="flex items-start space-x-1 p-2.5 bg-white border-b border-gray-200 sm:p-4">
+          <div class="flex items-center justify-center flex-shrink-0 w-8 h-8 bg-green-700 rounded-full ring-8 ring-white">
+            <Heroicons.check_circle mini class="w-5 h-5 text-white" />
+          </div>
+          <div class="w-full pl-1 border-l border-gray-200 sm:flex-nowrap">
+            <div class="flex flex-col space-y-2">
+              <h2 class="text-base font-semibold text-gray-900">
+                All deliveries complete?
+              </h2>
+              <p class="text-sm text-gray-600">
+                Mark all {pending_count} remaining deliveries as complete in one action.
+              </p>
+              <div class="flex">
+                <.button phx-click="mark_all_complete" color={:green}>
+                  <Heroicons.check_circle mini class="w-5 h-5 mr-1 -ml-0.5" /> Complete All
+                </.button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
     <div class="relative my-1 sm:my-2">
       <div class="absolute inset-0 flex items-center" aria-hidden="true">
         <div class="w-full border-t border-gray-300"></div>
@@ -343,10 +379,10 @@
         <div class="w-full pl-1 border-l border-gray-200 sm:flex-nowrap">
           <div class="flex flex-row items-center justify-between">
             <h2 class="mr-1 text-base font-semibold text-gray-900">
-              Tell us you're done.
+              Share your experience
             </h2>
             <div class="flex flex-wrap items-start justify-end flex-shrink ml-auto">
-              <.button href={sms_done_url(@campaign, @rider)} class="ml-auto" color={:green}>
+              <.button href={sms_done_url(@campaign, @rider)} size={:small} color={:green}>
                 <Heroicons.chat_bubble_left_right mini class="w-5 h-5 mr-1 -ml-0.5" /> I'm done!
               </.button>
             </div>

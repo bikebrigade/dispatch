@@ -97,8 +97,41 @@ defmodule BikeBrigadeWeb.DeliveryLive.Show do
   end
 
   @impl Phoenix.LiveView
+  def handle_event("mark_all_complete", _params, socket) do
+    rider_id = socket.assigns.rider.id
+    campaign_id = socket.assigns.campaign.id
+
+    task_ids =
+      socket.assigns.rider.assigned_tasks
+      |> Enum.filter(fn task -> task.delivery_status in [:pending, :picked_up] end)
+      |> Enum.map(& &1.id)
+
+    case Delivery.mark_all_tasks_complete_by_rider(rider_id, campaign_id, task_ids) do
+      {:ok, %{count: count}} ->
+        {:noreply, put_flash(socket, :info, "#{count} deliveries marked as completed")}
+
+      {:error, reason} ->
+        {:noreply, put_flash(socket, :error, reason)}
+    end
+  end
+
+  @impl Phoenix.LiveView
   def handle_info({:task_updated, task}, socket) do
     {:noreply, update_task(socket, task)}
+  end
+
+  def handle_info({:tasks_batch_completed, tasks}, socket) do
+    updated_assigned_tasks =
+      Enum.map(socket.assigns.rider.assigned_tasks, fn task ->
+        Enum.find_value(tasks, task, fn updated_task ->
+          if updated_task.id == task.id do
+            updated_task
+          end
+        end)
+      end)
+
+    {:noreply,
+     assign(socket, :rider, %{socket.assigns.rider | assigned_tasks: updated_assigned_tasks})}
   end
 
   def handle_info(_msg, socket) do

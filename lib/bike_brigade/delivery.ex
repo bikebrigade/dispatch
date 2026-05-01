@@ -158,7 +158,7 @@ defmodule BikeBrigade.Delivery do
   @doc """
   Mark specified tasks as completed by a specific rider for a specific campaign.
 
-  Returns `{:ok, %{count: n}}` when n tasks are marked complete.
+  Returns `{:ok, %{count: n, tasks: [...]}}` where tasks are fully preloaded updated task objects.
   Returns `{:error, reason}` for invalid cases:
   - No tasks match the given criteria
   - Task IDs don't belong to rider/campaign
@@ -185,14 +185,33 @@ defmodule BikeBrigade.Delivery do
               t.campaign_id == ^campaign_id and
               t.id in ^expected_task_ids and
               t.delivery_status in [:pending, :picked_up],
+          select: t.id,
           update: [set: [delivery_status: :completed, updated_at: ^updated_at]]
 
-      case Repo.update_all(update_query, returning: true) do
+      case Repo.update_all(update_query, []) do
         {0, _} ->
           {:error, "No deliveries to complete"}
 
-        {count, updated_tasks} ->
-          # Broadcast batch completion as single message
+        {count, updated_task_ids} when count > 0 ->
+          # Fetch updated tasks with full preloads matching get_task response
+
+          preload =
+            Keyword.get([], :preload, [
+              :assigned_rider,
+              [task_items: :item],
+              :pickup_location,
+              :dropoff_location
+            ])
+
+          updated_tasks =
+            from(t in Task,
+              as: :task,
+              where: t.id in ^updated_task_ids
+            )
+            |> task_load_location()
+            |> Repo.all()
+            |> Repo.preload(preload)
+
           broadcast({:ok, updated_tasks}, :tasks_batch_completed)
           {:ok, %{count: count}}
       end

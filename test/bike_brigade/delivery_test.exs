@@ -377,6 +377,187 @@ defmodule BikeBrigade.DeliveryTest do
     end
   end
 
+  describe "mark_all_tasks_complete_by_rider/3" do
+    setup do
+      campaign = fixture(:campaign)
+      rider = fixture(:rider)
+
+      # Create multiple tasks with different statuses
+      pending_task_1 =
+        fixture(:task, %{campaign: campaign, rider: rider, delivery_status: :pending})
+
+      pending_task_2 =
+        fixture(:task, %{campaign: campaign, rider: rider, delivery_status: :pending})
+
+      picked_up_task =
+        fixture(:task, %{campaign: campaign, rider: rider, delivery_status: :picked_up})
+
+      completed_task =
+        fixture(:task, %{campaign: campaign, rider: rider, delivery_status: :completed})
+
+      other_rider = fixture(:rider)
+
+      other_rider_task =
+        fixture(:task, %{campaign: campaign, rider: other_rider, delivery_status: :pending})
+
+      other_campaign = fixture(:campaign)
+
+      other_campaign_task =
+        fixture(:task, %{campaign: other_campaign, rider: rider, delivery_status: :pending})
+
+      %{
+        campaign: campaign,
+        rider: rider,
+        pending_task_1: pending_task_1,
+        pending_task_2: pending_task_2,
+        picked_up_task: picked_up_task,
+        completed_task: completed_task,
+        other_rider: other_rider,
+        other_rider_task: other_rider_task,
+        other_campaign: other_campaign,
+        other_campaign_task: other_campaign_task
+      }
+    end
+
+    test "marks multiple pending tasks as complete", %{
+      campaign: campaign,
+      rider: rider,
+      pending_task_1: task1,
+      pending_task_2: task2
+    } do
+      task_ids = [task1.id, task2.id]
+
+      assert {:ok, %{count: 2, tasks: tasks}} =
+               Delivery.mark_all_tasks_complete_by_rider(rider.id, campaign.id, task_ids)
+
+      assert length(tasks) == 2
+
+      # Verify tasks are updated
+      updated_task1 = Delivery.get_task(task1.id)
+      updated_task2 = Delivery.get_task(task2.id)
+
+      assert updated_task1.delivery_status == :completed
+      assert updated_task2.delivery_status == :completed
+    end
+
+    test "marks mixed pending and picked_up tasks as complete", %{
+      campaign: campaign,
+      rider: rider,
+      pending_task_1: pending,
+      picked_up_task: picked_up
+    } do
+      task_ids = [pending.id, picked_up.id]
+
+      assert {:ok, %{count: 2, tasks: tasks}} =
+               Delivery.mark_all_tasks_complete_by_rider(rider.id, campaign.id, task_ids)
+
+      assert length(tasks) == 2
+      assert Delivery.get_task(pending.id).delivery_status == :completed
+      assert Delivery.get_task(picked_up.id).delivery_status == :completed
+    end
+
+    test "skips already-completed tasks in the list", %{
+      campaign: campaign,
+      rider: rider,
+      pending_task_1: pending,
+      completed_task: completed
+    } do
+      task_ids = [pending.id, completed.id]
+
+      # Should only complete the pending one
+      assert {:ok, %{count: 1, tasks: tasks}} =
+               Delivery.mark_all_tasks_complete_by_rider(rider.id, campaign.id, task_ids)
+
+      assert length(tasks) == 1
+      assert Delivery.get_task(pending.id).delivery_status == :completed
+      assert Delivery.get_task(completed.id).delivery_status == :completed
+    end
+
+    test "returns error when no tasks match the criteria", %{
+      campaign: campaign,
+      rider: rider,
+      completed_task: task
+    } do
+      # All tasks in the list are already completed
+      task_ids = [task.id]
+
+      assert {:error, "No deliveries to complete"} =
+               Delivery.mark_all_tasks_complete_by_rider(rider.id, campaign.id, task_ids)
+    end
+
+    test "only completes tasks belonging to the specified rider", %{
+      campaign: campaign,
+      rider: rider,
+      pending_task_1: rider_task,
+      other_rider_task: other_task
+    } do
+      task_ids = [rider_task.id, other_task.id]
+
+      # Should only complete rider's task
+      assert {:ok, %{count: 1, tasks: tasks}} =
+               Delivery.mark_all_tasks_complete_by_rider(rider.id, campaign.id, task_ids)
+
+      assert length(tasks) == 1
+      assert Delivery.get_task(rider_task.id).delivery_status == :completed
+      assert Delivery.get_task(other_task.id).delivery_status == :pending
+    end
+
+    test "only completes tasks in the specified campaign", %{
+      campaign: campaign,
+      rider: rider,
+      pending_task_1: campaign_task,
+      other_campaign_task: other_task
+    } do
+      task_ids = [campaign_task.id, other_task.id]
+
+      # Should only complete task in specified campaign
+      assert {:ok, %{count: 1, tasks: tasks}} =
+               Delivery.mark_all_tasks_complete_by_rider(rider.id, campaign.id, task_ids)
+
+      assert length(tasks) == 1
+      assert Delivery.get_task(campaign_task.id).delivery_status == :completed
+      assert Delivery.get_task(other_task.id).delivery_status == :pending
+    end
+
+    test "only completes tasks in expected_task_ids (race condition protection)", %{
+      campaign: campaign,
+      rider: rider,
+      pending_task_1: task1,
+      pending_task_2: task2
+    } do
+      # Simulate UI showing only task1, but task2 is also pending
+      task_ids = [task1.id]
+
+      assert {:ok, %{count: 1, tasks: tasks}} =
+               Delivery.mark_all_tasks_complete_by_rider(rider.id, campaign.id, task_ids)
+
+      assert length(tasks) == 1
+
+      # Only task1 should be completed, task2 should remain pending
+      assert Delivery.get_task(task1.id).delivery_status == :completed
+      assert Delivery.get_task(task2.id).delivery_status == :pending
+    end
+
+    test "empty task_ids list returns error", %{campaign: campaign, rider: rider} do
+      assert {:error, "No deliveries to complete"} =
+               Delivery.mark_all_tasks_complete_by_rider(rider.id, campaign.id, [])
+    end
+
+    test "updates the updated_at timestamp", %{
+      campaign: campaign,
+      rider: rider,
+      pending_task_1: task
+    } do
+      before_time = DateTime.utc_now()
+
+      {:ok, %{count: 1, tasks: _tasks}} =
+        Delivery.mark_all_tasks_complete_by_rider(rider.id, campaign.id, [task.id])
+
+      updated_task = Delivery.get_task(task.id)
+      assert DateTime.compare(updated_task.updated_at, before_time) in [:gt, :eq]
+    end
+  end
+
   def item_name(%Task{task_items: [%{item: %{name: item_name}}]}), do: item_name
 
   defp get_utc_now(), do: NaiveDateTime.utc_now()
