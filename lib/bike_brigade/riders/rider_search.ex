@@ -357,4 +357,27 @@ defmodule BikeBrigade.Riders.RiderSearch do
     query
     |> where(as(:latest_campaign).delivery_start > ago(1, ^period))
   end
+
+  defp apply_filter(%Filter{type: :signed_up, search: period}, query, _filters)
+       when period in ~w(today yesterday) do
+    today = Date.utc_today()
+
+    {start_date, end_date} =
+      case period do
+        "yesterday" -> {Date.add(today, -1), today}
+        _today -> {today, Date.add(today, 1)}
+      end
+
+    start_dt = DateTime.new!(start_date, ~T[00:00:00])
+    end_dt = DateTime.new!(end_date, ~T[00:00:00])
+
+    query
+    |> where(as(:rider).signed_up_on >= ^start_dt and as(:rider).signed_up_on < ^end_dt)
+  end
+
+  defp apply_filter(%Filter{type: :signed_up, search: period}, query, _filters)
+       when period in ~w(week month year) do
+    query
+    |> where(as(:rider).signed_up_on > ago(1, ^period))
+  end
 end
