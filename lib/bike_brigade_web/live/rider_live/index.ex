@@ -519,10 +519,8 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
             <h3 class="my-1 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
               Signed Up
             </h3>
-            <div class="flex flex-col my-2">
-              <%= for period <- @suggestions.signed_up do %>
-                <.suggestion filter={period} />
-              <% end %>
+            <div :for={period <- @suggestions.signed_up} class="flex flex-col my-2">
+              <.suggestion filter={period} />
             </div>
           <% end %>
         </div>
