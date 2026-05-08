@@ -380,4 +380,8 @@ defmodule BikeBrigade.Riders.RiderSearch do
     query
     |> where(as(:rider).signed_up_on > ago(1, ^period))
   end
+
+  defp apply_filter(%Filter{type: :signed_up}, query, _filters) do
+    query
+  end
 end
