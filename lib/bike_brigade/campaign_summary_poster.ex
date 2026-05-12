@@ -58,15 +58,23 @@ defmodule BikeBrigade.CampaignSummaryPoster do
   """
   def post_summary_for_campaign(campaign) do
     campaign = Repo.preload(campaign, :program)
-    do_post_summary(campaign, campaign.program.slack_channel_id)
+
+    do_post_summary(
+      campaign,
+      campaign.program.slack_channel_id,
+      campaign.program.send_delivery_summaries
+    )
   end
 
-  defp do_post_summary(campaign, nil) do
-    Logger.warning("Skipping campaign #{campaign.id}: no Slack channel configured for program")
-    Slack.Operations.notify_campaign_error(campaign, "No Slack channel configured")
+  defp do_post_summary(campaign, _, false) do
+    Logger.info("Skipping campaign #{campaign.id}: delivery summaries not enabled for program")
   end
 
-  defp do_post_summary(campaign, channel_id) do
+  defp do_post_summary(campaign, nil, _) do
+    Logger.info("Skipping campaign #{campaign.id}: no Slack channel configured for program")
+  end
+
+  defp do_post_summary(campaign, channel_id, true) do
     summary = CampaignDeliverySummary.create_for(campaign)
 
     with {:ok, record} <- find_or_create_record(campaign.id, channel_id, summary),
