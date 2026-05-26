@@ -66,7 +66,7 @@ defmodule BikeBrigade.CampaignSummaryPoster do
     )
   end
 
-  defp do_post_summary(campaign, _, false) do
+  defp do_post_summary(campaign, _, enabled) when enabled != true do
     Logger.info("Skipping campaign #{campaign.id}: delivery summaries not enabled for program")
   end
 
