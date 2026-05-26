@@ -3,7 +3,7 @@ defmodule BikeBrigade.Repo.Migrations.AddSendDeliverySummariesToPrograms do
 
   def change do
     alter table(:programs) do
-      add :send_delivery_summaries, :boolean, default: false
+      add :send_delivery_summaries, :boolean, default: false, null: false
     end
   end
 end
