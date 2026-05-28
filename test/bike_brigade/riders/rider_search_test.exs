@@ -175,7 +175,103 @@ defmodule BikeBrigade.Riders.RiderSearchTest do
     link_rider_to_campaign(rider_id, campaign.id)
   end
 
+  describe "signed_up filter" do
+    test "today - includes rider who signed up today" do
+      today_start = DateTime.new!(Date.utc_today(), ~T[00:00:00])
+      rider = fixture(:rider, %{signed_up_on: DateTime.add(today_start, 1, :hour)})
+
+      {_rs, results} =
+        RiderSearch.new(filters: [%Filter{type: :signed_up, search: "today"}])
+        |> RiderSearch.fetch()
+
+      assert rider_in_results?(results, rider.id)
+    end
+
+    test "today - excludes rider who signed up yesterday" do
+      yesterday = Date.add(Date.utc_today(), -1)
+      yesterday_time = DateTime.new!(yesterday, ~T[12:00:00])
+      rider = fixture(:rider, %{signed_up_on: yesterday_time})
+
+      {_rs, results} =
+        RiderSearch.new(filters: [%Filter{type: :signed_up, search: "today"}])
+        |> RiderSearch.fetch()
+
+      refute rider_in_results?(results, rider.id)
+    end
+
+    test "yesterday - includes rider who signed up yesterday" do
+      yesterday = Date.add(Date.utc_today(), -1)
+      yesterday_time = DateTime.new!(yesterday, ~T[12:00:00])
+      rider = fixture(:rider, %{signed_up_on: yesterday_time})
+
+      {_rs, results} =
+        RiderSearch.new(filters: [%Filter{type: :signed_up, search: "yesterday"}])
+        |> RiderSearch.fetch()
+
+      assert rider_in_results?(results, rider.id)
+    end
+
+    test "yesterday - excludes rider who signed up today" do
+      today_start = DateTime.new!(Date.utc_today(), ~T[00:00:00])
+      rider = fixture(:rider, %{signed_up_on: DateTime.add(today_start, 1, :hour)})
+
+      {_rs, results} =
+        RiderSearch.new(filters: [%Filter{type: :signed_up, search: "yesterday"}])
+        |> RiderSearch.fetch()
+
+      refute rider_in_results?(results, rider.id)
+    end
+
+    test "week - includes rider who signed up within the past week" do
+      rider = fixture(:rider, %{signed_up_on: signed_up_ago(5, :day)})
+
+      {_rs, results} =
+        RiderSearch.new(filters: [%Filter{type: :signed_up, search: "week"}])
+        |> RiderSearch.fetch()
+
+      assert rider_in_results?(results, rider.id)
+    end
+
+    test "week - excludes rider who signed up more than a week ago" do
+      rider = fixture(:rider, %{signed_up_on: signed_up_ago(8, :day)})
+
+      {_rs, results} =
+        RiderSearch.new(filters: [%Filter{type: :signed_up, search: "week"}])
+        |> RiderSearch.fetch()
+
+      refute rider_in_results?(results, rider.id)
+    end
+
+    test "month - includes rider who signed up within the past month" do
+      rider = fixture(:rider, %{signed_up_on: signed_up_ago(14, :day)})
+
+      {_rs, results} =
+        RiderSearch.new(filters: [%Filter{type: :signed_up, search: "month"}])
+        |> RiderSearch.fetch()
+
+      assert rider_in_results?(results, rider.id)
+    end
+
+    test "year - includes rider who signed up within the past year" do
+      rider = fixture(:rider, %{signed_up_on: signed_up_ago(180, :day)})
+
+      {_rs, results} =
+        RiderSearch.new(filters: [%Filter{type: :signed_up, search: "year"}])
+        |> RiderSearch.fetch()
+
+      assert rider_in_results?(results, rider.id)
+    end
+  end
+
   defp rider_in_results?(results, id) do
     Enum.find(results.page, &(&1.id == id))
+  end
+
+  # Helper to create a DateTime a specified duration in the past
+  # @param amount - number of time units (positive, will be negated)
+  # @param unit - time unit (:day, :hour, :second, etc.)
+  # @return DateTime in UTC
+  defp signed_up_ago(amount, unit) do
+    DateTime.utc_now() |> DateTime.add(-amount, unit)
   end
 end

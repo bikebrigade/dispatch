@@ -26,20 +26,29 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
              |> Enum.map(&%Filter{type: :active, search: &1})
     @capacities ~w(large medium small)
                 |> Enum.map(&%Filter{type: :capacity, search: &1})
+    @signed_ups ~w(today yesterday week month year)
+                |> Enum.map(&%Filter{type: :signed_up, search: &1})
 
-    defstruct name: nil, phone: nil, tags: [], programs: [], active: [], capacity: []
+    defstruct name: nil,
+              phone: nil,
+              tags: [],
+              programs: [],
+              active: [],
+              capacity: [],
+              signed_up: []
 
     @type t :: %__MODULE__{
             name: Filter.t() | nil,
             tags: list(Filter.t()),
             programs: list(Filter.t()),
             active: list(Filter.t()),
-            capacity: list(Filter.t())
+            capacity: list(Filter.t()),
+            signed_up: list(Filter.t())
           }
 
     @spec suggest(t(), String.t()) :: t()
     def suggest(suggestions, "") do
-      %{suggestions | name: nil, tags: [], programs: [], active: [], capacity: []}
+      %{suggestions | name: nil, tags: [], programs: [], active: [], capacity: [], signed_up: []}
     end
 
     def suggest(suggestions, search) do
@@ -71,6 +80,13 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
             |> Enum.filter(&String.starts_with?(&1.search, capacity))
 
           %__MODULE__{capacity: capacity}
+
+        ["signed_up", signed_up] ->
+          signed_ups =
+            @signed_ups
+            |> Enum.filter(&String.starts_with?(&1.search, signed_up))
+
+          %__MODULE__{signed_up: signed_ups}
 
         [search] ->
           tags =
@@ -105,7 +121,8 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
               tags: tags,
               programs: programs,
               active: @actives,
-              capacity: @capacities
+              capacity: @capacities,
+              signed_up: @signed_ups
           }
 
         [_, _] ->
@@ -498,6 +515,14 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
               <% end %>
             </div>
           <% end %>
+          <%= if @suggestions.signed_up != [] do %>
+            <h3 class="my-1 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+              Signed Up
+            </h3>
+            <div :for={period <- @suggestions.signed_up} class="flex flex-col my-2">
+              <.suggestion filter={period} />
+            </div>
+          <% end %>
         </div>
         <div>
           <%= if @suggestions.capacity != [] do %>
@@ -631,6 +656,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
       :active -> "text-amber-900 bg-amber-100"
       :capacity -> "text-rose-900 bg-rose-100"
       :phone -> "text-cyan-900 bg-cyan-100"
+      :signed_up -> "text-blue-900 bg-blue-100"
     end
   end
 
