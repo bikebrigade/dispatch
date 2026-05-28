@@ -8,6 +8,7 @@ defmodule BikeBrigade.Delivery.Task do
   alias BikeBrigade.Riders.Rider
   alias BikeBrigade.Delivery.{Campaign, Item, TaskItem}
   alias BikeBrigade.Locations.Location
+  alias BikeBrigade.Locations.CommunityFridge
 
   defenum(DeliveryStatusEnum,
     pending: "pending",
@@ -26,7 +27,8 @@ defmodule BikeBrigade.Delivery.Task do
     :delivery_instructions,
     :signup_notes,
     :assigned_rider_id,
-    :campaign_id
+    :campaign_id,
+    :community_fridge_id
   ]
 
   @embedded_fields [
@@ -51,6 +53,7 @@ defmodule BikeBrigade.Delivery.Task do
 
     belongs_to :assigned_rider, Rider, on_replace: :nilify
     belongs_to :campaign, Campaign
+    belongs_to :community_fridge, CommunityFridge
     has_many :task_items, TaskItem, on_replace: :delete_if_exists
     many_to_many :items, Item, join_through: TaskItem
 
