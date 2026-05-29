@@ -377,6 +377,20 @@ defmodule BikeBrigade.DeliveryTest do
     end
   end
 
+  describe "Program community_fridge field" do
+    test "program defaults community_fridge to false" do
+      program = fixture(:program)
+
+      assert program.community_fridge == false
+    end
+
+    test "program can be created with community_fridge true" do
+      program = fixture(:program, %{community_fridge: true})
+
+      assert program.community_fridge == true
+    end
+  end
+
   def item_name(%Task{task_items: [%{item: %{name: item_name}}]}), do: item_name
 
   defp get_utc_now(), do: NaiveDateTime.utc_now()
