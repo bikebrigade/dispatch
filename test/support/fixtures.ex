@@ -186,6 +186,38 @@ defmodule BikeBrigade.Fixtures do
     Toronto.random_location()
   end
 
+  def fixture(:community_fridge, attrs) do
+    # Ensure we have a location_id
+    attrs =
+      attrs
+      |> Map.put_new_lazy(:location_id, fn ->
+        location_data = fixture(:location)
+
+        {:ok, location} =
+          %BikeBrigade.Locations.Location{}
+          |> BikeBrigade.Locations.Location.changeset(location_data)
+          |> Repo.insert()
+
+        location.id
+      end)
+
+    {:ok, fridge} =
+      %BikeBrigade.Locations.CommunityFridge{}
+      |> BikeBrigade.Locations.CommunityFridge.changeset(
+        %{
+          name: "Community Fridge #{System.unique_integer([:positive])}",
+          description: "A community fridge for the neighborhood",
+          active: true,
+          pair_preferred: false
+        }
+        |> Map.merge(attrs)
+      )
+      |> Repo.insert()
+
+    fridge
+    |> Repo.preload(:location)
+  end
+
   def fixture(:sms_message_from_rider, rider),
     do: fixture(:sms_message_from_rider, rider, %{})
 

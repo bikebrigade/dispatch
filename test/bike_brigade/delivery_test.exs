@@ -401,9 +401,10 @@ defmodule BikeBrigade.DeliveryTest do
 
     test "task can be created with community_fridge_id" do
       campaign = fixture(:campaign)
-      task = fixture(:task, %{campaign: campaign, community_fridge_id: 123})
+      community_fridge = fixture(:community_fridge)
+      task = fixture(:task, %{campaign: campaign, community_fridge_id: community_fridge.id})
 
-      assert task.community_fridge_id == 123
+      assert task.community_fridge_id == community_fridge.id
     end
   end
 
