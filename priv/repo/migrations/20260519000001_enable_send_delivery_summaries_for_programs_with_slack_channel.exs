@@ -5,11 +5,9 @@ defmodule BikeBrigade.Repo.Migrations.EnableSendDeliverySummariesForProgramsWith
   alias BikeBrigade.Repo
 
   def up do
-    from(prog in BikeBrigade.Delivery.Program,
-      update: [set: [send_delivery_summaries: true]],
-      where: not is_nil(prog.slack_channel_id)
-    )
-    |> Repo.update_all([])
+    execute """
+      UPDATE programs SET send_delivery_summaries = true WHERE slack_channel_id IS NOT NULL
+    """
   end
 
   def down, do: :ok
