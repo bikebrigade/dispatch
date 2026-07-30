@@ -5,5 +5,7 @@ defmodule BikeBrigade.Repo.Migrations.AddCommunityFridgeToTasks do
     alter table(:tasks) do
       add :community_fridge_id, references(:community_fridges), null: true
     end
+
+    create index(:tasks, [:community_fridge_id])
   end
 end

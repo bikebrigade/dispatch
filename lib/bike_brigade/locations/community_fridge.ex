@@ -22,7 +22,7 @@ defmodule BikeBrigade.Locations.CommunityFridge do
   def changeset(community_fridge, attrs) do
     community_fridge
     |> cast(attrs, [:name, :description, :photo, :active, :pair_preferred, :location_id])
-    |> validate_required([:name, :location_id])
+    |> validate_required([:name])
     |> assoc_constraint(:location)
   end
 end

@@ -65,18 +65,6 @@ defmodule BikeBrigade.Locations.CommunityFridgeTest do
       assert "can't be blank" in errors_on(changeset).name
     end
 
-    test "changeset validates location_id is required" do
-      attrs = %{
-        name: "Fridge Without Location",
-        description: "Missing location_id"
-      }
-
-      changeset = CommunityFridge.changeset(%CommunityFridge{}, attrs)
-
-      refute changeset.valid?
-      assert "can't be blank" in errors_on(changeset).location_id
-    end
-
     test "changeset sets default values for active and pair_preferred", %{location: location} do
       attrs = %{
         name: "Fridge with Defaults",
