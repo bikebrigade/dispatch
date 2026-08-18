@@ -21,7 +21,7 @@ defmodule BikeBrigade.Locations do
   Returns the list of community_fridges.
   """
   def list_community_fridges do
-    Repo.all(CommunityFridge)
+    Repo.all(from cf in CommunityFridge, order_by: [desc: cf.active, asc: cf.name])
   end
 
   @doc """
