@@ -12,7 +12,5 @@ defmodule BikeBrigade.Repo.Migrations.CreateCommunityFridges do
 
       timestamps()
     end
-
-    create index(:community_fridges, [:location_id])
   end
 end
