@@ -12,7 +12,19 @@ defmodule BikeBrigade.LocationsTest do
 
     test "list_community_fridges/0 returns all community_fridges" do
       community_fridge = community_fridge_fixture()
-      assert Locations.list_community_fridges() == [community_fridge]
+      assert community_fridge.id in Enum.map(Locations.list_community_fridges(), & &1.id)
+    end
+
+    test "list_community_fridges/0 returns active fridges first then alphabetically by name" do
+      inactive = community_fridge_fixture(%{name: "Alpha", active: false})
+      active_b = community_fridge_fixture(%{name: "Beta", active: true})
+      active_a = community_fridge_fixture(%{name: "Alpha", active: true})
+
+      assert Enum.map(Locations.list_community_fridges(), & &1.id) == [
+               active_a.id,
+               active_b.id,
+               inactive.id
+             ]
     end
 
     test "get_community_fridge!/1 returns the community_fridge with given id" do
