@@ -35,14 +35,6 @@ defmodule BikeBrigadeWeb.CommunityFridgeLive.Index do
     |> assign(:community_fridge, nil)
   end
 
-  @impl true
-  def handle_event("delete", %{"id" => id}, socket) do
-    community_fridge = Locations.get_community_fridge!(id)
-    {:ok, _} = Locations.delete_community_fridge(community_fridge)
-
-    {:noreply, assign(socket, :community_fridges, list_community_fridges())}
-  end
-
   defp list_community_fridges do
     Locations.list_community_fridges()
   end

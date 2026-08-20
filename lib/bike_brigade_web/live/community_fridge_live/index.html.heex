@@ -24,15 +24,6 @@
       Edit
     </.link>
   </:action>
-  <:action :let={community_fridge}>
-    <.link
-      phx-click={JS.push("delete", value: %{id: community_fridge.id})}
-      data-confirm={"Are you sure you want to delete \"#{community_fridge.name}\"?"}
-      class="link"
-    >
-      Delete
-    </.link>
-  </:action>
 </.table>
 
 <.modal
