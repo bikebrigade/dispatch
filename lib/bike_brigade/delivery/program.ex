@@ -43,6 +43,7 @@ defmodule BikeBrigade.Delivery.Program do
     field :public, :boolean, default: false
     field :hide_pickup_address, :boolean, default: false
     field :slack_channel_id, :string
+    field :community_fridge, :boolean, default: false
 
     # TODO: this is me trying out virtual fields again
     field :campaign_count, :integer, virtual: true
@@ -80,7 +81,8 @@ defmodule BikeBrigade.Delivery.Program do
       :spreadsheet_layout,
       :start_date,
       :photo_description,
-      :photos
+      :photos,
+      :community_fridge
     ])
     |> validate_required([:name, :start_date])
     |> foreign_key_constraint(:lead_id)

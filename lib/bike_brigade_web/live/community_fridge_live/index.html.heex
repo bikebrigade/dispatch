@@ -1,0 +1,43 @@
+<.header>
+  Community Fridges
+  <:actions>
+    <.button patch={~p"/community_fridges/new"}>New Community Fridge</.button>
+  </:actions>
+</.header>
+
+<.table id="community_fridges" rows={@community_fridges}>
+  <:col :let={community_fridge} label="Name">
+    {community_fridge.name}
+  </:col>
+  <:col :let={community_fridge} label="Description">
+    {community_fridge.description}
+  </:col>
+  <:col :let={community_fridge} label="Pair Preferred">
+    {if community_fridge.pair_preferred, do: "Yes", else: "No"}
+  </:col>
+  <:col :let={community_fridge} label="Active">
+    {if community_fridge.active, do: "Yes", else: "No"}
+  </:col>
+
+  <:action :let={community_fridge}>
+    <.link patch={~p"/community_fridges/#{community_fridge.id}/edit"} class="link">
+      Edit
+    </.link>
+  </:action>
+</.table>
+
+<.modal
+  :if={@live_action in [:new, :edit]}
+  id="community-fridge-modal"
+  show
+  on_cancel={JS.navigate(~p"/community_fridges")}
+>
+  <.live_component
+    module={BikeBrigadeWeb.CommunityFridgeLive.FormComponent}
+    id={@community_fridge.id || :new}
+    action={@live_action}
+    title={@page_title}
+    community_fridge={@community_fridge}
+    navigate={~p"/community_fridges"}
+  />
+</.modal>

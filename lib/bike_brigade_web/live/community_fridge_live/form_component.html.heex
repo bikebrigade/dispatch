@@ -1,0 +1,20 @@
+<div>
+  <.header>{@title}</.header>
+  <.simple_form
+    :let={f}
+    for={@changeset}
+    id="community-fridge-form"
+    phx-target={@myself}
+    phx-change="validate"
+    phx-submit="save"
+  >
+    <.input type="text" field={f[:name]} label="Name" />
+    <.input type="textarea" field={f[:description]} label="Description" />
+    <.input type="checkbox" field={f[:pair_preferred]} label="Pair Preferred" />
+    <.input type="checkbox" field={f[:active]} label="Active" />
+
+    <:actions>
+      <.button type="submit" phx-disable-with="Saving...">Save</.button>
+    </:actions>
+  </.simple_form>
+</div>
