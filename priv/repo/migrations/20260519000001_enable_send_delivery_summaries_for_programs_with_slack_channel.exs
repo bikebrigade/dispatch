@@ -1,8 +1,5 @@
 defmodule BikeBrigade.Repo.Migrations.EnableSendDeliverySummariesForProgramsWithSlackChannel do
   use Ecto.Migration
-  import Ecto.Query
-
-  alias BikeBrigade.Repo
 
   def up do
     execute """
