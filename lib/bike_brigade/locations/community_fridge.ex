@@ -3,7 +3,6 @@ defmodule BikeBrigade.Locations.CommunityFridge do
   import Ecto.Changeset
 
   alias BikeBrigade.Locations.Location
-  alias BikeBrigade.Delivery.Task
 
   schema "community_fridges" do
     field :active, :boolean, default: true
@@ -12,8 +11,6 @@ defmodule BikeBrigade.Locations.CommunityFridge do
     field :photo, :string
     field :pair_preferred, :boolean, default: false
     belongs_to :location, Location
-
-    has_many :tasks, Task
 
     timestamps()
   end
