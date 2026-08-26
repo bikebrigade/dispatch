@@ -24,9 +24,9 @@ defmodule BikeBrigade.Locations.CommunityFridge do
     timestamps()
   end
 
-  def changeset(community_fridge, attrs) do
+  def changeset(community_fridge, params) do
     community_fridge
-    |> cast(attrs, @fields ++ [:location_id])
+    |> cast(params, @fields ++ [:location_id])
     |> validate_required([:name])
     |> assoc_constraint(:location)
   end
