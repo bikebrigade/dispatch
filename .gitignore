@@ -53,3 +53,6 @@ config/google-service-account.json
 /screenshots/
 
 /tmp/
+
+# Playwright e2e test artifacts
+/test-results/
