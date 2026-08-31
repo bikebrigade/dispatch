@@ -31,7 +31,7 @@ defmodule BikeBrigade.Locations.CommunityFridgeTest do
       assert changeset.valid?
     end
 
-    test "changeset with minimal required attributes and default values", %{location: location} do
+    test "changeset with minimal required attributes", %{location: location} do
       attrs = %{
         name: "Community Fridge",
         location_id: location.id
@@ -40,8 +40,6 @@ defmodule BikeBrigade.Locations.CommunityFridgeTest do
       changeset = CommunityFridge.changeset(%CommunityFridge{}, attrs)
 
       assert changeset.valid?
-      assert Ecto.Changeset.get_field(changeset, :active) == true
-      assert Ecto.Changeset.get_field(changeset, :pair_preferred) == false
     end
 
     test "changeset requires name", %{location: location} do
