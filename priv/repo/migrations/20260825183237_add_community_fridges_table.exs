@@ -3,7 +3,7 @@ defmodule BikeBrigade.Repo.Migrations.AddCommunityFridgesTable do
 
   def change do
     create table(:community_fridges) do
-      add :name, :string
+      add :name, :string, null: false
       add :description, :text
       add :photo, :string
       add :active, :boolean, default: true, null: false
@@ -12,5 +12,7 @@ defmodule BikeBrigade.Repo.Migrations.AddCommunityFridgesTable do
 
       timestamps()
     end
+
+    create unique_index(:community_fridges, [:location_id])
   end
 end

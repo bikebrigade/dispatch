@@ -250,6 +250,12 @@
         />
 
         <.input type="checkbox" field={f[:active]} label="Active" />
+        <.input
+          :if={Phoenix.HTML.Form.input_value(f, :slack_channel_id) not in [nil, ""]}
+          type="checkbox"
+          field={f[:send_delivery_summaries]}
+          label="Send Campaign Delivery Summary to Slack"
+        />
       </div>
     </.inputs_for>
   </.simple_form>
