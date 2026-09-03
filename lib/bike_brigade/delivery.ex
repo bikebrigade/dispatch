@@ -551,8 +551,18 @@ defmodule BikeBrigade.Delivery do
       )
       |> Repo.preload([:location, :total_stats])
 
-    # Does a nested preload to get tasks' assigned riders without doing an extra db query
-    tasks = Repo.preload(all_tasks, assigned_rider: fn _ -> all_riders end)
+    # Fetches all riders for this campaign regardless of backup status, used only
+    # to correctly resolve task.assigned_rider in the preload below. Backup riders
+    # are excluded from all_riders (display) but their task assignments must still resolve.
+    all_riders_for_resolution =
+      Repo.all(
+        from cr in CampaignRider,
+          join: r in assoc(cr, :rider),
+          where: cr.campaign_id == ^campaign.id,
+          select: r
+      )
+
+    tasks = Repo.preload(all_tasks, assigned_rider: fn _ -> all_riders_for_resolution end)
 
     riders = Repo.preload(all_riders, assigned_tasks: fn _ -> all_tasks end)
 
