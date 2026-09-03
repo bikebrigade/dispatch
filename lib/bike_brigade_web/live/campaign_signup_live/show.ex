@@ -309,7 +309,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
         </.button>
       <% end %>
 
-      <%= if backup_rider_signed_up?(@backup_riders, @current_rider_id) && 
+      <%= if backup_rider_signed_up?(@backup_riders, @current_rider_id) &&
               task_available_but_backup_rider?(@task, @campaign) do %>
         <.button
           phx-click={JS.push("backup_rider_tried_signing_up")}
@@ -336,11 +336,10 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
     """
   end
 
-  defp task_eligible_for_signup?(task, campaign, backup_riders, current_rider_id) do
+  defp task_eligible_for_signup?(task, campaign, _backup_riders, _current_rider_id) do
     # campaign not in past, task available, and rider is not a backup rider
     task.assigned_rider == nil &&
-      !campaign_in_past(campaign) &&
-      !backup_rider_signed_up?(backup_riders, current_rider_id)
+      !campaign_in_past(campaign)
   end
 
   defp task_available_but_backup_rider?(task, campaign) do

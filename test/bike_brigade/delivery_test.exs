@@ -188,7 +188,7 @@ defmodule BikeBrigade.DeliveryTest do
 
       {riders, _tasks} = Delivery.campaign_riders_and_tasks(campaign)
 
-      assert length(riders) == 1
+      assert length(riders) == 2
       assert hd(riders).id == regular_rider.id
     end
 
