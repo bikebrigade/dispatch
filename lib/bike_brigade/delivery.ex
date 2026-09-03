@@ -649,6 +649,7 @@ defmodule BikeBrigade.Delivery do
         ],
         left_join: t in Task,
         on: t.assigned_rider_id == r.id and t.campaign_id == ^campaign.id,
+        where: cr.backup_rider == false,
         preload: [:location, assigned_tasks: {t, :task_items}],
         select: {r, cr.rider_capacity}
 
