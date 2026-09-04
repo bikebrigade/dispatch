@@ -309,7 +309,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       assert log.user_id == ctx.user.id
     end
 
-    test "Backup rider cannot sign up for regular tasks", ctx do
+    test "Backup rider can sign up for regular tasks", ctx do
       # First sign up as backup rider
       {:ok, _backup_cr} =
         Delivery.create_backup_campaign_rider(%{
@@ -323,13 +323,11 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
 
       {:ok, live, _html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
 
-      # Click the button and get the updated HTML
-      live |> element("#signup-btn-desktop-backup-rider-#{ctx.task.id}") |> render_click()
-      updated_html = render(live)
+      live |> element("#signup-btn-desktop-sign-up-task-#{ctx.task.id}") |> render_click()
 
-      # Check that the flash message appears
-      assert updated_html =~
-               "You are currently signed up as a backup rider. If you wish to sign up for this task, cancel being a backup rider below."
+      assert render(live) =~ "You"
+      assert Delivery.get_task(ctx.task.id).assigned_rider_id == ctx.rider.id
+      assert Enum.any?(Delivery.get_backup_riders(ctx.campaign), &(&1.id == ctx.rider.id))
     end
   end
 
@@ -448,18 +446,36 @@ defmodule BikeBrigadeWeb.CampaignSignupLiveTest do
       assert html =~ "No backup riders signed up yet."
     end
 
-    test "regular rider cannot sign up for tasks when they are backup rider", ctx do
+    test "task signup and backup signup can coexist", ctx do
       # Sign up as backup rider
       {:ok, live, _html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
       live |> element("#signup-backup-rider-btn") |> render_click()
 
-      # Try to sign up for a task - should show flash message
-      live |> element("#signup-btn-desktop-backup-rider-#{ctx.task.id}") |> render_click()
+      live |> element("#signup-btn-desktop-sign-up-task-#{ctx.task.id}") |> render_click()
       updated_html = render(live)
 
-      # Should show the flash message
-      assert updated_html =~
-               "You are currently signed up as a backup rider. If you wish to sign up for this task, cancel being a backup rider below."
+      assert updated_html =~ "You"
+      assert updated_html =~ "Cancel backup signup"
+      assert Delivery.get_task(ctx.task.id).assigned_rider_id == ctx.rider.id
+      assert Enum.any?(Delivery.get_backup_riders(ctx.campaign), &(&1.id == ctx.rider.id))
+    end
+
+    test "task assignment survives signing up as backup and cancelling backup", ctx do
+      {:ok, live, _html} = live(ctx.conn, ~p"/campaigns/signup/#{ctx.campaign.id}/")
+
+      live |> element("#signup-btn-desktop-sign-up-task-#{ctx.task.id}") |> render_click()
+      live |> element("#signup-backup-rider-btn") |> render_click()
+
+      assert render(live) =~ "You"
+      assert has_element?(live, "#cancel-backup-rider-btn")
+      assert Delivery.get_task(ctx.task.id).assigned_rider_id == ctx.rider.id
+
+      live |> element("#cancel-backup-rider-btn") |> render_click()
+
+      assert render(live) =~ "You"
+      assert has_element?(live, "#signup-backup-rider-btn")
+      assert Delivery.get_task(ctx.task.id).assigned_rider_id == ctx.rider.id
+      assert Delivery.get_backup_riders(ctx.campaign) == []
     end
   end
 

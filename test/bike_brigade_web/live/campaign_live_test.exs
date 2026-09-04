@@ -272,12 +272,56 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
           "rider_signed_up" => true
         })
 
-      {:ok, _view, html} = live(ctx.conn, ~p"/campaigns/#{ctx.campaign}")
+      {:ok, view, html} = live(ctx.conn, ~p"/campaigns/#{ctx.campaign}")
 
       # Check backup riders section is present
       assert html =~ "Backup Riders (1)"
       assert html =~ rider.name
-      assert html =~ "(backup)"
+      assert html =~ "Available as backup"
+
+      view |> element("#backup-riders-list a", rider.name) |> render_click()
+      assert render(view) =~ "Available as backup — no specific tasks assigned."
+    end
+
+    test "highlights riders who have assignments and are also available as backup", ctx do
+      rider = fixture(:rider)
+      task = fixture(:task, %{campaign: ctx.campaign, assigned_rider_id: rider.id})
+
+      {:ok, _backup_cr} =
+        Delivery.create_backup_campaign_rider(%{
+          "campaign_id" => ctx.campaign.id,
+          "rider_id" => rider.id,
+          "rider_capacity" => "5",
+          "pickup_window" => "10:00-11:00AM",
+          "enter_building" => true,
+          "rider_signed_up" => true
+        })
+
+      {:ok, view, _html} = live(ctx.conn, ~p"/campaigns/#{ctx.campaign}")
+
+      assert has_element?(
+               view,
+               "#riders-list\\:#{rider.id}",
+               "Available as backup"
+             )
+
+      assert has_element?(
+               view,
+               "#backup-riders-list\\:#{rider.id}",
+               "1 specific delivery assigned"
+             )
+
+      view |> element("#backup-riders-list\\:#{rider.id} a", rider.name) |> render_click()
+
+      assert render(view) =~ "Available as backup while assigned to 1 specific delivery."
+      assert render(view) =~ task.dropoff_name
+      assert has_element?(view, "a", "Stop Backup Availability")
+      refute has_element?(view, "a", "Convert to Rider")
+
+      view |> element("a", "Stop Backup Availability") |> render_click()
+
+      assert Delivery.get_task(task.id).assigned_rider_id == rider.id
+      refute Enum.any?(Delivery.get_backup_riders(ctx.campaign), &(&1.id == rider.id))
     end
 
     test "can select a backup rider", ctx do
@@ -297,35 +341,8 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
       {:ok, view, _html} = live(ctx.conn, ~p"/campaigns/#{ctx.campaign}")
 
       view |> element("#backup-riders-list a", rider.name) |> render_click()
-      assert view |> element("a", "Convert to Rider") |> has_element?()
-    end
-
-    test "can convert backup rider to regular rider", ctx do
-      rider = fixture(:rider)
-
-      # Create a backup rider
-      {:ok, _backup_cr} =
-        Delivery.create_backup_campaign_rider(%{
-          "campaign_id" => ctx.campaign.id,
-          "rider_id" => rider.id,
-          "rider_capacity" => "5",
-          "pickup_window" => "10:00-11:00AM",
-          "enter_building" => true,
-          "rider_signed_up" => true
-        })
-
-      {:ok, view, _html} = live(ctx.conn, ~p"/campaigns/#{ctx.campaign}")
-
-      # First click on backup rider to select them
-      updated_html = view |> element("#backup-riders-list a", rider.name) |> render_click()
-
-      # check that backup rider details are showing
-      assert updated_html =~ "Convert to Rider"
-
-      # Now convert should be available
-      view |> element("a", "Convert to Rider") |> render_click()
-      # after converting to a rider, confirm the button no longer exists.
-      refute view |> element("a", "Convert to Rider") |> has_element?
+      assert view |> element("a", "Remove Backup") |> has_element?()
+      refute view |> element("a", "Convert to Rider") |> has_element?()
     end
 
     test "can remove backup rider", ctx do
@@ -355,7 +372,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
       refute render(view) =~ rider.name
     end
 
-    test "cannot assign tasks to backup riders", ctx do
+    test "can assign tasks to backup riders", ctx do
       rider = fixture(:rider)
       task = fixture(:task, %{campaign: ctx.campaign})
 
@@ -378,10 +395,15 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
       # Select the backup rider
       view |> element("#backup-riders-list a", rider.name) |> render_click()
 
-      # Should show message that backup rider cannot be assigned tasks
       task_html = view |> element("[id='tasks-list:#{task.id}']") |> render()
-      assert task_html =~ "#{rider.name} is a backup rider - cannot assign tasks"
-      refute task_html =~ "Assign to #{rider.name}"
+      assert task_html =~ "Assign to #{rider.name}"
+
+      view
+      |> element("[id='tasks-list:#{task.id}'] a", "Assign to #{rider.name}")
+      |> render_click()
+
+      assert Delivery.get_task(task.id).assigned_rider_id == rider.id
+      assert Enum.any?(Delivery.get_backup_riders(ctx.campaign), &(&1.id == rider.id))
     end
 
     test "can message backup riders", ctx do

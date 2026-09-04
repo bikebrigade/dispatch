@@ -252,7 +252,7 @@ defmodule BikeBrigade.DeliveryTest do
       assert hd(riders).id == regular_rider.id
     end
 
-    test "backup riders cannot sign up for regular tasks via signup_rider event", %{
+    test "a backup rider can also sign up for a task", %{
       campaign: campaign,
       backup_rider: backup_rider
     } do
@@ -267,10 +267,8 @@ defmodule BikeBrigade.DeliveryTest do
           "rider_signed_up" => true
         })
 
-      # Create a task
-      fixture(:task, %{campaign: campaign})
+      task = fixture(:task, %{campaign: campaign})
 
-      # Try to create a regular campaign rider for the backup rider (this should fail)
       attrs = %{
         "campaign_id" => campaign.id,
         "rider_id" => backup_rider.id,
@@ -280,41 +278,87 @@ defmodule BikeBrigade.DeliveryTest do
         "rider_signed_up" => true
       }
 
-      # This should fail since backup rider already exists
-      assert {:error, changeset} = Delivery.create_campaign_rider(attrs)
-      assert {"already signed up as backup rider", []} = changeset.errors[:rider_id]
+      assert {:ok, campaign_rider} = Delivery.create_campaign_rider(attrs)
+      assert campaign_rider.backup_rider
+
+      user = fixture(:user)
+      assert {:ok, _task} = Delivery.assign_task(task, backup_rider.id, user.id)
+
+      {riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+      assert Enum.any?(riders, &(&1.id == backup_rider.id))
+      assert Enum.any?(Delivery.get_backup_riders(campaign), &(&1.id == backup_rider.id))
+
+      assigned_task = Enum.find(tasks, &(&1.id == task.id))
+      assert assigned_task.assigned_rider.id == backup_rider.id
     end
 
-    test "create_campaign_rider_without_backup_check/1 allows conversion of backup riders", %{
+    test "signing up as backup preserves an existing task assignment", %{
       campaign: campaign,
-      backup_rider: backup_rider
+      rider: rider
     } do
-      # Create a backup campaign rider
+      task = fixture(:task, %{campaign: campaign, rider: rider})
+
       {:ok, _backup_cr} =
         Delivery.create_backup_campaign_rider(%{
           "campaign_id" => campaign.id,
-          "rider_id" => backup_rider.id,
-          "rider_capacity" => "3",
+          "rider_id" => rider.id,
+          "rider_capacity" => "1",
           "pickup_window" => "10:00-11:00AM",
           "enter_building" => true,
           "rider_signed_up" => true
         })
 
-      # Should be able to create regular campaign rider even though backup exists
-      # (this simulates the conversion process)
-      attrs = %{
-        "campaign_id" => campaign.id,
-        "rider_id" => backup_rider.id,
-        "rider_capacity" => "3",
-        "pickup_window" => "10:00-11:00AM",
-        "enter_building" => true,
-        "rider_signed_up" => true
-      }
+      {riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+      assert Enum.any?(riders, &(&1.id == rider.id))
+      assert Enum.any?(Delivery.get_backup_riders(campaign), &(&1.id == rider.id))
 
-      assert {:ok, regular_cr} = Delivery.create_campaign_rider_without_backup_check(attrs)
-      assert regular_cr.backup_rider == false
-      assert regular_cr.rider_id == backup_rider.id
-      assert regular_cr.rider_capacity == 3
+      assigned_task = Enum.find(tasks, &(&1.id == task.id))
+      assert assigned_task.assigned_rider.id == rider.id
+    end
+
+    test "cancelling backup status preserves task signup", %{campaign: campaign, rider: rider} do
+      task = fixture(:task, %{campaign: campaign, rider: rider})
+
+      {:ok, _backup_cr} =
+        Delivery.create_backup_campaign_rider(%{
+          "campaign_id" => campaign.id,
+          "rider_id" => rider.id,
+          "rider_capacity" => "1",
+          "pickup_window" => "10:00-11:00AM",
+          "enter_building" => true,
+          "rider_signed_up" => true
+        })
+
+      assert {:ok, campaign_rider} =
+               Delivery.remove_backup_rider_from_campaign(campaign, rider.id)
+
+      refute campaign_rider.backup_rider
+      assert Delivery.get_task(task.id).assigned_rider_id == rider.id
+      assert Delivery.get_backup_riders(campaign) == []
+    end
+
+    test "removing the final task signup preserves backup status", %{
+      campaign: campaign,
+      backup_rider: rider
+    } do
+      task = fixture(:task, %{campaign: campaign})
+
+      {:ok, _backup_cr} =
+        Delivery.create_backup_campaign_rider(%{
+          "campaign_id" => campaign.id,
+          "rider_id" => rider.id,
+          "rider_capacity" => "1",
+          "pickup_window" => "10:00-11:00AM",
+          "enter_building" => true,
+          "rider_signed_up" => true
+        })
+
+      user = fixture(:user)
+      {:ok, _task} = Delivery.assign_task(task, rider.id, user.id)
+      Delivery.remove_rider_from_campaign(campaign, rider.id)
+
+      assert Delivery.get_task(task.id).assigned_rider_id == nil
+      assert Enum.any?(Delivery.get_backup_riders(campaign), &(&1.id == rider.id))
     end
   end
 
