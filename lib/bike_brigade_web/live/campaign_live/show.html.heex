@@ -1,4 +1,4 @@
-<div class="flex flex-col h-full">
+<div class="flex flex-col md:h-[calc(100vh-3rem)]">
   <div class="flex flex-row flex-wrap items-center md:flex-nowrap">
     <.button patch={~p"/campaigns/#{@campaign}/messaging"} class="mr-3">
       <Heroicons.chat_bubble_left_right mini class="w-5 h-5 mr-2 -ml-1" /> Messaging
@@ -100,8 +100,8 @@
       </div>
     </div>
   </div>
-  <div class="grid min-h-0 grid-cols-2 gap-4 md:h-full md:grid-cols-4">
-    <div class="px-2 py-3 bg-white shadow min-h-96 max-h-128 md:min-h-0 md:max-h-full x-2 md:h-full sm:rounded-lg">
+  <div class="grid flex-1 min-h-0 grid-cols-2 gap-4 md:grid-cols-4">
+    <div class="h-96 px-2 py-3 overflow-hidden bg-white shadow md:h-full md:min-h-0 sm:rounded-lg">
       <.live_component
         module={TasksListComponent}
         id={:tasks_list}
@@ -113,7 +113,7 @@
         backup_riders={@backup_riders}
       />
     </div>
-    <div class="px-2 py-3 bg-white shadow min-h-96 max-h-128 md:min-h-0 md:max-h-full md:h-full md:order-last sm:rounded-lg">
+    <div class="h-96 px-2 py-3 overflow-hidden bg-white shadow md:h-full md:min-h-0 md:order-last sm:rounded-lg">
       <.live_component
         module={RidersListComponent}
         id={:riders_list}
@@ -126,8 +126,8 @@
         resent={@resent}
       />
     </div>
-    <div class="col-span-2 bg-white shadow min-h-96 max-h-128 md:min-h-0 md:max-h-full sm:rounded-lg">
-      <div class="px-4 py-5 h-96 md:h-full sm:p-6">
+    <div class="h-96 col-span-2 overflow-hidden bg-white shadow md:h-full md:min-h-0 sm:rounded-lg">
+      <div class="h-full px-4 py-5 sm:p-6">
         <.campaign_map campaign={@campaign} riders={@riders} tasks={@tasks} />
       </div>
     </div>

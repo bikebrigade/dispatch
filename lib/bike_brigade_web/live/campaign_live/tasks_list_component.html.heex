@@ -1,5 +1,5 @@
-<div class="flex flex-col max-h-full">
-  <div class="flex flex-row flex-wrap items-baseline flex-grow space-y-1">
+<div class="flex flex-col h-full min-h-0">
+  <div class="flex flex-row flex-wrap items-baseline shrink-0 space-y-1">
     <.button patch={~p"/campaigns/#{@campaign}/tasks/new"} size={:small}>
       Add Task
     </.button>
@@ -42,7 +42,11 @@
       placeholder="Search Deliveries"
     />
   </div>
-  <ul class="flex-1 pt-10 overflow-y-auto scrolling-touch" id="tasks-list" phx-hook="TasksList">
+  <ul
+    class="flex-1 min-h-0 pt-10 overflow-y-auto scrolling-touch"
+    id="tasks-list"
+    phx-hook="TasksList"
+  >
     <%= for {_id, task} <- @tasks_list do %>
       <li id={"tasks-list:#{task.id}"}>
         <.link
