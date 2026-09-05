@@ -2,7 +2,6 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
   use BikeBrigadeWeb.ConnCase, only: []
 
   import Phoenix.LiveViewTest
-  alias BikeBrigadeWeb.CampaignHelpers
 
   alias BikeBrigade.{Delivery, LocalizedDateTime, History}
 
@@ -56,10 +55,12 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
     end
 
     test "Can delete a campaign", ctx do
-      {:ok, view, html} = live(ctx.conn, ~p"/campaigns/")
-      assert html =~ CampaignHelpers.name(ctx.campaign)
-      html = view |> element("#campaign-#{ctx.campaign.id} a", "Delete") |> render_click()
-      refute html =~ CampaignHelpers.name(ctx.campaign)
+      {:ok, view, _html} = live(ctx.conn, ~p"/campaigns/")
+      assert has_element?(view, "#campaign-#{ctx.campaign.id}")
+
+      view |> element("#campaign-#{ctx.campaign.id} a", "Delete") |> render_click()
+
+      refute has_element?(view, "#campaign-#{ctx.campaign.id}")
     end
   end
 
