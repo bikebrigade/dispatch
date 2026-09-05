@@ -137,7 +137,7 @@
                   >
                     Unassign
                   </.button>
-                <% @selected_rider != nil && !is_backup_rider?(@backup_riders, @selected_rider) -> %>
+                <% @selected_rider != nil -> %>
                   <div class="mx-1 text-sm leading-5">
                     <.button
                       phx-click={
@@ -150,10 +150,6 @@
                     >
                       Assign to {@selected_rider.name}
                     </.button>
-                  </div>
-                <% @selected_rider != nil && is_backup_rider?(@backup_riders, @selected_rider) -> %>
-                  <div class="mx-1 text-sm leading-5 text-gray-500 italic">
-                    {@selected_rider.name} is a backup rider - cannot assign tasks
                   </div>
                 <% true -> %>
                   <div class="mx-1 text-sm leading-5 text-gray-500">None</div>

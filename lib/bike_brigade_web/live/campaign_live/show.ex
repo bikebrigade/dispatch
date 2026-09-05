@@ -331,34 +331,6 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   end
 
   @impl Phoenix.LiveView
-  def handle_event("convert_backup_to_rider", %{"rider_id" => rider_id}, socket) do
-    backup_rider = get_backup_rider(socket, rider_id)
-
-    # Remove the backup rider record
-    Delivery.remove_backup_rider_from_campaign(socket.assigns.campaign, backup_rider.id)
-
-    # Create a new regular campaign rider record
-    attrs = %{
-      "campaign_id" => socket.assigns.campaign.id,
-      "rider_id" => backup_rider.id,
-      "rider_capacity" => backup_rider.task_capacity || 1,
-      "pickup_window" => backup_rider.pickup_window,
-      "enter_building" => backup_rider.task_enter_building,
-      "rider_signed_up" => true
-    }
-
-    case Delivery.create_campaign_rider_without_backup_check(attrs) do
-      {:ok, _cr} ->
-        {:noreply,
-         socket
-         |> put_flash(:info, "Successfully converted #{backup_rider.name} to a regular rider")}
-
-      {:error, _changeset} ->
-        {:noreply, socket |> put_flash(:error, "Failed to convert backup rider to regular rider")}
-    end
-  end
-
-  @impl Phoenix.LiveView
   def handle_event("remove_backup_rider", %{"rider_id" => rider_id}, socket) do
     backup_rider = get_backup_rider(socket, rider_id)
     Delivery.remove_backup_rider_from_campaign(socket.assigns.campaign, backup_rider.id)

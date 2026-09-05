@@ -406,45 +406,12 @@ defmodule BikeBrigade.Delivery do
   end
 
   def create_campaign_rider(attrs \\ %{}) do
-    # Check if rider is already signed up as backup rider for this campaign
-    campaign_id = attrs["campaign_id"] || attrs[:campaign_id]
-    rider_id = attrs["rider_id"] || attrs[:rider_id]
-
-    case {campaign_id, rider_id} do
-      {nil, _} ->
-        create_campaign_rider_without_backup_check(attrs)
-
-      {_, nil} ->
-        create_campaign_rider_without_backup_check(attrs)
-
-      {campaign_id, rider_id} ->
-        case Repo.get_by(CampaignRider,
-               campaign_id: campaign_id,
-               rider_id: rider_id,
-               backup_rider: true
-             ) do
-          nil ->
-            # No backup rider exists, proceed with normal signup
-            create_campaign_rider_without_backup_check(attrs)
-
-          _backup_rider ->
-            # Backup rider exists, prevent regular signup
-            changeset =
-              %CampaignRider{}
-              |> CampaignRider.changeset(attrs)
-              |> Ecto.Changeset.add_error(:rider_id, "already signed up as backup rider")
-
-            {:error, changeset}
-        end
-    end
-  end
-
-  def create_campaign_rider_without_backup_check(attrs) do
     %CampaignRider{}
     |> CampaignRider.changeset(attrs)
     |> Repo.insert(
       on_conflict: {:replace, [:rider_capacity, :notes, :pickup_window, :enter_building]},
-      conflict_target: [:rider_id, :campaign_id]
+      conflict_target: [:rider_id, :campaign_id],
+      returning: true
     )
     |> broadcast(:campaign_rider_created)
   end
@@ -532,12 +499,23 @@ defmodule BikeBrigade.Delivery do
       |> Repo.all()
       |> Repo.preload([:pickup_location, dropoff_location: [:neighborhood], task_items: [:item]])
 
+    # Backup-only riders stay out of the regular rider roster. Riders who are both
+    # backups and assigned deliveries stay in it so their task assignments resolve
+    # in the in-memory preload below.
+    assigned_rider_ids =
+      all_tasks
+      |> Enum.map(& &1.assigned_rider_id)
+      |> Enum.reject(&is_nil/1)
+      |> Enum.uniq()
+
     all_riders =
       Repo.all(
         from cr in CampaignRider,
           join: r in assoc(cr, :rider),
           left_join: l in assoc(r, :location),
-          where: cr.campaign_id == ^campaign.id and cr.backup_rider == false,
+          where:
+            cr.campaign_id == ^campaign.id and
+              (cr.backup_rider == false or r.id in ^assigned_rider_ids),
           order_by: r.name,
           select: r,
           select_merge: %{
@@ -560,6 +538,13 @@ defmodule BikeBrigade.Delivery do
   end
 
   def get_backup_riders(%Campaign{} = campaign) do
+    assigned_tasks =
+      Repo.all(
+        from t in Task,
+          where: t.campaign_id == ^campaign.id and not is_nil(t.assigned_rider_id),
+          order_by: t.id
+      )
+
     backup_riders =
       Repo.all(
         from cr in CampaignRider,
@@ -575,7 +560,7 @@ defmodule BikeBrigade.Delivery do
             delivery_url_token: cr.token
           }
       )
-      |> Repo.preload([:total_stats])
+      |> Repo.preload([:total_stats, assigned_tasks: fn _ -> assigned_tasks end])
 
     backup_riders
   end
@@ -603,8 +588,12 @@ defmodule BikeBrigade.Delivery do
         {:error, :not_found}
 
       campaign_rider ->
-        Repo.delete(campaign_rider)
-        |> broadcast(:campaign_rider_deleted)
+        if rider_assigned_to_campaign?(campaign, rider_id) do
+          update_campaign_rider(campaign_rider, %{backup_rider: false})
+        else
+          Repo.delete(campaign_rider)
+          |> broadcast(:campaign_rider_deleted)
+        end
     end
   end
 
@@ -835,7 +824,9 @@ defmodule BikeBrigade.Delivery do
 
   def remove_rider_from_campaign(campaign, rider_id) do
     if cr = Repo.get_by(CampaignRider, campaign_id: campaign.id, rider_id: rider_id) do
-      delete_campaign_rider(cr)
+      if !cr.backup_rider do
+        delete_campaign_rider(cr)
+      end
     end
 
     tasks =
@@ -847,6 +838,13 @@ defmodule BikeBrigade.Delivery do
     for task <- tasks do
       update_task(task, %{assigned_rider_id: nil})
     end
+  end
+
+  defp rider_assigned_to_campaign?(campaign, rider_id) do
+    Repo.exists?(
+      from t in Task,
+        where: t.campaign_id == ^campaign.id and t.assigned_rider_id == ^rider_id
+    )
   end
 
   alias BikeBrigade.Delivery.Program
