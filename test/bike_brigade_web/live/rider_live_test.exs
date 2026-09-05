@@ -148,7 +148,7 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
       {:ok, _view, html} = live(conn, ~p"/riders/#{rider}")
 
       assert html =~ rider.name
-      assert html =~ rider.location.address
+      assert html |> Floki.parse_document!() |> Floki.text() =~ rider.location.address
       assert html =~ "dispatch-data-capacity"
     end
 
