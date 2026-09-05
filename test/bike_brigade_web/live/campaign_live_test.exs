@@ -193,6 +193,37 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
       assert view |> element("a", "Rider Messaging") |> has_element?()
     end
 
+    test "can open a rider conversation and return to the campaign conversation list", ctx do
+      rider = hd(ctx.riders)
+      message = fixture(:sms_message_from_rider, rider, %{body: "A message from the rider"})
+      list_path = ~p"/campaigns/#{ctx.campaign}/messaging/riders/"
+
+      {:ok, view, _html} = live(ctx.conn, list_path)
+
+      refute has_element?(view, "#campaign-conversation-list.hidden")
+      assert has_element?(view, "#campaign-conversation.hidden")
+
+      view
+      |> element("#conversation-list-item\\:#{rider.id} a")
+      |> render_click()
+
+      assert_patched(view, ~p"/campaigns/#{ctx.campaign}/messaging/riders/#{rider}")
+      assert has_element?(view, "#campaign-conversation-list.hidden")
+      refute has_element?(view, "#campaign-conversation.hidden")
+      refute has_element?(view, "#conversation-component\\:#{rider.id}.hidden")
+      assert has_element?(view, "#message\\:#{message.id}", message.body)
+      assert has_element?(view, "#conversation-form")
+      refute has_element?(view, ~s|#campaign-conversation a[href="/messages/#{rider.id}/tasks"]|)
+
+      view
+      |> element(~s|a[aria-label="Back to conversations"][href="#{list_path}"]|)
+      |> render_click()
+
+      assert_patched(view, list_path)
+      refute has_element?(view, "#campaign-conversation-list.hidden")
+      assert has_element?(view, "#campaign-conversation.hidden")
+    end
+
     test "Can assign a rider to a task", ctx do
       rider = hd(ctx.riders)
       task = fixture(:task, %{campaign: ctx.campaign})
