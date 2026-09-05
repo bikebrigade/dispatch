@@ -1,5 +1,5 @@
-<div class="flex flex-col max-h-full">
-  <div class="flex flex-col flex-wrap items-baseline flex-grow space-y-1 xl:flex-row xl:space-x-1">
+<div class="flex flex-col h-full min-h-0">
+  <div class="flex flex-col flex-wrap items-baseline shrink-0 space-y-1 xl:flex-row xl:space-x-1">
     <.button phx-click="auto_assign" size={:small} class="space-x-1">
       <p>Auto Assign</p>
       <.with_tooltip>
@@ -45,191 +45,35 @@
       placeholder="Search Riders"
     />
   </div>
-  <ul class="flex-1 overflow-y-auto scrolling-touch" id="riders-list" phx-hook="RidersList">
-    <%= for {_id, rider} <- @riders_list do %>
-      <li id={"riders-list:#{rider.id}"}>
-        <.link
-          phx-click={JS.push("select_rider", value: %{id: rider.id})}
-          class={
+  <div class="flex-1 min-h-0 overflow-y-auto scrolling-touch">
+    <ul id="riders-list" phx-hook="RidersList">
+      <%= for {_id, rider} <- @riders_list do %>
+        <li id={"riders-list:#{rider.id}"}>
+          <.link
+            phx-click={JS.push("select_rider", value: %{id: rider.id})}
+            class={
             "block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50#{if selected?(@selected_rider, rider), do: " bg-gray-100"}"
           }
-        >
-          <div class="flex flex-row items-center px-4 py-4">
-            <div class="text-sm font-medium">
-              {rider.name}
-              <span class="text-xs">
-                ({task_count(rider.assigned_tasks)} / {rider.task_capacity})
-              </span>
-              <span
-                :if={backup_rider?(@backup_riders, rider)}
-                class="inline-flex items-center px-2 py-0.5 ml-1 text-xs font-semibold text-green-800 bg-green-100 rounded-full"
-              >
-                Available as backup
-              </span>
-            </div>
-            <%= if rider.task_enter_building do %>
-              <Heroicons.building_office
-                mini
-                class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end"
-              />
-            <% end %>
-            <%= if novice_participant?(rider) do %>
-              <.with_tooltip>
-                <Heroicons.star
-                  mini
-                  class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end"
-                />
-                <:tooltip>
-                  <div class="w-18">
-                    New rider (less than 5 campaigns)
-                  </div>
-                </:tooltip>
-              </.with_tooltip>
-            <% end %>
-
-            <%= if has_notes?(rider) do %>
-              <Heroicons.pencil_square mini class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500" />
-            <% end %>
-            <%= if rider.text_based_itinerary do %>
-              <.with_tooltip>
-                <Heroicons.signal_slash mini class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500" />
-                <:tooltip>
-                  <div class="w-40">
-                    This rider will receive an extra message with text-only delivery instructions
-                  </div>
-                </:tooltip>
-              </.with_tooltip>
-            <% end %>
-          </div>
-        </.link>
-        <%= if selected?(@selected_rider, rider) do %>
-          <div class="p-2 mx-1 rounded-b shadow-inner bg-gray-50">
-            <div class="flex flex-row my-2">
-              <Heroicons.clock mini class="flex-shrink-0 w-4 h-4 text-gray-500" />
-              <div class="mx-1 text-sm leading-5 text-gray-800">
-                {pickup_window(@campaign, rider)}
-              </div>
-            </div>
-            <%= if has_notes?(rider) do %>
-              <div class="flex flex-row my-2">
-                <Heroicons.pencil_square mini class="flex-shrink-0 w-4 h-4 text-gray-500" />
-                <div class="mx-1 text-sm leading-5 text-gray-600">
-                  {rider.task_notes}
-                </div>
-              </div>
-            <% end %>
-            <div
-              :if={backup_rider?(@backup_riders, rider)}
-              class="flex items-center px-2 py-2 my-2 text-sm font-medium text-green-800 border border-green-200 rounded bg-green-50"
-            >
-              <Heroicons.check_circle mini class="flex-shrink-0 w-4 h-4 mr-2" />
-              Also available as a backup rider
-            </div>
-            <%= if Enum.count(rider.assigned_tasks) > 0 do %>
-              <%= for task <- rider.assigned_tasks do %>
-                <div class="flex flex-row my-2">
-                  <Heroicons.map_pin mini class="flex-shrink-0 w-4 h-4 text-gray-500" />
-                  <.link
-                    phx-click={JS.push("select_task", value: %{id: task.id})}
-                    class="flex flex-col"
-                  >
-                    <div class="mx-1 text-sm leading-5 text-indigo-600">
-                      <span class="pii">{task.dropoff_location}</span>
-                    </div>
-                    <div class="mx-1 text-xs font-medium leading-5">
-                      <span class="pii">{task.dropoff_name}</span>
-                    </div>
-                  </.link>
-                </div>
-              <% end %>
-            <% else %>
-              <div class="mx-1 text-sm leading-5 text-gray-800">No tasks</div>
-            <% end %>
-            <div class="flex flex-row mt-5 space-x-1">
-              <%= if @resent do %>
-                <.button
-                  phx-click={JS.push("resend_message", value: %{rider_id: rider.id})}
-                  size={:xsmall}
-                  disabled
-                >
-                  Sent!
-                </.button>
-              <% else %>
-                <.button
-                  phx-click={JS.push("resend_message", value: %{rider_id: rider.id})}
-                  size={:xsmall}
-                >
-                  Resend
-                </.button>
-              <% end %>
-              <.button navigate={~p"/messages/#{rider}"} color={:secondary} size={:xsmall}>
-                Message
-              </.button>
-
-              <.button patch={~p"/campaigns/#{@campaign}/edit_rider/#{rider}"} size={:xsmall}>
-                Edit Rider
-              </.button>
-            </div>
-            <div class="mt-1">
-              <.button
-                phx-click={JS.push("remove_rider", value: %{rider_id: rider.id})}
-                color={:red}
-                size={:xsmall}
-              >
-                Remove
-              </.button>
-            </div>
-          </div>
-        <% end %>
-      </li>
-    <% end %>
-  </ul>
-  
-<!-- Backup Riders Section -->
-  <div :if={@backup_riders && Enum.count(@backup_riders) > 0} class="pt-4 mt-4 border-t">
-    <div class="ml-2 mb-2">
-      <h3 class="ml-2 text-sm font-medium leading-6 text-gray-900">
-        Backup Riders ({Enum.count(@backup_riders)})
-      </h3>
-      <p class="mx-2 text-xs leading-4 text-gray-600">
-        Available if extra coverage is needed.
-      </p>
-    </div>
-
-    <ul class="overflow-y-auto scrolling-touch" id="backup-riders-list">
-      <%= for {_id, rider} <- @backup_riders do %>
-        <li id={"backup-riders-list:#{rider.id}"} class="my-1 border-l-4 border-green-400">
-          <.link
-            phx-click={JS.push("select_backup_rider", value: %{id: rider.id})}
-            class={
-              "block transition duration-150 ease-in-out bg-green-50 hover:bg-green-100 focus:outline-none focus:bg-green-100#{if selected?(@selected_rider, rider), do: " bg-green-100"}"
-            }
           >
             <div class="flex flex-row items-center px-4 py-4">
               <div class="text-sm font-medium">
                 {rider.name}
-                <span class="inline-flex items-center px-2 py-0.5 ml-1 text-xs font-semibold text-green-800 bg-green-100 rounded-full">
-                  Available as backup
+                <span class="text-xs">
+                  ({task_count(rider.assigned_tasks)} / {rider.task_capacity})
                 </span>
                 <span
-                  :if={Enum.any?(rider.assigned_tasks)}
-                  class="block mt-1 text-xs text-gray-600"
+                  :if={backup_rider?(@backup_riders, rider)}
+                  class="inline-flex items-center px-2 py-0.5 ml-1 text-xs font-semibold text-green-800 bg-green-100 rounded-full"
                 >
-                  {Enum.count(rider.assigned_tasks)} specific {ngettext(
-                    "delivery",
-                    "deliveries",
-                    Enum.count(rider.assigned_tasks)
-                  )} assigned
+                  Available as backup
                 </span>
               </div>
-
               <%= if rider.task_enter_building do %>
                 <Heroicons.building_office
                   mini
                   class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end"
                 />
               <% end %>
-
               <%= if novice_participant?(rider) do %>
                 <.with_tooltip>
                   <Heroicons.star
@@ -247,7 +91,6 @@
               <%= if has_notes?(rider) do %>
                 <Heroicons.pencil_square mini class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500" />
               <% end %>
-
               <%= if rider.text_based_itinerary do %>
                 <.with_tooltip>
                   <Heroicons.signal_slash mini class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500" />
@@ -261,7 +104,7 @@
             </div>
           </.link>
           <%= if selected?(@selected_rider, rider) do %>
-            <div class="p-2 mx-1 rounded-b shadow-inner bg-blue-50">
+            <div class="p-2 mx-1 rounded-b shadow-inner bg-gray-50">
               <div class="flex flex-row my-2">
                 <Heroicons.clock mini class="flex-shrink-0 w-4 h-4 text-gray-500" />
                 <div class="mx-1 text-sm leading-5 text-gray-800">
@@ -276,35 +119,65 @@
                   </div>
                 </div>
               <% end %>
-
-              <div class="px-2 py-2 mx-1 text-sm font-medium leading-5 text-green-800 border border-green-200 rounded bg-green-50">
-                <%= if Enum.any?(rider.assigned_tasks) do %>
-                  Available as backup while assigned to {Enum.count(rider.assigned_tasks)} specific {ngettext(
-                    "delivery",
-                    "deliveries",
-                    Enum.count(rider.assigned_tasks)
-                  )}.
-                <% else %>
-                  Available as backup — no specific tasks assigned.
-                <% end %>
+              <div
+                :if={backup_rider?(@backup_riders, rider)}
+                class="flex items-center px-2 py-2 my-2 text-sm font-medium text-green-800 border border-green-200 rounded bg-green-50"
+              >
+                <Heroicons.check_circle mini class="flex-shrink-0 w-4 h-4 mr-2" />
+                Also available as a backup rider
               </div>
-
+              <%= if Enum.count(rider.assigned_tasks) > 0 do %>
+                <%= for task <- rider.assigned_tasks do %>
+                  <div class="flex flex-row my-2">
+                    <Heroicons.map_pin mini class="flex-shrink-0 w-4 h-4 text-gray-500" />
+                    <.link
+                      phx-click={JS.push("select_task", value: %{id: task.id})}
+                      class="flex flex-col"
+                    >
+                      <div class="mx-1 text-sm leading-5 text-indigo-600">
+                        <span class="pii">{task.dropoff_location}</span>
+                      </div>
+                      <div class="mx-1 text-xs font-medium leading-5">
+                        <span class="pii">{task.dropoff_name}</span>
+                      </div>
+                    </.link>
+                  </div>
+                <% end %>
+              <% else %>
+                <div class="mx-1 text-sm leading-5 text-gray-800">No tasks</div>
+              <% end %>
               <div class="flex flex-row mt-5 space-x-1">
+                <%= if @resent do %>
+                  <.button
+                    phx-click={JS.push("resend_message", value: %{rider_id: rider.id})}
+                    size={:xsmall}
+                    disabled
+                  >
+                    Sent!
+                  </.button>
+                <% else %>
+                  <.button
+                    phx-click={JS.push("resend_message", value: %{rider_id: rider.id})}
+                    size={:xsmall}
+                  >
+                    Resend
+                  </.button>
+                <% end %>
                 <.button navigate={~p"/messages/#{rider}"} color={:secondary} size={:xsmall}>
                   Message
+                </.button>
+
+                <.button patch={~p"/campaigns/#{@campaign}/edit_rider/#{rider}"} size={:xsmall}>
+                  Edit Rider
                 </.button>
               </div>
               <div class="mt-1">
                 <.button
-                  phx-click={JS.push("remove_backup_rider", value: %{rider_id: rider.id})}
+                  phx-click={JS.push("remove_rider", value: %{rider_id: rider.id})}
                   color={:red}
                   size={:xsmall}
                 >
-                  <%= if Enum.any?(rider.assigned_tasks) do %>
-                    Stop Backup Availability
-                  <% else %>
-                    Remove Backup
-                  <% end %>
+                  Remove
                 </.button>
               </div>
             </div>
@@ -312,5 +185,134 @@
         </li>
       <% end %>
     </ul>
+    
+<!-- Backup Riders Section -->
+    <div :if={@backup_riders && Enum.count(@backup_riders) > 0} class="pt-4 mt-4 border-t">
+      <div class="ml-2 mb-2">
+        <h3 class="ml-2 text-sm font-medium leading-6 text-gray-900">
+          Backup Riders ({Enum.count(@backup_riders)})
+        </h3>
+        <p class="mx-2 text-xs leading-4 text-gray-600">
+          Available if extra coverage is needed.
+        </p>
+      </div>
+
+      <ul id="backup-riders-list">
+        <%= for {_id, rider} <- @backup_riders do %>
+          <li id={"backup-riders-list:#{rider.id}"} class="my-1 border-l-4 border-green-400">
+            <.link
+              phx-click={JS.push("select_backup_rider", value: %{id: rider.id})}
+              class={
+              "block transition duration-150 ease-in-out bg-green-50 hover:bg-green-100 focus:outline-none focus:bg-green-100#{if selected?(@selected_rider, rider), do: " bg-green-100"}"
+            }
+            >
+              <div class="flex flex-row items-center px-4 py-4">
+                <div class="text-sm font-medium">
+                  {rider.name}
+                  <span class="inline-flex items-center px-2 py-0.5 ml-1 text-xs font-semibold text-green-800 bg-green-100 rounded-full">
+                    Available as backup
+                  </span>
+                  <span
+                    :if={Enum.any?(rider.assigned_tasks)}
+                    class="block mt-1 text-xs text-gray-600"
+                  >
+                    {Enum.count(rider.assigned_tasks)} specific {ngettext(
+                      "delivery",
+                      "deliveries",
+                      Enum.count(rider.assigned_tasks)
+                    )} assigned
+                  </span>
+                </div>
+
+                <%= if rider.task_enter_building do %>
+                  <Heroicons.building_office
+                    mini
+                    class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end"
+                  />
+                <% end %>
+
+                <%= if novice_participant?(rider) do %>
+                  <.with_tooltip>
+                    <Heroicons.star
+                      mini
+                      class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end"
+                    />
+                    <:tooltip>
+                      <div class="w-18">
+                        New rider (less than 5 campaigns)
+                      </div>
+                    </:tooltip>
+                  </.with_tooltip>
+                <% end %>
+
+                <%= if has_notes?(rider) do %>
+                  <Heroicons.pencil_square mini class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500" />
+                <% end %>
+
+                <%= if rider.text_based_itinerary do %>
+                  <.with_tooltip>
+                    <Heroicons.signal_slash mini class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500" />
+                    <:tooltip>
+                      <div class="w-40">
+                        This rider will receive an extra message with text-only delivery instructions
+                      </div>
+                    </:tooltip>
+                  </.with_tooltip>
+                <% end %>
+              </div>
+            </.link>
+            <%= if selected?(@selected_rider, rider) do %>
+              <div class="p-2 mx-1 rounded-b shadow-inner bg-blue-50">
+                <div class="flex flex-row my-2">
+                  <Heroicons.clock mini class="flex-shrink-0 w-4 h-4 text-gray-500" />
+                  <div class="mx-1 text-sm leading-5 text-gray-800">
+                    {pickup_window(@campaign, rider)}
+                  </div>
+                </div>
+                <%= if has_notes?(rider) do %>
+                  <div class="flex flex-row my-2">
+                    <Heroicons.pencil_square mini class="flex-shrink-0 w-4 h-4 text-gray-500" />
+                    <div class="mx-1 text-sm leading-5 text-gray-600">
+                      {rider.task_notes}
+                    </div>
+                  </div>
+                <% end %>
+
+                <div class="px-2 py-2 mx-1 text-sm font-medium leading-5 text-green-800 border border-green-200 rounded bg-green-50">
+                  <%= if Enum.any?(rider.assigned_tasks) do %>
+                    Available as backup while assigned to {Enum.count(rider.assigned_tasks)} specific {ngettext(
+                      "delivery",
+                      "deliveries",
+                      Enum.count(rider.assigned_tasks)
+                    )}.
+                  <% else %>
+                    Available as backup — no specific tasks assigned.
+                  <% end %>
+                </div>
+
+                <div class="flex flex-row mt-5 space-x-1">
+                  <.button navigate={~p"/messages/#{rider}"} color={:secondary} size={:xsmall}>
+                    Message
+                  </.button>
+                </div>
+                <div class="mt-1">
+                  <.button
+                    phx-click={JS.push("remove_backup_rider", value: %{rider_id: rider.id})}
+                    color={:red}
+                    size={:xsmall}
+                  >
+                    <%= if Enum.any?(rider.assigned_tasks) do %>
+                      Stop Backup Availability
+                    <% else %>
+                      Remove Backup
+                    <% end %>
+                  </.button>
+                </div>
+              </div>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
   </div>
 </div>
