@@ -91,24 +91,15 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
     task = get_task(socket, task_id)
     rider_id = socket.assigns.current_user.rider_id
 
-    if task.assigned_rider do
-      {:ok, _task} =
-        task
-        |> Delivery.unassign_task(socket.assigns.current_user.id)
-    end
-
-    # If rider is no longer assigned to any tasks, remove them from the campaign
-    rider_has_no_other_tasks? =
-      socket.assigns.tasks
-      # remove the task that was just clicked
-      |> Enum.reject(fn t -> t.id === task_id end)
-      # if the rider's is not found in any other of the tasks, return true.
-      |> Enum.filter(fn t -> t.assigned_rider_id == rider_id end)
-      |> Enum.empty?()
-
-    if rider_has_no_other_tasks? do
-      Delivery.remove_rider_from_campaign(socket.assigns.campaign, rider_id)
-    end
+    socket =
+      if task.assigned_rider do
+        case Delivery.cancel_task_signup(task, rider_id, socket.assigns.current_user.id) do
+          {:ok, _task} -> socket
+          {:error, _reason} -> put_flash(socket, :error, "That assignment has changed.")
+        end
+      else
+        socket
+      end
 
     {:noreply, socket}
   end
@@ -128,13 +119,21 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Show do
       "rider_signed_up" => true
     }
 
-    case Delivery.create_campaign_rider(attrs) do
-      {:ok, _cr} ->
-        {:ok, _task} = Delivery.assign_task(task, rider_id, socket.assigns.current_user.id)
+    case Delivery.claim_task(task, attrs, socket.assigns.current_user.id) do
+      {:ok, _task} ->
         {:noreply, socket |> push_patch(to: ~p"/campaigns/signup/#{campaign}", replace: true)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, :changeset, changeset)}
+
+      {:error, :already_assigned} ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "This delivery was just claimed by another rider.")
+         |> push_patch(to: ~p"/campaigns/signup/#{campaign}", replace: true)}
+
+      {:error, _reason} ->
+        {:noreply, put_flash(socket, :error, "Unable to claim this delivery.")}
     end
   end
 

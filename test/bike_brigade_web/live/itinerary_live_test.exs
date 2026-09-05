@@ -3,6 +3,7 @@ defmodule BikeBrigadeWeb.ItineraryLiveTest do
 
   alias BikeBrigade.Delivery
   alias BikeBrigade.LocalizedDateTime
+  alias BikeBrigade.Repo
 
   alias BikeBrigade.Repo.Seeds.Toronto
 
@@ -174,14 +175,17 @@ defmodule BikeBrigadeWeb.ItineraryLiveTest do
 
       campaign_rider = create_campaign_rider_for_test(campaign, rider)
 
-      {:ok, _task} =
+      {:ok, task} =
         Delivery.create_task_for_campaign(campaign, %{
           dropoff_name: dropoff_name,
           dropoff_location: Toronto.random_location(),
           task_items: [%{item_id: item.id, count: 1}],
-          assigned_rider_id: rider.id,
           delivery_status: :completed
         })
+
+      task
+      |> Delivery.Task.assignment_changeset(%{assigned_rider_id: rider.id})
+      |> Repo.update!()
 
       {:ok, view, html} = live(conn, ~p"/app/delivery/#{campaign_rider.token}")
 
@@ -217,11 +221,16 @@ defmodule BikeBrigadeWeb.ItineraryLiveTest do
     task_attrs = %{
       dropoff_name: dropoff_name,
       dropoff_location: Toronto.random_location(),
-      task_items: [%{item_id: item.id, count: 1}],
-      assigned_rider_id: rider.id
+      task_items: [%{item_id: item.id, count: 1}]
     }
 
     {:ok, task} = Delivery.create_task_for_campaign(campaign, task_attrs)
+
+    task =
+      task
+      |> Delivery.Task.assignment_changeset(%{assigned_rider_id: rider.id})
+      |> Repo.update!()
+
     {task, dropoff_name, item}
   end
 end
