@@ -1,7 +1,8 @@
 defmodule BikeBrigade.DeliveryTest do
   use BikeBrigade.DataCase
 
-  alias BikeBrigade.{LocalizedDateTime, Delivery, Delivery.Task, History}
+  alias BikeBrigade.{LocalizedDateTime, Delivery, Delivery.Task, History, Messaging, Repo}
+  alias BikeBrigade.Messaging.ScheduledMessage
 
   use Phoenix.VerifiedRoutes, endpoint: BikeBrigadeWeb.Endpoint, router: BikeBrigadeWeb.Router
 
@@ -62,6 +63,87 @@ defmodule BikeBrigade.DeliveryTest do
                Directions: #{directions_url}
                """
     end
+
+    test "send_campaign_messages/1 only messages riders with assigned deliveries", %{
+      campaign: campaign,
+      rider: assigned_rider
+    } do
+      campaign = with_instructions(campaign, "Your campaign itinerary is ready.")
+
+      unassigned_rider = fixture(:rider)
+      add_campaign_rider(campaign, unassigned_rider)
+
+      backup_only_rider = fixture(:rider)
+      add_backup_campaign_rider(campaign, backup_only_rider)
+
+      assigned_backup_rider = fixture(:rider)
+      add_backup_campaign_rider(campaign, assigned_backup_rider)
+      fixture(:task, %{campaign: campaign, assigned_rider_id: assigned_backup_rider.id})
+
+      assert {:ok, messages} = Delivery.send_campaign_messages(campaign)
+
+      assert MapSet.new(Enum.map(messages, & &1.rider_id)) ==
+               MapSet.new([assigned_rider.id, assigned_backup_rider.id])
+
+      refute Enum.any?(messages, &(&1.rider_id == unassigned_rider.id))
+      refute Enum.any?(messages, &(&1.rider_id == backup_only_rider.id))
+    end
+
+    test "scheduled campaign messages skip riders without assigned deliveries", %{
+      campaign: campaign,
+      rider: assigned_rider
+    } do
+      campaign = with_instructions(campaign, "Your scheduled campaign itinerary is ready.")
+
+      unassigned_rider = fixture(:rider)
+      add_campaign_rider(campaign, unassigned_rider)
+
+      scheduled_message =
+        Repo.insert!(%ScheduledMessage{
+          campaign_id: campaign.id,
+          send_at: DateTime.utc_now() |> DateTime.add(-60, :second) |> DateTime.truncate(:second)
+        })
+
+      assert {:noreply, %{}} = BikeBrigade.ScheduledMessenger.handle_info(:send_messages, %{})
+
+      campaign_messages =
+        Messaging.list_sms_messages()
+        |> Enum.filter(&(&1.campaign_id == campaign.id))
+
+      assert Enum.map(campaign_messages, & &1.rider_id) == [assigned_rider.id]
+      refute Repo.get(ScheduledMessage, scheduled_message.id)
+    end
+  end
+
+  defp add_campaign_rider(campaign, rider) do
+    {:ok, campaign_rider} =
+      Delivery.create_campaign_rider(%{
+        campaign_id: campaign.id,
+        rider_id: rider.id
+      })
+
+    campaign_rider
+  end
+
+  defp with_instructions(campaign, body) do
+    campaign = Repo.preload(campaign, :instructions_template)
+
+    {:ok, campaign} =
+      Delivery.update_campaign(campaign, %{
+        instructions_template: %{body: body}
+      })
+
+    campaign
+  end
+
+  defp add_backup_campaign_rider(campaign, rider) do
+    {:ok, campaign_rider} =
+      Delivery.create_backup_campaign_rider(%{
+        "campaign_id" => campaign.id,
+        "rider_id" => rider.id
+      })
+
+    campaign_rider
   end
 
   test "assign_task/3" do

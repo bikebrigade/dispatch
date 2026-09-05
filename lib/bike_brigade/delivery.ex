@@ -704,6 +704,11 @@ defmodule BikeBrigade.Delivery do
     campaign = Repo.preload(campaign, [:location, :instructions_template, :program])
     {riders, _} = campaign_riders_and_tasks(campaign)
 
+    # campaign_riders_and_tasks/1 excludes backup-only riders while retaining
+    # backup riders who have specific deliveries. Regular riders copied or added
+    # without a delivery should not receive campaign itinerary messages either.
+    riders = Enum.filter(riders, &Enum.any?(&1.assigned_tasks))
+
     msgs =
       for rider <- riders, rider != nil do
         {:ok, msg} = send_campaign_message(%Campaign{} = campaign, rider)
