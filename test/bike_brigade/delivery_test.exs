@@ -70,6 +70,9 @@ defmodule BikeBrigade.DeliveryTest do
     user = fixture(:user)
     task = fixture(:task, %{campaign: campaign})
 
+    {:ok, _campaign_rider} =
+      Delivery.create_campaign_rider(%{campaign_id: campaign.id, rider_id: rider.id})
+
     assert {:ok, task} = Delivery.assign_task(task, rider.id, user.id)
 
     assert task.assigned_rider_id == rider.id
@@ -79,6 +82,84 @@ defmodule BikeBrigade.DeliveryTest do
     assert log.rider_id == rider.id
     assert log.user_id == user.id
     assert log.action == :assigned
+  end
+
+  test "assign_task/3 rejects a rider who is not in the campaign" do
+    campaign = fixture(:campaign)
+    rider = fixture(:rider)
+    user = fixture(:user)
+    task = fixture(:task, %{campaign: campaign})
+
+    assert {:error, :rider_not_in_campaign} =
+             Delivery.assign_task(task, rider.id, user.id)
+
+    assert Delivery.get_task(task.id).assigned_rider_id == nil
+    assert History.list_task_assignment_logs() == []
+  end
+
+  test "claim_task/3 creates campaign membership and assigns an unclaimed task" do
+    campaign = fixture(:campaign)
+    rider = fixture(:rider)
+    user = fixture(:user)
+    task = fixture(:task, %{campaign: campaign})
+
+    attrs = %{
+      campaign_id: campaign.id,
+      rider_id: rider.id,
+      rider_capacity: 1,
+      enter_building: true
+    }
+
+    assert {:ok, %Task{assigned_rider_id: rider_id}} =
+             Delivery.claim_task(task, attrs, user.id)
+
+    assert rider_id == rider.id
+    assert Repo.get_by(Delivery.CampaignRider, campaign_id: campaign.id, rider_id: rider.id)
+  end
+
+  test "claim_task/3 does not replace another rider's assignment" do
+    campaign = fixture(:campaign)
+    assigned_rider = fixture(:rider)
+    claiming_rider = fixture(:rider)
+    user = fixture(:user)
+    task = fixture(:task, %{campaign: campaign, rider: assigned_rider})
+
+    attrs = %{
+      campaign_id: campaign.id,
+      rider_id: claiming_rider.id,
+      rider_capacity: 1,
+      enter_building: true
+    }
+
+    assert {:error, :already_assigned} = Delivery.claim_task(task, attrs, user.id)
+    assert Delivery.get_task(task.id).assigned_rider_id == assigned_rider.id
+
+    refute Repo.get_by(Delivery.CampaignRider,
+             campaign_id: campaign.id,
+             rider_id: claiming_rider.id
+           )
+  end
+
+  test "the general task changeset cannot change rider assignment" do
+    task = fixture(:task)
+    rider = fixture(:rider)
+
+    changeset = Task.changeset(task, %{assigned_rider_id: rider.id})
+
+    refute Map.has_key?(changeset.changes, :assigned_rider_id)
+  end
+
+  test "the database rejects an assigned rider outside the campaign" do
+    campaign = fixture(:campaign)
+    rider = fixture(:rider)
+    task = fixture(:task, %{campaign: campaign})
+
+    assert {:error, changeset} =
+             task
+             |> Task.assignment_changeset(%{assigned_rider_id: rider.id})
+             |> Repo.update()
+
+    assert "does not exist" in errors_on(changeset).assigned_rider_id
   end
 
   test "unassign_task/3" do
@@ -96,6 +177,29 @@ defmodule BikeBrigade.DeliveryTest do
     assert log.rider_id == rider.id
     assert log.user_id == user.id
     assert log.action == :unassigned
+  end
+
+  test "hacky_assign/2 uses the assignment boundary and records history" do
+    campaign = fixture(:campaign)
+    rider = fixture(:rider)
+    user = fixture(:user)
+    task = fixture(:task, %{campaign: campaign})
+
+    {:ok, _campaign_rider} =
+      Delivery.create_campaign_rider(%{
+        campaign_id: campaign.id,
+        rider_id: rider.id,
+        rider_capacity: 1
+      })
+
+    assert {:ok, _assignments} = Delivery.hacky_assign(campaign, user.id)
+    assert Delivery.get_task(task.id).assigned_rider_id == rider.id
+
+    assert [log] = History.list_task_assignment_logs()
+    assert log.task_id == task.id
+    assert log.rider_id == rider.id
+    assert log.user_id == user.id
+    assert log.action == :assigned
   end
 
   describe "Backup Riders" do
@@ -337,6 +441,70 @@ defmodule BikeBrigade.DeliveryTest do
       assert Delivery.get_backup_riders(campaign) == []
     end
 
+    test "concurrent task assignment prevents backup rider deletion", %{
+      campaign: campaign,
+      backup_rider: rider
+    } do
+      task = fixture(:task, %{campaign: campaign})
+      user = fixture(:user)
+
+      {:ok, _backup_rider} =
+        Delivery.create_backup_campaign_rider(%{
+          "campaign_id" => campaign.id,
+          "rider_id" => rider.id,
+          "rider_capacity" => "1",
+          "pickup_window" => "10:00-11:00AM",
+          "enter_building" => true,
+          "rider_signed_up" => true
+        })
+
+      test_pid = self()
+      handler_id = "pause-after-campaign-lock-#{System.unique_integer()}"
+
+      :ok =
+        :telemetry.attach(
+          handler_id,
+          [:bike_brigade, :repo, :query],
+          fn _event, _measurements, metadata, test_pid ->
+            if String.contains?(metadata.query, ~s(FOR UPDATE)) do
+              send(test_pid, {:campaign_locked, self()})
+
+              receive do
+                :continue -> :ok
+              after
+                1_000 -> :ok
+              end
+            end
+          end,
+          test_pid
+        )
+
+      on_exit(fn -> :telemetry.detach(handler_id) end)
+
+      assignment = Elixir.Task.async(fn -> Delivery.assign_task(task, rider.id, user.id) end)
+      assert_receive {:campaign_locked, assignment_pid}
+      :ok = :telemetry.detach(handler_id)
+
+      removal =
+        Elixir.Task.async(fn ->
+          Delivery.remove_backup_rider_from_campaign(campaign, rider.id)
+        end)
+
+      refute Elixir.Task.yield(removal, 50)
+      send(assignment_pid, :continue)
+
+      assert {:ok, %Task{assigned_rider_id: rider_id}} = Elixir.Task.await(assignment)
+      assert rider_id == rider.id
+      assert {:ok, campaign_rider} = Elixir.Task.await(removal)
+      refute campaign_rider.backup_rider
+
+      {riders, tasks} = Delivery.campaign_riders_and_tasks(campaign)
+      assert Enum.any?(riders, &(&1.id == rider.id))
+
+      assigned_task = Enum.find(tasks, &(&1.id == task.id))
+      assert assigned_task.assigned_rider.id == rider.id
+    end
+
     test "removing the final task signup preserves backup status", %{
       campaign: campaign,
       backup_rider: rider
@@ -355,7 +523,7 @@ defmodule BikeBrigade.DeliveryTest do
 
       user = fixture(:user)
       {:ok, _task} = Delivery.assign_task(task, rider.id, user.id)
-      Delivery.remove_rider_from_campaign(campaign, rider.id)
+      Delivery.remove_rider_from_campaign(campaign, rider.id, user.id)
 
       assert Delivery.get_task(task.id).assigned_rider_id == nil
       assert Enum.any?(Delivery.get_backup_riders(campaign), &(&1.id == rider.id))

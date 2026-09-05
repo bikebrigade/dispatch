@@ -161,18 +161,43 @@ defmodule BikeBrigade.Delivery do
 
   def assign_task(%Task{} = task, rider_id, user_id, opts \\ []) when is_list(opts) do
     Repo.transaction(fn ->
-      {:ok, _log} =
-        History.create_task_assignment_log(%{
-          task_id: task.id,
-          rider_id: rider_id,
-          user_id: user_id,
-          action: :assigned
-        })
+      lock_campaign!(task.campaign_id)
+      task = lock_task!(task.id)
+      ensure_campaign_rider!(task.campaign_id, rider_id)
+      do_assign_task(task, rider_id, user_id)
+    end)
+  end
 
-      {:ok, task} =
-        update_task(task, %{assigned_rider_id: rider_id}, opts)
+  @doc """
+  Atomically adds a rider to a campaign and claims an unassigned task.
+  """
+  def claim_task(%Task{} = task, campaign_rider_attrs, user_id)
+      when is_map(campaign_rider_attrs) do
+    Repo.transaction(fn ->
+      lock_campaign!(task.campaign_id)
 
-      task
+      campaign_rider =
+        case create_campaign_rider(campaign_rider_attrs) do
+          {:ok, campaign_rider} -> campaign_rider
+          {:error, reason} -> Repo.rollback(reason)
+        end
+
+      if campaign_rider.campaign_id != task.campaign_id do
+        Repo.rollback(:campaign_mismatch)
+      end
+
+      rider_id = campaign_rider.rider_id
+
+      case lock_task!(task.id) do
+        %Task{assigned_rider_id: nil} = task ->
+          do_assign_task(task, rider_id, user_id)
+
+        %Task{assigned_rider_id: ^rider_id} = task ->
+          task
+
+        %Task{} ->
+          Repo.rollback(:already_assigned)
+      end
     end)
   end
 
@@ -183,18 +208,85 @@ defmodule BikeBrigade.Delivery do
   def unassign_task(%Task{assigned_rider_id: assigned_rider_id} = task, user_id, opts \\ [])
       when not is_nil(assigned_rider_id) and is_list(opts) do
     Repo.transaction(fn ->
-      {:ok, _log} =
-        History.create_task_assignment_log(%{
-          task_id: task.id,
-          rider_id: assigned_rider_id,
-          user_id: user_id,
-          action: :unassigned
-        })
+      lock_campaign!(task.campaign_id)
 
-      {:ok, task} = update_task(task, %{assigned_rider_id: nil}, opts)
+      case lock_task!(task.id) do
+        %Task{assigned_rider_id: ^assigned_rider_id} = task ->
+          do_unassign_task(task, assigned_rider_id, user_id)
+
+        %Task{assigned_rider_id: nil} ->
+          Repo.rollback(:not_assigned)
+
+        %Task{} ->
+          Repo.rollback(:assignment_changed)
+      end
+    end)
+  end
+
+  @doc """
+  Unassigns a rider's task and removes their regular campaign membership when
+  they have no assignments left. Backup membership is preserved.
+  """
+  def cancel_task_signup(%Task{} = task, rider_id, user_id) do
+    Repo.transaction(fn ->
+      lock_campaign!(task.campaign_id)
+
+      task =
+        case lock_task!(task.id) do
+          %Task{assigned_rider_id: ^rider_id} = task ->
+            do_unassign_task(task, rider_id, user_id)
+
+          %Task{assigned_rider_id: nil} = task ->
+            task
+
+          %Task{} ->
+            Repo.rollback(:assignment_changed)
+        end
+
+      unless rider_assigned_to_campaign?(task.campaign_id, rider_id) do
+        delete_regular_campaign_rider(task.campaign_id, rider_id)
+      end
 
       task
     end)
+  end
+
+  defp do_assign_task(task, rider_id, user_id) do
+    with {:ok, _log} <-
+           History.create_task_assignment_log(%{
+             task_id: task.id,
+             rider_id: rider_id,
+             user_id: user_id,
+             action: :assigned
+           }),
+         {:ok, task} <-
+           task
+           |> Task.assignment_changeset(%{assigned_rider_id: rider_id})
+           |> Repo.update()
+           |> broadcast(:task_updated) do
+      task
+    else
+      {:error, reason} -> Repo.rollback(reason)
+    end
+  end
+
+  defp do_unassign_task(task, rider_id, user_id) do
+    with {:ok, _log} <-
+           History.create_task_assignment_log(%{
+             task_id: task.id,
+             rider_id: rider_id,
+             user_id: user_id,
+             action: :unassigned
+           }),
+         {:ok, task} <-
+           task
+           |> Task.assignment_changeset(%{assigned_rider_id: nil})
+           |> Repo.update()
+           |> broadcast(:task_updated) do
+      task
+    else
+      {:error, reason} -> Repo.rollback(reason)
+    end
   end
 
   @doc """
@@ -579,22 +671,39 @@ defmodule BikeBrigade.Delivery do
   end
 
   def remove_backup_rider_from_campaign(%Campaign{} = campaign, rider_id) do
-    case Repo.get_by(CampaignRider,
-           campaign_id: campaign.id,
-           rider_id: rider_id,
-           backup_rider: true
-         ) do
-      nil ->
-        {:error, :not_found}
+    Repo.transaction(fn ->
+      lock_campaign!(campaign.id)
 
-      campaign_rider ->
-        if rider_assigned_to_campaign?(campaign, rider_id) do
-          update_campaign_rider(campaign_rider, %{backup_rider: false})
-        else
-          Repo.delete(campaign_rider)
-          |> broadcast(:campaign_rider_deleted)
-        end
-    end
+      case Repo.get_by(CampaignRider,
+             campaign_id: campaign.id,
+             rider_id: rider_id,
+             backup_rider: true
+           ) do
+        nil ->
+          Repo.rollback(:not_found)
+
+        campaign_rider ->
+          result =
+            if rider_assigned_to_campaign?(campaign, rider_id) do
+              update_campaign_rider(campaign_rider, %{backup_rider: false})
+            else
+              Repo.delete(campaign_rider)
+              |> broadcast(:campaign_rider_deleted)
+            end
+
+          case result do
+            {:ok, campaign_rider} -> campaign_rider
+            {:error, reason} -> Repo.rollback(reason)
+          end
+      end
+    end)
+  end
+
+  defp lock_campaign!(campaign_id) do
+    from(c in Campaign, where: c.id == ^campaign_id, select: c.id, lock: "FOR UPDATE")
+    |> Repo.one!()
+
+    :ok
   end
 
   # TODO RENAME TO TODAYS TASKS
@@ -626,7 +735,14 @@ defmodule BikeBrigade.Delivery do
     Repo.one(query)
   end
 
-  def hacky_assign(%Campaign{} = campaign) do
+  def hacky_assign(%Campaign{} = campaign, user_id) do
+    Repo.transaction(fn ->
+      lock_campaign!(campaign.id)
+      do_hacky_assign(campaign, user_id)
+    end)
+  end
+
+  defp do_hacky_assign(campaign, user_id) do
     riders_query =
       from r in Rider,
         join: cr in CampaignRider,
@@ -674,7 +790,7 @@ defmodule BikeBrigade.Delivery do
         Logger.info("Assigning #{Enum.count(to_assign)} items to #{rider.name}")
 
         for task <- to_assign do
-          update_task(task, %{assigned_rider_id: rider.id})
+          do_assign_task(task, rider.id, user_id)
         end
       end
     end
@@ -822,29 +938,63 @@ defmodule BikeBrigade.Delivery do
     end
   end
 
-  def remove_rider_from_campaign(campaign, rider_id) do
-    if cr = Repo.get_by(CampaignRider, campaign_id: campaign.id, rider_id: rider_id) do
-      if !cr.backup_rider do
-        delete_campaign_rider(cr)
-      end
-    end
+  @doc """
+  Atomically unassigns a rider's campaign tasks and removes regular membership.
+  Backup membership is preserved.
+  """
+  def remove_rider_from_campaign(%Campaign{} = campaign, rider_id, user_id) do
+    Repo.transaction(fn ->
+      lock_campaign!(campaign.id)
 
-    tasks =
-      from(t in Task,
-        where: t.campaign_id == ^campaign.id and t.assigned_rider_id == ^rider_id
-      )
-      |> Repo.all()
+      tasks =
+        from(t in Task,
+          where: t.campaign_id == ^campaign.id and t.assigned_rider_id == ^rider_id,
+          lock: "FOR UPDATE"
+        )
+        |> Repo.all()
 
-    for task <- tasks do
-      update_task(task, %{assigned_rider_id: nil})
+      tasks = Enum.map(tasks, &do_unassign_task(&1, rider_id, user_id))
+      delete_regular_campaign_rider(campaign.id, rider_id)
+      tasks
+    end)
+  end
+
+  defp delete_regular_campaign_rider(campaign_id, rider_id) do
+    case Repo.get_by(CampaignRider, campaign_id: campaign_id, rider_id: rider_id) do
+      %CampaignRider{backup_rider: false} = campaign_rider ->
+        case delete_campaign_rider(campaign_rider) do
+          {:ok, _campaign_rider} -> :ok
+          {:error, reason} -> Repo.rollback(reason)
+        end
+
+      _ ->
+        :ok
     end
   end
 
-  defp rider_assigned_to_campaign?(campaign, rider_id) do
+  defp rider_assigned_to_campaign?(%{id: campaign_id}, rider_id) do
+    rider_assigned_to_campaign?(campaign_id, rider_id)
+  end
+
+  defp rider_assigned_to_campaign?(campaign_id, rider_id) do
     Repo.exists?(
       from t in Task,
-        where: t.campaign_id == ^campaign.id and t.assigned_rider_id == ^rider_id
+        where: t.campaign_id == ^campaign_id and t.assigned_rider_id == ^rider_id
     )
+  end
+
+  defp ensure_campaign_rider!(campaign_id, rider_id) do
+    unless Repo.exists?(
+             from cr in CampaignRider,
+               where: cr.campaign_id == ^campaign_id and cr.rider_id == ^rider_id
+           ) do
+      Repo.rollback(:rider_not_in_campaign)
+    end
+  end
+
+  defp lock_task!(task_id) do
+    from(t in Task, where: t.id == ^task_id, lock: "FOR UPDATE")
+    |> Repo.one!()
   end
 
   alias BikeBrigade.Delivery.Program
