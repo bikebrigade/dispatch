@@ -1,22 +1,22 @@
 <div
   id={"conversation-component:#{@rider.id}"}
   class={[
-    "sm:flex-1 px-1 flex-col bg-white shadow sm:rounded-lg sm:flex",
-    unless(@live_action == :show, do: "hidden", else: "flex")
+    "w-full sm:flex-1 px-1 flex-col bg-white shadow sm:rounded-lg sm:flex",
+    unless(@mobile_visible, do: "hidden", else: "flex")
   ]}
 >
   <div class="flex-grow-0 px-4 py-5 bg-white border-b border-gray-200 sm:px-6 sm:rounded-t-lg">
-    <div class="flex flex-row items-center justify-between -mt-2 -ml-4">
-      <div class="ml-4 sm:hidden">
-        <.link patch={~p"/messages"}>
+    <div class="flex items-start gap-3">
+      <div class="flex-none pt-1 sm:hidden">
+        <.link patch={@back_patch} aria-label="Back to conversations">
           <Heroicons.chevron_left class="w-6 h-6 text-indigo-600" />
         </.link>
       </div>
-      <div class="h-10 mt-2 ml-4">
+      <div class="min-w-0 flex-1">
         <h3 class="text-lg font-medium leading-6 text-gray-900">
           <%= if @rider do %>
             <div class="flex flex-col">
-              <div class="pii">
+              <div class="pii break-words">
                 <span>
                   <.link navigate={~p"/riders/#{@rider}"} class="link">
                     {@rider.name}
@@ -26,9 +26,9 @@
                   ({if @rider.pronouns, do: @rider.pronouns, else: "pronouns unknown"})
                 </span>
               </div>
-              <div class="inline-flex items-center text-sm text-gray-500 flex-shrink-1">
-                <Heroicons.device_phone_mobile mini class="w-4 h-4" />
-                <span class="pii">{@rider.phone}</span>
+              <div class="flex min-w-0 items-center text-sm text-gray-500">
+                <Heroicons.device_phone_mobile mini class="w-4 h-4 flex-none" />
+                <span class="pii break-all">{@rider.phone}</span>
               </div>
             </div>
           <% else %>
@@ -36,8 +36,12 @@
           <% end %>
         </h3>
       </div>
-      <.link patch={~p"/messages/#{@rider}/tasks"}>
-        <div class="inline-flex text-indigo-600 sm:hidden">
+      <.link
+        :if={@show_tasks_link}
+        patch={~p"/messages/#{@rider}/tasks"}
+        class="flex-none pt-1 sm:hidden"
+      >
+        <div class="inline-flex text-indigo-600">
           <Heroicons.clipboard_document_list class="inline w-6 h-6" />
         </div>
       </.link>

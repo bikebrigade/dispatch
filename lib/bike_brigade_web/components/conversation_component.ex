@@ -22,6 +22,12 @@ defmodule BikeBrigadeWeb.Components.ConversationComponent do
 
   @impl Phoenix.LiveComponent
   def update(%{rider: rider} = assigns, socket) do
+    assigns =
+      assigns
+      |> Map.put_new(:back_patch, ~p"/messages")
+      |> Map.put_new(:mobile_visible, assigns.live_action == :show)
+      |> Map.put_new(:show_tasks_link, true)
+
     conversation = Messaging.latest_messages(rider)
 
     earliest_timestamp =
