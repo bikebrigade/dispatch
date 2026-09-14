@@ -12,8 +12,12 @@ defmodule BikeBrigadeWeb.DeliveryLive.Show do
 
   @impl Phoenix.LiveView
   def mount(%{"token" => token}, _session, socket) do
-    %{campaign: campaign, rider: rider, pickup_window: pickup_window} =
-      Delivery.get_campaign_rider!(token)
+    %{
+      campaign: campaign,
+      rider: rider,
+      pickup_window: pickup_window,
+      backup_rider: backup_rider
+    } = Delivery.get_campaign_rider!(token)
 
     # TODO this is hacky but will go away
 
@@ -36,6 +40,7 @@ defmodule BikeBrigadeWeb.DeliveryLive.Show do
      |> assign(:campaign_date, campaign_date)
      |> assign(:page_title, "#{campaign_name(campaign)} - #{campaign_date}")
      |> assign(:rider, rider)
+     |> assign(:backup_rider, backup_rider)
      |> assign(:active_note_task_id, nil)
      |> assign(:note_text, "")}
   end
