@@ -13,4 +13,8 @@ defmodule BikeBrigadeWeb.CampaignLive.RidersListComponent do
      |> assign(assigns)
      |> assign(:riders_list, filter_riders(riders, riders_query))}
   end
+
+  defp backup_rider?(backup_riders, rider) do
+    is_map(backup_riders) && Map.has_key?(backup_riders, rider.id)
+  end
 end

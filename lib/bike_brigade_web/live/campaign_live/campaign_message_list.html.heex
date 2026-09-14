@@ -5,7 +5,13 @@
     </div>
   <% else %>
     <div data-test-campaign-message-list class="flex h-[calc(100vh-8rem)]">
-      <div class="bg-white md:w-4/12 w-full shadow border border-gray-200 rounded-lg mr-4">
+      <div
+        id="campaign-conversation-list"
+        class={[
+          "bg-white w-full sm:w-4/12 shadow border border-gray-200 rounded-lg sm:mr-4",
+          not is_nil(@selected_rider_id) && "hidden sm:block"
+        ]}
+      >
         <.sms_message_list
           rider_link_fn={
             fn rider_id -> ~p"/campaigns/#{@campaign_id}/messaging/riders/#{rider_id}" end
@@ -14,13 +20,22 @@
         />
       </div>
 
-      <div class="flex md:w-8/12 max-h-[calc(100vh-8rem)] rounded border border-gray-200">
+      <div
+        id="campaign-conversation"
+        class={[
+          "w-full sm:w-8/12 max-h-[calc(100vh-8rem)] rounded border border-gray-200",
+          if(is_nil(@selected_rider_id), do: "hidden sm:flex", else: "flex")
+        ]}
+      >
         <.live_component
           module={ConversationComponent}
           id={@selected_rider.id}
           live_action={@live_action}
           current_user={@current_user}
           rider={@selected_rider}
+          mobile_visible={not is_nil(@selected_rider_id)}
+          back_patch={~p"/campaigns/#{@campaign_id}/messaging/riders/"}
+          show_tasks_link={false}
         />
       </div>
     </div>

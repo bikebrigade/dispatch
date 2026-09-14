@@ -97,6 +97,52 @@ defmodule BikeBrigadeWeb.ItineraryLiveTest do
   describe "Delivery status display" do
     setup [:create_campaign, :login_as_rider]
 
+    test "shows a backup confirmation instead of a route for a backup rider without tasks", %{
+      conn: conn,
+      rider: rider,
+      campaign: campaign
+    } do
+      {:ok, campaign_rider} =
+        Delivery.create_backup_campaign_rider(%{
+          "campaign_id" => campaign.id,
+          "rider_id" => rider.id,
+          "rider_capacity" => "1",
+          "enter_building" => true,
+          "rider_signed_up" => true
+        })
+
+      {:ok, view, html} = live(conn, ~p"/app/delivery/#{campaign_rider.token}")
+
+      assert html =~ "Thank you for signing up as a backup rider."
+      assert has_element?(view, "#backup-rider-empty-state")
+      refute html =~ "Full Route Map"
+      refute has_element?(view, "iframe")
+    end
+
+    test "shows the route for a backup rider with a specific delivery", %{
+      conn: conn,
+      rider: rider,
+      campaign: campaign,
+      program: program
+    } do
+      {:ok, campaign_rider} =
+        Delivery.create_backup_campaign_rider(%{
+          "campaign_id" => campaign.id,
+          "rider_id" => rider.id,
+          "rider_capacity" => "1",
+          "enter_building" => true,
+          "rider_signed_up" => true
+        })
+
+      {_task, _dropoff_name, _item} = create_task_for_test(campaign, rider, program)
+
+      {:ok, view, html} = live(conn, ~p"/app/delivery/#{campaign_rider.token}")
+
+      assert html =~ "Full Route Map"
+      assert has_element?(view, "iframe")
+      refute has_element?(view, "#backup-rider-empty-state")
+    end
+
     test "displays Mark Complete button for unfinished tasks", %{
       conn: conn,
       rider: rider,
