@@ -12,7 +12,49 @@
 
     <.input type="textarea" field={f[:description]} label="Description" />
 
-    <.input type="text" field={f[:photo]} label="Photo URL" />
+    <div>
+      <label class="block text-sm font-semibold leading-6 text-zinc-800">Photo</label>
+      <figure :if={Phoenix.HTML.Form.input_value(f, :photo) not in [nil, ""]}>
+        <img class="w-32 mt-2 rounded" src={Phoenix.HTML.Form.input_value(f, :photo)} />
+        <input type="hidden" name={Phoenix.HTML.Form.input_name(f, :photo)} value={Phoenix.HTML.Form.input_value(f, :photo)} />
+      </figure>
+      <div
+        class="flex justify-center px-6 py-10 mt-2 border border-dashed rounded-lg border-gray-900/25"
+        phx-drop-target={@uploads.photo.ref}
+      >
+        <div class="text-center">
+          <Heroicons.photo solid class="w-12 h-12 mx-auto text-gray-300" />
+          <div class="flex mt-4 text-sm leading-6 text-gray-600">
+            <label
+              for={@uploads.photo.ref}
+              class="relative font-semibold text-indigo-600 bg-white rounded-md cursor-pointer focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
+            >
+              <span>Upload a file</span>
+              <.live_file_input upload={@uploads.photo} class="sr-only" />
+            </label>
+            <p class="pl-1">or drag and drop</p>
+          </div>
+          <p class="text-xs leading-5 text-gray-600">PNG, JPG, GIF up to 10MB</p>
+        </div>
+      </div>
+      <div class="mt-2">
+        <figure :for={entry <- @uploads.photo.entries} class="flex items-center gap-3 mt-2">
+          <.live_img_preview entry={entry} class="w-16 rounded" />
+          <div class="text-sm text-gray-600">{entry.client_name}</div>
+          <button
+            type="button"
+            phx-click={JS.push("cancel_upload", value: %{ref: entry.ref}, target: @myself)}
+            aria-label="cancel"
+            class="text-gray-400 hover:text-gray-600"
+          >
+            &times;
+          </button>
+          <p :for={err <- upload_errors(@uploads.photo, entry)} class="text-sm text-red-600">
+            {error_to_string(err)}
+          </p>
+        </figure>
+      </div>
+    </div>
 
     <.input
       type="checkbox"
