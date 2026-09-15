@@ -69,6 +69,15 @@ defmodule BikeBrigadeWeb.Layouts do
           </:icon>
           Riders
         </.sidebar_link>
+        <.sidebar_link
+          selected={@current_page == :community_fridges}
+          navigate={~p"/community_fridges"}
+        >
+          <:icon>
+            <Heroicons.archive_box />
+          </:icon>
+          Community Fridges
+        </.sidebar_link>
         <.sidebar_link selected={@current_page == :stats} navigate={~p"/stats"}>
           <:icon>
             <Heroicons.chart_bar />
