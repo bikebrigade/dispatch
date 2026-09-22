@@ -51,9 +51,10 @@
       <li id={"tasks-list:#{task.id}"}>
         <.link
           phx-click={JS.push("select_task", value: %{id: task.id})}
-          class={
-            "block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50 #{if selected?(@selected_task, task), do: "bg-gray-100", else: ""}"
-          }
+          class={[
+            "block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50",
+            selected?(@selected_task, task) && "bg-gray-100"
+          ]}
         >
           <div class="px-4 py-4 border-b">
             <div class="flex flex-wrap items-center gap-1 text-sm font-medium">
