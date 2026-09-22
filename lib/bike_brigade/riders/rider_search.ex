@@ -13,6 +13,7 @@ defmodule BikeBrigade.Riders.RiderSearch do
     offset: 0,
     limit: 0,
     filters: [],
+    exclude_deleted: true,
     page_changed: true,
     query_changed: true
   ]
@@ -23,7 +24,8 @@ defmodule BikeBrigade.Riders.RiderSearch do
           filters: list(),
           sort_field: atom(),
           sort_order: atom(),
-          preload: list()
+          preload: list(),
+          exclude_deleted: boolean()
         }
 
   @sort_orders [:desc, :asc]
@@ -34,7 +36,8 @@ defmodule BikeBrigade.Riders.RiderSearch do
     offset: 0,
     limit: 20,
     filters: [],
-    preload: []
+    preload: [],
+    exclude_deleted: true
   ]
 
   @weekdays %{
@@ -96,9 +99,15 @@ defmodule BikeBrigade.Riders.RiderSearch do
       sort_order: opts[:sort_order],
       sort_field: opts[:sort_field],
       preload: opts[:preload],
+      exclude_deleted: opts[:exclude_deleted],
       page_changed: true,
       query_changed: true
     }
+  end
+
+  @spec exclude_deleted(t(), boolean()) :: t()
+  def exclude_deleted(rs, value \\ true) do
+    %{rs | exclude_deleted: value, page_changed: true, query_changed: true}
   end
 
   @spec fetch(RiderSearch.t()) :: {RiderSearch.t(), Results.t()}
@@ -196,10 +205,16 @@ defmodule BikeBrigade.Riders.RiderSearch do
   @spec build_query(t()) :: Ecto.Query.t()
   defp build_query(rs) do
     base_query()
+    |> exclude_deleted_query(rs.exclude_deleted)
     |> sort_query(rs.sort_field, rs.sort_order)
     |> filter_query(rs.filters)
     |> paginate_query(rs.offset, rs.limit)
   end
+
+  defp exclude_deleted_query(query, true),
+    do: where(query, [rider: r], is_nil(r.deleted_at))
+
+  defp exclude_deleted_query(query, false), do: query
 
   @spec base_query() :: Ecto.Query.t()
   defp base_query do
