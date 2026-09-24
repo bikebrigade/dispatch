@@ -857,6 +857,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
   end
 
   slot :cancel
+  slot :extra_actions
 
   def slideover(assigns) do
     ~H"""
@@ -927,10 +928,13 @@ defmodule BikeBrigadeWeb.CoreComponents do
                 </div>
                 <!-- Action buttons -->
                 <div
-                  :if={@confirm != [] or @cancel != []}
+                  :if={@confirm != [] or @cancel != [] or @extra_actions != []}
                   class="flex-shrink-0 px-4 py-5 border-t border-gray-200 sm:px-6"
                 >
                   <div class="flex justify-end space-x-3">
+                    <div class="mr-auto">
+                      {render_slot(@extra_actions)}
+                    </div>
                     <.button
                       :for={cancel <- @cancel}
                       phx-click={hide_slideover(@on_cancel, @id)}

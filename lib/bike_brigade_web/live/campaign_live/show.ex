@@ -419,7 +419,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
         Map.get(socket.assigns.riders, rider_id) ||
           Map.get(socket.assigns.backup_riders, rider_id)
 
-      if rider do
+      if rider && rider.location do
         {:noreply,
          socket
          |> push_event("leaflet:add_layers", %{layers: [rider_marker(rider)]})}
@@ -481,7 +481,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
     }
 
     rider_markers =
-      for {_id, rider} <- assigns.riders do
+      for {_id, rider} <- assigns.riders, rider.location != nil do
         rider_marker(rider)
       end
 
