@@ -24,9 +24,9 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
   end
 
   @impl Phoenix.LiveView
-  def handle_event("delete", %{"id" => id}, socket) do
+  def handle_event("delete", %{"id" => rider_id}, socket) do
     current_user = socket.assigns.current_user
-    rider_id = String.to_integer(id)
+
 
     if current_user.is_dispatcher || current_user.rider_id == rider_id do
       rider = Riders.get_rider!(rider_id)
