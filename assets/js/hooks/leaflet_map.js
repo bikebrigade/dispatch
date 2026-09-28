@@ -127,6 +127,8 @@ const LeafletMap = {
       type,
       data
     }) => {
+      if (!this.layers[id]) return;
+
       if (type == "marker") {
         let {
           icon,
