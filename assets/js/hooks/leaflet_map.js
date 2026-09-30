@@ -54,6 +54,11 @@ const LeafletMap = {
             clickTarget,
             tooltip
           } = data;
+
+          if (lat == null || lng == null) {
+            return;
+          }
+
           const marker = L.marker([lat, lng], {
             icon: L.MakiMarkers.icon({
               color: color,
@@ -122,6 +127,8 @@ const LeafletMap = {
       type,
       data
     }) => {
+      if (!this.layers[id]) return;
+
       if (type == "marker") {
         let {
           icon,
