@@ -24,6 +24,24 @@ defmodule BikeBrigadeWeb.RiderLive.Show do
   end
 
   @impl Phoenix.LiveView
+  def handle_event("delete", %{"id" => rider_id}, socket) do
+    current_user = socket.assigns.current_user
+    rider = Riders.get_rider!(rider_id)
+
+    if current_user.is_dispatcher || current_user.rider_id == rider.id do
+      {:ok, _} = Riders.remove_rider(rider)
+
+      {:noreply,
+       socket
+       |> put_flash(:info, "Rider removed")
+       |> push_navigate(to: ~p"/riders")}
+    else
+      {:noreply,
+       socket
+       |> put_flash(:error, "Not authorized")}
+    end
+  end
+
   def handle_event("prev_schedule", %{"period" => period}, socket) do
     [{date, _}, _, _] = socket.assigns.schedule
 
