@@ -1,5 +1,5 @@
 defmodule BikeBrigade.Fixtures do
-  alias BikeBrigade.{Accounts, Delivery, Riders, Messaging, Notifications, Repo}
+  alias BikeBrigade.{Accounts, Delivery, Locations, Riders, Messaging, Notifications, Repo}
   alias BikeBrigade.Repo.Seeds.Toronto
 
   alias BikeBrigade.Repo.Seeds.Toronto
@@ -184,6 +184,28 @@ defmodule BikeBrigade.Fixtures do
 
   def fixture(:location, _attrs) do
     Toronto.random_location()
+  end
+
+  def fixture(:persisted_location, attrs) do
+    %Locations.Location{}
+    |> Locations.Location.changeset(Map.merge(Toronto.random_location(), attrs))
+    |> Repo.insert!()
+  end
+
+  def fixture(:community_fridge, attrs) do
+    attrs =
+      attrs
+      |> Map.put_new_lazy(:location_id, fn -> fixture(:persisted_location, %{}).id end)
+
+    {:ok, community_fridge} =
+      %{
+        name: Faker.Company.name(),
+        active: true
+      }
+      |> Map.merge(attrs)
+      |> Locations.create_community_fridge()
+
+    community_fridge
   end
 
   def fixture(:sms_message_from_rider, rider),
