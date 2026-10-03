@@ -113,3 +113,25 @@ Copyright 2021 The Bike Brigade Inc.
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
+
+## End to End testing with Playwright
+
+E2E tests run against the **test** database (not dev), so your development data is safe.
+
+To run e2e tests:
+
+1. Navigate to `/test/e2e` and run `npm install`
+2. From the root directory, start the test server: `MIX_ENV=test mix test.e2e`
+3. In a new terminal, navigate to `/test/e2e` and run `npm run test:ui`
+
+The test server runs on port 4002 using the Ecto sandbox for database isolation.
+
+### Troubleshooting E2E tests
+
+Sometimes e2e tests will fail due to network calls being made (e.g. Google Maps address fetching). Re-running individual tests often helps. If needed, adjust delays:
+
+```js
+await page
+  .locator('#location-form-location-input-open')
+  .pressSequentially("200 Yonge", { delay: 200 })
+```
