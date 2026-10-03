@@ -10,7 +10,8 @@ config :bike_brigade, BikeBrigade.Repo,
   database: "bike_brigade_dev",
   hostname: "localhost",
   show_sensitive_data_on_connection_error: true,
-  pool_size: 10
+  pool_size: 10,
+  pool: Ecto.Adapters.SQL.Sandbox
 
 # For development, we disable any cache and enable
 # debugging and code reloading.
@@ -66,6 +67,7 @@ config :bike_brigade, BikeBrigadeWeb.Endpoint,
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
+# config :logger, level: :warning
 
 # Disable the extremely annoying debug logging for the spreadsheet library
 config :logger,
