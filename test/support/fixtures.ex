@@ -193,15 +193,10 @@ defmodule BikeBrigade.Fixtures do
   end
 
   def fixture(:community_fridge, attrs) do
-    attrs =
-      attrs
-      |> Map.put_new_lazy(:location_id, fn -> fixture(:persisted_location, %{}).id end)
+    attrs = Map.put_new_lazy(attrs, :location, fn -> Toronto.random_location() end)
 
     {:ok, community_fridge} =
-      %{
-        name: Faker.Company.name(),
-        active: true
-      }
+      %{name: Faker.Company.name(), active: true}
       |> Map.merge(attrs)
       |> Locations.create_community_fridge()
 

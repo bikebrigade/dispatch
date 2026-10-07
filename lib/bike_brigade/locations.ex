@@ -21,7 +21,10 @@ defmodule BikeBrigade.Locations do
   Returns the list of community_fridges.
   """
   def list_community_fridges do
-    Repo.all(from cf in CommunityFridge, order_by: [desc: cf.active, asc: cf.name])
+    CommunityFridge
+    |> from(order_by: [desc: :active, asc: :name])
+    |> Repo.all()
+    |> Repo.preload(:location)
   end
 
   @doc """
@@ -29,13 +32,17 @@ defmodule BikeBrigade.Locations do
 
   Raises `Ecto.NoResultsError` if the Community fridge does not exist.
   """
-  def get_community_fridge!(id), do: Repo.get!(CommunityFridge, id)
+  def get_community_fridge!(id) do
+    CommunityFridge
+    |> Repo.get!(id)
+    |> Repo.preload(:location)
+  end
 
   @doc """
   Creates a community_fridge.
   """
   def create_community_fridge(attrs \\ %{}) do
-    %CommunityFridge{}
+    %CommunityFridge{location: nil}
     |> CommunityFridge.changeset(attrs)
     |> Repo.insert()
   end
@@ -45,6 +52,7 @@ defmodule BikeBrigade.Locations do
   """
   def update_community_fridge(%CommunityFridge{} = community_fridge, attrs) do
     community_fridge
+    |> Repo.preload(:location)
     |> CommunityFridge.changeset(attrs)
     |> Repo.update()
   end

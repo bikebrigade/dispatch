@@ -4,6 +4,8 @@
     Community fridges are neighbourhood food-sharing locations. Dispatchers can manage fridge details here.
   </:subtitle>
 </.header>
+<.map id="community-fridges-map" coords={@map_coords} initial_layers={@map_layers} class="w-full h-64 mb-4" />
+
 <div class="flex justify-end">
   <.button patch={~p"/community_fridges/new"}>
     New Community Fridge
@@ -12,6 +14,9 @@
 <.table id="community_fridges" rows={@community_fridges}>
   <:col :let={community_fridge} label="Name">
     {community_fridge.name}
+  </:col>
+  <:col :let={community_fridge} label="Address">
+    {community_fridge.location}
   </:col>
   <:col :let={community_fridge} label="Description">
     {community_fridge.description}
