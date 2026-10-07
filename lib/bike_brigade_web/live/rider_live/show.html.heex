@@ -304,6 +304,15 @@
     current_user={@current_user}
     navigate={if @live_action == :edit, do: ~p"/riders/#{@rider}", else: ~p"/profile"}
   />
+  <:extra_actions :if={@live_action == :edit}>
+    <.button
+      color={:lightred}
+      phx-click={JS.push("delete", value: %{id: @rider.id})}
+      data-confirm={"Are you sure you want to remove #{@rider.name}? This cannot be undone."}
+    >
+      Remove
+    </.button>
+  </:extra_actions>
   <:confirm form="rider-form" type="submit" phx-disable-with="Saving...">Save</:confirm>
   <:cancel>Cancel</:cancel>
 </.slideover>

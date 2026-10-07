@@ -21,9 +21,23 @@
 
     <div>
       <label class="block text-sm font-semibold leading-6 text-zinc-800">Photo</label>
-      <figure :if={Phoenix.HTML.Form.input_value(f, :photo) not in [nil, ""]}>
-        <img class="w-32 mt-2 rounded" src={Phoenix.HTML.Form.input_value(f, :photo)} />
-        <input type="hidden" name={Phoenix.HTML.Form.input_name(f, :photo)} value={Phoenix.HTML.Form.input_value(f, :photo)} />
+      <input
+        type="hidden"
+        name={Phoenix.HTML.Form.input_name(f, :photo)}
+        value={Phoenix.HTML.Form.input_value(f, :photo) || ""}
+      />
+      <figure :if={Phoenix.HTML.Form.input_value(f, :photo) not in [nil, ""]} class="mt-2">
+        <img class="w-32 rounded" src={Phoenix.HTML.Form.input_value(f, :photo)} />
+        <figcaption class="flex mt-1">
+          <.button
+            color={:lightred}
+            size={:xsmall}
+            phx-click={JS.push("delete_photo", target: @myself)}
+            type="button"
+          >
+            Delete
+          </.button>
+        </figcaption>
       </figure>
       <div
         class="flex justify-center px-6 py-10 mt-2 border border-dashed rounded-lg border-gray-900/25"
@@ -77,6 +91,9 @@
     />
 
     <:actions>
+      <.button navigate={~p"/community_fridges"} color={:white}>
+        Cancel
+      </.button>
       <.button type="submit" phx-disable-with="Saving...">Save</.button>
     </:actions>
   </.simple_form>
