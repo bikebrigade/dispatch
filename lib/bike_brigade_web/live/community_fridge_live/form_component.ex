@@ -1,7 +1,7 @@
 defmodule BikeBrigadeWeb.CommunityFridgeLive.FormComponent do
   use BikeBrigadeWeb, :live_component
 
-  alias BikeBrigade.{Locations, MediaStorage, Repo}
+  alias BikeBrigade.{Locations, MediaStorage}
   alias BikeBrigadeWeb.Components.LiveLocation
 
   @impl true
@@ -16,13 +16,11 @@ defmodule BikeBrigadeWeb.CommunityFridgeLive.FormComponent do
 
   @impl true
   def update(%{community_fridge: community_fridge} = assigns, socket) do
-    community_fridge = Repo.preload(community_fridge, :location)
     changeset = Locations.change_community_fridge(community_fridge)
 
     {:ok,
      socket
      |> assign(assigns)
-     |> assign(:community_fridge, community_fridge)
      |> assign(:changeset, changeset)}
   end
 

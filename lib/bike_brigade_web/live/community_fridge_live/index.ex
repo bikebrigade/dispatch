@@ -4,6 +4,7 @@ defmodule BikeBrigadeWeb.CommunityFridgeLive.Index do
   alias BikeBrigade.Locations
   alias BikeBrigade.Locations.CommunityFridge
 
+  # Toronto city hall as fallback centre
   @default_coords %Geo.Point{coordinates: {-79.3832, 43.6532}}
 
   @impl Phoenix.LiveView
@@ -60,9 +61,6 @@ defmodule BikeBrigadeWeb.CommunityFridgeLive.Index do
       }
     end
   end
-
-  # Toronto city hall as fallback centre
-  @default_coords %Geo.Point{coordinates: {-79.3832, 43.6532}}
 
   defp map_center(community_fridges) do
     community_fridges
