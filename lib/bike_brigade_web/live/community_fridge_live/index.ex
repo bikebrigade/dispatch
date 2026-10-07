@@ -15,12 +15,27 @@ defmodule BikeBrigadeWeb.CommunityFridgeLive.Index do
      |> assign(:community_fridge, nil)
      |> assign(:community_fridges, [])
      |> assign(:map_layers, [])
-     |> assign(:map_coords, @default_coords)}
+     |> assign(:map_coords, @default_coords)
+     |> assign(:mode, :list)}
   end
 
   @impl Phoenix.LiveView
   def handle_params(params, _url, socket) do
     {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+  end
+
+  @impl Phoenix.LiveView
+  def handle_event("set_mode", %{"mode" => mode}, socket) do
+    socket = assign(socket, :mode, String.to_existing_atom(mode))
+
+    socket =
+      if socket.assigns.mode == :map do
+        push_event(socket, "leaflet:redraw_map", %{recenter: false})
+      else
+        socket
+      end
+
+    {:noreply, socket}
   end
 
   defp apply_action(socket, :index, _params) do
@@ -63,9 +78,6 @@ defmodule BikeBrigadeWeb.CommunityFridgeLive.Index do
       }
     end
   end
-
-  # Toronto city hall as fallback centre
-  @default_coords %Geo.Point{coordinates: {-79.3832, 43.6532}}
 
   defp map_center(community_fridges) do
     community_fridges

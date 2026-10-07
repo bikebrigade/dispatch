@@ -58,7 +58,7 @@ defmodule BikeBrigadeWeb.CommunityFridgeLive.FormComponent do
         {:noreply,
          socket
          |> put_flash(:info, "Community fridge updated successfully")
-         |> push_navigate(to: socket.assigns.navigate)}
+         |> push_patch(to: socket.assigns.navigate)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, :changeset, changeset)}
@@ -71,7 +71,7 @@ defmodule BikeBrigadeWeb.CommunityFridgeLive.FormComponent do
         {:noreply,
          socket
          |> put_flash(:info, "Community fridge created successfully")
-         |> push_navigate(to: socket.assigns.navigate)}
+         |> push_patch(to: socket.assigns.navigate)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, changeset: changeset)}
