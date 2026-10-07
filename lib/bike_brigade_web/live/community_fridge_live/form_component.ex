@@ -1,23 +1,26 @@
 defmodule BikeBrigadeWeb.CommunityFridgeLive.FormComponent do
   use BikeBrigadeWeb, :live_component
 
-  alias BikeBrigade.{Locations, MediaStorage, Repo}
+  alias BikeBrigade.{Locations, MediaStorage}
   alias BikeBrigadeWeb.Components.LiveLocation
 
   @impl true
   def mount(socket) do
-    {:ok, allow_upload(socket, :photo, accept: ~w(.gif .png .jpg .jpeg), max_entries: 1)}
+    {:ok,
+     allow_upload(socket, :photo,
+       accept: ~w(.gif .png .jpg .jpeg),
+       max_entries: 1,
+       max_file_size: 10_000_000
+     )}
   end
 
   @impl true
   def update(%{community_fridge: community_fridge} = assigns, socket) do
-    community_fridge = Repo.preload(community_fridge, :location)
     changeset = Locations.change_community_fridge(community_fridge)
 
     {:ok,
      socket
      |> assign(assigns)
-     |> assign(:community_fridge, community_fridge)
      |> assign(:changeset, changeset)}
   end
 
@@ -38,10 +41,19 @@ defmodule BikeBrigadeWeb.CommunityFridgeLive.FormComponent do
              {:ok, MediaStorage.upload_file!(path, content_type)}
            end) do
         [%{url: url}] -> Map.put(params, "photo", url)
-        [] -> params
+        [] -> Map.update(params, "photo", nil, &if(&1 == "", do: nil, else: &1))
       end
 
     save_community_fridge(socket, socket.assigns.action, params)
+  end
+
+  def handle_event("delete_photo", _params, socket) do
+    changeset =
+      socket.assigns.community_fridge
+      |> Locations.change_community_fridge(%{photo: nil})
+      |> Map.put(:action, :validate)
+
+    {:noreply, assign(socket, :changeset, changeset)}
   end
 
   def handle_event("cancel_upload", %{"ref" => ref}, socket) do
