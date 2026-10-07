@@ -14,7 +14,11 @@
 
     <div>
       <label class="block text-sm font-semibold leading-6 text-zinc-800">Photo</label>
-      <input type="hidden" name={Phoenix.HTML.Form.input_name(f, :photo)} value={Phoenix.HTML.Form.input_value(f, :photo) || ""} />
+      <input
+        type="hidden"
+        name={Phoenix.HTML.Form.input_name(f, :photo)}
+        value={Phoenix.HTML.Form.input_value(f, :photo) || ""}
+      />
       <figure :if={Phoenix.HTML.Form.input_value(f, :photo) not in [nil, ""]} class="mt-2">
         <img class="w-32 rounded" src={Phoenix.HTML.Form.input_value(f, :photo)} />
         <figcaption class="flex mt-1">
