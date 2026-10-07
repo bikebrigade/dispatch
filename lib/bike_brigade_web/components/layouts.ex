@@ -32,6 +32,7 @@ defmodule BikeBrigadeWeb.Layouts do
       :campaigns,
       :opportunities,
       :riders,
+      :community_fridges,
       :stats,
       :users,
       :messages,
