@@ -136,7 +136,6 @@ defmodule BikeBrigadeWeb.CommunityFridgeLiveTest do
       view |> element("button[aria-label='cancel']") |> render_click()
       refute render(view) =~ "fridge.jpg"
     end
-
   end
 
   describe "Community Fridges access control" do
