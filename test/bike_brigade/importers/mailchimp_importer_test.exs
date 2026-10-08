@@ -7,6 +7,7 @@ defmodule BikeBrigade.Tasks.MailchimpImporterTest do
   alias BikeBrigade.SlackApi.FakeSlack
 
   alias BikeBrigade.Riders
+  alias BikeBrigade.Messaging
 
   @list_id "LIST_ID"
 
@@ -102,6 +103,19 @@ defmodule BikeBrigade.Tasks.MailchimpImporterTest do
 
       # We tag the rider
       assert [%{name: "invalid_location"}] = Repo.preload(r, :tags).tags
+    end
+
+    test "sends a welcome SMS when a new rider is created" do
+      FakeMailchimp.add_members(@list_id, [@valid_attrs])
+
+      assert {:ok, _} = MailchimpImporter.sync_riders()
+
+      rider = Riders.get_rider_by_email("dispatcher@example.com")
+      messages = Messaging.list_sms_messages()
+
+      welcome = Enum.find(messages, &(&1.to == rider.phone && !&1.incoming))
+      assert welcome != nil
+      assert welcome.body =~ "Hello! This is the Bike Brigade number"
     end
 
     test "updates riders" do

@@ -5,6 +5,7 @@ defmodule BikeBrigade.Tasks.MailchimpImporter do
   alias BikeBrigade.Locations.Location
   alias BikeBrigade.Tasks.Importer
   alias BikeBrigade.Riders
+  alias BikeBrigade.Messaging
   alias BikeBrigade.Messaging.Slack
   alias BikeBrigade.MailchimpApi
 
@@ -84,7 +85,10 @@ defmodule BikeBrigade.Tasks.MailchimpImporter do
         Riders.update_rider(rider, rider_attrs)
 
       nil ->
-        Riders.create_rider_with_user(rider_attrs)
+        with {:ok, rider} <- Riders.create_rider_with_user(rider_attrs) do
+          Messaging.send_welcome_sms(rider)
+          {:ok, rider}
+        end
     end
   end
 
