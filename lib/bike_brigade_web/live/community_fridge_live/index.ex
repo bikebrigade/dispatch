@@ -50,7 +50,7 @@ defmodule BikeBrigadeWeb.CommunityFridgeLive.Index do
   defp apply_action(socket, :new, _params) do
     socket
     |> assign(:page_title, "New Fridge")
-    |> assign(:community_fridge, %CommunityFridge{})
+    |> assign(:community_fridge, %CommunityFridge{location: nil})
   end
 
   defp apply_action(socket, :edit, %{"id" => id}) do
