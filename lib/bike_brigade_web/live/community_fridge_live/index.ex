@@ -40,11 +40,14 @@ defmodule BikeBrigadeWeb.CommunityFridgeLive.Index do
   end
 
   defp apply_action(socket, :index, _params) do
+    community_fridges = Locations.list_community_fridges()
+
     socket
     |> assign(:page_title, "Community Fridges")
     |> assign(:community_fridge, nil)
-    |> assign(:map_layers, fridge_markers(socket.assigns.community_fridges))
-    |> assign(:map_coords, map_center(socket.assigns.community_fridges))
+    |> assign(:community_fridges, community_fridges)
+    |> assign(:map_layers, fridge_markers(community_fridges))
+    |> assign(:map_coords, map_center(community_fridges))
   end
 
   defp apply_action(socket, :new, _params) do
