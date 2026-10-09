@@ -11,7 +11,11 @@ defmodule BikeBrigadeWeb.ProgramLive.FormComponent do
 
     socket =
       socket
-      |> allow_upload(:photos, accept: ~w(.gif .png .jpg .jpeg), max_entries: 10)
+      |> allow_upload(:photos,
+        accept: ~w(.gif .png .jpg .jpeg),
+        max_entries: 10,
+        max_file_size: 10_000_000
+      )
       |> assign(:slack_channels, slack_channels)
 
     {:ok, socket}
