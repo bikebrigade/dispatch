@@ -85,8 +85,8 @@ defmodule BikeBrigade.Tasks.MailchimpImporter do
         Riders.update_rider(rider, rider_attrs)
 
       nil ->
-        with {:ok, rider} <- Riders.create_rider_with_user(rider_attrs) do
-          Messaging.send_welcome_sms(rider)
+        with {:ok, rider} <- Riders.create_rider_with_user(rider_attrs),
+             {:ok, rider} <- Messaging.send_welcome_sms(rider) do
           {:ok, rider}
         end
     end
