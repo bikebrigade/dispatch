@@ -2,8 +2,6 @@ defmodule BikeBrigadeWeb.CommunityFridgeLiveTest do
   use BikeBrigadeWeb.ConnCase
   import Phoenix.LiveViewTest
 
-  alias BikeBrigade.Locations
-
   describe "Community Fridges index (dispatcher)" do
     setup [:login]
 
