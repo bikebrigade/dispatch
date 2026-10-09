@@ -16,7 +16,8 @@ defmodule BikeBrigadeWeb.CommunityFridgeLive.Index do
      |> assign(:community_fridge, nil)
      |> assign(:community_fridges, Locations.list_community_fridges())
      |> assign(:map_layers, [])
-     |> assign(:map_coords, @default_coords)}
+     |> assign(:map_coords, @default_coords)
+     |> assign(:mode, :list)}
   end
 
   @impl Phoenix.LiveView
@@ -24,18 +25,35 @@ defmodule BikeBrigadeWeb.CommunityFridgeLive.Index do
     {:noreply, apply_action(socket, socket.assigns.live_action, params)}
   end
 
+  @impl Phoenix.LiveView
+  def handle_event("set_mode", %{"mode" => mode}, socket) do
+    socket = assign(socket, :mode, String.to_existing_atom(mode))
+
+    socket =
+      if socket.assigns.mode == :map do
+        push_event(socket, "leaflet:redraw_map", %{recenter: false})
+      else
+        socket
+      end
+
+    {:noreply, socket}
+  end
+
   defp apply_action(socket, :index, _params) do
+    community_fridges = Locations.list_community_fridges()
+
     socket
     |> assign(:page_title, "Community Fridges")
     |> assign(:community_fridge, nil)
-    |> assign(:map_layers, fridge_markers(socket.assigns.community_fridges))
-    |> assign(:map_coords, map_center(socket.assigns.community_fridges))
+    |> assign(:community_fridges, community_fridges)
+    |> assign(:map_layers, fridge_markers(community_fridges))
+    |> assign(:map_coords, map_center(community_fridges))
   end
 
   defp apply_action(socket, :new, _params) do
     socket
     |> assign(:page_title, "New Fridge")
-    |> assign(:community_fridge, %CommunityFridge{})
+    |> assign(:community_fridge, %CommunityFridge{location: nil})
   end
 
   defp apply_action(socket, :edit, %{"id" => id}) do
