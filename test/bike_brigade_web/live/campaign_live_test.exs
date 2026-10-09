@@ -78,7 +78,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
       coords:
         %Geo.Point{
           coordinates: {-79.37761739999999, 43.6459904},
-          srid: nil,
+          srid: 4326,
           properties: %{}
         }
         |> Geo.JSON.encode!()

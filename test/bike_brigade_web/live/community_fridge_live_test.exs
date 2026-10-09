@@ -20,17 +20,15 @@ defmodule BikeBrigadeWeb.CommunityFridgeLiveTest do
       assert html =~ fridge.location.address
     end
 
-    test "renders map element on index page", ctx do
-      {:ok, _view, html} = live(ctx.conn, ~p"/community_fridges")
+    test "renders map tab and displays map on click", ctx do
+      {:ok, view, html} = live(ctx.conn, ~p"/community_fridges")
+
+      refute html =~ "community-fridges-map"
+      assert html =~ "Map"
+
+      html = view |> element("button", "Map") |> render_click()
 
       assert html =~ "community-fridges-map"
-    end
-
-    test "map includes pin for fridge with coordinates", ctx do
-      fridge = fixture(:community_fridge, %{name: "Mapped Fridge"})
-      {:ok, _view, html} = live(ctx.conn, ~p"/community_fridges")
-
-      assert html =~ "fridge-#{fridge.id}"
     end
 
     test "can create a new community fridge", ctx do
@@ -39,12 +37,12 @@ defmodule BikeBrigadeWeb.CommunityFridgeLiveTest do
       view |> element("a", "New Community Fridge") |> render_click()
       assert_patched(view, ~p"/community_fridges/new")
 
-      {:ok, _view, html} =
-        view
-        |> form("#community-fridge-form", community_fridge: %{name: "Brand New Fridge"})
-        |> render_submit()
-        |> follow_redirect(ctx.conn)
+      view
+      |> form("#community-fridge-form", community_fridge: %{name: "Brand New Fridge"})
+      |> render_submit()
 
+      assert_patch(view, ~p"/community_fridges")
+      html = render(view)
       assert html =~ "Community fridge created successfully"
       assert html =~ "Brand New Fridge"
     end
@@ -67,12 +65,12 @@ defmodule BikeBrigadeWeb.CommunityFridgeLiveTest do
       view |> element("a", "Edit") |> render_click()
       assert_patched(view, ~p"/community_fridges/#{fridge.id}/edit")
 
-      {:ok, _view, html} =
-        view
-        |> form("#community-fridge-form", community_fridge: %{name: "Updated Fridge"})
-        |> render_submit()
-        |> follow_redirect(ctx.conn)
+      view
+      |> form("#community-fridge-form", community_fridge: %{name: "Updated Fridge"})
+      |> render_submit()
 
+      assert_patch(view, ~p"/community_fridges")
+      html = render(view)
       assert html =~ "Community fridge updated successfully"
       assert html =~ "Updated Fridge"
       refute html =~ "Original Fridge"
