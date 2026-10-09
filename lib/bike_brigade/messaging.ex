@@ -12,7 +12,7 @@ defmodule BikeBrigade.Messaging do
   alias BikeBrigade.Riders.Rider
   alias BikeBrigade.SmsService
 
-  @initial_message "Hello! This is the Bike Brigade number. The team uses this number to send you information about deliveries you sign up for, and you can text us here if you have any questions. This number is monitored by the Bike Brigade team -- we'll often sign messages with the person sending them.\n\nWe recommend you add this number to your contacts as Bike Brigade (or update your contacts if you've added our old number).\n\nYou can text STOP to this number to opt-out of receiving text messages from us."
+  @initial_message "Hello! This is the Bike Brigade number. The team uses this number to send you information about deliveries you sign up for, and you can text us here if you have any questions about specific deliveries. This number is monitored by the Bike Brigade team - we’ll often sign messages with the person sending them.\n\nWe recommend you add this number to your contacts as Bike Brigade.\n\nYou can text STOP to this number to opt-out of receiving text messages from us."
 
   @doc """
   Returns the list of sms_messages.
@@ -211,6 +211,23 @@ defmodule BikeBrigade.Messaging do
       sent_by_user_id: sent_by_user_id,
       incoming: false
     }
+  end
+
+  @doc "Send the welcome SMS to a rider and record it in the database"
+  def send_welcome_sms(%Rider{} = rider, opts \\ []) do
+    rider = Repo.get!(Rider, rider.id) |> Repo.preload(:location)
+    message = new_sms_message(rider, Keyword.put_new(opts, :body, @initial_message))
+
+    with {:ok, %{status: status, sid: sid}} <-
+           SmsService.send_sms(message, send_callback: true),
+         {:ok, _} <-
+           create_sms_message(message, %{
+             sent_at: DateTime.utc_now(),
+             twilio_status: status,
+             twilio_sid: sid
+           }) do
+      Riders.update_rider(rider, %{flags: %{initial_message_sent: true}})
+    end
   end
 
   @doc """
