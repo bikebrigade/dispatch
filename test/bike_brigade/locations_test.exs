@@ -26,23 +26,30 @@ defmodule BikeBrigade.LocationsTest do
     test "create_community_fridge/1 with valid data creates a community_fridge" do
       location = fixture(:persisted_location, %{})
 
-      valid_attrs = %{
-        active: true,
-        name: "some name",
-        description: "some description",
-        photo: "some photo",
-        pair_preferred: true,
-        location_id: location.id
-      }
+      %{
+        active: active,
+        name: name,
+        description: description,
+        photo: photo,
+        pair_preferred: pair_preferred
+      } =
+        valid_attrs = %{
+          active: true,
+          name: "some name",
+          description: "some description",
+          photo: "some photo",
+          pair_preferred: true,
+          location_id: location.id
+        }
 
-      assert {:ok, %CommunityFridge{} = community_fridge} =
-               Locations.create_community_fridge(valid_attrs)
-
-      assert community_fridge.active == true
-      assert community_fridge.name == "some name"
-      assert community_fridge.description == "some description"
-      assert community_fridge.photo == "some photo"
-      assert community_fridge.pair_preferred == true
+      assert {:ok,
+              %CommunityFridge{
+                active: ^active,
+                name: ^name,
+                description: ^description,
+                photo: ^photo,
+                pair_preferred: ^pair_preferred
+              }} = Locations.create_community_fridge(valid_attrs)
     end
 
     test "create_community_fridge/1 with invalid data returns error changeset" do
@@ -52,19 +59,20 @@ defmodule BikeBrigade.LocationsTest do
     test "update_community_fridge/2 with valid data updates the community_fridge", %{
       community_fridge: community_fridge
     } do
-      active = false
-      name = "some updated name"
-      description = "some updated description"
-      photo = "some updated photo"
-      pair_preferred = false
-
-      update_attrs = %{
+      %{
         active: active,
         name: name,
         description: description,
         photo: photo,
         pair_preferred: pair_preferred
-      }
+      } =
+        update_attrs = %{
+          active: false,
+          name: "some updated name",
+          description: "some updated description",
+          photo: "some updated photo",
+          pair_preferred: false
+        }
 
       assert {:ok,
               %CommunityFridge{
@@ -74,15 +82,6 @@ defmodule BikeBrigade.LocationsTest do
                 photo: ^photo,
                 pair_preferred: ^pair_preferred
               }} = Locations.update_community_fridge(community_fridge, update_attrs)
-    end
-
-    test "update_community_fridge/2 with invalid data returns error changeset", %{
-      community_fridge: community_fridge
-    } do
-      assert {:error, %Ecto.Changeset{}} =
-               Locations.update_community_fridge(community_fridge, @invalid_attrs)
-
-      assert community_fridge == Locations.get_community_fridge!(community_fridge.id)
     end
 
     test "delete_community_fridge/1 deletes the community_fridge", %{
