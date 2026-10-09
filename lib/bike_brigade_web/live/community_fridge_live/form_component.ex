@@ -2,6 +2,7 @@ defmodule BikeBrigadeWeb.CommunityFridgeLive.FormComponent do
   use BikeBrigadeWeb, :live_component
 
   alias BikeBrigade.{Locations, MediaStorage}
+  alias BikeBrigadeWeb.Components.LiveLocation
 
   @impl true
   def mount(socket) do

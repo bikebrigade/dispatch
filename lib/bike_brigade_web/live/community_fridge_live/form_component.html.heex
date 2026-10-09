@@ -12,6 +12,13 @@
 
     <.input type="textarea" field={f[:description]} label="Description" />
 
+    <.live_component
+      module={LiveLocation}
+      id="location-form"
+      field={f[:location]}
+      label="Location"
+    />
+
     <div>
       <label class="block text-sm font-semibold leading-6 text-zinc-800">Photo</label>
       <input

@@ -13,6 +13,26 @@ defmodule BikeBrigadeWeb.CommunityFridgeLiveTest do
       assert html =~ fridge.name
     end
 
+    test "shows address column for fridge with a location", ctx do
+      fridge = fixture(:community_fridge, %{name: "Located Fridge"})
+      {:ok, _view, html} = live(ctx.conn, ~p"/community_fridges")
+
+      assert html =~ fridge.location.address
+    end
+
+    test "renders map element on index page", ctx do
+      {:ok, _view, html} = live(ctx.conn, ~p"/community_fridges")
+
+      assert html =~ "community-fridges-map"
+    end
+
+    test "map includes pin for fridge with coordinates", ctx do
+      fridge = fixture(:community_fridge, %{name: "Mapped Fridge"})
+      {:ok, _view, html} = live(ctx.conn, ~p"/community_fridges")
+
+      assert html =~ "fridge-#{fridge.id}"
+    end
+
     test "can create a new community fridge", ctx do
       {:ok, view, _html} = live(ctx.conn, ~p"/community_fridges")
 
