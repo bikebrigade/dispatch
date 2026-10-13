@@ -23,8 +23,8 @@ defmodule BikeBrigade.Locations do
   def list_community_fridges do
     CommunityFridge
     |> from(order_by: [desc: :active, asc: :name])
+    |> preload(:location)
     |> Repo.all()
-    |> Repo.preload(:location)
   end
 
   @doc """
@@ -34,8 +34,9 @@ defmodule BikeBrigade.Locations do
   """
   def get_community_fridge!(id) do
     CommunityFridge
-    |> Repo.get!(id)
-    |> Repo.preload(:location)
+    |> where([cf], cf.id == ^id)
+    |> preload(:location)
+    |> Repo.one!()
   end
 
   @doc """
