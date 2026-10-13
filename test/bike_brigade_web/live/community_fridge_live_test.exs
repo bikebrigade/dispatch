@@ -32,6 +32,8 @@ defmodule BikeBrigadeWeb.CommunityFridgeLiveTest do
     end
 
     test "can create a new community fridge", ctx do
+      location = fixture(:persisted_location, %{})
+
       {:ok, view, _html} = live(ctx.conn, ~p"/community_fridges")
 
       view |> element("a", "New Community Fridge") |> render_click()
@@ -39,7 +41,15 @@ defmodule BikeBrigadeWeb.CommunityFridgeLiveTest do
 
       view
       |> form("#community-fridge-form", community_fridge: %{name: "Brand New Fridge"})
-      |> render_submit()
+      |> render_submit(%{
+        community_fridge: %{
+          location: %{
+            id: location.id,
+            address: location.address,
+            coords: location.coords |> Geo.JSON.encode!() |> Jason.encode!()
+          }
+        }
+      })
 
       assert_patch(view, ~p"/community_fridges")
       html = render(view)
