@@ -29,6 +29,5 @@ defmodule BikeBrigade.Locations.CommunityFridge do
     |> cast(params, @fields)
     |> cast_assoc(:location)
     |> validate_required([:name])
-    |> unique_constraint(:location_id)
   end
 end
