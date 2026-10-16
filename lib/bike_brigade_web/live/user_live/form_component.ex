@@ -13,6 +13,7 @@ defmodule BikeBrigadeWeb.UserLive.FormComponent do
      socket
      |> assign(assigns)
      |> assign(:user, user)
+     |> assign(:unified_messaging, BikeBrigade.Messaging.Inbox.enabled?(user))
      |> assign(:changeset, changeset)}
   end
 
@@ -23,10 +24,27 @@ defmodule BikeBrigadeWeb.UserLive.FormComponent do
       |> Accounts.change_user(user_params)
       |> Map.put(:action, :validate)
 
-    {:noreply, assign(socket, :changeset, changeset)}
+    {:noreply,
+     socket
+     |> assign(:changeset, changeset)
+     |> assign(:unified_messaging, user_params["unified_messaging"] == "true")}
   end
 
   def handle_event("save", %{"user" => user_params}, socket) do
+    user_params =
+      if Map.has_key?(user_params, "unified_messaging") do
+        flags =
+          Map.put(
+            socket.assigns.user.flags || %{},
+            "unified_messaging",
+            user_params["unified_messaging"] == "true"
+          )
+
+        Map.put(user_params, "flags", flags)
+      else
+        user_params
+      end
+
     save_user(socket, socket.assigns.action, user_params)
   end
 

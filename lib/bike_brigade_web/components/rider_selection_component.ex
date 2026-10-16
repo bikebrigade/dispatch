@@ -18,7 +18,8 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
      |> assign(:rider_search, RiderSearch.new(limit: 10))
      |> assign(:search_results, %RiderSearch.Results{})
      |> assign(:riders, [])
-     |> assign(:multi, false)}
+     |> assign(:multi, false)
+     |> assign(:notify_change, false)}
   end
 
   @impl Phoenix.LiveComponent
@@ -53,14 +54,16 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
   def handle_event("unselect", %{"id" => id}, socket) do
     {:noreply,
      socket
-     |> update(:selected_riders, &Map.delete(&1, id))}
+     |> update(:selected_riders, &Map.delete(&1, id))
+     |> notify_selection()}
   end
 
   def handle_event("select", %{"id" => id}, socket) do
     {:noreply,
      socket
      |> update(:selected_riders, &Map.put_new_lazy(&1, id, fn -> Riders.get_rider!(id) end))
-     |> assign(:search, "")}
+     |> assign(:search, "")
+     |> notify_selection()}
   end
 
   def handle_event("load_more", _values, %{assigns: assigns} = socket) do
@@ -72,6 +75,17 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
      socket
      |> assign(:riders, riders ++ search_results.page)
      |> assign(:rider_search, rider_search)}
+  end
+
+  defp notify_selection(socket) do
+    if socket.assigns.notify_change do
+      send(
+        self(),
+        {:rider_selection_changed, socket.assigns.id, Map.values(socket.assigns.selected_riders)}
+      )
+    end
+
+    socket
   end
 
   defp fetch_results(socket) do
@@ -168,6 +182,7 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
       <.link
         :if={@on_unselect}
         phx-click={@on_unselect}
+        aria-label={"Remove #{ @rider.name }"}
         class="block text-sm text-gray-400 bg-white rounded-md font-base hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
       >
         <Heroicons.x_mark solid class="w-5 h-5" />

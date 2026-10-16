@@ -12,7 +12,25 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
   defdelegate pickup_window(campaign, rider), to: CampaignHelpers
 
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(params, session, socket) do
+    if BikeBrigade.Messaging.Inbox.enabled?(socket.assigns.current_user) &&
+         socket.assigns.live_action != :tasks do
+      query =
+        Map.merge(params, %{
+          "tab" => if(socket.assigns.live_action == :new, do: "groups", else: "all"),
+          "rider" => params["id"],
+          "compose" => if(socket.assigns.live_action == :new, do: "new")
+        })
+        |> Enum.reject(fn {_, v} -> is_nil(v) end)
+        |> Map.new()
+
+      {:ok, push_navigate(socket, to: ~p"/messages/inbox?#{query}")}
+    else
+      mount_legacy(params, session, socket)
+    end
+  end
+
+  defp mount_legacy(_params, _session, socket) do
     conversations = Messaging.list_sms_conversations(limit: 10)
     # Show the most recent conversation if we have any
     rider =
@@ -65,9 +83,14 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
 
   @impl true
   def handle_params(params, _url, socket) do
-    {:noreply,
-     socket
-     |> apply_action(socket.assigns.live_action, params)}
+    if BikeBrigade.Messaging.Inbox.enabled?(socket.assigns.current_user) &&
+         socket.assigns.live_action != :tasks do
+      {:noreply, socket}
+    else
+      {:noreply,
+       socket
+       |> apply_action(socket.assigns.live_action, params)}
+    end
   end
 
   @impl true
@@ -129,7 +152,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
 
   @impl true
   def handle_info({:message_created, message}, socket) do
-    if message.rider_id == socket.assigns.selected_rider.id do
+    if socket.assigns.selected_rider && message.rider_id == socket.assigns.selected_rider.id do
       send_update(ConversationComponent, id: message.rider_id, conversation: [message])
     end
 
@@ -147,7 +170,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
 
   @impl true
   def handle_info({:message_updated, message}, socket) do
-    if message.rider_id == socket.assigns.selected_rider.id do
+    if socket.assigns.selected_rider && message.rider_id == socket.assigns.selected_rider.id do
       send_update(ConversationComponent, id: message.rider_id, conversation: [message])
     end
 
@@ -235,7 +258,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
 
   attr :others_present, :list, required: true
 
-  defp currently_viewing(assigns) do
+  def currently_viewing(assigns) do
     ~H"""
     <div
       :if={!Enum.empty?(@others_present)}

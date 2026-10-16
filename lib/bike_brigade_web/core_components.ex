@@ -542,6 +542,8 @@ defmodule BikeBrigadeWeb.CoreComponents do
   attr :help_text, :string, default: nil
   attr :multi, :boolean, default: false
   attr :selected_rider, :any, default: nil
+
+  attr :notify_change, :boolean, default: false
   attr :rest, :global, include: ~w(selected_riders)
 
   def rider_select(%{field: %Phoenix.HTML.FormField{} = field} = assigns) do
@@ -565,6 +567,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
         id={@id}
         input_name={@name}
         selected_rider={@selected_rider}
+        notify_change={@notify_change}
         multi={@multi}
         {@rest}
       />
