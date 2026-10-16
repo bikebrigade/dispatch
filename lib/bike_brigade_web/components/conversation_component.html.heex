@@ -1,11 +1,21 @@
 <div
   id={"conversation-component:#{@rider.id}"}
   class={[
-    "w-full sm:flex-1 px-1 flex-col bg-white shadow sm:rounded-lg sm:flex",
+    "w-full min-h-0 sm:flex-1 px-1 flex-col bg-white shadow sm:rounded-lg sm:flex",
     unless(@mobile_visible, do: "hidden", else: "flex")
   ]}
 >
-  <div class="flex-grow-0 px-4 py-5 bg-white border-b border-gray-200 sm:px-6 sm:rounded-t-lg">
+  <BikeBrigadeWeb.Components.MessagingInbox.rider_header
+    :if={@unified_header}
+    rider={@rider}
+    close={@back_patch}
+    profile={true}
+    tasks_link={~p"/messages/#{@rider}/tasks"}
+  />
+  <div
+    :if={!@unified_header}
+    class="flex-grow-0 px-4 py-5 bg-white border-b border-gray-200 sm:px-6 sm:rounded-t-lg"
+  >
     <div class="flex items-start gap-3">
       <div class="flex-none pt-1 sm:hidden">
         <.link patch={@back_patch} aria-label="Back to conversations">

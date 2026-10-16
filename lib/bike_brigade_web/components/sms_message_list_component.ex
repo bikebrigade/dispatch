@@ -29,6 +29,7 @@ defmodule BikeBrigadeWeb.Components.SMSMessageListComponent do
 
   attr :conversations, :any, required: true
   attr :rider_link_fn, :any, required: true
+  attr :initials_badges, :boolean, default: false
 
   def sms_message_list(assigns) do
     ~H"""
@@ -49,9 +50,20 @@ defmodule BikeBrigadeWeb.Components.SMSMessageListComponent do
         >
           <div class="flex items-center px-2 py-2">
             <div class="flex items-center flex-1 min-w-0">
-              <div class="flex-shrink-0 hidden mr-4 lg:block">
+              <div :if={!@initials_badges} class="flex-shrink-0 hidden mr-4 lg:block">
                 <img class="w-10 h-10 rounded-full" src={gravatar(rider.email)} alt="" />
               </div>
+              <span
+                :if={@initials_badges}
+                class="mr-3 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-medium text-gray-600"
+                aria-hidden="true"
+              >
+                {rider.name
+                |> String.split()
+                |> Enum.map(&String.first/1)
+                |> Enum.take(2)
+                |> Enum.join()}
+              </span>
 
               <%= if last_message do %>
                 <div class="flex-1 min-w-0">

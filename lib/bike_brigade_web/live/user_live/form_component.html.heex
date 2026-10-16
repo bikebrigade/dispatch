@@ -33,6 +33,15 @@
 
     <div class="relative">
       <.input
+        type="checkbox"
+        id="user-unified-messaging"
+        name="user[unified_messaging]"
+        checked={@unified_messaging}
+        errors={[]}
+        label="Unified messaging inbox"
+        help_text="Opt this user into campaign inboxes and saved bulk messages."
+      />
+      <.input
         type="text"
         field={f[:signature_on_messages]}
         label="Signature on Messages"

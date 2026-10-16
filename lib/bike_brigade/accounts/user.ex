@@ -12,6 +12,7 @@ defmodule BikeBrigade.Accounts.User do
     field :phone, EctoPhoneNumber.Canadian
     field :is_dispatcher, :boolean, default: false
     field :signature_on_messages, :string
+    field :flags, :map, default: %{}
     belongs_to :rider, Rider
 
     timestamps()
@@ -31,5 +32,6 @@ defmodule BikeBrigade.Accounts.User do
     user
     |> changeset(attrs)
     |> cast(attrs, [:is_dispatcher, :rider_id])
+    |> cast(attrs, [:flags])
   end
 end

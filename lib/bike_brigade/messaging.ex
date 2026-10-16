@@ -282,6 +282,9 @@ defmodule BikeBrigade.Messaging do
 
       {:error, name, reason, %{create_message: sms_message}} ->
         message_error(sms_message, "Failed in step #{name} for #{inspect(reason)}")
+
+      {:error, name, reason, _changes} ->
+        message_error(sms_message, "Failed in step #{name} for #{inspect(reason)}")
     end
   end
 

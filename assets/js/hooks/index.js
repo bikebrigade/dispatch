@@ -13,7 +13,10 @@ import TagsComponent from './tags_component';
 import LeafletMap from './leaflet_map';
 
 
+import MessagingInbox from "./messaging_inbox";
+
 export default {
+  MessagingInbox,
   TasksList,
   RidersList,
   ConversationList,

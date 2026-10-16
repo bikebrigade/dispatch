@@ -93,6 +93,10 @@ Pushes to the `main` branch (including merged PRs) automatically trigger a produ
 - [Twilio](https://www.twilio.com/)
 
 
+# Unified messaging
+
+Opt-in and rollback instructions are in [docs/unified-messaging.md](docs/unified-messaging.md).
+
 # Contributors
 This project's history has been squashed as part of open-sourcing, so not all contributions are reflected in the Git history.
 
