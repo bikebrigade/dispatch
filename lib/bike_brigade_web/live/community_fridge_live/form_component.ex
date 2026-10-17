@@ -48,12 +48,16 @@ defmodule BikeBrigadeWeb.CommunityFridgeLive.FormComponent do
   end
 
   def handle_event("delete_photo", _params, socket) do
-    changeset =
-      socket.assigns.community_fridge
-      |> Locations.change_community_fridge(%{photo: nil})
-      |> Map.put(:action, :validate)
+    params = socket.assigns.changeset.params || %{}
 
-    {:noreply, assign(socket, :changeset, changeset)}
+    {:noreply,
+     socket
+     |> assign(
+       :changeset,
+       socket.assigns.community_fridge
+       |> Locations.change_community_fridge(Map.put(params, "photo", nil))
+       |> Map.put(:action, :validate)
+     )}
   end
 
   def handle_event("cancel_upload", %{"ref" => ref}, socket) do
