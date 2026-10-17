@@ -30,7 +30,7 @@ defmodule BikeBrigade.Repo.Seeds.Toronto do
       city: city,
       country: "Canada",
       province: "Ontario",
-      coords: %Geo.Point{coordinates: {lon, lat}}
+      coords: %Geo.Point{coordinates: {lon, lat}, srid: 4326}
     }
   end
 end
