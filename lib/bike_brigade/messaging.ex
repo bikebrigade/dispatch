@@ -329,6 +329,9 @@ defmodule BikeBrigade.Messaging do
 
   defp maybe_send_initial_message(%Ecto.Multi{} = multi, nil), do: multi
 
+  # Sends the welcome SMS for riders who opted in to the new number via the dispatcher flow.
+  # Riders signing up through the portal receive the welcome SMS via Riders.create_or_update/1
+  # and will not reach this clause (initial_message_sent is already true by then).
   defp maybe_send_initial_message(%Ecto.Multi{} = multi, %Rider{} = rider) do
     case rider.flags do
       %Rider.Flags{opt_in_to_new_number: true, initial_message_sent: false} ->
