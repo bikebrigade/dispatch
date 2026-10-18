@@ -12,7 +12,7 @@ defmodule BikeBrigade.Messaging do
   alias BikeBrigade.Riders.Rider
   alias BikeBrigade.SmsService
 
-  @initial_message "Hello! This is the Bike Brigade number. The team uses this number to send you information about deliveries you sign up for, and you can text us here if you have any questions about specific deliveries. This number is monitored by the Bike Brigade team - we’ll often sign messages with the person sending them.\n\nWe recommend you add this number to your contacts as Bike Brigade.\n\nYou can text STOP to this number to opt-out of receiving text messages from us."
+  @initial_message "Hello! This is the Bike Brigade number. The team uses this number to send you information about deliveries you sign up for, and you can text us here if you have any questions about specific deliveries. This number is monitored by the Bike Brigade team - we’ll often sign messages with the person sending them.\n\nWe recommend you add this number to your contacts as Bike Brigade.\n\nYou can text STOP to this number to opt-out of receiving text messages from us.\n\nFor more info about signing up for your first delivery, see our new rider onboarding guide https://dispatch.bikebrigade.ca/new-rider-guide. For general questions, email info@bikebrigade.ca."
 
   @doc """
   Returns the list of sms_messages.
