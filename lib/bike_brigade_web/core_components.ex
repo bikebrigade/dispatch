@@ -197,19 +197,22 @@ defmodule BikeBrigadeWeb.CoreComponents do
   ## Examples
 
       <.flash kind={:info} flash={@flash} />
-      <.flash kind={:info} phx-mounted={show("#flash")}>Welcome Back!</.flash>
+      <.flash id="welcome" kind={:info}>Welcome Back!</.flash>
   """
-  attr :id, :string, default: "flash", doc: "the optional id of flash container"
+  attr :id, :string, doc: "the optional id of flash container, defaults to flash-<kind>"
   attr :flash, :map, default: %{}, doc: "the map of flash messages to display"
   attr :title, :string, default: nil
   attr :rest, :global
-  attr :kind, :atom, doc: "one of :info, :error used for styling and flash lookup"
+  attr :kind, :atom, doc: "one of :info, :warn, :error used for styling and flash lookup"
   attr :autoshow, :boolean, default: true, doc: "wether to auto show the flash on mount"
   attr :close, :boolean, default: true, doc: "whether the flash can be closed"
 
   slot :inner_block, doc: "the optional inner block that renders the flash message"
 
   def flash(assigns) do
+    # A distinct id per kind, so showing/hiding one flash doesn't affect another on the page
+    assigns = assign_new(assigns, :id, fn -> "flash-#{assigns.kind}" end)
+
     ~H"""
     <div
       :if={msg = render_slot(@inner_block) || Phoenix.Flash.get(@flash, @kind)}
