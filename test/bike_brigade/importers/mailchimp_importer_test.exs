@@ -11,7 +11,7 @@ defmodule BikeBrigade.Tasks.MailchimpImporterTest do
 
   @list_id "LIST_ID"
 
-  @valid_attrs %{
+  @member %{
     id: "123",
     email_address: "dispatcher@example.com",
     status: "subscribed",
@@ -26,18 +26,18 @@ defmodule BikeBrigade.Tasks.MailchimpImporterTest do
 
   describe "parse_mailchimp_attrs/1" do
     test "is successful if fields from Mailchimp are valid" do
-      {:ok, expected_fields} = MailchimpImporter.parse_mailchimp_attrs(@valid_attrs)
+      {:ok, expected_fields} = MailchimpImporter.parse_mailchimp_attrs(@member)
       address = expected_fields[:location][:address]
       assert address == "1508 Davenport Rd"
     end
 
     test "returns an error if the phone number is not a valid Canadian number" do
-      invalid_attrs = put_in(@valid_attrs, [:merge_fields, :PHONEYUI_], "oops")
+      invalid_attrs = put_in(@member, [:merge_fields, :PHONEYUI_], "oops")
       assert {:error, _} = MailchimpImporter.parse_mailchimp_attrs(invalid_attrs)
     end
 
     test "returns an error if address fails geocoding" do
-      invalid_attrs = put_in(@valid_attrs, [:merge_fields, :TEXTYUI_3], "oops")
+      invalid_attrs = put_in(@member, [:merge_fields, :TEXTYUI_3], "oops")
 
       assert {:error, {:update_location, _}} =
                MailchimpImporter.parse_mailchimp_attrs(invalid_attrs)
@@ -62,36 +62,36 @@ defmodule BikeBrigade.Tasks.MailchimpImporterTest do
     end
 
     test "is successful when all required attributes are valid" do
-      assert Riders.get_rider_by_email("dispatcher@example.com") == nil
-      FakeMailchimp.add_members(@list_id, [@valid_attrs])
+      assert Riders.get_rider_by_email(@member[:email_address]) == nil
+      FakeMailchimp.add_members(@list_id, [@member])
 
       assert {:ok, _} = MailchimpImporter.sync_riders()
 
-      r = Riders.get_rider_by_email("dispatcher@example.com")
+      r = Riders.get_rider_by_email(@member[:email_address])
 
       assert r.name == "Morty"
       assert r.location.address == "1508 Davenport Rd"
     end
 
     test "handles case where phone is invalid" do
-      invalid_attrs = put_in(@valid_attrs, [:merge_fields, :PHONEYUI_], "oops")
+      invalid_attrs = put_in(@member, [:merge_fields, :PHONEYUI_], "oops")
       FakeMailchimp.add_members(@list_id, [invalid_attrs])
 
       assert {:ok, _} = MailchimpImporter.sync_riders()
 
-      assert Riders.get_rider_by_email("dispatcher@example.com") == nil
+      assert Riders.get_rider_by_email(@member[:email_address]) == nil
 
       call = FakeSlack.get_last_call()
       assert call[:body] =~ "An error ocurred when importing dispatcher@example.com"
     end
 
     test "handles case where address is invalid" do
-      invalid_attrs = put_in(@valid_attrs, [:merge_fields, :TEXTYUI_3], "oops")
+      invalid_attrs = put_in(@member, [:merge_fields, :TEXTYUI_3], "oops")
       FakeMailchimp.add_members(@list_id, [invalid_attrs])
 
       assert {:ok, _} = MailchimpImporter.sync_riders()
 
-      r = Riders.get_rider_by_email("dispatcher@example.com")
+      r = Riders.get_rider_by_email(@member[:email_address])
       assert r.name == "Morty"
 
       # The rider has a default location
@@ -106,11 +106,11 @@ defmodule BikeBrigade.Tasks.MailchimpImporterTest do
     end
 
     test "sends a welcome SMS when a new rider is created" do
-      FakeMailchimp.add_members(@list_id, [@valid_attrs])
+      FakeMailchimp.add_members(@list_id, [@member])
 
       assert {:ok, _} = MailchimpImporter.sync_riders()
 
-      rider = Riders.get_rider_by_email("dispatcher@example.com")
+      rider = Riders.get_rider_by_email(@member[:email_address])
       messages = Messaging.list_sms_messages()
 
       welcome = Enum.find(messages, &(&1.to == rider.phone && !&1.incoming))
@@ -119,18 +119,18 @@ defmodule BikeBrigade.Tasks.MailchimpImporterTest do
     end
 
     test "updates riders" do
-      FakeMailchimp.add_members(@list_id, [@valid_attrs])
+      FakeMailchimp.add_members(@list_id, [@member])
 
       assert {:ok, _} = MailchimpImporter.sync_riders()
 
       FakeMailchimp.clear_members(@list_id)
 
       FakeMailchimp.add_members(@list_id, [
-        put_in(@valid_attrs, [:merge_fields, :FNAME], "Mortimus")
+        put_in(@member, [:merge_fields, :FNAME], "Mortimus")
       ])
 
       assert {:ok, _} = MailchimpImporter.sync_riders()
-      r = Riders.get_rider_by_email("dispatcher@example.com")
+      r = Riders.get_rider_by_email(@member[:email_address])
       assert r.name == "Mortimus"
     end
   end
