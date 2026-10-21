@@ -357,7 +357,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
           name={@name}
           value="true"
           checked={@checked}
-          class="w-4 h-4 text-indigo-600 border-gray-300 rounded-sm focus:ring-indigo-500"
+          class="w-4 h-4 text-indigo-600 border-gray-300 checked:border-transparent rounded-sm focus:ring-indigo-500"
           {@rest}
         />
       </div>
@@ -524,7 +524,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
               type="radio"
               value={Phoenix.HTML.html_escape(radio[:value])}
               checked={input_equals?(@value, radio[:value])}
-              class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+              class="w-4 h-4 text-indigo-600 border-gray-300 checked:border-transparent focus:ring-indigo-500"
             />
             <div class="ml-3 text-sm">
               <.label for={"#{@name}_#{radio[:value]}"}>
@@ -1083,7 +1083,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
                       phx-hook="CheckboxAll"
                       data-num-checked={@num_checked}
                       data-num-rows={length(@rows)}
-                      class="absolute w-4 h-4 -mt-2 text-indigo-600 border-gray-300 rounded-sm left-4 top-1/2 focus:ring-indigo-500 sm:left-6"
+                      class="absolute w-4 h-4 -mt-2 text-indigo-600 border-gray-300 checked:border-transparent indeterminate:border-transparent rounded-sm left-4 top-1/2 focus:ring-indigo-500 sm:left-6"
                     />
                   </th>
                   <th
@@ -1143,7 +1143,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
                       value="true"
                       checked={MapSet.member?(@checkboxes_selected, row.id)}
                       form={@checkboxes}
-                      class="absolute w-4 h-4 -mt-2 text-indigo-600 border-gray-300 rounded-sm left-4 top-1/2 focus:ring-indigo-500 sm:left-6"
+                      class="absolute w-4 h-4 -mt-2 text-indigo-600 border-gray-300 checked:border-transparent rounded-sm left-4 top-1/2 focus:ring-indigo-500 sm:left-6"
                     />
                   </td>
                   <td

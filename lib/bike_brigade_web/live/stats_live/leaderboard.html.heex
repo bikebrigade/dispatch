@@ -57,7 +57,7 @@
         </div>
         <.button
           :if={@current_user.is_dispatcher}
-          class="hidden ml-2 md:block "
+          class="max-md:hidden md:block ml-2"
           phx-click="toggle_all_riders_anonymity"
           color={:secondary}
         >
@@ -65,7 +65,7 @@
         </.button>
         <.button
           :if={@current_user.is_dispatcher}
-          class="hidden ml-2 md:block"
+          class="max-md:hidden md:block ml-2"
           target="_blank"
           href={download_path(@options)}
         >

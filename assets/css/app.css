@@ -32,6 +32,12 @@
   [role="button"]:not(:disabled) {
     cursor: pointer;
   }
+
+  /* v4's preflight zeroes padding on every element; v3 kept the browser's 1px on table cells */
+  td,
+  th {
+    padding: 1px;
+  }
 }
 
 @layer base {

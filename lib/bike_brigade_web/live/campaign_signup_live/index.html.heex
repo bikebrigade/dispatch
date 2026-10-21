@@ -34,7 +34,8 @@
 <nav :if={@showing_urgent_campaigns}>
   <.button
     size={:small}
-    class="w-full mb-2 rounded-none md:rounded-xs"
+    rounded={:none}
+    class="w-full mb-2 md:rounded-xs"
     color={:secondary}
     navigate={~p"/campaigns/signup"}
   >

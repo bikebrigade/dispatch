@@ -68,7 +68,7 @@
               />
               <.input type="time" field={s[:start_time]} />
               <.input type="time" field={s[:end_time]} />
-              <div class="justify-center mt-1 ml-auto">
+              <div class="justify-center">
                 <.button
                   color={:clear}
                   size={:xsmall}
@@ -81,12 +81,12 @@
                   <Heroicons.x_mark solid class="w-6 h-6" />
                 </.button>
               </div>
-              <hr class="mb-2 md:hidden" />
+              <hr class="md:hidden" />
             </div>
           </.inputs_for>
         </div>
 
-        <div :if={@action == :edit} class="my-2">
+        <div :if={@action == :edit} class="mt-2">
           <.header small>
             Items
             <:subtitle>

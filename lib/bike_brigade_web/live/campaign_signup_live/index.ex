@@ -274,7 +274,8 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
     ~H"""
     <.button
       size={:small}
-      class="w-full rounded-none md:rounded-xs"
+      rounded={:none}
+      class="w-full md:rounded-xs"
       color={@button_type.color}
       navigate={@signup_link}
     >

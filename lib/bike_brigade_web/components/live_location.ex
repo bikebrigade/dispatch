@@ -132,7 +132,7 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
   @impl Phoenix.LiveComponent
   def render(assigns) do
     ~H"""
-    <div id={@id} class="my-2">
+    <div id={@id}>
       {hidden_input(@form, :coords, value: dump_coords(@location))}
 
       <div class="text-sm font-medium leading-5 text-gray-700">

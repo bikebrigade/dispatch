@@ -239,13 +239,13 @@
           >
             Send Now
           </.button>
-          <.button type="submit" phx-click={hide_scheduling()} color={:secondary} class="ml-3">
+          <.button type="submit" phx-click={hide_scheduling()} color={:secondary}>
             Save
           </.button>
           <.button
             phx-click={JS.push("delete_schedule", target: @myself) |> hide_scheduling()}
             color={:red}
-            class="hidden ml-3 show-if-scheduling"
+            class="hidden show-if-scheduling"
           >
             Delete Schedule
           </.button>
