@@ -59,7 +59,7 @@
             </button>
           </figcaption>
           <.error :for={err <- upload_errors(@uploads.media, entry)}>
-            {error_to_string(err)}
+            {upload_error_to_string(err)}
           </.error>
         </figure>
       </div>

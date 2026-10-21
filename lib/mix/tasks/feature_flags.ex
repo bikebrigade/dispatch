@@ -2,6 +2,8 @@ defmodule Mix.Tasks.FeatureFlags do
   use Mix.Task
 
   alias BikeBrigade.{Accounts, Riders}
+  alias BikeBrigade.Accounts.User
+  alias BikeBrigade.Riders.Rider
 
   # TODO this should live somewhere else as gigalixir doesn't let me run tasks directly
 
@@ -22,30 +24,52 @@ defmodule Mix.Tasks.FeatureFlags do
 
   @impl Mix.Task
   def run(["users", flag, opt_in]) when opt_in in @percentages do
-    rollout(Accounts.list_users(), flag, opt_in, &Accounts.update_user_as_admin/2)
+    with {:ok, flag} <- fetch_flag(User.Flags, flag) do
+      rollout(Accounts.list_users(), flag, opt_in, &Accounts.update_user_as_admin/2)
+    end
   end
 
   def run([flag, opt_in]) when opt_in in @percentages do
-    rollout(Riders.list_riders(), flag, opt_in, &Riders.update_rider/2)
+    with {:ok, flag} <- fetch_flag(Rider.Flags, flag) do
+      rollout(Riders.list_riders(), flag, opt_in, &Riders.update_rider/2)
+    end
+  end
+
+  # Only flags defined on the schema can be set; anything else would be silently dropped.
+  defp fetch_flag(schema, name) do
+    flags = schema.__schema__(:fields)
+
+    case Enum.find(flags, &(Atom.to_string(&1) == name)) do
+      nil ->
+        Mix.shell().error("Unknown flag #{inspect(name)}. Known flags: #{Enum.join(flags, ", ")}")
+        :error
+
+      flag ->
+        {:ok, flag}
+    end
   end
 
   defp rollout(records, flag, opt_in, update) do
-    flag = String.to_atom(flag)
+    updates =
+      case opt_in do
+        "0" ->
+          for r <- records, do: {r, %{flags: %{flag => false}}}
 
-    case opt_in do
-      "0" ->
-        for r <- records, do: update.(r, %{flags: %{flag => false}})
+        "100" ->
+          for r <- records, do: {r, %{flags: %{flag => true}}}
 
-      "100" ->
-        for r <- records, do: update.(r, %{flags: %{flag => true}})
+        _ ->
+          percentage = String.to_integer(opt_in) / 100
+          for r <- records, opt_in(flag, r.id, percentage), do: {r, %{flags: %{flag => true}}}
+      end
 
-      _ ->
-        percentage = String.to_integer(opt_in) / 100
-
-        for r <- records,
-            opt_in(flag, r.id, percentage),
-            do: update.(r, %{flags: %{flag => true}})
+    for {record, attrs} <- updates do
+      with {:error, changeset} <- update.(record, attrs) do
+        Mix.shell().error("Could not update #{record.id}: #{inspect(changeset.errors)}")
+      end
     end
+
+    Mix.shell().info("Updated #{flag} for #{length(updates)} of #{length(records)}")
   end
 
   def opt_in(flag, id, percentage) do

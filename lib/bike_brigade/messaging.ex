@@ -7,7 +7,7 @@ defmodule BikeBrigade.Messaging do
   alias BikeBrigade.Repo
 
   alias BikeBrigade.Accounts
-  alias BikeBrigade.Messaging.{SmsMessage, ScheduledMessage}
+  alias BikeBrigade.Messaging.{SmsMessage, ScheduledMessage, BulkMessage, BulkMessageGroup}
   alias BikeBrigade.Riders
   alias BikeBrigade.Riders.Rider
   alias BikeBrigade.SmsService
@@ -280,7 +280,7 @@ defmodule BikeBrigade.Messaging do
       {:error, :send_message, reason, %{create_message: sms_message}} ->
         message_error(sms_message, "Failed to send message: #{reason}")
 
-      {:error, name, reason, %{create_message: sms_message}} ->
+      {:error, name, reason, _changes} ->
         message_error(sms_message, "Failed in step #{name} for #{inspect(reason)}")
     end
   end
@@ -362,6 +362,98 @@ defmodule BikeBrigade.Messaging do
       end
 
     Repo.all(q, opts)
+  end
+
+  @doc "Saved bulk message groups, newest first, with their creator and riders."
+  def list_bulk_message_groups do
+    Repo.all(
+      from g in BulkMessageGroup,
+        order_by: [desc: g.inserted_at, desc: g.id],
+        preload: [:creator, :riders]
+    )
+  end
+
+  @doc """
+  Saves a group of riders that a dispatcher messaged together, so it can be reopened
+  and messaged again. Broadcasts `:bulk_message_group_created`.
+  """
+  def create_bulk_message_group(%Accounts.User{} = creator, riders, attrs) do
+    %BulkMessageGroup{creator_id: creator.id}
+    |> BulkMessageGroup.changeset(attrs)
+    |> Ecto.Changeset.put_assoc(:riders, riders)
+    |> Repo.insert()
+    |> broadcast(:bulk_message_group_created)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for a bulk message. `attrs` takes `rider_ids`, `body`,
+  `campaign_id`, `save_group` and `group_name`.
+
+  Pass `has_media: true` when attachments come with the message, which makes the body
+  optional.
+  """
+  def change_bulk_message(attrs \\ %{}, opts \\ []) do
+    BulkMessage.changeset(%BulkMessage{has_media: Keyword.get(opts, :has_media, false)}, attrs)
+  end
+
+  @doc """
+  Sends the same message to each rider individually, optionally saving the riders as a
+  bulk message group first. See `change_bulk_message/2` for `attrs`; `media` is a list of
+  uploaded attachments.
+
+  Returns `{:ok, %{group: group | nil, sent: count, failed: riders}}`, where riders whose
+  send failed are listed so they can be retried individually, or `{:error, changeset}`.
+  """
+  def send_bulk_message(%Accounts.User{} = sender, attrs, media \\ []) do
+    changeset = change_bulk_message(attrs, has_media: media != [])
+
+    with {:ok, bulk_message} <- Ecto.Changeset.apply_action(changeset, :insert),
+         {:ok, riders} <- fetch_bulk_message_riders(changeset, bulk_message),
+         {:ok, group} <- maybe_create_bulk_message_group(changeset, sender, riders, bulk_message) do
+      {sent, failed} =
+        riders
+        |> Enum.map(fn rider ->
+          message = new_sms_message(rider, sent_by: sender)
+
+          result =
+            send_sms_message(message, %{
+              body: bulk_message.body,
+              campaign_id: bulk_message.campaign_id,
+              media: media
+            })
+
+          {rider, result}
+        end)
+        |> Enum.split_with(fn {_, result} -> match?({:ok, _}, result) end)
+
+      {:ok,
+       %{group: group, sent: length(sent), failed: Enum.map(failed, fn {rider, _} -> rider end)}}
+    end
+  end
+
+  defp fetch_bulk_message_riders(changeset, bulk_message) do
+    case Riders.get_riders(Enum.uniq(bulk_message.rider_ids)) do
+      [] -> invalid_bulk_message(changeset, :rider_ids, "Select at least one rider")
+      riders -> {:ok, riders}
+    end
+  end
+
+  defp maybe_create_bulk_message_group(changeset, sender, riders, %{save_group: true} = message) do
+    case create_bulk_message_group(sender, riders, %{
+           name: message.group_name,
+           body: message.body || "Attachment"
+         }) do
+      {:ok, group} -> {:ok, group}
+      {:error, _} -> invalid_bulk_message(changeset, :group_name, "Could not save this group")
+    end
+  end
+
+  defp maybe_create_bulk_message_group(_changeset, _sender, _riders, _message), do: {:ok, nil}
+
+  defp invalid_bulk_message(changeset, field, message) do
+    changeset
+    |> Ecto.Changeset.add_error(field, message)
+    |> Ecto.Changeset.apply_action(:insert)
   end
 
   @doc """

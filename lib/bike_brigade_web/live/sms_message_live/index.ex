@@ -5,6 +5,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
   alias BikeBrigade.{Presence, Messaging, Delivery, Riders, Riders.RiderSearch}
 
   import BikeBrigadeWeb.Components.SMSMessageListComponent
+  import BikeBrigadeWeb.Components.PresenceComponents, only: [currently_viewing: 1]
   import BikeBrigadeWeb.CampaignHelpers, only: [request_type: 1]
 
   alias BikeBrigadeWeb.CampaignHelpers
@@ -12,7 +13,29 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
   defdelegate pickup_window(campaign, rider), to: CampaignHelpers
 
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(params, session, socket) do
+    if socket.assigns.current_user.flags.unified_messaging do
+      action = socket.assigns.live_action
+
+      query =
+        params
+        |> Map.delete("id")
+        |> Map.merge(%{
+          "tab" => if(action == :new, do: "groups", else: "all"),
+          "rider" => params["id"],
+          "compose" => if(action == :new, do: "new"),
+          "panel" => if(action == :tasks, do: "deliveries")
+        })
+        |> Enum.reject(fn {_, v} -> is_nil(v) end)
+        |> Map.new()
+
+      {:ok, push_navigate(socket, to: ~p"/messages/inbox?#{query}")}
+    else
+      mount_legacy(params, session, socket)
+    end
+  end
+
+  defp mount_legacy(_params, _session, socket) do
     conversations = Messaging.list_sms_conversations(limit: 10)
     # Show the most recent conversation if we have any
     rider =
@@ -231,57 +254,5 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
     for {_, %{user: u}} <- presence, u.id != current_user.id do
       u
     end
-  end
-
-  attr :others_present, :list, required: true
-
-  defp currently_viewing(assigns) do
-    ~H"""
-    <div
-      :if={!Enum.empty?(@others_present)}
-      class="fixed top-0 right-0 z-10 flex-col items-end hidden mt-2 mr-2 sm:flex"
-    >
-      <div
-        id="currently-viewing"
-        class="hidden w-64 bg-white border border-gray-200 shadow sm:rounded-lg"
-      >
-        <div class="px-2 py-3 bg-white border-b border-gray-200 sm:rounded-t-lg">
-          <div class="absolute top-0 right-0 pt-4 pr-4 sm:block">
-            <button
-              phx-click={JS.hide(to: "#currently-viewing") |> JS.show(to: "#currently-viewing-close")}
-              type="button"
-              class="block text-gray-400 bg-white rounded-md hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              <span class="sr-only">Close</span>
-              <Heroicons.x_mark solid class="w-6 h-6" />
-            </button>
-          </div>
-          <div class="flex flex-wrap items-center">
-            <h3 class="text-lg font-medium leading-6 text-gray-900">
-              {Enum.count(@others_present)} Currently Viewing
-            </h3>
-          </div>
-        </div>
-        <ul class="px-2 py-3">
-          <%= for user <- @others_present
-          do %>
-            <li>{user.name}</li>
-          <% end %>
-        </ul>
-      </div>
-
-      <div id="currently-viewing-close">
-        <.button
-          phx-click={JS.hide(to: "#currently-viewing-close") |> JS.show(to: "#currently-viewing")}
-          type="button"
-          color={:white}
-          rounded={:full}
-        >
-          <Heroicons.eye solid class="w-5 h-5" />
-          <span class="ml-1 text-sm font-semibold">{Enum.count(@others_present)}</span>
-        </.button>
-      </div>
-    </div>
-    """
   end
 end

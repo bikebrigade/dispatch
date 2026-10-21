@@ -503,6 +503,42 @@ defmodule BikeBrigade.DeliveryTest do
     end
   end
 
+  describe "list_campaigns/1 with :lead_id" do
+    test "only returns campaigns from programs led by the user" do
+      lead = fixture(:user, %{is_dispatcher: true})
+      program = fixture(:program, %{lead_id: lead.id})
+      week = Date.beginning_of_week(LocalizedDateTime.today())
+      start = LocalizedDateTime.new!(week, ~T[12:00:00])
+
+      led = fixture(:campaign, %{program_id: program.id, delivery_start: start})
+      other = fixture(:campaign, %{delivery_start: start})
+
+      opts = [start_date: week, end_date: Date.add(week, 6)]
+
+      assert Enum.map(Delivery.list_campaigns([lead_id: lead.id] ++ opts), & &1.id) == [led.id]
+      assert other.id in Enum.map(Delivery.list_campaigns(opts), & &1.id)
+    end
+  end
+
+  describe "delivery_progress_by_rider/1" do
+    test "counts assigned and completed tasks per rider" do
+      campaign = fixture(:campaign)
+      rider = fixture(:rider)
+      other_rider = fixture(:rider)
+
+      task = fixture(:task, %{campaign: campaign, rider: rider})
+      fixture(:task, %{campaign: campaign, rider: rider})
+      fixture(:task, %{campaign: campaign, rider: other_rider})
+      fixture(:task, %{campaign: campaign})
+      {:ok, _} = Delivery.update_task(task, %{delivery_status: :completed})
+
+      assert Delivery.delivery_progress_by_rider(campaign.id) == %{
+               rider.id => {2, 1},
+               other_rider.id => {1, 0}
+             }
+    end
+  end
+
   def item_name(%Task{task_items: [%{item: %{name: item_name}}]}), do: item_name
 
   defp get_utc_now(), do: NaiveDateTime.utc_now()

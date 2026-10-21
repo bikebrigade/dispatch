@@ -48,9 +48,12 @@ defmodule BikeBrigadeWeb.Components.SMSMessageListComponent do
         >
           <div class="flex items-center px-2 py-2">
             <div class="flex items-center flex-1 min-w-0">
-              <div class="flex-shrink-0 hidden mr-4 lg:block">
-                <img class="w-10 h-10 rounded-full" src={gravatar(rider.email)} alt="" />
-              </div>
+              <span
+                class="mr-3 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-medium text-gray-600"
+                aria-hidden="true"
+              >
+                {rider_initials(rider.name)}
+              </span>
 
               <%= if last_message do %>
                 <div class="flex-1 min-w-0">
