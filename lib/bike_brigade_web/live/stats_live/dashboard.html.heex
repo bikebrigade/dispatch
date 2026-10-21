@@ -5,7 +5,7 @@
     All time
   </h3>
   <dl class="grid grid-cols-1 gap-5 mt-5 sm:grid-cols-3">
-    <div class="px-4 py-5 overflow-hidden bg-white rounded-lg shadow sm:p-6">
+    <div class="px-4 py-5 overflow-hidden bg-white rounded-lg shadow-sm sm:p-6">
       <dt class="text-sm font-medium text-gray-500 truncate">
         Total Riders
       </dt>
@@ -17,7 +17,7 @@
       </div>
     </div>
 
-    <div class="px-4 py-5 overflow-hidden bg-white rounded-lg shadow sm:p-6">
+    <div class="px-4 py-5 overflow-hidden bg-white rounded-lg shadow-sm sm:p-6">
       <dt class="text-sm font-medium text-gray-500 truncate">
         Active Riders
       </dt>
@@ -36,12 +36,12 @@
     <h3 class="text-lg font-medium leading-6 text-gray-900">
       Last {@period |> Atom.to_string() |> String.capitalize()} ({@last_period[:label]})
     </h3>
-    <span class="relative z-0 inline-flex rounded-md shadow-sm">
+    <span class="relative z-0 inline-flex rounded-md shadow-xs">
       <button
         phx-click={JS.push("select_period", value: %{period: :week})}
         type="button"
         class={
-          "#{if @period == :week, do: "bg-gray-200", else: "bg-white"} relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-l-md hover:bg-gray-200 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+          "#{if @period == :week, do: "bg-gray-200", else: "bg-white"} relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-l-md hover:bg-gray-200 focus:z-10 focus:outline-hidden focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
         }
       >
         Week
@@ -50,7 +50,7 @@
         phx-click={JS.push("select_period", value: %{period: :month})}
         type="button"
         class={
-          "#{if @period == :month, do: "bg-gray-200", else: "bg-white"} relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 border border-gray-300 rounded-r-md hover:bg-gray-200 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+          "#{if @period == :month, do: "bg-gray-200", else: "bg-white"} relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 border border-gray-300 rounded-r-md hover:bg-gray-200 focus:z-10 focus:outline-hidden focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
         }
       >
         Month
@@ -58,7 +58,7 @@
     </span>
   </div>
   <dl class="grid grid-cols-1 gap-5 mt-5 sm:grid-cols-3">
-    <div class="px-4 py-5 overflow-hidden bg-white rounded-lg shadow sm:p-6">
+    <div class="px-4 py-5 overflow-hidden bg-white rounded-lg shadow-sm sm:p-6">
       <dt class="text-sm font-medium text-gray-500 truncate">
         Total Riders
       </dt>
@@ -67,7 +67,7 @@
       </dd>
     </div>
 
-    <div class="px-4 py-5 overflow-hidden bg-white rounded-lg shadow sm:p-6">
+    <div class="px-4 py-5 overflow-hidden bg-white rounded-lg shadow-sm sm:p-6">
       <dt class="text-sm font-medium text-gray-500 truncate">
         New Riders
       </dt>
@@ -76,7 +76,7 @@
       </dd>
     </div>
 
-    <div class="px-4 py-5 overflow-hidden bg-white rounded-lg shadow sm:p-6">
+    <div class="px-4 py-5 overflow-hidden bg-white rounded-lg shadow-sm sm:p-6">
       <dt class="text-sm font-medium text-gray-500 truncate">
         Returning Riders
       </dt>
@@ -86,13 +86,12 @@
     </div>
   </dl>
 </div>
-<div class="h-full mt-4 bg-white rounded-lg shadow sm:p-6">
+<div class="h-full mt-4 bg-white rounded-lg shadow-sm sm:p-6">
   <canvas
     id="rider-plot"
     phx-hook="StatsDashboardChart"
     phx-update="ignore"
     data-title="Stats"
     class="object-scale-down"
-  >
-  </canvas>
+  ></canvas>
 </div>

@@ -23,7 +23,7 @@
           View all rides on your itinerary →
         </.link>
       </div>
-      <div class="flex-shrink-0">
+      <div class="shrink-0">
         <div class="flex justify-end flex-1">
           <.button href={{:sms, "#{BikeBrigade.Messaging.inbound_number(@rider)}"}}>
             Contact Bike Brigade
@@ -65,7 +65,7 @@
         class="flex items-start space-x-1 p-2.5 bg-white border-b border-gray-200 sm:p-4"
         aria-hidden="true"
       >
-        <div class="flex items-center justify-center flex-shrink-0 w-8 h-8 bg-green-700 rounded-full ring-8 ring-white">
+        <div class="flex items-center justify-center shrink-0 w-8 h-8 bg-green-700 rounded-full ring-8 ring-white">
           <Heroicons.clipboard_document_check mini class="w-5 h-5 text-white" />
         </div>
         <div class="w-full pl-1 border-l border-gray-200 sm:flex-nowrap">
@@ -74,7 +74,7 @@
               <h2 class="mr-1 text-base font-semibold text-gray-900">
                 Pick up
               </h2>
-              <div class="flex flex-wrap items-start justify-end flex-shrink ml-auto">
+              <div class="flex flex-wrap items-start justify-end shrink ml-auto">
                 <.button
                   href={open_map_url(@campaign)}
                   aria-label="Map Pickup"
@@ -85,7 +85,7 @@
                 </.button>
               </div>
             </div>
-            <div class="inline-flex flex-shrink-0 leading-normal">
+            <div class="inline-flex shrink-0 leading-normal">
               <Heroicons.clock
                 mini
                 aria-label="Pickup Time"
@@ -95,7 +95,7 @@
             </div>
             <.location location={@campaign.location} />
             <div class="inline-flex leading-normal">
-              <Heroicons.shopping_bag mini class="flex-shrink-0 w-4 h-4 mt-1 mr-1 text-gray-500 " />
+              <Heroicons.shopping_bag mini class="shrink-0 w-4 h-4 mt-1 mr-1 text-gray-500 " />
               {humanized_task_count(@rider.assigned_tasks)}
             </div>
           </div>
@@ -123,15 +123,14 @@
             <div
               x-show="overflows"
               x-bind:class="{'absolute inset-x-0 bottom-0': collapsed }"
-              class="flex justify-around p-1.5 bg-white bg-opacity-90"
+              class="flex justify-around p-1.5 bg-white/90"
             >
               <button
                 x-text="collapsed ? 'Show More...' : 'Show Less'"
                 x-on:click="collapsed = !collapsed"
                 type="button"
-                class="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-              </button>
+                class="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-xs text-xs font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              ></button>
             </div>
           </dd>
         </div>
@@ -151,7 +150,7 @@
       <div class="w-full overflow-hidden bg-white shadow-md sm:mt-2 sm:rounded-lg">
         <div class="flex items-start space-x-1 p-2.5 bg-white border-b border-gray-200 sm:p-4">
           <div
-            class="flex items-center justify-center flex-shrink-0 w-8 h-8 bg-indigo-700 rounded-full ring-8 ring-white"
+            class="flex items-center justify-center shrink-0 w-8 h-8 bg-indigo-700 rounded-full ring-8 ring-white"
             aria-label={"Delivery #{i}"}
           >
             <span class="font-black text-white tabular-nums ">
@@ -164,7 +163,7 @@
                 <h2 class="mr-1 text-base font-semibold text-gray-900">
                   Delivery
                 </h2>
-                <div class="flex items-start justify-end flex-shrink space-x-1">
+                <div class="flex items-start justify-end shrink space-x-1">
                   <%= if task.dropoff_phone do %>
                     <.button
                       href={sms_url(@campaign, @rider, task)}
@@ -188,7 +187,7 @@
                   </.button>
                 </div>
               </div>
-              <div class="inline-flex flex-shrink-0 leading-normal">
+              <div class="inline-flex shrink-0 leading-normal">
                 <Heroicons.user
                   mini
                   aria-label="Dropoff Name"
@@ -197,7 +196,7 @@
                 {task.dropoff_name}
               </div>
               <.location location={task.dropoff_location} />
-              <div class="inline-flex flex-shrink-0 leading-normal">
+              <div class="inline-flex shrink-0 leading-normal">
                 <Heroicons.device_phone_mobile
                   mini
                   aria-label="Dropoff Phone"
@@ -212,7 +211,7 @@
               <div class="inline-flex leading-normal">
                 <Heroicons.shopping_bag
                   mini
-                  class="flex-shrink-0 w-4 h-4 mt-1 mr-1 text-gray-500 "
+                  class="shrink-0 w-4 h-4 mt-1 mr-1 text-gray-500 "
                 />
                 {CampaignHelpers.request_type(task)}
               </div>
@@ -241,15 +240,14 @@
               <div
                 x-show="overflows"
                 x-bind:class="{'absolute inset-x-0 bottom-0': collapsed }"
-                class="flex justify-around p-1.5 bg-white bg-opacity-90"
+                class="flex justify-around p-1.5 bg-white/90"
               >
                 <button
                   x-text="collapsed ? 'Show More...' : 'Show Less'"
                   x-on:click="collapsed = !collapsed"
                   type="button"
-                  class="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                </button>
+                  class="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-xs text-xs font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                ></button>
               </div>
             </dd>
           </div>
@@ -257,7 +255,7 @@
             <div class="flex flex-row items-center justify-start gap-2">
               <div
                 :if={task.delivery_status == :completed}
-                class="inline-flex items-center px-3 py-2 text-sm font-medium text-green-700 bg-green-50 rounded"
+                class="inline-flex items-center px-3 py-2 text-sm font-medium text-green-700 bg-green-50 rounded-sm"
               >
                 <Heroicons.check_circle mini class="w-5 h-5 mr-1 -ml-0.5" /> Completed
               </div>
@@ -295,7 +293,7 @@
                         id={"note_#{task.id}"}
                         name="note"
                         rows="3"
-                        class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        class="block w-full mt-1 border-gray-300 rounded-md shadow-xs focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         placeholder="Enter your note here..."
                         phx-change="update_note"
                       >{@note_text}</textarea>
@@ -305,13 +303,13 @@
                         type="button"
                         phx-click="toggle_note_form"
                         phx-value-task-id={task.id}
-                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-xs hover:bg-gray-50 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                       >
                         Cancel
                       </button>
                       <button
                         type="submit"
-                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-xs hover:bg-indigo-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                       >
                         Submit Note
                       </button>
@@ -339,7 +337,7 @@
       class="w-full overflow-hidden bg-white shadow-md sm:mt-2 sm:rounded-lg"
     >
       <div class="flex items-start space-x-1 p-2.5 bg-white border-b border-gray-200 sm:p-4">
-        <div class="flex items-center justify-center flex-shrink-0 w-8 h-8 bg-green-700 rounded-full ring-8 ring-white">
+        <div class="flex items-center justify-center shrink-0 w-8 h-8 bg-green-700 rounded-full ring-8 ring-white">
           <Heroicons.star mini class="w-5 h-5 text-white" />
         </div>
         <div class="w-full pl-1 border-l border-gray-200 sm:flex-nowrap">
@@ -347,7 +345,7 @@
             <h2 class="mr-1 text-base font-semibold text-gray-900">
               Tell us you're done.
             </h2>
-            <div class="flex flex-wrap items-start justify-end flex-shrink ml-auto">
+            <div class="flex flex-wrap items-start justify-end shrink ml-auto">
               <.button href={sms_done_url(@campaign, @rider)} class="ml-auto" color={:green}>
                 <Heroicons.chat_bubble_left_right mini class="w-5 h-5 mr-1 -ml-0.5" /> I'm done!
               </.button>
@@ -392,8 +390,7 @@
             style="border:0"
             src={embed_directions_url(assigns)}
             allowfullscreen
-          >
-          </iframe>
+          ></iframe>
         </div>
         <br />
       </div>

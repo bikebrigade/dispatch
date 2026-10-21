@@ -182,8 +182,8 @@ defmodule BikeBrigadeWeb.Layouts do
 
   def sidebar_section(assigns) do
     ~H"""
-    <div open class="rounded-md [&_.arrow-icon]:open:-rotate-180">
-      <div class="flex items-center px-2 py-2 text-base font-medium leading-6 text-gray-600 transition duration-150 ease-in-out rounded-md select-none group focus:outline-none focus:text-gray-900 focus:bg-gray-100">
+    <div open class="rounded-md open:[&_.arrow-icon]:-rotate-180">
+      <div class="flex items-center px-2 py-2 text-base font-medium leading-6 text-gray-600 transition duration-150 ease-in-out rounded-md select-none group focus:outline-hidden focus:text-gray-900 focus:bg-gray-100">
         {@name}
       </div>
 
@@ -201,7 +201,7 @@ defmodule BikeBrigadeWeb.Layouts do
   defp sidebar_link(%{selected: true} = assigns) do
     ~H"""
     <.link
-      class="flex items-center px-2 py-2 mb-1 text-base font-medium leading-6 text-gray-900 transition duration-150 ease-in-out bg-gray-100 rounded-md group focus:outline-none focus:bg-gray-200"
+      class="flex items-center px-2 py-2 mb-1 text-base font-medium leading-6 text-gray-900 transition duration-150 ease-in-out bg-gray-100 rounded-md group focus:outline-hidden focus:bg-gray-200"
       {@rest}
     >
       <span class="w-6 h-6 mr-4 text-gray-500 transition duration-150 ease-in-out group-hover:text-gray-500 group-focus:text-gray-600">
@@ -215,7 +215,7 @@ defmodule BikeBrigadeWeb.Layouts do
   defp sidebar_link(%{selected: false} = assigns) do
     ~H"""
     <.link
-      class="flex items-center px-2 py-2 mb-1 text-base font-medium leading-6 text-gray-600 transition duration-150 ease-in-out rounded-md group hover:text-gray-900 hover:bg-gray-50 focus:outline-none focus:text-gray-900 focus:bg-gray-100"
+      class="flex items-center px-2 py-2 mb-1 text-base font-medium leading-6 text-gray-600 transition duration-150 ease-in-out rounded-md group hover:text-gray-900 hover:bg-gray-50 focus:outline-hidden focus:text-gray-900 focus:bg-gray-100"
       {@rest}
     >
       <span class="w-6 h-6 mr-4 text-gray-400 transition duration-150 ease-in-out group-hover:text-gray-500 group-focus:text-gray-500">

@@ -39,7 +39,7 @@
     <div :for={{date, campaigns_and_opportunities} <- @campaigns_and_opportunities}>
       <div id={date} class="relative -top-16 sm:-top-28"></div>
       <div class="flex flex-col items-start border-gray-400 sm:pt-3 sm:border-t-2 sm:flex-row">
-        <div class="flex-col items-center flex-shrink-0 hidden w-2/12 sm:flex">
+        <div class="flex-col items-center shrink-0 hidden w-2/12 sm:flex">
           <div class="mt-2 text-lg font-normal ">{Calendar.strftime(date, "%a")}</div>
           <div class="my-2 font-serif text-3xl">{Calendar.strftime(date, "%-d")}</div>
           <div class="mt-2 text-lg font-normal ">{Calendar.strftime(date, "%b")}</div>
@@ -68,7 +68,7 @@
               <div class="flex items-center text-sm text-gray-300">
                 <Heroicons.clock
                   aria-label="Pickup Time"
-                  class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
+                  class="shrink-0 mr-1.5 h-5 w-5 text-gray-400"
                 />
                 {time_interval(
                   campaign_or_opportunity.delivery_start,
@@ -76,7 +76,7 @@
                 )}
               </div>
               <div class="flex items-center text-sm text-gray-300">
-                <Heroicons.map_pin class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
+                <Heroicons.map_pin class="shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
                 <%= if !hide_address?(campaign_or_opportunity) do %>
                   <div class="flex flex-col sm:flex-row">
                     <.link
@@ -102,7 +102,7 @@
               >
                 <Heroicons.information_circle
                   aria-label="Pickup Time"
-                  class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
+                  class="shrink-0 mr-1.5 h-5 w-5 text-gray-400"
                 />
                 {campaign_or_opportunity.program.campaign_blurb}
               </div>

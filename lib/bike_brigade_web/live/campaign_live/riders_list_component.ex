@@ -1,6 +1,5 @@
 defmodule BikeBrigadeWeb.CampaignLive.RidersListComponent do
   use BikeBrigadeWeb, :live_component
-  require Logger
 
   import BikeBrigadeWeb.CampaignHelpers
   import BikeBrigade.Utils, only: [task_count: 1]

@@ -60,11 +60,11 @@ defmodule BikeBrigadeWeb.Components.UserSelectionComponent do
         <a
           href="#"
           phx-click={JS.push("unselect", target: @myself)}
-          class="block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
+          class="block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50"
         >
           <div class="flex items-center px-4 py-4 sm:px-6">
             <div class="flex items-center flex-1 min-w-0">
-              <div class="flex-shrink-0">
+              <div class="shrink-0">
                 <img class="w-12 h-12 rounded-full" src={gravatar(@selected_user.email)} alt="" />
               </div>
               <div class="flex-1 min-w-0 px-4 md:grid md:grid-cols-2 md:gap-4">
@@ -74,7 +74,7 @@ defmodule BikeBrigadeWeb.Components.UserSelectionComponent do
                   </div>
                   <div class="flex items-center mt-2 text-sm leading-5 text-gray-500">
                     <svg
-                      class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
+                      class="shrink-0 mr-1.5 h-5 w-5 text-gray-400"
                       viewBox="0 0 20 20"
                       fill="currentColor"
                     >
@@ -99,18 +99,18 @@ defmodule BikeBrigadeWeb.Components.UserSelectionComponent do
           name="search"
           type="text"
           placeholder="Type to search for users by name"
-          class="block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+          class="block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-hidden focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
         />
         <ul id="user-selection-list" class="overflow-y-auto max-h-64">
           <%= for user <- @users do %>
             <li id={"user-selection:#{user.id}"}>
               <.link
                 phx-click={JS.push("select", value: %{id: user.id}, target: @myself)}
-                class="block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
+                class="block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50"
               >
                 <div class="flex items-center px-4 py-4 sm:px-6">
                   <div class="flex items-center flex-1 min-w-0">
-                    <div class="flex-shrink-0">
+                    <div class="shrink-0">
                       <img class="w-12 h-12 rounded-full" src={gravatar(user.email)} alt="" />
                     </div>
                     <div class="flex-1 min-w-0 px-4 md:grid md:grid-cols-2 md:gap-4">
@@ -120,7 +120,7 @@ defmodule BikeBrigadeWeb.Components.UserSelectionComponent do
                         </div>
                         <div class="flex items-center mt-2 text-sm leading-5 text-gray-500">
                           <svg
-                            class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
+                            class="shrink-0 mr-1.5 h-5 w-5 text-gray-400"
                             viewBox="0 0 20 20"
                             fill="currentColor"
                           >

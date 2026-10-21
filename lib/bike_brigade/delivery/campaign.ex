@@ -52,6 +52,7 @@ defmodule BikeBrigade.Delivery.Campaign do
     has_one :stats, CampaignStats
 
     field :delivery_url_token, :string, virtual: true
+    field :rider_pickup_window, :string, virtual: true
 
     has_one :campaign_latest_message, CampaignLatestMessage
     has_one :latest_message, through: [:campaign_latest_message, :sms_message]

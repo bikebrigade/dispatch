@@ -275,6 +275,22 @@ defmodule BikeBrigade.Fixtures do
     banner
   end
 
+  def fixture(:bulk_message_group, attrs) do
+    {creator, attrs} =
+      Map.pop_lazy(attrs, :creator, fn -> fixture(:user, %{is_dispatcher: true}) end)
+
+    {riders, attrs} = Map.pop_lazy(attrs, :riders, fn -> [fixture(:rider)] end)
+
+    {:ok, group} =
+      Messaging.create_bulk_message_group(
+        creator,
+        riders,
+        Map.merge(%{name: "#{Faker.Lorem.word()} riders", body: Faker.Lorem.sentence()}, attrs)
+      )
+
+    group
+  end
+
   def fixture(:tag, attrs) do
     {:ok, tag} =
       %{

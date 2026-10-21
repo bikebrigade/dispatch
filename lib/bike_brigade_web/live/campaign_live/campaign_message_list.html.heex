@@ -1,4 +1,11 @@
 <div>
+  <.link
+    :if={@current_user.flags.unified_messaging}
+    navigate={~p"/messages/inbox?#{%{tab: "campaigns", context: @campaign_id, mine: false}}"}
+    class="mb-4 inline-flex items-center gap-2 text-sm font-medium text-indigo-600"
+  >
+    Open in messaging inbox <Heroicons.arrow_right class="h-4 w-4" />
+  </.link>
   <%= if is_nil(@selected_rider) do %>
     <div>
       No riders have been added to this campaign. Add some riders to be able to send messages.
@@ -8,7 +15,7 @@
       <div
         id="campaign-conversation-list"
         class={[
-          "bg-white w-full sm:w-4/12 shadow border border-gray-200 rounded-lg sm:mr-4",
+          "bg-white w-full sm:w-4/12 shadow-sm border border-gray-200 rounded-lg sm:mr-4",
           not is_nil(@selected_rider_id) && "hidden sm:block"
         ]}
       >
@@ -23,7 +30,7 @@
       <div
         id="campaign-conversation"
         class={[
-          "w-full sm:w-8/12 max-h-[calc(100vh-8rem)] rounded border border-gray-200",
+          "w-full sm:w-8/12 max-h-[calc(100vh-8rem)] rounded-sm border border-gray-200",
           if(is_nil(@selected_rider_id), do: "hidden sm:flex", else: "flex")
         ]}
       >

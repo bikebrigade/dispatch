@@ -4,7 +4,7 @@
       <button
         phx-click={open_mobile_menu()}
         type="button"
-        class="inline-flex items-center justify-center w-12 h-12 text-gray-500 rounded-md hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+        class="inline-flex items-center justify-center w-12 h-12 text-gray-500 rounded-md hover:text-gray-900 focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-indigo-500"
       >
         <span class="sr-only">Open sidebar</span>
         <Heroicons.bars_3 class="w-6 h-6" />
@@ -24,7 +24,7 @@
         From: "opacity-100"
         To: "opacity-0"
     -->
-    <div id="mobile-menu-backdrop" class="fixed inset-0 hidden bg-gray-600 bg-opacity-75"></div>
+    <div id="mobile-menu-backdrop" class="fixed inset-0 hidden bg-gray-600/75"></div>
 
     <div class="fixed inset-0 z-40 flex">
       <!--
@@ -52,7 +52,7 @@
           <button
             phx-click={close_mobile_menu()}
             type="button"
-            class="flex items-center justify-center w-10 h-10 ml-1 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+            class="flex items-center justify-center w-10 h-10 ml-1 rounded-full focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-white"
           >
             <span class="sr-only">Close sidebar</span>
             <!-- Heroicon name: outline/x-mark -->
@@ -71,7 +71,7 @@
         </div>
 
         <div class="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
-          <div class="flex items-center flex-shrink-0 px-4">
+          <div class="flex items-center shrink-0 px-4">
             <img class="w-auto h-8" src={~p"/images/logo-black.png"} alt="Toronto Bike Brigade" />
             <h1 class="ml-2 font-semibold">Toronto Bike Brigade</h1>
           </div>
@@ -83,8 +83,8 @@
             />
           </nav>
         </div>
-        <div class="flex flex-shrink-0 p-4 border-t border-gray-200">
-          <.link navigate={~p"/profile"} class="flex-shrink-0 block w-full group">
+        <div class="flex shrink-0 p-4 border-t border-gray-200">
+          <.link navigate={~p"/profile"} class="shrink-0 block w-full group">
             <div class="flex items-center">
               <div>
                 <img
@@ -106,7 +106,7 @@
         </div>
       </div>
 
-      <div class="flex-shrink-0 w-14">
+      <div class="shrink-0 w-14">
         <!-- Force sidebar to shrink to fit close icon -->
       </div>
     </div>
@@ -116,7 +116,7 @@
     <!-- Sidebar component, swap this element with another sidebar if you like -->
     <div class="flex flex-col flex-1 min-h-0 bg-white border-r border-gray-200">
       <div class="flex flex-col flex-1 pt-5 pb-4 overflow-y-auto">
-        <div class="flex items-center flex-shrink-0 px-4">
+        <div class="flex items-center shrink-0 px-4">
           <img class="w-auto h-8" src={~p"/images/logo-black.png"} alt="Toronto Bike Brigade" />
           <h1 class="ml-2 font-semibold">Toronto Bike Brigade</h1>
         </div>
@@ -128,8 +128,8 @@
           />
         </nav>
       </div>
-      <div class="flex flex-shrink-0 p-4 border-t border-gray-200">
-        <.link navigate={~p"/profile"} class="flex-shrink-0 block w-full group">
+      <div class="flex shrink-0 p-4 border-t border-gray-200">
+        <.link navigate={~p"/profile"} class="shrink-0 block w-full group">
           <div class="flex items-center">
             <div>
               <img
@@ -154,7 +154,10 @@
   <div class="flex flex-col flex-1 md:pl-64">
     <main class="flex-1">
       <div class="py-6">
-        <div class="px-4 mx-auto max-w-7xl sm:px-6 md:px-8">
+        <div class={[
+          "px-4 mx-auto sm:px-6 md:px-8",
+          if(assigns[:wide_content], do: "max-w-none", else: "max-w-7xl")
+        ]}>
           <.flash kind={:info} title="Success!" flash={@flash} />
           <.flash kind={:warn} title="Warning!" flash={@flash} />
           <.flash kind={:error} title="Error!" flash={@flash} />

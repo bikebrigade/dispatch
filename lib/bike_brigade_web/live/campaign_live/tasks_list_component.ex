@@ -1,6 +1,5 @@
 defmodule BikeBrigadeWeb.CampaignLive.TasksListComponent do
   use BikeBrigadeWeb, :live_component
-  require Logger
 
   alias BikeBrigade.Delivery
 
