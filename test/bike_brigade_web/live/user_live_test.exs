@@ -62,6 +62,30 @@ defmodule BikeBrigadeWeb.UserLiveTest do
       assert Floki.text(rider_row) =~ "🚴"
     end
 
+    test "Can opt a user into a feature flag", ctx do
+      {:ok, view, _html} = live(ctx.conn, ~p"/users/#{ctx.user.id}/edit")
+
+      refute has_element?(
+               view,
+               "#user-form input[type=checkbox][name*=unified_messaging][checked]"
+             )
+
+      view
+      |> form("#user-form", user: %{flags: %{unified_messaging: "true"}})
+      |> render_change()
+
+      assert has_element?(
+               view,
+               "#user-form input[type=checkbox][name*=unified_messaging][checked]"
+             )
+
+      view
+      |> form("#user-form", user: %{flags: %{unified_messaging: "true"}})
+      |> render_submit()
+
+      assert BikeBrigade.Accounts.get_user(ctx.user.id).flags.unified_messaging
+    end
+
     test "Can make a user into a dispatcher", ctx do
       # first, upgrade a rider to a user.
       rider = fixture(:rider)
