@@ -23,7 +23,7 @@
           curl
           libiconv
           docker-compose
-          postgresql
+          postgresql_16
         ] ++ optional stdenv.hostPlatform.isLinux inotify-tools;
 
         elixirPackages = [ beam.packages.erlang_29.elixir_1_20 ];

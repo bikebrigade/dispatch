@@ -1,7 +1,8 @@
 version: '3.4'
 services:
   postgres:
-    image: postgis/postgis:13-3.2
+    image: postgis/postgis:16-3.6
+    platform: linux/amd64
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
