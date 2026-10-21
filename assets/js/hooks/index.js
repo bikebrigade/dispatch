@@ -11,7 +11,6 @@ import StatsDashboardChart from './stats_dashboard_chart';
 import Frame from './frame';
 import TagsComponent from './tags_component';
 import LeafletMap from './leaflet_map';
-import MessagingInbox from './messaging_inbox';
 
 
 export default {
@@ -27,6 +26,5 @@ export default {
   CheckboxAll,
   Frame,
   TagsComponent,
-  LeafletMap,
-  MessagingInbox
+  LeafletMap
 }
