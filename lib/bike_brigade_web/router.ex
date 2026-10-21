@@ -87,6 +87,12 @@ defmodule BikeBrigadeWeb.Router do
     delete "/login", AuthenticationController, :cancel
   end
 
+  scope "/", BikeBrigadeWeb do
+    pipe_through [:browser]
+
+    get "/new-rider-guide", RedirectController, :new_rider_guide
+  end
+
   # this scope is for authenticated users that aren't dispatchers (ie: riders).
   scope "/", BikeBrigadeWeb do
     pipe_through [:browser, :require_authenticated_user, :set_honeybadger_context]
