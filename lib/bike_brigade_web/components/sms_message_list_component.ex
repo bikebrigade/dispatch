@@ -32,7 +32,7 @@ defmodule BikeBrigadeWeb.Components.SMSMessageListComponent do
   def sms_message_list(assigns) do
     ~H"""
     <ul
-      class="flex-grow-0 h-full max-h-full overflow-y-auto scrolling-touch overscroll-contain"
+      class="grow-0 h-full max-h-full overflow-y-auto scrolling-touch overscroll-contain"
       id="conversation-list"
       phx-hook="ConversationList"
       phx-update="stream"
@@ -44,7 +44,7 @@ defmodule BikeBrigadeWeb.Components.SMSMessageListComponent do
       >
         <.link
           patch={@rider_link_fn.(rider.id)}
-          class="px-2 py-1 border-b hover:bg-gray-100 block transition duration-150 ease-in-out  focus:outline-none"
+          class="px-2 py-1 border-b hover:bg-gray-100 block transition duration-150 ease-in-out  focus:outline-hidden"
         >
           <div class="flex items-center px-2 py-2">
             <div class="flex items-center flex-1 min-w-0">

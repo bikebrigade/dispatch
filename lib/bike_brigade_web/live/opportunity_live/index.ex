@@ -193,9 +193,9 @@ defmodule BikeBrigadeWeb.OpportunityLive.Index do
   defp check_mark(assigns) do
     ~H"""
     <%= if @value do %>
-      <Heroicons.check_circle mini class="flex-shrink-0 w-6 h-6 mx-1 text-green-400 justify-self-end" />
+      <Heroicons.check_circle mini class="shrink-0 w-6 h-6 mx-1 text-green-400 justify-self-end" />
     <% else %>
-      <Heroicons.x_circle mini class="flex-shrink-0 w-6 h-6 mx-1 text-red-400 justify-self-end" />
+      <Heroicons.x_circle mini class="shrink-0 w-6 h-6 mx-1 text-red-400 justify-self-end" />
     <% end %>
     """
   end

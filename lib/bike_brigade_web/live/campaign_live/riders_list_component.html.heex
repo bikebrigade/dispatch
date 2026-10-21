@@ -41,7 +41,7 @@
       phx-keydown="search_riders"
       phx-debounce="100"
       value={@riders_query[:search]}
-      class="block w-full px-3 py-2 my-2 placeholder-gray-400 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+      class="block w-full px-3 py-2 my-2 placeholder-gray-400 border-gray-300 rounded-md shadow-xs focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
       placeholder="Search Riders"
     />
   </div>
@@ -52,7 +52,7 @@
           <.link
             phx-click={JS.push("select_rider", value: %{id: rider.id})}
             class={
-            "block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50#{if selected?(@selected_rider, rider), do: " bg-gray-100"}"
+            "block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50#{if selected?(@selected_rider, rider), do: " bg-gray-100"}"
           }
           >
             <div class="flex flex-row items-center px-4 py-4">
@@ -71,14 +71,14 @@
               <%= if rider.task_enter_building do %>
                 <Heroicons.building_office
                   mini
-                  class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end"
+                  class="shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end"
                 />
               <% end %>
               <%= if novice_participant?(rider) do %>
                 <.with_tooltip>
                   <Heroicons.star
                     mini
-                    class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end"
+                    class="shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end"
                   />
                   <:tooltip>
                     <div class="w-18">
@@ -89,11 +89,11 @@
               <% end %>
 
               <%= if has_notes?(rider) do %>
-                <Heroicons.pencil_square mini class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500" />
+                <Heroicons.pencil_square mini class="shrink-0 w-4 h-4 mx-1 text-gray-500" />
               <% end %>
               <%= if rider.text_based_itinerary do %>
                 <.with_tooltip>
-                  <Heroicons.signal_slash mini class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500" />
+                  <Heroicons.signal_slash mini class="shrink-0 w-4 h-4 mx-1 text-gray-500" />
                   <:tooltip>
                     <div class="w-40">
                       This rider will receive an extra message with text-only delivery instructions
@@ -106,14 +106,14 @@
           <%= if selected?(@selected_rider, rider) do %>
             <div class="p-2 mx-1 rounded-b shadow-inner bg-gray-50">
               <div class="flex flex-row my-2">
-                <Heroicons.clock mini class="flex-shrink-0 w-4 h-4 text-gray-500" />
+                <Heroicons.clock mini class="shrink-0 w-4 h-4 text-gray-500" />
                 <div class="mx-1 text-sm leading-5 text-gray-800">
                   {pickup_window(@campaign, rider)}
                 </div>
               </div>
               <%= if has_notes?(rider) do %>
                 <div class="flex flex-row my-2">
-                  <Heroicons.pencil_square mini class="flex-shrink-0 w-4 h-4 text-gray-500" />
+                  <Heroicons.pencil_square mini class="shrink-0 w-4 h-4 text-gray-500" />
                   <div class="mx-1 text-sm leading-5 text-gray-600">
                     {rider.task_notes}
                   </div>
@@ -121,15 +121,15 @@
               <% end %>
               <div
                 :if={backup_rider?(@backup_riders, rider)}
-                class="flex items-center px-2 py-2 my-2 text-sm font-medium text-green-800 border border-green-200 rounded bg-green-50"
+                class="flex items-center px-2 py-2 my-2 text-sm font-medium text-green-800 border border-green-200 rounded-sm bg-green-50"
               >
-                <Heroicons.check_circle mini class="flex-shrink-0 w-4 h-4 mr-2" />
+                <Heroicons.check_circle mini class="shrink-0 w-4 h-4 mr-2" />
                 Also available as a backup rider
               </div>
               <%= if Enum.count(rider.assigned_tasks) > 0 do %>
                 <%= for task <- rider.assigned_tasks do %>
                   <div class="flex flex-row my-2">
-                    <Heroicons.map_pin mini class="flex-shrink-0 w-4 h-4 text-gray-500" />
+                    <Heroicons.map_pin mini class="shrink-0 w-4 h-4 text-gray-500" />
                     <.link
                       phx-click={JS.push("select_task", value: %{id: task.id})}
                       class="flex flex-col"
@@ -203,7 +203,7 @@
             <.link
               phx-click={JS.push("select_backup_rider", value: %{id: rider.id})}
               class={
-              "block transition duration-150 ease-in-out bg-green-50 hover:bg-green-100 focus:outline-none focus:bg-green-100#{if selected?(@selected_rider, rider), do: " bg-green-100"}"
+              "block transition duration-150 ease-in-out bg-green-50 hover:bg-green-100 focus:outline-hidden focus:bg-green-100 #{if selected?(@selected_rider, rider), do: " bg-green-100"}"
             }
             >
               <div class="flex flex-row items-center px-4 py-4">
@@ -227,7 +227,7 @@
                 <%= if rider.task_enter_building do %>
                   <Heroicons.building_office
                     mini
-                    class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end"
+                    class="shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end"
                   />
                 <% end %>
 
@@ -235,7 +235,7 @@
                   <.with_tooltip>
                     <Heroicons.star
                       mini
-                      class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end"
+                      class="shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end"
                     />
                     <:tooltip>
                       <div class="w-18">
@@ -246,12 +246,12 @@
                 <% end %>
 
                 <%= if has_notes?(rider) do %>
-                  <Heroicons.pencil_square mini class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500" />
+                  <Heroicons.pencil_square mini class="shrink-0 w-4 h-4 mx-1 text-gray-500" />
                 <% end %>
 
                 <%= if rider.text_based_itinerary do %>
                   <.with_tooltip>
-                    <Heroicons.signal_slash mini class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500" />
+                    <Heroicons.signal_slash mini class="shrink-0 w-4 h-4 mx-1 text-gray-500" />
                     <:tooltip>
                       <div class="w-40">
                         This rider will receive an extra message with text-only delivery instructions
@@ -264,21 +264,21 @@
             <%= if selected?(@selected_rider, rider) do %>
               <div class="p-2 mx-1 rounded-b shadow-inner bg-blue-50">
                 <div class="flex flex-row my-2">
-                  <Heroicons.clock mini class="flex-shrink-0 w-4 h-4 text-gray-500" />
+                  <Heroicons.clock mini class="shrink-0 w-4 h-4 text-gray-500" />
                   <div class="mx-1 text-sm leading-5 text-gray-800">
                     {pickup_window(@campaign, rider)}
                   </div>
                 </div>
                 <%= if has_notes?(rider) do %>
                   <div class="flex flex-row my-2">
-                    <Heroicons.pencil_square mini class="flex-shrink-0 w-4 h-4 text-gray-500" />
+                    <Heroicons.pencil_square mini class="shrink-0 w-4 h-4 text-gray-500" />
                     <div class="mx-1 text-sm leading-5 text-gray-600">
                       {rider.task_notes}
                     </div>
                   </div>
                 <% end %>
 
-                <div class="px-2 py-2 mx-1 text-sm font-medium leading-5 text-green-800 border border-green-200 rounded bg-green-50">
+                <div class="px-2 py-2 mx-1 text-sm font-medium leading-5 text-green-800 border border-green-200 rounded-sm bg-green-50">
                   <%= if Enum.any?(rider.assigned_tasks) do %>
                     Available as backup while assigned to {Enum.count(rider.assigned_tasks)} specific {ngettext(
                       "delivery",

@@ -10,10 +10,12 @@
     phx-change="validate"
     phx-submit="save"
   >
-    <.input type="select" field={f[:program_id]} options={@program_options} label="Program" />
-    <.link navigate={~p"/programs/new"} class="text-xs link">
-      Create New Program
-    </.link>
+    <div>
+      <.input type="select" field={f[:program_id]} options={@program_options} label="Program" />
+      <.link navigate={~p"/programs/new"} class="text-xs link">
+        Create New Program
+      </.link>
+    </div>
     <div class="flex space-x-2">
       <.input type="date" field={f[:delivery_date]} label="Delivery Date" />
       <.input type="time" field={f[:start_time]} label="Start" />

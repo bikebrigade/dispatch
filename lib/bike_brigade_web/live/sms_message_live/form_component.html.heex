@@ -21,7 +21,7 @@
 
       <.input type="textarea" field={f[:body]} label="Message" />
 
-      <div class="flex justify-end mt-6 space-x-2">
+      <div class="flex justify-end space-x-2">
         <.button
           id="emoji-button2"
           phx-hook="EmojiButton"
@@ -36,7 +36,7 @@
         <.live_file_input upload={@uploads.media} class="sr-only" />
         <label
           for={@uploads.media.ref}
-          class="inline-flex items-center px-1.5 py-1.5 text-xs font-medium text-gray-700 bg-white border border-transparent border-gray-300 rounded shadow-sm cursor-pointer hover:bg-gray-50 focus:ring-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2"
+          class="inline-flex items-center px-1.5 py-1.5 text-xs font-medium text-gray-700 bg-white border border-transparent border-gray-300 rounded-sm shadow-xs cursor-pointer hover:bg-gray-50 focus:ring-indigo-500 focus:outline-hidden focus:ring-2 focus:ring-offset-2"
         >
           <Icons.tailwindui_upload_photo class="w-6 h-6" aria-hidden="true" />
         </label>

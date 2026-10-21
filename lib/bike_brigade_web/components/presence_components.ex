@@ -13,14 +13,14 @@ defmodule BikeBrigadeWeb.Components.PresenceComponents do
     >
       <div
         id="currently-viewing"
-        class="hidden w-64 bg-white border border-gray-200 shadow sm:rounded-lg"
+        class="hidden w-64 bg-white border border-gray-200 shadow-sm sm:rounded-lg"
       >
         <div class="px-2 py-3 bg-white border-b border-gray-200 sm:rounded-t-lg">
           <div class="absolute top-0 right-0 pt-4 pr-4 sm:block">
             <button
               phx-click={JS.hide(to: "#currently-viewing") |> JS.show(to: "#currently-viewing-close")}
               type="button"
-              class="block text-gray-400 bg-white rounded-md hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              class="block text-gray-400 bg-white rounded-md hover:text-gray-500 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               <span class="sr-only">Close</span>
               <Heroicons.x_mark solid class="w-6 h-6" />

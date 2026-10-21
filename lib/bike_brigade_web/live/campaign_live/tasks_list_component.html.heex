@@ -38,7 +38,7 @@
       phx-keydown="search_tasks"
       phx-debounce="100"
       value={@tasks_query[:search]}
-      class="block w-full px-3 py-2 my-2 placeholder-gray-400 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+      class="block w-full px-3 py-2 my-2 placeholder-gray-400 border-gray-300 rounded-md shadow-xs focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
       placeholder="Search Deliveries"
     />
   </div>
@@ -52,7 +52,7 @@
         <.link
           phx-click={JS.push("select_task", value: %{id: task.id})}
           class={[
-            "block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50",
+            "block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50",
             selected?(@selected_task, task) && "bg-gray-100"
           ]}
         >
@@ -65,7 +65,7 @@
                 <.with_tooltip>
                   <Heroicons.check
                     mini
-                    class="flex-shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end"
+                    class="shrink-0 w-4 h-4 mx-1 text-gray-500 justify-self-end"
                   />
                   <:tooltip>
                     <div class="w-18">
@@ -76,7 +76,7 @@
               <% end %>
             </div>
             <div class="md:flex">
-              <div class="flex-shrink-0">
+              <div class="shrink-0">
                 <%= if task_assigned?(task) do %>
                   <span class="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium leading-5 bg-green-100 text-green-800">
                     Assigned
@@ -96,32 +96,32 @@
         <%= if selected?(@selected_task, task) do %>
           <div class="p-2 mx-1 rounded-b shadow-inner bg-gray-50">
             <div class="flex flex-row my-2">
-              <Heroicons.map_pin mini class="flex-shrink-0 w-4 h-4 text-gray-500" />
+              <Heroicons.map_pin mini class="shrink-0 w-4 h-4 text-gray-500" />
               <div class="mx-1 text-sm leading-5 text-gray-800">
                 <span class="pii">{task.dropoff_location.address}</span>
               </div>
             </div>
             <div :if={task.dropoff_phone} class="flex flex-row my-2">
-              <Heroicons.device_phone_mobile mini class="flex-shrink-0 w-4 h-4" />
+              <Heroicons.device_phone_mobile mini class="shrink-0 w-4 h-4" />
               <div class="mx-1 text-sm leading-5 text-gray-800">
                 <span class="pii">{task.dropoff_phone}</span>
               </div>
             </div>
             <div :if={task.delivery_instructions} class="flex flex-row my-2">
-              <Heroicons.pencil_square mini class="flex-shrink-0 w-4 h-4 text-gray-500" />
+              <Heroicons.pencil_square mini class="shrink-0 w-4 h-4 text-gray-500" />
               <div class="mx-1 text-sm leading-5 text-gray-600">
                 <span class="pii">{task.delivery_instructions}</span>
               </div>
             </div>
 
             <div :if={task.signup_notes} class="flex flex-row my-2">
-              <Heroicons.clipboard_document_list mini class="flex-shrink-0 w-4 h-4 text-gray-500" />
+              <Heroicons.clipboard_document_list mini class="shrink-0 w-4 h-4 text-gray-500" />
               <div class="mx-1 text-sm leading-5 text-gray-600">
                 <span class="pii">{task.signup_notes}</span>
               </div>
             </div>
             <div class="flex flex-row my-2">
-              <Icons.maki_bicycle_15 class="flex-shrink-0 w-4 h-4 text-gray-500" />
+              <Icons.maki_bicycle_15 class="shrink-0 w-4 h-4 text-gray-500" />
               <%= cond do %>
                 <% task.assigned_rider != nil -> %>
                   <.link
@@ -161,7 +161,7 @@
               <input type="hidden" name="task_id" value={task.id} />
               <select
                 name="delivery_status"
-                class="block px-2 py-1 mt-1 text-xs leading-6 border-gray-300 form-select focus:outline-none focus:ring-blue focus:border-blue-300"
+                class="block px-2 py-1 mt-1 text-xs leading-6 border-gray-300 form-select focus:outline-hidden focus:ring-blue focus:border-blue-300"
               >
                 <%= for delivery_status <- ~W(pending picked_up completed failed) do %>
                   <option selected={task.delivery_status == String.to_atom(delivery_status)}>

@@ -29,11 +29,11 @@ defmodule BikeBrigadeWeb.Components.MessagingInbox do
     <div
       id="merged-inbox"
       class={[
-        "relative h-[var(--inbox-workspace-height)] lg:h-auto min-h-0 min-w-0 flex-1 gap-4 lg:flex",
+        "relative h-(--inbox-workspace-height) lg:h-auto min-h-0 min-w-0 flex-1 gap-4 lg:flex",
         if(@mobile_open, do: "flex", else: "hidden")
       ]}
     >
-      <section class="min-w-0 flex-1 flex flex-col rounded-lg bg-white shadow">
+      <section class="min-w-0 flex-1 flex flex-col rounded-lg bg-white shadow-sm">
         <div class="shrink-0 border-b border-gray-200 p-5">
           <.link
             id="back-to-contexts"
@@ -71,7 +71,7 @@ defmodule BikeBrigadeWeb.Components.MessagingInbox do
               <span class="min-w-0 flex-1 truncate group-open:hidden">{@context.group.body}</span>
               <Heroicons.chevron_down class="ml-auto h-4 w-4 shrink-0 text-gray-400 group-open:rotate-180" />
             </summary>
-            <p class="mt-2 whitespace-pre-line break-words text-sm text-gray-900">
+            <p class="mt-2 whitespace-pre-line wrap-break-word text-sm text-gray-900">
               {@context.group.body}
             </p>
             <p class="mt-1 text-xs text-gray-500">
@@ -128,7 +128,7 @@ defmodule BikeBrigadeWeb.Components.MessagingInbox do
                   </span>
                 </div>
                 <p class={[
-                  "mt-2 break-words text-sm text-gray-600",
+                  "mt-2 wrap-break-word text-sm text-gray-600",
                   if(row.latest && row.latest.incoming, do: "font-extrabold", else: "font-medium")
                 ]}>
                   {if row.latest,
@@ -242,7 +242,7 @@ defmodule BikeBrigadeWeb.Components.MessagingInbox do
           patch={@close}
           id="back-to-riders"
           aria-label="Back to conversations"
-          class="-ml-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-indigo-600 hover:bg-indigo-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+          class="-ml-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-indigo-600 hover:bg-indigo-50 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-indigo-500"
         >
           <Heroicons.chevron_left class="w-6 h-6 text-indigo-600" />
         </.link>
@@ -254,7 +254,7 @@ defmodule BikeBrigadeWeb.Components.MessagingInbox do
         </span>
         <div class="min-w-0 flex-1">
           <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <h3 class="pii break-words text-base font-semibold leading-6 text-gray-900">
+            <h3 class="pii wrap-break-word text-base font-semibold leading-6 text-gray-900">
               <.link
                 navigate={~p"/riders/#{@rider}"}
                 class="hover:text-indigo-600 hover:underline"
@@ -329,14 +329,14 @@ defmodule BikeBrigadeWeb.Components.MessagingInbox do
     <div class="mt-3">
       <label
         for={@upload.ref}
-        class="inline-flex cursor-pointer items-center gap-1.5 rounded border border-gray-300 bg-white px-2 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2"
+        class="inline-flex cursor-pointer items-center gap-1.5 rounded-sm border border-gray-300 bg-white px-2 py-1.5 text-xs font-medium text-gray-700 shadow-xs hover:bg-gray-50 focus-within:outline-hidden focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2"
       >
         <.live_file_input upload={@upload} class="sr-only" />
         <Icons.tailwindui_upload_photo class="h-5 w-5" aria-hidden="true" /> Add photos
       </label>
       <div :if={@upload.entries != []} class="mt-3 grid grid-cols-3 gap-3">
         <figure :for={entry <- @upload.entries}>
-          <.live_img_preview entry={entry} class="h-20 w-full rounded object-cover" />
+          <.live_img_preview entry={entry} class="h-20 w-full rounded-sm object-cover" />
           <figcaption class="mt-1 flex items-center gap-1 text-xs text-gray-500">
             <span class="min-w-0 flex-1 truncate">{entry.client_name}</span>
             <button

@@ -43,23 +43,23 @@
     </p>
   </div>
   <div class="flex justify-between flex-1 sm:justify-end">
-    <span class="relative z-0 inline-flex rounded-md shadow-sm">
+    <span class="relative z-0 inline-flex rounded-md shadow-xs">
       <.link
         patch={~p"/campaigns?current_week=#{Date.add(@current_week, -7)}"}
-        class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+        class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-hidden focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
       >
         <Heroicons.chevron_left solid class="w-5 h-5" />
       </.link>
       <.link
         patch={~p"/campaigns?current_week=#{Date.beginning_of_week(LocalizedDateTime.today())}"}
-        class="relative items-center hidden px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 sm:inline-flex hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+        class="relative items-center hidden px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 sm:inline-flex hover:bg-gray-50 focus:z-10 focus:outline-hidden focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
       >
         Today
       </.link>
 
       <.link
         patch={~p"/campaigns?current_week=#{Date.add(@current_week, 7)}"}
-        class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+        class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-hidden focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
       >
         <Heroicons.chevron_right solid class="w-5 h-5" />
       </.link>
@@ -71,7 +71,7 @@
 </nav>
 <%= if @campaigns != [] do %>
   <%= for {date, campaigns} <- @campaigns do %>
-    <div class="flex w-full bg-white shadow sm:my-1 sm:rounded-md">
+    <div class="flex w-full bg-white shadow-sm sm:my-1 sm:rounded-md">
       <div class="w-32 py-4 pl-4">
         <.date date={date} />
       </div>
@@ -95,7 +95,7 @@
                     </span>
                   </.link>
                 </div>
-                <div class="flex-shrink-0 space-y-1 md:space-y-0 md:space-x-2 md:flex">
+                <div class="shrink-0 space-y-1 md:space-y-0 md:space-x-2 md:flex">
                   <.button size={:xsmall} color={:white} patch={~p"/campaigns/#{c}/edit"}>
                     Edit
                   </.button>
@@ -123,18 +123,18 @@
                     <Heroicons.clock
                       mini
                       aria-label="Pickup Time"
-                      class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-500"
+                      class="shrink-0 mr-1.5 h-5 w-5 text-gray-500"
                     />
                     {pickup_window(c)}
                   </p>
                   <p class="flex items-center mt-2 text-sm text-gray-700 sm:mt-0 sm:ml-6">
-                    <Icons.maki_bicycle_share class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-500" />
+                    <Icons.maki_bicycle_share class="shrink-0 mr-1.5 h-5 w-5 text-gray-500" />
                     {c.stats.signed_up_rider_count}
                   </p>
                   <p class="flex items-center mt-2 text-sm text-gray-700 sm:mt-0 sm:ml-6">
                     <Heroicons.shopping_bag
                       mini
-                      class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-500"
+                      class="shrink-0 mr-1.5 h-5 w-5 text-gray-500"
                     />
                     {c.stats.task_count}
                   </p>

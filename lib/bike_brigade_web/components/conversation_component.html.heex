@@ -2,7 +2,7 @@
   id={"conversation-component:#{@rider.id}"}
   class={
     [
-      "w-full min-h-0 sm:flex-1 px-1 flex-col bg-white shadow sm:rounded-lg sm:flex",
+      "w-full min-h-0 sm:flex-1 px-1 flex-col bg-white shadow-sm sm:rounded-lg sm:flex",
       # In the inbox the card fills its column at every size; elsewhere it keeps its
       # original mobile sizing.
       @unified_header && "flex-1",
@@ -22,7 +22,7 @@
   />
   <div
     :if={!@unified_header}
-    class="flex-grow-0 px-4 py-5 bg-white border-b border-gray-200 sm:px-6 sm:rounded-t-lg"
+    class="grow-0 px-4 py-5 bg-white border-b border-gray-200 sm:px-6 sm:rounded-t-lg"
   >
     <div class="flex items-start gap-3">
       <div class="flex-none pt-1 sm:hidden">
@@ -34,7 +34,7 @@
         <h3 class="text-lg font-medium leading-6 text-gray-900">
           <%= if @rider do %>
             <div class="flex flex-col">
-              <div class="pii break-words">
+              <div class="pii wrap-break-word">
                 <span>
                   <.link navigate={~p"/riders/#{@rider}"} class="link">
                     {@rider.name}
@@ -68,7 +68,7 @@
 
   <%= if @rider do %>
     <%= if @streams.conversation.inserts == [] do %>
-      <div id="conversation:empty" class="flex flex-col flex-grow px-4 py-5 sm:p-6">
+      <div id="conversation:empty" class="flex flex-col grow px-4 py-5 sm:p-6">
         <div class="italic text-gray-700">
           No messages yet
         </div>
@@ -85,7 +85,7 @@
           <div
             id={dom_id}
             class={
-              "flex flex-shrink-0 #{if message.incoming, do: "flex-row", else: "flex-row-reverse"}"
+              "flex shrink-0 #{if message.incoming, do: "flex-row", else: "flex-row-reverse"}"
             }
           >
             <div class="w-3/5 my-2 text-gray-700">
@@ -178,7 +178,7 @@
     <% end %>
 
     <div
-      class="flex-grow-0 px-6 py-5 bg-white border-t border-gray-200 sm:rounded-b-lg"
+      class="grow-0 px-6 py-5 bg-white border-t border-gray-200 sm:rounded-b-lg"
       phx-drop-target={@uploads.media.ref}
     >
       <div class="w-full">
@@ -215,8 +215,8 @@
                 <label
                   for={@uploads.media.ref}
                   class="inline-flex items-center px-1.5 py-1.5 text-xs font-medium text-gray-700
-                  bg-white border border-transparent border-gray-300 rounded shadow-sm cursor-pointer
-                  hover:bg-gray-50 focus-within:ring-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 "
+                  bg-white border border-transparent border-gray-300 rounded shadow-xs cursor-pointer
+                  hover:bg-gray-50 focus-within:ring-indigo-500 focus-within:outline-hidden focus-within:ring-2 focus-within:ring-offset-2 "
                 >
                   <.live_file_input upload={@uploads.media} class="sr-only" />
 
