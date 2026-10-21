@@ -1,5 +1,4 @@
 defmodule BikeBrigadeWeb.Components.SMSMessageListComponent do
-  use Phoenix.Component
   use BikeBrigadeWeb, :html
   alias BikeBrigade.Messaging.SmsMessage
 

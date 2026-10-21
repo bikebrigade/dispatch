@@ -60,7 +60,7 @@ The application follows Phoenix context patterns with these main domains:
 ### Frontend Architecture
 - **Phoenix LiveView**: Primary UI framework for real-time interactions
 - **TailwindCSS**: Styling framework
-- **Alpine.js**: JavaScript interactivity (v2.8.2)
+- **Alpine.js**: JavaScript interactivity (v3)
 - **LeafletJS**: Map functionality
 - **Chart.js**: Data visualization
 
