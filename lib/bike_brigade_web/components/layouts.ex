@@ -38,7 +38,8 @@ defmodule BikeBrigadeWeb.Layouts do
       :delivery_notes,
       :profile,
       :campaigns_signup,
-      :leaderboard
+      :leaderboard,
+      :dev_components
     ]
 
   defp sidebar(assigns) do
