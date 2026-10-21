@@ -101,7 +101,7 @@
     </div>
   </div>
   <div class="grid flex-1 min-h-0 grid-cols-2 gap-4 md:grid-cols-4">
-    <div class="h-96 px-2 py-3 overflow-hidden bg-white shadow md:h-full md:min-h-0 sm:rounded-lg">
+    <div class="h-96 px-2 py-3 overflow-hidden bg-white shadow-sm md:h-full md:min-h-0 sm:rounded-lg">
       <.live_component
         module={TasksListComponent}
         id={:tasks_list}
@@ -112,7 +112,7 @@
         selected_rider={@selected_rider}
       />
     </div>
-    <div class="h-96 px-2 py-3 overflow-hidden bg-white shadow md:h-full md:min-h-0 md:order-last sm:rounded-lg">
+    <div class="h-96 px-2 py-3 overflow-hidden bg-white shadow-sm md:h-full md:min-h-0 md:order-last sm:rounded-lg">
       <.live_component
         module={RidersListComponent}
         id={:riders_list}
@@ -125,7 +125,7 @@
         resent={@resent}
       />
     </div>
-    <div class="h-96 col-span-2 overflow-hidden bg-white shadow md:h-full md:min-h-0 sm:rounded-lg">
+    <div class="h-96 col-span-2 overflow-hidden bg-white shadow-sm md:h-full md:min-h-0 sm:rounded-lg">
       <div class="h-full px-4 py-5 sm:p-6">
         <.campaign_map campaign={@campaign} riders={@riders} tasks={@tasks} />
       </div>

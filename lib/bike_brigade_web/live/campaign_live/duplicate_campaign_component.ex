@@ -21,7 +21,7 @@ defmodule BikeBrigadeWeb.CampaignLive.DuplicateCampaignComponent do
         phx-target={@myself}
         phx-submit="duplicate"
       >
-        <div class="flex my-2 mt-4 space-x-2">
+        <div class="flex mt-4 space-x-2">
           <.inputs_for :let={d} field={f[:date_time_form]}>
             <.input
               type="date"

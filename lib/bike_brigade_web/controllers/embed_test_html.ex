@@ -16,8 +16,7 @@ defmodule BikeBrigadeWeb.EmbedTestHTML do
       frameBorder="0"
       style="width:100%;border:none;"
       src={@src}
-    >
-    </iframe>
+    ></iframe>
     """
   end
 

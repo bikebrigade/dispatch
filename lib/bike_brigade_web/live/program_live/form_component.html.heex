@@ -68,7 +68,7 @@
               />
               <.input type="time" field={s[:start_time]} />
               <.input type="time" field={s[:end_time]} />
-              <div class="justify-center mt-1 ml-auto">
+              <div class="justify-center">
                 <.button
                   color={:clear}
                   size={:xsmall}
@@ -81,12 +81,12 @@
                   <Heroicons.x_mark solid class="w-6 h-6" />
                 </.button>
               </div>
-              <hr class="mb-2 md:hidden" />
+              <hr class="md:hidden" />
             </div>
           </.inputs_for>
         </div>
 
-        <div :if={@action == :edit} class="my-2">
+        <div :if={@action == :edit} class="mt-2">
           <.header small>
             Items
             <:subtitle>
@@ -180,7 +180,7 @@
             <div class="flex mt-4 text-sm leading-6 text-gray-600">
               <label
                 for={@uploads.photos.ref}
-                class="relative font-semibold text-indigo-600 bg-white rounded-md cursor-pointer focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
+                class="relative font-semibold text-indigo-600 bg-white rounded-md cursor-pointer focus-within:outline-hidden focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
               >
                 <span>Upload a file</span>
                 <.live_file_input upload={@uploads.photos} class="sr-only" />

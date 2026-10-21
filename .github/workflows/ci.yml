@@ -13,7 +13,7 @@ jobs:
 
     services:
       db:
-        image: postgis/postgis
+        image: postgis/postgis:16-3.6
         ports: ['5432:5432']
         env:
           POSTGRES_PASSWORD: postgres
@@ -24,12 +24,14 @@ jobs:
           --health-retries 5
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Elixir
-        uses: erlef/setup-elixir@v1
+      - uses: actions/checkout@v4
         with:
-          elixir-version: '1.15'
-          otp-version: '26'
+          persist-credentials: false
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: '1.20'
+          otp-version: '29'
 
       - name: Cache Elixir deps
         id: elixir-deps-cache

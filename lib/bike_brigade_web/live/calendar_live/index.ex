@@ -99,7 +99,7 @@ defmodule BikeBrigadeWeb.CalendarLive.Index do
     else
       ~H"""
       <div class="flex items-start text-sm text-gray-300">
-        <Heroicons.shopping_bag aria-label="Items" class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
+        <Heroicons.shopping_bag aria-label="Items" class="shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
         <div class="flex flex-col">
           You'll be delivering:
           <p

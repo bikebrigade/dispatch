@@ -14,7 +14,6 @@ defmodule BikeBrigade.Delivery.ApiSync do
 
   import Ecto.Query
 
-  require Logger
   # Hardcoded id of our main list
   @mailchimp_list_id "248c25df52"
   @doc """

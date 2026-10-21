@@ -52,6 +52,28 @@
       <% end %>
     </div>
 
+    <div>
+      <div>
+        <h3 class="text-lg font-medium leading-6 text-gray-900">
+          Flags
+        </h3>
+        <p class="mt-1 text-sm text-gray-500">
+          Opt the user into various features
+        </p>
+      </div>
+
+      <.inputs_for :let={flag_form} field={f[:flags]}>
+        <div class="mt-4 space-y-4">
+          <.input
+            type="checkbox"
+            field={flag_form[:unified_messaging]}
+            label="Unified messaging inbox"
+            help_text="Use the new messaging inbox with campaign rosters and saved bulk messages."
+          />
+        </div>
+      </.inputs_for>
+    </div>
+
     <:actions>
       <.button type="submit" phx-disable-with="Saving...">Save</.button>
     </:actions>

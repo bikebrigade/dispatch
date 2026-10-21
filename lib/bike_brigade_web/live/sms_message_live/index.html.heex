@@ -6,7 +6,7 @@
     unless(@live_action == :index, do: "hidden")
   ]}>
     <div class={[
-      "flex flex-col h-full bg-white shadow sm:rounded-lg",
+      "flex flex-col h-full bg-white shadow-sm sm:rounded-lg",
       "max-h-[calc(100vh-6rem)] sm:max-h-[calc(100vh-6.75rem)] md:max-h-[calc(100vh-3rem)]"
     ]}>
       <div class="px-4 py-5 bg-white border-b border-gray-200 sm:px-6 sm:rounded-t-lg">
@@ -37,12 +37,12 @@
               </div>
             </form>
           </div>
-          <div class="flex-shrink-0 mt-2 ml-4">
+          <div class="shrink-0 mt-2 ml-4">
             <div class="flex items-center">
-              <span class="inline-flex ml-3 rounded-md shadow-sm">
+              <span class="inline-flex ml-3 rounded-md shadow-xs">
                 <.link
                   patch={~p"/messages/new"}
-                  class="inline-flex items-center px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:ring-indigo active:bg-indigo-700"
+                  class="inline-flex items-center px-4 py-2 text-sm font-medium leading-5 text-white transition duration-150 ease-in-out bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-500 focus:outline-hidden focus:border-indigo-700 focus:ring-indigo active:bg-indigo-700"
                 >
                   New
                 </.link>
@@ -71,7 +71,7 @@
     :if={@latest_campaign_tasks != []}
     class={"w-full px-3 sm:w-2/12 #{unless @live_action == :tasks, do: "hidden"} sm:block"}
   >
-    <div class="flex-grow-0 px-4 py-5 mb-2 bg-white border-b border-gray-200 sm:hidden">
+    <div class="grow-0 px-4 py-5 mb-2 bg-white border-b border-gray-200 sm:hidden">
       <div class="flex flex-row items-center -mt-2 -ml-4">
         <div class="ml-4">
           <.link patch={~p"/messages/#{@selected_rider}"}>
@@ -109,14 +109,14 @@
           x-on:click={"$clipboard(#{details_buffer(campaign)})"}
           title="Copy delivery details"
           type="button"
-          class="inline-flex items-center p-1 ml-2 text-indigo-700 bg-indigo-100 border border-transparent rounded-full shadow-sm hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          class="inline-flex items-center p-1 ml-2 text-indigo-700 bg-indigo-100 border border-transparent rounded-full shadow-xs hover:bg-indigo-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
           <Heroicons.clipboard class="w-5 h-5" />
         </button>
       </div>
 
       <%= for task <- campaign.tasks do %>
-        <div class="p-2 mb-2 bg-white border-b border-gray-200 shadow sm:rounded-lg">
+        <div class="p-2 mb-2 bg-white border-b border-gray-200 shadow-sm sm:rounded-lg">
           <div>{task.dropoff_name}</div>
           <div>{task.dropoff_location.address}</div>
           <div>{task.dropoff_phone}</div>
@@ -131,7 +131,7 @@
                   )
                 }>
                   <div class={
-                      "px-1.5 py-0.5 rounded-full border-solid border-2 border-gray-400 bg-opacity-50 text-gray-800 justify-center hover:border-gray-600 #{if task.delivery_status == String.to_atom(delivery_status), do: "bg-gray-400"}"
+                      "px-1.5 py-0.5 rounded-full border-solid border-2 border-gray-400 text-gray-800 justify-center hover:border-gray-600 #{if task.delivery_status == String.to_atom(delivery_status), do: "bg-gray-400/50"}"
                     }>
                     <div class="text-xs text-center">
                       {delivery_status}

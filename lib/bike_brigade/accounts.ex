@@ -188,6 +188,14 @@ defmodule BikeBrigade.Accounts do
     User.changeset(user, attrs)
   end
 
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking user changes made by an admin,
+  including dispatcher status and feature flags.
+  """
+  def change_user_as_admin(%User{} = user, attrs \\ %{}) do
+    User.admin_changeset(user, attrs)
+  end
+
   def get_dispatcher_phone_numbers() do
     query =
       from u in User,

@@ -1,0 +1,223 @@
+<div id="messaging-inbox">
+  <.currently_viewing others_present={@others_present} />
+  <nav class="mb-5 flex border-b border-gray-200 sm:gap-8" aria-label="Messages">
+    <.link
+      :for={tab <- @tabs}
+      id={"inbox-tab-#{tab.value}"}
+      patch={
+        inbox_path(assigns, %{
+          "tab" => tab.value,
+          "context" => nil,
+          "rider" => nil,
+          "search" => nil
+        })
+      }
+      aria-current={if @tab == tab.value, do: "page"}
+      class={[
+        "flex flex-1 items-center justify-center gap-2 border-b-2 px-1 py-4 text-xs font-medium sm:flex-none sm:text-sm",
+        if(@tab == tab.value,
+          do: "border-indigo-500 text-indigo-600",
+          else: "border-transparent text-gray-500 hover:text-gray-700"
+        )
+      ]}
+    >
+      <span class="sm:hidden">{if tab.value == "all", do: "All chats", else: tab.label}</span><span class="hidden sm:inline">{tab.label}</span>
+      <span
+        :if={tab.count}
+        class="hidden rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-700 sm:inline"
+      >
+        {tab.count}
+      </span>
+    </.link>
+  </nav>
+  <%!-- isolate keeps the pane's drawers (z-10..30) below page-level overlays like the slideover --%>
+  <div
+    id="inbox-workspace"
+    class="relative isolate flex min-h-80 gap-4 h-[calc(100dvh-10.5rem)] sm:h-[calc(100dvh-10.75rem)] md:h-[calc(100dvh-7.75rem)]"
+  >
+    <aside
+      :if={@tab != "all"}
+      id="inbox-contexts"
+      class={
+        [
+          "w-full shrink-0 flex-col rounded-lg bg-white shadow-sm min-h-0 flex",
+          "lg:visible lg:static lg:w-1/4 lg:min-w-[16rem]",
+          # Below lg the roster replaces this list. Keep it rendered but invisible (rather
+          # than display: none) so it keeps its scroll position when you come back.
+          (@params["context"] || @params["rider"]) && "invisible absolute inset-0"
+        ]
+      }
+    >
+      <div class="shrink-0 border-b border-gray-200 p-4">
+        <%= if @tab == "campaigns" do %>
+          <h2 class="text-base font-semibold text-gray-900">Campaigns this week</h2>
+          <p class="mt-1 text-xs text-gray-500">{@week_label}</p>
+          <div class="mt-4">
+            <.toggle
+              id="inbox-mine"
+              enabled={@mine}
+              label="Only my campaigns"
+              phx-click="toggle_mine"
+            />
+          </div>
+        <% else %>
+          <h2 class="text-base font-semibold text-gray-900">Bulk messages</h2>
+          <.button id="new-bulk" type="button" phx-click="bulk" size={:small} class="mt-3">
+            <Heroicons.plus class="mr-2 h-4 w-4" />New bulk message
+          </.button>
+        <% end %>
+      </div>
+      <div class="min-h-0 flex-1 overflow-y-auto">
+        <.link
+          :for={context <- @contexts}
+          patch={inbox_path(assigns, %{"context" => context.id, "rider" => nil, "search" => nil})}
+          class={[
+            "block border-b border-gray-200 p-4 hover:bg-gray-50",
+            @context && @context.id == context.id && "bg-indigo-50"
+          ]}
+        >
+          <p class="text-sm font-semibold text-indigo-600">{context.name}</p>
+          <p class="mt-1 text-xs text-gray-500">{context.detail}</p>
+          <p class="mt-2 text-xs text-gray-500">{length(context.ids)} riders</p>
+        </.link>
+        <p :if={@contexts == []} class="p-4 text-sm text-gray-500">
+          {if @tab == "campaigns",
+            do: "No campaigns match your filters.",
+            else: "No saved bulk messages yet."}
+        </p>
+      </div>
+    </aside>
+    <.merged_inbox
+      :if={@tab != "all"}
+      uploads={if @modal, do: nil, else: @uploads}
+      context={@context}
+      rows={@rows}
+      rider={@rider}
+      tab={@tab}
+      close={inbox_path(assigns, %{"rider" => nil})}
+      wide_chat_xl={@deliveries != []}
+      everyone_open={@everyone_open}
+      everyone_form={@everyone_form}
+      confirm_send={@confirm_send}
+      search={@search}
+      mobile_open={!!(@params["context"] || @params["rider"])}
+      back_to_contexts={inbox_path(assigns, %{"context" => nil, "rider" => nil, "search" => nil})}
+    >
+      <:chat>
+        <.rider_pane
+          :if={@rider}
+          rider={@rider}
+          current_user={@current_user}
+          close={inbox_path(assigns, %{"rider" => nil})}
+          deliveries={@deliveries}
+          deliveries_open={@deliveries_open}
+          deliveries_link={@deliveries_link}
+          deliveries_back={@deliveries_back}
+        />
+      </:chat>
+    </.merged_inbox>
+    <section
+      :if={@tab == "all"}
+      id="inbox-riders"
+      class={
+        [
+          "w-full shrink-0 flex-col rounded-lg bg-white shadow-sm min-h-0 flex",
+          "lg:visible lg:static lg:w-1/4 lg:min-w-[16rem]",
+          # Below lg the chat replaces this list; keep it rendered but invisible so it
+          # keeps its scroll position (see #inbox-contexts).
+          @params["rider"] && "invisible absolute inset-0"
+        ]
+      }
+    >
+      <div class="border-b border-gray-200 px-4 py-5">
+        <h2 class="text-base font-semibold text-gray-900">All conversations</h2>
+        <form id="inbox-search-form" phx-change="search" class="mt-3">
+          <.input
+            errors={[]}
+            id="inbox-search"
+            name="search"
+            value={@search}
+            placeholder="Search for Riders"
+            phx-debounce="150"
+          />
+        </form>
+      </div>
+      <div class="min-h-0 flex-1 overflow-y-auto">
+        <.sms_message_list
+          conversations={@streams.conversations}
+          rider_link_fn={fn id -> inbox_path(assigns, %{"rider" => id}) end}
+        />
+      </div>
+    </section>
+    <section
+      :if={@tab == "all"}
+      id="inbox-chat"
+      class={[
+        "min-h-0 min-w-0 flex-1 flex-col",
+        if(@params["rider"], do: "flex", else: "hidden lg:flex")
+      ]}
+    >
+      <.rider_pane
+        :if={@rider}
+        rider={@rider}
+        current_user={@current_user}
+        close={inbox_path(assigns, %{"rider" => nil})}
+        deliveries={@deliveries}
+        deliveries_open={@deliveries_open}
+        deliveries_link={@deliveries_link}
+        deliveries_back={@deliveries_back}
+      />
+      <p :if={!@rider} class="rounded-lg bg-white p-8 text-gray-500 shadow-sm">
+        No conversations yet.
+      </p>
+    </section>
+  </div>
+  <.slideover :if={@modal} id="new-bulk-message" show on_cancel={JS.push("close_bulk")}>
+    <:title>New bulk message</:title>
+    <:subtitle>Each rider receives an individual message.</:subtitle>
+    <.form
+      for={@bulk_form}
+      id="inbox-bulk-form"
+      phx-change="validate_bulk"
+      phx-submit="send_bulk"
+      class="space-y-6"
+    >
+      <div>
+        <.rider_select
+          id="inbox-rider-select"
+          field={@bulk_form[:rider_ids]}
+          multi={true}
+          label="To"
+        />
+        <.error :for={msg <- rider_errors(@bulk_form)}>{msg}</.error>
+      </div>
+      <div>
+        <.input field={@bulk_form[:body]} type="textarea" label="Message" maxlength="1600" />
+        <.attachments upload={@uploads.media} />
+      </div>
+      <div class="space-y-4">
+        <%!-- The switch is a button, so the hidden input carries its value with the form --%>
+        <input
+          type="hidden"
+          name={@bulk_form[:save_group].name}
+          value={to_string(save_group?(@bulk_form))}
+        />
+        <.toggle
+          id="save-group-toggle"
+          enabled={save_group?(@bulk_form)}
+          label="Save this group"
+          phx-click="toggle_save_group"
+        />
+        <.input
+          :if={save_group?(@bulk_form)}
+          field={@bulk_form[:group_name]}
+          label="Group name"
+          maxlength="100"
+        />
+      </div>
+      <p :if={@confirm_send != ""} class="text-sm text-amber-700">{@confirm_send}</p>
+    </.form>
+    <:cancel>Cancel</:cancel>
+    <:confirm form="inbox-bulk-form" type="submit" phx-disable-with="Sending…">Send</:confirm>
+  </.slideover>
+</div>

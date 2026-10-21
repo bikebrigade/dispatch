@@ -119,7 +119,7 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
               <li id={"rider-selection:#{rider.id}"}>
                 <.link
                   phx-click={JS.push("select", value: %{id: rider.id}, target: @myself)}
-                  class="block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
+                  class="block transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50"
                 >
                   <.rider rider={rider} />
                 </.link>
@@ -141,9 +141,9 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
       |> assign_new(:x, fn -> [] end)
 
     ~H"""
-    <div class="flex items-start px-2 py-3 border border-gray-300 rounded-md shadow-sm">
+    <div class="flex items-start px-2 py-3 border border-gray-300 rounded-md shadow-xs">
       <div class="flex items-center flex-1 min-w-0">
-        <div class="flex-shrink-0">
+        <div class="shrink-0">
           <img class="w-12 h-12 rounded-full" src={gravatar(@rider.email)} alt="" />
         </div>
         <div class="ml-2">
@@ -154,13 +154,13 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
             </span>
           </div>
           <div class="flex items-center mt-2 text-xs leading-5 text-gray-700">
-            <Heroicons.device_phone_mobile mini class="flex-shrink-0 w-4 h-4 mr-1 text-gray-500" />
+            <Heroicons.device_phone_mobile mini class="shrink-0 w-4 h-4 mr-1 text-gray-500" />
             <span class="truncate">
               {@rider.phone}
             </span>
           </div>
           <div class="flex items-center mt-2 text-xs text-gray-700">
-            <Heroicons.envelope mini class="flex-shrink-0 w-4 h-4 mr-1 text-gray-500" />
+            <Heroicons.envelope mini class="shrink-0 w-4 h-4 mr-1 text-gray-500" />
             <span class="truncate">{@rider.email}</span>
           </div>
         </div>
@@ -168,7 +168,8 @@ defmodule BikeBrigadeWeb.Components.RiderSelectionComponent do
       <.link
         :if={@on_unselect}
         phx-click={@on_unselect}
-        class="block text-sm text-gray-400 bg-white rounded-md font-base hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        aria-label={"Remove #{@rider.name}"}
+        class="block text-sm text-gray-400 bg-white rounded-md font-base hover:text-gray-500 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
       >
         <Heroicons.x_mark solid class="w-5 h-5" />
       </.link>

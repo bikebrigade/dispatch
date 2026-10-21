@@ -249,12 +249,14 @@ defmodule BikeBrigade.Delivery do
     campaign_ids = Keyword.get(opts, :campaign_ids, nil)
     start_date = Keyword.get(opts, :start_date, nil)
     end_date = Keyword.get(opts, :end_date, nil)
+    lead_id = Keyword.get(opts, :lead_id, nil)
 
     true
     |> filter_public(public)
     |> filter_campaign_ids(campaign_ids)
     |> filter_start_date(start_date)
     |> filter_end_date(end_date)
+    |> filter_lead_id(lead_id)
   end
 
   defp filter_public(filter, nil), do: filter
@@ -278,6 +280,12 @@ defmodule BikeBrigade.Delivery do
   defp filter_start_date(filter, date) do
     date_time = LocalizedDateTime.new!(date, ~T[00:00:00])
     dynamic([campaign: c], ^filter and c.delivery_start >= ^date_time)
+  end
+
+  defp filter_lead_id(filter, nil), do: filter
+
+  defp filter_lead_id(filter, lead_id) do
+    dynamic([program: p], ^filter and p.lead_id == ^lead_id)
   end
 
   defp filter_end_date(filter, nil), do: filter
@@ -613,12 +621,29 @@ defmodule BikeBrigade.Delivery do
         where: c.delivery_start <= ^end_of_today and c.delivery_start >= ^start_of_yesterday,
         where: t.assigned_rider_id == ^rider.id,
         select: c,
-        select_merge: %{delivery_url_token: cr.token},
+        select_merge: %{delivery_url_token: cr.token, rider_pickup_window: cr.pickup_window},
         order_by: [desc: c.delivery_start, asc: t.id],
         preload: [tasks: t]
 
     Repo.all(query)
     |> Repo.preload([:program, tasks: [:dropoff_location, task_items: :item]])
+  end
+
+  @doc """
+  Assigned and completed task counts for each rider in a campaign, as
+  `%{rider_id => {total, completed}}`.
+  """
+  def delivery_progress_by_rider(campaign_id) do
+    query =
+      from t in Task,
+        where: t.campaign_id == ^campaign_id and not is_nil(t.assigned_rider_id),
+        group_by: t.assigned_rider_id,
+        select:
+          {t.assigned_rider_id,
+           {count(t.id), filter(count(t.id), t.delivery_status == :completed)}}
+
+    Repo.all(query)
+    |> Map.new()
   end
 
   def campaigns_per_rider(rider) do
