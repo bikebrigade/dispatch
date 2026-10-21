@@ -127,7 +127,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
 
   defp button_rounded(rounded) do
     case rounded do
-      :non -> "rounded-none"
+      :none -> "rounded-none"
       :small -> "rounded-xs"
       :normal -> "rounded-sm"
       :medium -> "rounded-md"
@@ -363,7 +363,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
       </div>
       <div class="ml-3 text-sm">
         <.label for={@id}>{@label}</.label>
-        <p if={@help_text} id={"#{@id}-help"} class="text-gray-500">
+        <p :if={@help_text} id={"#{@id}-help"} class="text-gray-500">
           {@help_text}
         </p>
       </div>
@@ -402,7 +402,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
         name={@name}
         class={[
           input_border(@errors),
-          "mt-1 block min-h-24 w-full rounded-md border-gray-300 shadow-xs py-[calc(--spacing(2)-1px)] px-[calc(--spacing(3)-1px)]]",
+          "mt-1 block min-h-24 w-full rounded-md border-gray-300 shadow-xs py-[calc(--spacing(2)-1px)] px-[calc(--spacing(3)-1px)]",
           "text-gray-900 focus:outline-hidden sm:text-sm sm:leading-6",
           @errors == [] && "border-gray-300 focus:border-indigo-500 focus:ring-indigo-500",
           "disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none",
@@ -1233,7 +1233,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
     <div class="relative flex flex-col items-center has-tooltip">
       {render_slot(@inner_block)}
       <div class="absolute bottom-0 flex-col items-center mb-6 tooltip">
-        <span class="relative z-10 p-2 text-xs leading-none text-white whitespace-no-wrap bg-black rounded-xs shadow-lg">
+        <span class="relative z-10 p-2 text-xs leading-none text-white bg-black rounded-xs shadow-lg">
           {render_slot(@tooltip)}
         </span>
         <div class="w-3 h-3 -mt-2 transform rotate-45 bg-black"></div>
