@@ -181,6 +181,11 @@ defmodule BikeBrigadeWeb.Router do
       live "/tags/:id/edit", TagLive.Index, :edit
 
       live "/delivery_notes", DeliveryNoteLive.Index, :index
+
+      # Every core component in every state, for checking UI changes in the browser
+      if Application.compile_env(:bike_brigade, :dev_routes) do
+        live "/dev/components", Dev.ComponentGalleryLive, :index
+      end
     end
 
     get "/stats/leaderboard/download", ExportStatsController, :leaderboard
