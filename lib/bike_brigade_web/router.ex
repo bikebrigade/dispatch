@@ -106,6 +106,16 @@ defmodule BikeBrigadeWeb.Router do
       live "/campaigns/signup/:id", CampaignSignupLive.Show, :new
       live "/campaigns/signup/:id/task/:task_id", CampaignSignupLive.Show, :rider_signup
       live "/leaderboard", StatsLive.Leaderboard, :show
+
+      if dev?() do
+        live "/mockups/fridge_signup", Mockups.FridgeSignupLive.MockA, :index
+        live "/mockups/fridge_signup/a", Mockups.FridgeSignupLive.MockA, :index
+        live "/mockups/fridge_signup/b", Mockups.FridgeSignupLive.MockB, :index
+        live "/mockups/fridge_signup/c", Mockups.FridgeSignupLive.MockC, :index
+        live "/mockups/fridge_signup/d", Mockups.FridgeSignupLive.Simple, :table
+        live "/mockups/fridge_signup/e", Mockups.FridgeSignupLive.Simple, :preferences
+        live "/mockups/fridge_signup/f", Mockups.FridgeSignupLive.Simple, :area
+      end
     end
 
     delete "/logout", AuthenticationController, :logout
@@ -243,6 +253,10 @@ defmodule BikeBrigadeWeb.Router do
   defp allow_framing(conn, _opts) do
     conn
     |> Plug.Conn.delete_resp_header("x-frame-options")
+    |> Plug.Conn.put_resp_header(
+      "content-security-policy",
+      "base-uri 'self'; frame-ancestors 'self' https://bikebrigade.ca https://*.bikebrigade.ca https://bikebrigade.squarespace.com;"
+    )
   end
 end
 
