@@ -17,8 +17,8 @@ defmodule BikeBrigadeWeb.Dev.ComponentGalleryLive do
      socket
      |> assign(:page, :dev_components)
      |> assign(:page_title, "Component gallery")
-     |> assign(:rows, rows())
-     |> assign(:selected, MapSet.new([2]))
+     |> assign(:rows, sort_rows(rows(), :name, :asc))
+     |> assign(:selected, MapSet.new())
      |> assign(:sort_field, :name)
      |> assign(:sort_order, :asc)
      |> assign(:toggle_on, true)
@@ -42,14 +42,19 @@ defmodule BikeBrigadeWeb.Dev.ComponentGalleryLive do
   end
 
   def handle_event("sort", %{"field" => field, "order" => order}, socket) do
+    field = String.to_existing_atom(field)
+    order = String.to_existing_atom(order)
+
     {:noreply,
      assign(socket,
-       sort_field: String.to_existing_atom(field),
-       sort_order: String.to_existing_atom(order)
+       rows: sort_rows(socket.assigns.rows, field, order),
+       sort_field: field,
+       sort_order: order
      )}
   end
 
-  def handle_event("select", %{"rows" => rows}, socket) do
+  # The table names its checkboxes after the `checkboxes` form id
+  def handle_event("select", %{"gallery-rows" => rows}, socket) do
     selected =
       for {id, "true"} <- rows, id != "all", into: MapSet.new(), do: String.to_integer(id)
 
@@ -57,6 +62,8 @@ defmodule BikeBrigadeWeb.Dev.ComponentGalleryLive do
   end
 
   def handle_event(_event, _params, socket), do: {:noreply, socket}
+
+  defp sort_rows(rows, field, order), do: Enum.sort_by(rows, &Map.fetch!(&1, field), order)
 
   defp rows do
     [
