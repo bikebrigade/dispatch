@@ -154,32 +154,10 @@
                 <dt class="text-sm font-medium text-gray-500">
                   Details
                 </dt>
-                <dd
-                  id="details-preview"
-                  phx-hook="Alpine"
-                  x-on:mounted="overflows = $el.firstElementChild.scrollHeight > $el.firstElementChild.clientHeight"
-                  x-on:updated="overflows = $el.firstElementChild.scrollHeight > $el.firstElementChild.clientHeight"
-                  x-data="{ collapsed: true, overflows: false }"
-                  class="relative mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-7"
-                >
-                  <div
-                    x-bind:class="{ 'max-h-20': collapsed }"
-                    class="overflow-hidden whitespace-pre-wrap"
-                  >
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-7">
+                  <.collapsible id="details-preview" class="whitespace-pre-wrap">
                     {render_raw(Ecto.Changeset.get_field(@changeset, :details))}
-                  </div>
-                  <div
-                    x-show="overflows"
-                    x-bind:class="{'absolute inset-x-0 bottom-0': collapsed }"
-                    class="flex justify-around p-1.5 bg-white/90"
-                  >
-                    <button
-                      x-text="collapsed ? 'Show More...' : 'Show Less'"
-                      x-on:click="collapsed = !collapsed"
-                      type="button"
-                      class="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-xs text-xs font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    ></button>
-                  </div>
+                  </.collapsible>
                 </dd>
               </div>
             </dl>
@@ -190,7 +168,7 @@
       </div>
     </div>
     <.inputs_for :let={sm} field={f[:scheduled_message]}>
-      <div class="flex pt-2 mt-3 border-t border-gray-200 " x-data="{ scheduling: false }">
+      <div class="flex pt-2 mt-3 border-t border-gray-200 ">
         <div class="flex items-center w-1/2">
           <div class="hidden mt-1 rounded-md shadow-xs show-if-scheduling">
             <%= if dt = Ecto.Changeset.get_field(sm.source, :send_at) do %>

@@ -3,7 +3,8 @@ import RidersList from "./riders_list";
 import ConversationList from "./conversation_list";
 import MessageList from "./message_list";
 import RiderSelectionList from "./rider_selection_list";
-import Alpine from "./alpine";
+import Collapsible from "./collapsible";
+import CopyToClipboard from "./copy_to_clipboard";
 import Autocomplete from './autocomplete';
 import EmojiButton from './emoji_button';
 import CheckboxAll from './checkbox_all';
@@ -19,7 +20,8 @@ export default {
   ConversationList,
   MessageList,
   RiderSelectionList,
-  Alpine,
+  Collapsible,
+  CopyToClipboard,
   Autocomplete,
   EmojiButton,
   StatsDashboardChart,

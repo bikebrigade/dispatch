@@ -106,32 +106,10 @@
           <dt class="text-sm font-medium text-gray-500">
             Details
           </dt>
-          <dd
-            id="campaign_details"
-            x-data="{ collapsed: true, overflows: false }"
-            x-on:mounted="overflows = $el.firstElementChild.scrollHeight > $el.firstElementChild.clientHeight"
-            x-on:updated="overflows = $el.firstElementChild.scrollHeight > $el.firstElementChild.clientHeight"
-            phx-hook="Alpine"
-            class="relative mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-7"
-          >
-            <div
-              x-bind:class="{ 'max-h-20': collapsed }"
-              class="overflow-hidden whitespace-pre-wrap"
-            >
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-7">
+            <.collapsible id="campaign_details" class="whitespace-pre-wrap">
               {render_raw(@campaign.details)}
-            </div>
-            <div
-              x-show="overflows"
-              x-bind:class="{'absolute inset-x-0 bottom-0': collapsed }"
-              class="flex justify-around p-1.5 bg-white/90"
-            >
-              <button
-                x-text="collapsed ? 'Show More...' : 'Show Less'"
-                x-on:click="collapsed = !collapsed"
-                type="button"
-                class="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-xs text-xs font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              ></button>
-            </div>
+            </.collapsible>
           </dd>
         </div>
       </dl>
@@ -226,29 +204,10 @@
             <dt class="text-sm font-medium text-gray-500">
               Notes
             </dt>
-            <dd
-              id={"delivery_details:#{i}"}
-              x-data="{ collapsed: true, overflows: false }"
-              x-on:mounted="overflows = $el.firstElementChild.scrollHeight > $el.firstElementChild.clientHeight"
-              x-on:updated="overflows = $el.firstElementChild.scrollHeight > $el.firstElementChild.clientHeight"
-              phx-hook="Alpine"
-              class="relative mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-7"
-            >
-              <div x-bind:class="{ 'max-h-24': collapsed }" class="overflow-hidden">
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-7">
+              <.collapsible id={"delivery_details:#{i}"} max_height="max-h-24">
                 {render_raw(task.delivery_instructions)}
-              </div>
-              <div
-                x-show="overflows"
-                x-bind:class="{'absolute inset-x-0 bottom-0': collapsed }"
-                class="flex justify-around p-1.5 bg-white/90"
-              >
-                <button
-                  x-text="collapsed ? 'Show More...' : 'Show Less'"
-                  x-on:click="collapsed = !collapsed"
-                  type="button"
-                  class="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-xs text-xs font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                ></button>
-              </div>
+              </.collapsible>
             </dd>
           </div>
           <div class="px-6 py-2 pl-14 sm:py-5">

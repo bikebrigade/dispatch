@@ -5,8 +5,6 @@ import "phoenix_html"
 import { Socket } from "phoenix"
 import topbar from "topbar"
 import { LiveSocket } from "phoenix_live_view"
-import Alpine from "alpinejs"
-import Clipboard from "@ryangjchandler/alpine-clipboard"
 
 import hooks from './hooks';
 let Hooks = hooks
@@ -16,13 +14,6 @@ let liveSocket = new LiveSocket("/live", Socket, {
   hooks: Hooks,
   params: {
     _csrf_token: csrfToken
-  },
-  dom: {
-    onBeforeElUpdated(from, to) {
-      if (from._x_dataStack) {
-        window.Alpine.clone(from, to)
-      }
-    }
   }
 })
 
@@ -48,10 +39,6 @@ window.addEventListener("phx:page-loading-stop", () => {
 const setAppHeight = () => document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
 window.addEventListener("resize", setAppHeight);
 setAppHeight();
-
-Alpine.plugin(Clipboard)
-window.Alpine = Alpine
-Alpine.start()
 
 // connect if there are any LiveViews on the page
 liveSocket.connect()
