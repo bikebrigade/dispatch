@@ -61,6 +61,10 @@ defmodule BikeBrigadeWeb.Dev.ComponentGalleryLive do
     {:noreply, assign(socket, :selected, selected)}
   end
 
+  def handle_event("slideover_save", _params, socket) do
+    {:noreply, put_flash(socket, :info, "Slide-over form submitted.")}
+  end
+
   def handle_event(_event, _params, socket), do: {:noreply, socket}
 
   defp sort_rows(rows, field, order), do: Enum.sort_by(rows, &Map.fetch!(&1, field), order)
@@ -301,7 +305,7 @@ defmodule BikeBrigadeWeb.Dev.ComponentGalleryLive do
           </.button>
         </div>
 
-        <.modal id="gallery-modal">
+        <.modal id="gallery-modal" on_confirm={hide_modal("gallery-modal")}>
           <:title>Modal title</:title>
           <:subtitle>Modal subtitle</:subtitle>
           <p class="py-4 text-sm">Modal body text.</p>
@@ -312,12 +316,17 @@ defmodule BikeBrigadeWeb.Dev.ComponentGalleryLive do
         <.slideover id="gallery-slideover">
           <:title>Slide-over title</:title>
           <:subtitle>Slide-over subtitle</:subtitle>
-          <.simple_form for={@form} phx-change="noop">
+          <.simple_form
+            id="gallery-slideover-form"
+            for={@form}
+            phx-change="noop"
+            phx-submit="slideover_save"
+          >
             <.input field={@form[:name]} label="Name" />
             <.input field={@form[:notes]} type="textarea" label="Notes" />
           </.simple_form>
           <:cancel>Cancel</:cancel>
-          <:confirm type="button">Save</:confirm>
+          <:confirm type="submit" form="gallery-slideover-form">Save</:confirm>
         </.slideover>
       </.section>
     </div>

@@ -787,6 +787,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
                   <.button
                     :for={confirm <- @confirm}
                     id={"#{@id}-confirm"}
+                    type="button"
                     phx-click={@on_confirm}
                     phx-disable-with
                     class="px-3 py-2"
