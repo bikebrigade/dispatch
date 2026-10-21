@@ -1,6 +1,5 @@
-<div id="messaging-inbox" phx-hook="MessagingInbox">
+<div id="messaging-inbox">
   <.currently_viewing others_present={@others_present} />
-  <.header class="mb-4">Messages</.header>
   <nav class="mb-5 flex border-b border-gray-200 sm:gap-8" aria-label="Messages">
     <.link
       :for={tab <- @tabs}
@@ -34,15 +33,20 @@
   <%!-- isolate keeps the pane's drawers (z-10..30) below page-level overlays like the slideover --%>
   <div
     id="inbox-workspace"
-    class="relative isolate flex min-h-0 gap-4 h-(--inbox-workspace-height)"
+    class="relative isolate flex min-h-80 gap-4 h-[calc(100dvh-10.5rem)] sm:h-[calc(100dvh-10.75rem)] md:h-[calc(100dvh-7.75rem)]"
   >
     <aside
       :if={@tab != "all"}
       id="inbox-contexts"
-      class={[
-        "w-full shrink-0 flex-col rounded-lg bg-white shadow-sm min-h-0 lg:w-1/4 lg:min-w-[16rem] lg:flex",
-        if(@params["context"] || @params["rider"], do: "hidden", else: "flex")
-      ]}
+      class={
+        [
+          "w-full shrink-0 flex-col rounded-lg bg-white shadow-sm min-h-0 flex",
+          "lg:visible lg:static lg:w-1/4 lg:min-w-[16rem]",
+          # Below lg the roster replaces this list. Keep it rendered but invisible (rather
+          # than display: none) so it keeps its scroll position when you come back.
+          (@params["context"] || @params["rider"]) && "invisible absolute inset-0"
+        ]
+      }
     >
       <div class="shrink-0 border-b border-gray-200 p-4">
         <%= if @tab == "campaigns" do %>
@@ -115,10 +119,15 @@
     <section
       :if={@tab == "all"}
       id="inbox-riders"
-      class={[
-        "w-full shrink-0 flex-col rounded-lg bg-white shadow-sm min-h-0 lg:w-1/4 lg:min-w-[16rem] lg:flex",
-        if(@params["rider"], do: "hidden", else: "flex")
-      ]}
+      class={
+        [
+          "w-full shrink-0 flex-col rounded-lg bg-white shadow-sm min-h-0 flex",
+          "lg:visible lg:static lg:w-1/4 lg:min-w-[16rem]",
+          # Below lg the chat replaces this list; keep it rendered but invisible so it
+          # keeps its scroll position (see #inbox-contexts).
+          @params["rider"] && "invisible absolute inset-0"
+        ]
+      }
     >
       <div class="border-b border-gray-200 px-4 py-5">
         <h2 class="text-base font-semibold text-gray-900">All conversations</h2>

@@ -29,7 +29,7 @@ defmodule BikeBrigadeWeb.Components.MessagingInbox do
     <div
       id="merged-inbox"
       class={[
-        "relative h-(--inbox-workspace-height) lg:h-auto min-h-0 min-w-0 flex-1 gap-4 lg:flex",
+        "relative min-h-0 min-w-0 flex-1 gap-4 lg:flex",
         if(@mobile_open, do: "flex", else: "hidden")
       ]}
     >
@@ -102,9 +102,9 @@ defmodule BikeBrigadeWeb.Components.MessagingInbox do
                 {rider_initials(row.rider.name)}
               </span>
               <div class="min-w-0 flex-1">
-                <div class="flex min-w-0 flex-wrap items-center gap-2">
+                <div class="flex min-w-0 items-center justify-between gap-2">
                   <span class={[
-                    "text-sm text-indigo-600",
+                    "min-w-0 truncate text-sm text-indigo-600",
                     if(row.latest && row.latest.incoming,
                       do: "font-extrabold",
                       else: "font-semibold"
@@ -117,7 +117,7 @@ defmodule BikeBrigadeWeb.Components.MessagingInbox do
                     data-deliveries
                     title={RiderDeliveriesComponent.progress_label(row.deliveries)}
                     class={[
-                      "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium tabular-nums ring-1 ring-inset",
+                      "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium tabular-nums ring-1 ring-inset",
                       if(RiderDeliveriesComponent.progress_complete?(row.deliveries),
                         do: "bg-green-50 text-green-700 ring-green-600/20",
                         else: "text-gray-600 ring-gray-300"
@@ -128,12 +128,10 @@ defmodule BikeBrigadeWeb.Components.MessagingInbox do
                   </span>
                 </div>
                 <p class={[
-                  "mt-2 wrap-break-word text-sm text-gray-600",
-                  if(row.latest && row.latest.incoming, do: "font-extrabold", else: "font-medium")
+                  "mt-1 line-clamp-2 wrap-break-word text-xs text-gray-600",
+                  if(row.latest && row.latest.incoming, do: "font-bold", else: "font-normal")
                 ]}>
-                  {if row.latest,
-                    do: String.slice(row.latest.body, 0, 220),
-                    else: "No messages yet"}
+                  {if row.latest, do: row.latest.body, else: "No messages yet"}
                 </p>
               </div>
               <Heroicons.chevron_right class="mt-1 h-4 w-4 shrink-0 text-gray-400" />

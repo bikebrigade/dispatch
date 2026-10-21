@@ -41,7 +41,9 @@ defmodule BikeBrigadeWeb.CoreComponents do
   slot :inner_block, required: true
 
   @button_base_classes [
-    "inline-flex text-center items-center justify-center border border-transparent",
+    # No border color here: each color sets exactly one, since two conflicting
+    # border-color classes resolve by stylesheet order, not by class order.
+    "inline-flex text-center items-center justify-center border",
     "font-medium shadow-xs focus:outline-hidden focus:ring-2 focus:ring-offset-2",
     "disabled:hover:cursor-not-allowed disabled:opacity-25"
   ]
@@ -97,25 +99,25 @@ defmodule BikeBrigadeWeb.CoreComponents do
   defp button_color(color) do
     case color do
       :primary ->
-        "text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500"
+        "border-transparent text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500"
 
       :secondary ->
-        "text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:ring-indigo-500"
+        "border-transparent text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:ring-indigo-500"
 
       :white ->
         "border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-indigo-500"
 
       :green ->
-        "text-white bg-green-700 focus:ring-green-600 hover:bg-green-800"
+        "border-transparent text-white bg-green-700 focus:ring-green-600 hover:bg-green-800"
 
       :red ->
-        "text-white bg-red-600 hover:bg-red-700 focus:ring-red-500"
+        "border-transparent text-white bg-red-600 hover:bg-red-700 focus:ring-red-500"
 
       :lightred ->
-        "text-red-700 bg-red-100 hover:bg-red-200 focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+        "border-transparent text-red-700 bg-red-100 hover:bg-red-200 focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
 
       :clear ->
-        "text-gray-400 bg-white hover:text-gray-500  focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        "border-transparent text-gray-400 bg-white hover:text-gray-500 focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
 
       :black ->
         "border-gray-300 text-white bg-black hover:bg-white hover:text-black"
