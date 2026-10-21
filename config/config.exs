@@ -38,7 +38,7 @@ config :bike_brigade, BikeBrigadeWeb.Router,
 
 # Esbuild
 config :esbuild,
-  version: "0.14.8",
+  version: "0.28.2",
   default: [
     args: ~w(js/app.js --bundle --target=es2016 --outdir=../priv/static/assets),
     cd: Path.expand("../assets", __DIR__),
@@ -47,7 +47,7 @@ config :esbuild,
 
 # Tailwind
 config :tailwind,
-  version: "3.2.4",
+  version: "3.4.19",
   default: [
     args: ~w(
     --config=tailwind.config.js

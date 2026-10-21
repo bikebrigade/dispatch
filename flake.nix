@@ -13,7 +13,7 @@
       let pkgs = import nixpkgs { inherit system; };
       in with pkgs;
       let
-        inherit (lib) optional optionals;
+        inherit (lib) optional;
 
         basePackages = [
           git
@@ -23,15 +23,10 @@
           curl
           libiconv
           docker-compose
-          postgresql_13
-        ] ++ optional stdenv.isLinux inotify-tools ++ optionals stdenv.isDarwin
-          (with darwin.apple_sdk.frameworks; [
-            # For file_system on macOS.
-            CoreFoundation
-            CoreServices
-          ]);
+          postgresql_16
+        ] ++ optional stdenv.hostPlatform.isLinux inotify-tools;
 
-        elixirPackages = [ beam.packages.erlangR26.elixir_1_15 ];
+        elixirPackages = [ beam.packages.erlang_29.elixir_1_20 ];
 
         nodePackages = [ nodejs yarn ];
 

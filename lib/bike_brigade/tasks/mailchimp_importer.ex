@@ -215,19 +215,21 @@ defmodule BikeBrigade.Tasks.MailchimpImporter do
     end
   end
 
-  defp translate_capacity(capacity) do
-    case capacity do
-      ~r/1 personal backpack \+ cargo trailer/ ->
+  defp translate_capacity(capacity) when is_binary(capacity) do
+    cond do
+      capacity =~ ~r/1 personal backpack \+ cargo trailer/ ->
         :large
 
-      ~r/1 personal backpack \+ saddlebags/ ->
+      capacity =~ ~r/1 personal backpack \+ saddlebags/ ->
         :medium
 
-      ~r/1 personal backpack/ ->
+      capacity =~ ~r/1 personal backpack/ ->
         :small
 
-      _ ->
+      true ->
         :medium
     end
   end
+
+  defp translate_capacity(_capacity), do: :medium
 end

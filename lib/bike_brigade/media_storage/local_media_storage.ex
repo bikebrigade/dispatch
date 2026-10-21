@@ -1,6 +1,4 @@
 defmodule BikeBrigade.MediaStorage.LocalMediaStorage do
-  require Logger
-
   alias BikeBrigade.MediaStorage
   alias BikeBrigadeWeb.Endpoint
 
