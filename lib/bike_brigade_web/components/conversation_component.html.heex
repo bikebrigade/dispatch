@@ -1,11 +1,29 @@
 <div
   id={"conversation-component:#{@rider.id}"}
-  class={[
-    "w-full sm:flex-1 px-1 flex-col bg-white shadow sm:rounded-lg sm:flex",
-    unless(@mobile_visible, do: "hidden", else: "flex")
-  ]}
+  class={
+    [
+      "w-full min-h-0 sm:flex-1 px-1 flex-col bg-white shadow sm:rounded-lg sm:flex",
+      # In the inbox the card fills its column at every size; elsewhere it keeps its
+      # original mobile sizing.
+      @unified_header && "flex-1",
+      unless(@mobile_visible, do: "hidden", else: "flex")
+    ]
+  }
 >
-  <div class="flex-grow-0 px-4 py-5 bg-white border-b border-gray-200 sm:px-6 sm:rounded-t-lg">
+  <BikeBrigadeWeb.Components.MessagingInbox.rider_header
+    :if={@unified_header}
+    rider={@rider}
+    close={@back_patch}
+  />
+  <BikeBrigadeWeb.Components.MessagingInbox.deliveries_bar
+    :if={@unified_header && @deliveries}
+    progress={@deliveries}
+    open={@deliveries_link}
+  />
+  <div
+    :if={!@unified_header}
+    class="flex-grow-0 px-4 py-5 bg-white border-b border-gray-200 sm:px-6 sm:rounded-t-lg"
+  >
     <div class="flex items-start gap-3">
       <div class="flex-none pt-1 sm:hidden">
         <.link patch={@back_patch} aria-label="Back to conversations">
@@ -223,7 +241,7 @@
                 </button>
               </figcaption>
               <p :for={err <- upload_errors(@uploads.media, entry)} class="text-sm text-red-600">
-                {error_to_string(err)}
+                {upload_error_to_string(err)}
               </p>
             </figure>
           </div>

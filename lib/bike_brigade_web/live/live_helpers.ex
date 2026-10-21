@@ -15,6 +15,22 @@ defmodule BikeBrigadeWeb.LiveHelpers do
 
   def gravatar(nil), do: gravatar("")
 
+  @doc "A rider's name, falling back to their phone number for riders without one."
+  def rider_display_name(rider), do: rider.name || rider.phone || "Unnamed rider"
+
+  @doc "Up to two initials for an avatar badge, e.g. \"Ada Lovelace\" -> \"AL\"."
+  def rider_initials(name) do
+    (name || "Unnamed rider")
+    |> String.split()
+    |> Enum.map(&String.first/1)
+    |> Enum.take(2)
+    |> Enum.join()
+  end
+
+  def upload_error_to_string(:too_large), do: "Too large"
+  def upload_error_to_string(:too_many_files), do: "You have selected too many files"
+  def upload_error_to_string(:not_accepted), do: "You have selected an unacceptable file type"
+
   def format_date(datetime), do: format_date(datetime, "%b %-d, %Y")
 
   def format_date(%DateTime{} = datetime, format) do

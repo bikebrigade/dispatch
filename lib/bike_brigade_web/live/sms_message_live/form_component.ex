@@ -76,8 +76,4 @@ defmodule BikeBrigadeWeb.SmsMessageLive.FormComponent do
   def handle_event("cancel_upload", %{"ref" => ref}, socket) do
     {:noreply, cancel_upload(socket, :media, ref)}
   end
-
-  def error_to_string(:too_large), do: "Too large"
-  def error_to_string(:too_many_files), do: "You have selected too many files"
-  def error_to_string(:not_accepted), do: "You have selected an unacceptable file type"
 end

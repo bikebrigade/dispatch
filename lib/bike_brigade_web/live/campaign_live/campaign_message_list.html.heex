@@ -1,4 +1,11 @@
 <div>
+  <.link
+    :if={@current_user.flags.unified_messaging}
+    navigate={~p"/messages/inbox?#{%{tab: "campaigns", context: @campaign_id, mine: false}}"}
+    class="mb-4 inline-flex items-center gap-2 text-sm font-medium text-indigo-600"
+  >
+    Open in messaging inbox <Heroicons.arrow_right class="h-4 w-4" />
+  </.link>
   <%= if is_nil(@selected_rider) do %>
     <div>
       No riders have been added to this campaign. Add some riders to be able to send messages.

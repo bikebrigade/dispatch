@@ -27,6 +27,7 @@ defmodule BikeBrigadeWeb.Components.ConversationComponent do
       |> Map.put_new(:back_patch, ~p"/messages")
       |> Map.put_new(:mobile_visible, assigns.live_action == :show)
       |> Map.put_new(:show_tasks_link, true)
+      |> Map.put_new(:unified_header, false)
 
     conversation = Messaging.latest_messages(rider)
 
@@ -36,10 +37,26 @@ defmodule BikeBrigadeWeb.Components.ConversationComponent do
         [] -> nil
       end
 
+    earliest_timestamp =
+      if socket.assigns[:sms_message] && socket.assigns.sms_message.rider_id == rider.id &&
+           socket.assigns[:earliest_timestamp] do
+        case earliest_timestamp do
+          nil ->
+            socket.assigns.earliest_timestamp
+
+          latest ->
+            if DateTime.compare(socket.assigns.earliest_timestamp, latest) == :lt,
+              do: socket.assigns.earliest_timestamp,
+              else: latest
+        end
+      else
+        earliest_timestamp
+      end
+
     {:ok,
      socket
      |> assign(assigns)
-     |> assign_new_sms_message()
+     |> maybe_assign_new_sms_message(rider)
      |> stream(:conversation, conversation, dom_id: fn message -> "message:#{message.id}" end)
      |> assign(earliest_timestamp: earliest_timestamp)}
   end
@@ -58,6 +75,14 @@ defmodule BikeBrigadeWeb.Components.ConversationComponent do
     {:ok,
      socket
      |> assign(assigns)}
+  end
+
+  defp maybe_assign_new_sms_message(socket, rider) do
+    if socket.assigns[:sms_message] && socket.assigns.sms_message.rider_id == rider.id do
+      socket
+    else
+      assign_new_sms_message(socket)
+    end
   end
 
   @impl Phoenix.LiveComponent
@@ -125,10 +150,6 @@ defmodule BikeBrigadeWeb.Components.ConversationComponent do
     |> assign(changeset: changeset)
     |> assign(sms_message: sms_message)
   end
-
-  def error_to_string(:too_large), do: "Too large"
-  def error_to_string(:too_many_files), do: "You have selected too many files"
-  def error_to_string(:not_accepted), do: "You have selected an unacceptable file type"
 
   def media_type(%SmsMessage.MediaItem{content_type: content_type}) do
     String.split(content_type, "/")

@@ -95,5 +95,16 @@ defmodule BikeBrigade.AccountsTest do
       user = fixture(:user)
       assert user.signature_on_messages == nil
     end
+
+    test "flags default to off and can be set by admins" do
+      user = fixture(:user)
+      refute Accounts.get_user(user.id).flags.unified_messaging
+
+      {:ok, user} = Accounts.update_user_as_admin(user, %{flags: %{unified_messaging: true}})
+      assert user.flags.unified_messaging
+
+      {:ok, user} = Accounts.update_user(user, %{flags: %{unified_messaging: false}})
+      assert user.flags.unified_messaging
+    end
   end
 end
