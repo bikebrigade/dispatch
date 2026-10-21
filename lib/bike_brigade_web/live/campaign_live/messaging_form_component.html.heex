@@ -8,7 +8,7 @@
         <select
           id="selected_rider_id"
           name="selected_rider_id"
-          class="block w-full py-2 pl-3 pr-10 mt-1 text-base border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          class="block w-full py-2 pl-3 pr-10 mt-1 text-base border-gray-300 rounded-md focus:outline-hidden focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         >
           {rider_selection_options(@riders, @selected_rider)}
         </select>
@@ -55,7 +55,7 @@
           <.message_length_indicator length={@message_length} />
         </div>
         <.inputs_for :let={instructions_template_form} field={f[:instructions_template]}>
-          <div class="mt-10 rounded-md shadow-sm">
+          <div class="mt-10 rounded-md shadow-xs">
             <.input
               type="textarea"
               field={instructions_template_form[:body]}
@@ -110,7 +110,7 @@
         <%= if @selected_rider do %>
           <div class="w-full overflow-hidden bg-white shadow-md sm:mt-2 sm:rounded-lg">
             <div class="flex items-start space-x-1 p-2.5 bg-white border-b border-gray-200 sm:p-4">
-              <div class="flex items-center justify-center flex-shrink-0 w-8 h-8 bg-green-700 rounded-full ring-8 ring-white">
+              <div class="flex items-center justify-center shrink-0 w-8 h-8 bg-green-700 rounded-full ring-8 ring-white">
                 <Heroicons.clipboard_document_check mini class="w-5 h-5 text-white" />
               </div>
               <div class="flex flex-wrap justify-between w-full pl-1 border-l border-gray-200 sm:flex-nowrap">
@@ -118,7 +118,7 @@
                   <h3 class="text-base font-semibold leading-6 text-gray-900">
                     Pick up
                   </h3>
-                  <div class="inline-flex flex-shrink-0 leading-normal">
+                  <div class="inline-flex shrink-0 leading-normal">
                     <Heroicons.clock
                       mini
                       aria-label="Pickup Time"
@@ -126,7 +126,7 @@
                     />
                     {CampaignHelpers.pickup_window(@campaign, @selected_rider)}
                   </div>
-                  <div class="inline-flex flex-shrink-0 leading-normal">
+                  <div class="inline-flex shrink-0 leading-normal">
                     <Heroicons.map_pin
                       mini
                       aria-label="Pickup Address"
@@ -137,12 +137,12 @@
                   <div class="inline-flex leading-normal">
                     <Heroicons.shopping_bag
                       mini
-                      class="flex-shrink-0 w-4 h-4 mt-1 mr-1 text-gray-500 "
+                      class="shrink-0 w-4 h-4 mt-1 mr-1 text-gray-500 "
                     />
                     {humanized_task_count(@selected_rider.assigned_tasks)}
                   </div>
                 </div>
-                <div class="flex flex-wrap items-start justify-end flex-shrink ml-auto">
+                <div class="flex flex-wrap items-start justify-end shrink ml-auto">
                   <.button href={open_map_url(@campaign)} color={:green} size={:small}>
                     <Heroicons.map mini class="w-4 h-4 mr-2 -ml-1" /> Map
                   </.button>
@@ -171,13 +171,13 @@
                   <div
                     x-show="overflows"
                     x-bind:class="{'absolute inset-x-0 bottom-0': collapsed }"
-                    class="flex justify-around p-1.5 bg-white bg-opacity-90"
+                    class="flex justify-around p-1.5 bg-white/90"
                   >
                     <button
                       x-text="collapsed ? 'Show More...' : 'Show Less'"
                       x-on:click="collapsed = !collapsed"
                       type="button"
-                      class="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                      class="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-xs text-xs font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     ></button>
                   </div>
                 </dd>
@@ -192,22 +192,22 @@
     <.inputs_for :let={sm} field={f[:scheduled_message]}>
       <div class="flex pt-2 mt-3 border-t border-gray-200 " x-data="{ scheduling: false }">
         <div class="flex items-center w-1/2">
-          <div class="hidden mt-1 rounded-md shadow-sm show-if-scheduling">
+          <div class="hidden mt-1 rounded-md shadow-xs show-if-scheduling">
             <%= if dt = Ecto.Changeset.get_field(sm.source, :send_at) do %>
               {datetime_local_input(sm, :send_at,
                 id: "hacky-input-1",
                 value: LocalizedDateTime.localize(dt),
-                phx_debounce: "blur",
+                phx_debounce: "blur-sm",
                 class:
-                  "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+                  "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-hidden focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
               )}
             <% else %>
               {datetime_local_input(sm, :send_at,
                 id: "hacky-input-2",
                 value: nil,
-                phx_debounce: "blur",
+                phx_debounce: "blur-sm",
                 class:
-                  "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+                  "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-hidden focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
               )}
             <% end %>
           </div>

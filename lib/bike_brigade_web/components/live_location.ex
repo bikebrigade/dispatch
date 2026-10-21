@@ -141,7 +141,7 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
       <div class={"#{if @open, do: "border-2 border-dashed"} px-2 py-0.5 -mx-2 my-0.5"}>
         <div class="flex mt-1">
           <div class="relative w-full">
-            <div class="rounded-md shadow-sm">
+            <div class="rounded-md shadow-xs">
               <input
                 id={"#{@id}-location-input-open"}
                 name={input_name(@form, :smart_input)}
@@ -149,7 +149,7 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
                 phx-change={JS.push("change", target: @myself)}
                 type="text"
                 value={location_input_value(@location)}
-                class="block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+                class="block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-hidden focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
               />
               <input
                 disabled
@@ -157,7 +157,7 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
                 type="text"
                 value={@location}
                 class={
-                  "#{if @open, do: "hidden"} pointer-events-none absolute top-0 left-0 block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+                  "#{if @open, do: "hidden"} pointer-events-none absolute top-0 left-0 block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-hidden focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
                 }
               />
             </div>
@@ -177,12 +177,12 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
               <label class="block text-xs font-medium leading-5 text-gray-700">
                 Address
               </label>
-              <div class="mt-1 rounded-md shadow-sm">
+              <div class="mt-1 rounded-md shadow-xs">
                 {text_input(@form, :address,
                   phx_change: "change",
                   phx_target: @myself,
                   class:
-                    "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+                    "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-hidden focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
                 )}
               </div>
               {error_tag(@form, :address, show_field: false)}
@@ -192,12 +192,12 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
                 <label class="block text-xs font-medium leading-5 text-gray-700">
                   Unit
                 </label>
-                <div class="mt-1 rounded-md shadow-sm">
+                <div class="mt-1 rounded-md shadow-xs">
                   {text_input(@form, :unit,
                     phx_change: "change",
                     phx_target: @myself,
                     class:
-                      "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+                      "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-hidden focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
                   )}
                 </div>
               </div>
@@ -205,12 +205,12 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
                 <label class="block text-xs font-medium leading-5 text-gray-700">
                   Buzzer
                 </label>
-                <div class="mt-1 rounded-md shadow-sm">
+                <div class="mt-1 rounded-md shadow-xs">
                   {text_input(@form, :buzzer,
                     phx_change: "change",
                     phx_target: @myself,
                     class:
-                      "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+                      "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-hidden focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
                   )}
                 </div>
               </div>
@@ -221,13 +221,13 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
               <label class="block text-xs font-medium leading-5 text-gray-700">
                 Postal Code
               </label>
-              <div class="mt-1 rounded-md shadow-sm">
+              <div class="mt-1 rounded-md shadow-xs">
                 {text_input(@form, :postal,
                   phx_change: "change",
                   #                  phx_debounce: "1000",
                   phx_target: @myself,
                   class:
-                    "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+                    "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-hidden focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
                 )}
               </div>
               {error_tag(@form, :postal, show_field: false)}
@@ -236,13 +236,13 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
               <label class="block text-xs font-medium leading-5 text-gray-700">
                 City
               </label>
-              <div class="mt-1 rounded-md shadow-sm">
+              <div class="mt-1 rounded-md shadow-xs">
                 {text_input(@form, :city,
                   disabled: true,
                   phx_change: "change",
                   phx_target: @myself,
                   class:
-                    "disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+                    "disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-hidden focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
                 )}
               </div>
               {# error_tag(@location, :city)}
@@ -251,13 +251,13 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
               <label class="block text-xs font-medium leading-5 text-gray-700">
                 Province
               </label>
-              <div class="mt-1 rounded-md shadow-sm">
+              <div class="mt-1 rounded-md shadow-xs">
                 {text_input(@form, :province,
                   disabled: true,
                   phx_change: "change",
                   phx_target: @myself,
                   class:
-                    " disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+                    " disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-hidden focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
                 )}
               </div>
               {# error_tag(@location, :province)}
@@ -266,13 +266,13 @@ defmodule BikeBrigadeWeb.Components.LiveLocation do
               <label class="block text-xs font-medium leading-5 text-gray-700">
                 Country
               </label>
-              <div class="mt-1 rounded-md shadow-sm">
+              <div class="mt-1 rounded-md shadow-xs">
                 {text_input(@form, :country,
                   disabled: true,
                   phx_change: "change",
                   phx_target: @myself,
                   class:
-                    "disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+                    "disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-hidden focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
                 )}
               </div>
               {# error_tag(@location, :country)}

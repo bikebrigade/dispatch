@@ -1,8 +1,38 @@
-@tailwind base;
+@import "tailwindcss" source(none);
+@source "../js";
+@source "../../lib/bike_brigade_web.ex";
+@source "../../lib/bike_brigade_web";
 
-@tailwind components;
+@plugin "@tailwindcss/forms";
 
-@tailwind utilities;
+@custom-variant phx-click-loading (.phx-click-loading&, .phx-click-loading &);
+@custom-variant phx-submit-loading (.phx-submit-loading&, .phx-submit-loading &);
+@custom-variant phx-change-loading (.phx-change-loading&, .phx-change-loading &);
+
+@theme {
+  --font-sans: "Inter var", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+/*
+  v3 compatibility: Tailwind v4 changed the default border color to `currentColor`
+  and dropped `cursor: pointer` on buttons. These keep things looking like v3 until
+  components set them explicitly.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
 
 @layer base {
 

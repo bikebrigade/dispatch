@@ -15,7 +15,7 @@
       <div
         id="campaign-conversation-list"
         class={[
-          "bg-white w-full sm:w-4/12 shadow border border-gray-200 rounded-lg sm:mr-4",
+          "bg-white w-full sm:w-4/12 shadow-sm border border-gray-200 rounded-lg sm:mr-4",
           not is_nil(@selected_rider_id) && "hidden sm:block"
         ]}
       >
@@ -30,7 +30,7 @@
       <div
         id="campaign-conversation"
         class={[
-          "w-full sm:w-8/12 max-h-[calc(100vh-8rem)] rounded border border-gray-200",
+          "w-full sm:w-8/12 max-h-[calc(100vh-8rem)] rounded-sm border border-gray-200",
           if(is_nil(@selected_rider_id), do: "hidden sm:flex", else: "flex")
         ]}
       >

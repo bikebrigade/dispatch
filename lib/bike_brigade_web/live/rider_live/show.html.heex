@@ -22,12 +22,12 @@
         {@rider.name} <small class="text-sm">{pronouns(@rider)}</small>
       </h1>
 
-      <p class="text-sm !leading-relaxed xl:text-base">
+      <p class="text-sm leading-relaxed! xl:text-base">
         <span class="block xl:inline">
           <Heroicons.calendar
             mini
             aria-label="Calendar"
-            class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 sm:mr-.5"
+            class="inline-flex shrink-0 w-5 h-5 text-gray-500 sm:mr-.5"
           />
           <span>Signed up on: {format_date(@rider.signed_up_on)}</span>
         </span>
@@ -35,19 +35,19 @@
           <Heroicons.fire
             mini
             aria-label="Fire"
-            class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 xl:ml-1 sm:mr-.5"
+            class="inline-flex shrink-0 w-5 h-5 text-gray-500 xl:ml-1 sm:mr-.5"
           />
           <span>
             Latest activity: <.latest_campaign_info socket={@socket} rider={@rider} />
           </span>
         </span>
       </p>
-      <p class="text-sm !leading-relaxed xl:text-base">
+      <p class="text-sm leading-relaxed! xl:text-base">
         <span class="">
           <Heroicons.map_pin
             mini
             aria-label="Marker"
-            class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 sm:mr-.5"
+            class="inline-flex shrink-0 w-5 h-5 text-gray-500 sm:mr-.5"
           />
           {address(@rider.location)}
         </span>
@@ -55,7 +55,7 @@
           <Heroicons.device_phone_mobile
             mini
             aria-label="Phone"
-            class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 xl:ml-1 sm:mr-.5"
+            class="inline-flex shrink-0 w-5 h-5 text-gray-500 xl:ml-1 sm:mr-.5"
           />
           {phone(@rider)}
         </span>
@@ -63,20 +63,20 @@
           <Heroicons.envelope
             mini
             aria-label="Mail"
-            class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 xl:ml-1 sm:mr-.5"
+            class="inline-flex shrink-0 w-5 h-5 text-gray-500 xl:ml-1 sm:mr-.5"
           />
           <.link href={"mailto:#{email(@rider)}"} class="link">{email(@rider)}</.link>
         </span>
       </p>
       <p
         data-testid="dispatch-data-capacity"
-        class="text-sm !leading-relaxed xl:text-base"
+        class="text-sm leading-relaxed! xl:text-base"
       >
         <span class="">
           <Heroicons.briefcase
             mini
             aria-label="Briefcase"
-            class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 sm:mr-.5"
+            class="inline-flex shrink-0 w-5 h-5 text-gray-500 sm:mr-.5"
           />
           <%= if @current_user.is_dispatcher do %>
             <.link
@@ -94,7 +94,7 @@
             <Heroicons.signal_slash
               mini
               aria-label="Status Offline"
-              class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 sm:mr-.5"
+              class="inline-flex shrink-0 w-5 h-5 text-gray-500 sm:mr-.5"
             /> Text-only delivery instructions
           </span>
         <% end %>
@@ -103,12 +103,12 @@
         if @current_user.is_dispatcher,
           do: @rider.tags,
           else: Enum.reject(@rider.tags, & &1.restricted) %>
-      <p :if={visible_tags != []} class="text-sm !leading-relaxed xl:text-base">
+      <p :if={visible_tags != []} class="text-sm leading-relaxed! xl:text-base">
         <span class="block xl:inline">
           <Heroicons.tag
             mini
             aria-label="Tag"
-            class="inline-flex flex-shrink-0 w-5 h-5 text-gray-500 sm:mr-.5"
+            class="inline-flex shrink-0 w-5 h-5 text-gray-500 sm:mr-.5"
           />
           <span class="inline-flex flex-wrap">
             <%= for tag <- visible_tags do %>
@@ -135,7 +135,7 @@
       Rider stats
     </h2>
     <div class="flex flex-wrap my-5 ">
-      <div class="flex-initial px-4 py-3 mb-5 mr-5 bg-white rounded-lg shadow sm:p-6">
+      <div class="flex-initial px-4 py-3 mb-5 mr-5 bg-white rounded-lg shadow-sm sm:p-6">
         <dt class="text-xs font-medium text-gray-500 truncate sm:text-sm">
           Deliveries
         </dt>
@@ -143,7 +143,7 @@
           {@stats.task_count}
         </dd>
       </div>
-      <div class="flex-initial px-4 py-3 mb-5 mr-5 bg-white rounded-lg shadow sm:p-6">
+      <div class="flex-initial px-4 py-3 mb-5 mr-5 bg-white rounded-lg shadow-sm sm:p-6">
         <dt class="text-xs font-medium text-gray-500 truncate sm:text-sm">
           Campaigns
         </dt>
@@ -151,7 +151,7 @@
           {@stats.campaign_count}
         </dd>
       </div>
-      <div class="flex-initial px-4 py-3 mb-5 bg-white rounded-lg shadow sm:p-6">
+      <div class="flex-initial px-4 py-3 mb-5 bg-white rounded-lg shadow-sm sm:p-6">
         <dt class="text-xs font-medium text-gray-500 truncate sm:text-sm">
           Distance
         </dt>
@@ -165,7 +165,7 @@
     <h2 class="text-sm font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">
       Location
     </h2>
-    <div class="p-1 my-5 bg-white rounded-lg shadow">
+    <div class="p-1 my-5 bg-white rounded-lg shadow-sm">
       <.map
         id="rider-map"
         coords={coords(@rider.location)}
@@ -184,42 +184,42 @@
         Schedule
       </h2>
       <div class="flex">
-        <span class="relative z-0 inline-flex rounded-md shadow-sm">
+        <span class="relative z-0 inline-flex rounded-md shadow-xs">
           <button
             type="button"
             phx-click={JS.push("prev_schedule", value: %{period: 3})}
-            class="relative items-center hidden px-2 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 md:inline-flex rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+            class="relative items-center hidden px-2 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 md:inline-flex rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-hidden focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
           >
             <Heroicons.chevron_left solid class="w-5 h-5" />
           </button>
           <button
             type="button"
             phx-click={JS.push("prev_schedule", value: %{period: 2})}
-            class="relative inline-flex items-center px-2 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 md:hidden rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+            class="relative inline-flex items-center px-2 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 md:hidden rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-hidden focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
           >
             <Heroicons.chevron_left solid class="w-5 h-5" />
           </button>
           <button
             type="button"
             phx-click={JS.push("next_schedule", value: %{period: 3})}
-            class="relative items-center hidden px-2 py-1 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 md:inline-flex rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+            class="relative items-center hidden px-2 py-1 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 md:inline-flex rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-hidden focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
           >
             <Heroicons.chevron_right solid class="w-5 h-5" />
           </button>
           <button
             type="button"
             phx-click={JS.push("next_schedule", value: %{period: 2})}
-            class="relative inline-flex items-center px-2 py-1 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 md:hidden rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+            class="relative inline-flex items-center px-2 py-1 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 md:hidden rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-hidden focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
           >
             <Heroicons.chevron_right solid class="w-5 h-5" />
           </button>
         </span>
       </div>
     </div>
-    <div class="px-4 py-5 my-5 bg-white rounded-lg shadow sm:p-6">
+    <div class="px-4 py-5 my-5 bg-white rounded-lg shadow-sm sm:p-6">
       <div class="grid grid-cols-2 gap-4 md:grid-cols-3">
         <%= for {date, campaigns} <- @schedule do %>
-          <div class="px-3 border-r last:border-0 first:hidden first:md:block">
+          <div class="px-3 border-r last:border-0 first:hidden md:first:block">
             <h4 class="mb-4 font-bold">
               {if date == @today, do: "Today", else: format_date(date)}
             </h4>
@@ -251,7 +251,7 @@
           Notes
         </h2>
       </div>
-      <div class="px-4 py-5 my-5 bg-white rounded-lg shadow sm:p-6">
+      <div class="px-4 py-5 my-5 bg-white rounded-lg shadow-sm sm:p-6">
         <%= if @rider.internal_notes do %>
           {@rider.internal_notes}
         <% else %>
@@ -265,7 +265,7 @@
     <h2 class="pt-3 text-sm font-medium leading-4 tracking-wider text-left text-gray-500 uppercase">
       Campaign history
     </h2>
-    <div class="flex-1 px-4 py-5 my-5 overflow-x-hidden bg-white rounded-lg shadow sm:p-6">
+    <div class="flex-1 px-4 py-5 my-5 overflow-x-hidden bg-white rounded-lg shadow-sm sm:p-6">
       <%= if @rider.program_stats != [] do %>
         <ul class="h-[calc(100%-6rem)] pr-6 overflow-x-auto list-none sm:absolute ">
           <%= for s <- @rider.program_stats do %>

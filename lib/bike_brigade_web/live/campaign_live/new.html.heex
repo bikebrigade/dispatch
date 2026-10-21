@@ -1,16 +1,16 @@
 <.form :let={f} for={@changeset} id="new-campaign-form" phx-change="validate" phx-submit="save">
   <div class="flex">
-    <div class="w-1/2 p-2 bg-white rounded-lg shadow">
+    <div class="w-1/2 p-2 bg-white rounded-lg shadow-sm">
       <div class="my-2">
         <%= label f, :name, class: "block text-sm font-medium leading-5 text-gray-700" do %>
           Name
         <% end %>
-        <div class="mt-1 rounded-md shadow-sm">
+        <div class="mt-1 rounded-md shadow-xs">
           {text_input(f, :name,
             required: true,
-            phx_debounce: "blur",
+            phx_debounce: "blur-sm",
             class:
-              "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+              "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-hidden focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
           )}
         </div>
         {error_tag(f, :name)}
@@ -20,12 +20,12 @@
         <%= label f, :delivery_date, class: "block text-sm font-medium leading-5 text-gray-700" do %>
           Delivery Date (YYYY-MM-DD)
         <% end %>
-        <div class="mt-1 rounded-md shadow-sm">
+        <div class="mt-1 rounded-md shadow-xs">
           {text_input(f, :delivery_date,
             required: true,
-            phx_debounce: "blur",
+            phx_debounce: "blur-sm",
             class:
-              "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+              "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-hidden focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
           )}
         </div>
         {error_tag(f, :delivery_date)}
@@ -35,12 +35,12 @@
         <%= label f, :pickup_address, class: "block text-sm font-medium leading-5 text-gray-700" do %>
           Pickup Address
         <% end %>
-        <div class="mt-1 rounded-md shadow-sm">
+        <div class="mt-1 rounded-md shadow-xs">
           {text_input(f, :pickup_address,
             required: true,
-            phx_debounce: "blur",
+            phx_debounce: "blur-sm",
             class:
-              "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+              "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-hidden focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5"
           )}
         </div>
         {error_tag(f, :pickup_address)}
@@ -73,7 +73,7 @@
               <div class="flex text-sm text-gray-600">
                 <label
                   for={@uploads.delivery_spreadsheet.ref}
-                  class="relative font-medium text-indigo-600 bg-white rounded-md cursor-pointer hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
+                  class="relative font-medium text-indigo-600 bg-white rounded-md cursor-pointer hover:text-indigo-500 focus-within:outline-hidden focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
                 >
                   <span>Upload a file</span>
                   <.live_file_input upload={@uploads.delivery_spreadsheet} class="sr-only" />
@@ -90,7 +90,7 @@
         <div class="flex flex-col">
           <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
             <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-              <div class="overflow-hidden border-b border-gray-200 shadow sm:rounded-lg">
+              <div class="overflow-hidden border-b border-gray-200 shadow-sm sm:rounded-lg">
                 <table class="min-w-full divide-y divide-gray-200">
                   <thead>
                     <tr>
@@ -131,10 +131,10 @@
         <%= label f, :rider_spreadsheet_url, class: "block text-sm font-medium leading-5 text-gray-700" do %>
           Rider Spreadsheet (link to google sheet)
         <% end %>
-        <div class="mt-1 rounded-md shadow-sm">
+        <div class="mt-1 rounded-md shadow-xs">
           {text_input(f, :rider_spreadsheet_url,
             class:
-              "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5",
+              "block w-full px-3 py-2 placeholder-gray-400 transition duration-150 ease-in-out border border-gray-300 rounded-md appearance-none focus:outline-hidden focus:ring-blue focus:border-blue-300 sm:text-sm sm:leading-5",
             id: "spreadsheet",
             file_input: "one"
           )}
@@ -142,11 +142,11 @@
         {error_tag(f, :rider_spreadsheet_url)}
       </div>
 
-      <span class="block w-full rounded-md shadow-sm">
+      <span class="block w-full rounded-md shadow-xs">
         <button
           type="submit"
           phx-disable-with="Saving..."
-          class="flex justify-center w-full px-4 py-2 text-sm font-medium text-white transition duration-150 ease-in-out bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:ring-indigo active:bg-indigo-700"
+          class="flex justify-center w-full px-4 py-2 text-sm font-medium text-white transition duration-150 ease-in-out bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-500 focus:outline-hidden focus:border-indigo-700 focus:ring-indigo active:bg-indigo-700"
         >
           Save
         </button>
@@ -158,7 +158,7 @@
         id="campaign-location"
         data-zoom="12"
         data-mapbox_access_token="pk.eyJ1IjoibXZleXRzbWFuIiwiYSI6ImNrYWN0eHV5eTBhMTMycXI4bnF1czl2ejgifQ.xGiR6ANmMCZCcfZ0x_Mn4g"
-        class="block p-2 bg-white rounded-lg shadow w-96 h-96"
+        class="block p-2 bg-white rounded-lg shadow-sm w-96 h-96"
       >
         <%= if pickup_location(@changeset) do %>
           <leaflet-marker

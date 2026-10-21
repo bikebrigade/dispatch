@@ -472,7 +472,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
     <dialog
       id="suggestion-list"
       open={@open}
-      class="absolute z-10 w-full xl:w-[130%] p-2 mt-0 overflow-y-auto bg-white border rounded shadow-xl top-100 max-h-fit"
+      class="absolute z-10 w-full xl:w-[130%] p-2 mt-0 overflow-y-auto bg-white border rounded-sm shadow-xl top-100 max-h-fit"
       phx-window-keydown="clear_search"
       phx-key="escape"
     >
@@ -557,7 +557,7 @@ defmodule BikeBrigadeWeb.RiderLive.Index do
       <button
         type="button"
         phx-click={add_filter(@filter)}
-        class="block ml-1 transition duration-150 ease-in-out w-fit hover:bg-gray-50 focus:outline-none focus:bg-gray-50"
+        class="block ml-1 transition duration-150 ease-in-out w-fit hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50"
         tabindex="1"
         phx-focus={JS.push("choose", value: %{"choose" => @filter})}
       >

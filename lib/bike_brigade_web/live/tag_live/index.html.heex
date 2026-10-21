@@ -18,7 +18,7 @@
     <button
       type="button"
       phx-click={JS.push("toggle_restricted", value: %{id: tag.id})}
-      class="p-1 rounded hover:bg-gray-100"
+      class="p-1 rounded-sm hover:bg-gray-100"
       title={if tag.restricted, do: "Click to unrestrict", else: "Click to restrict"}
     >
       <%= if tag.restricted do %>

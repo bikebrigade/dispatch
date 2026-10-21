@@ -54,7 +54,7 @@ defmodule BikeBrigadeWeb.Components.RiderDeliveriesComponent do
     <section
       id={@id}
       aria-label={"Deliveries for #{@rider.name}"}
-      class={["min-h-0 flex-col rounded-lg bg-white shadow", @class]}
+      class={["min-h-0 flex-col rounded-lg bg-white shadow-sm", @class]}
     >
       <div class="flex shrink-0 items-center gap-3 border-b border-gray-200 px-4 py-5">
         <.link

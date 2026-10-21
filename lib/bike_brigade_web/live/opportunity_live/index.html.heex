@@ -12,7 +12,7 @@
 </.header>
 <div class="p-4 my-2 rounded-md bg-yellow-50">
   <div class="flex">
-    <div class="flex-shrink-0">
+    <div class="shrink-0">
       <Heroicons.exclamation_triangle mini class="w-5 h-5 text-yellow-400" />
     </div>
     <div class="ml-3">
@@ -45,7 +45,7 @@
     >
       <Heroicons.check_circle
         mini
-        class="flex-shrink-0 w-5 h-5 mx-1 text-green-400 justify-self-end"
+        class="shrink-0 w-5 h-5 mx-1 text-green-400 justify-self-end"
       /> Publish Selected
     </.button>
   </:bulk_action>
@@ -57,7 +57,7 @@
       phx-click={JS.push("update_selected", value: %{action: :unpublish})}
       class="p-1"
     >
-      <Heroicons.x_circle mini class="flex-shrink-0 w-5 h-5 mx-1 text-red-400 justify-self-end" />
+      <Heroicons.x_circle mini class="shrink-0 w-5 h-5 mx-1 text-red-400 justify-self-end" />
       Unpublish Selected
     </.button>
   </:bulk_action>
@@ -94,7 +94,7 @@
   </:col>
   <:col :let={opportunity} label="Link" show_at={:xlarge}>
     <.link href={opportunity.signup_link} class="inline-block link">
-      <Heroicons.link solid aria-label="Link to signup" class="flex-shrink-0 w-5" />
+      <Heroicons.link solid aria-label="Link to signup" class="shrink-0 w-5" />
     </.link>
   </:col>
   <:col
@@ -135,7 +135,7 @@
       >
         <Heroicons.check_circle
           mini
-          class="flex-shrink-0 w-6 h-6 mx-1 text-green-400 justify-self-end"
+          class="shrink-0 w-6 h-6 mx-1 text-green-400 justify-self-end"
         /> Publish Selected
       </.button>
       <.button
@@ -143,7 +143,7 @@
         color={:white}
         phx-click={JS.push("update_selected", value: %{action: :unpublish})}
       >
-        <Heroicons.x_circle mini class="flex-shrink-0 w-6 h-6 mx-1 text-red-400 justify-self-end" />
+        <Heroicons.x_circle mini class="shrink-0 w-6 h-6 mx-1 text-red-400 justify-self-end" />
         Unpublish Selected
       </.button>
     </div>

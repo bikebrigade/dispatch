@@ -93,7 +93,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
     assigns = assign(assigns, :send_at, send_at)
 
     ~H"""
-    <Heroicons.clock mini class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-500" />
+    <Heroicons.clock mini class="shrink-0 mr-1.5 h-5 w-5 text-gray-500" />
     <p>
       Message scheduled for
       <time datetime={@send_at}>
@@ -109,7 +109,7 @@ defmodule BikeBrigadeWeb.CampaignLive.Index do
     assigns = assign(assigns, :sent_at, sent_at)
 
     ~H"""
-    <Heroicons.chat_bubble_left_right mini class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-500" />
+    <Heroicons.chat_bubble_left_right mini class="shrink-0 mr-1.5 h-5 w-5 text-gray-500" />
     <p>
       Last messaged at
       <time datetime={@sent_at}>

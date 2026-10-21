@@ -44,7 +44,7 @@
       <span data-test-id={"dropoff-name-#{t.id}"}>{initials(t.dropoff_name)}</span>
       <span>Pickup: {pickup_window(@campaign)}</span>
     </div>
-    <div class="flex flex-col bg-white shadow">
+    <div class="flex flex-col bg-white shadow-sm">
       <div class="flex items-center p-4 py-2 border-b">
         <span class="pr-2 font-semibold">Delivery:</span>
         <span class="italic">
@@ -103,7 +103,7 @@
   <%= if Enum.empty?(@backup_riders) do %>
     <p class="text-sm text-gray-600 italic">No backup riders signed up yet.</p>
   <% else %>
-    <div class="bg-white shadow rounded-lg">
+    <div class="bg-white shadow-sm rounded-lg">
       <ul class="divide-y divide-gray-200">
         <li :for={rider <- @backup_riders} class="px-4 py-3 flex justify-between items-center">
           <span class="text-sm font-medium">{first_name_and_last_initial(rider.name)}</span>
@@ -120,7 +120,7 @@
 
 <div
   :if={!Enum.empty?(@campaign.program.photos)}
-  class="mt-4 overflow-hidden bg-white rounded-lg shadow"
+  class="mt-4 overflow-hidden bg-white rounded-lg shadow-sm"
 >
   <div class="px-4 py-5 sm:p-6">
     <.header>

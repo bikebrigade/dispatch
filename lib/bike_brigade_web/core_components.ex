@@ -42,12 +42,12 @@ defmodule BikeBrigadeWeb.CoreComponents do
 
   @button_base_classes [
     "inline-flex text-center items-center justify-center border border-transparent",
-    "font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2",
+    "font-medium shadow-xs focus:outline-hidden focus:ring-2 focus:ring-offset-2",
     "disabled:hover:cursor-not-allowed disabled:opacity-25"
   ]
 
   # TODO I have a button in messaging form component with
-  # phx-submit-loading:opacity-25 phx-submit-loading:hover:cursor-not-allowed phx-submit-loading:pointer-events-none
+  # phx-submit-loading:opacity-25 hover:phx-submit-loading:cursor-not-allowed phx-submit-loading:pointer-events-none
   # Add this as an option (disable-if-loading) if we need it again
 
   def button(%{type: type} = assigns) when is_binary(type) do
@@ -128,8 +128,8 @@ defmodule BikeBrigadeWeb.CoreComponents do
   defp button_rounded(rounded) do
     case rounded do
       :non -> "rounded-none"
-      :small -> "rounded-sm"
-      :normal -> "rounded"
+      :small -> "rounded-xs"
+      :normal -> "rounded-sm"
       :medium -> "rounded-md"
       :full -> "rounded-full"
     end
@@ -150,7 +150,10 @@ defmodule BikeBrigadeWeb.CoreComponents do
 
   def date(%{rest: rest} = assigns) when is_clickable(rest) do
     ~H"""
-    <.link class={"inline-flex border border-gray-400 rounded hover:bg-indigo-50 #{@class}"} {@rest}>
+    <.link
+      class={"inline-flex border border-gray-400 rounded-sm hover:bg-indigo-50 #{@class}"}
+      {@rest}
+    >
       <.date_inner date={@date} />
     </.link>
     """
@@ -158,7 +161,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
 
   def date(assigns) do
     ~H"""
-    <div class={"inline-flex border border-gray-400 rounded #{@class}"} {@rest}>
+    <div class={"inline-flex border border-gray-400 rounded-sm #{@class}"} {@rest}>
       <.date_inner date={@date} />
     </div>
     """
@@ -259,9 +262,9 @@ defmodule BikeBrigadeWeb.CoreComponents do
     <button
       type="button"
       class={[
-        "px-3 justify-center h-6 text-gray-800 bg-opacity-50",
+        "px-3 justify-center h-6 text-gray-800",
         "border-2 border-gray-400 border-solid rounded-full hover:border-gray-600",
-        if(@selected, do: "bg-gray-400"),
+        if(@selected, do: "bg-gray-400/50"),
         @class
       ]}
       {@rest}
@@ -354,7 +357,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
           name={@name}
           value="true"
           checked={@checked}
-          class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+          class="w-4 h-4 text-indigo-600 border-gray-300 rounded-sm focus:ring-indigo-500"
           {@rest}
         />
       </div>
@@ -375,7 +378,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
       <select
         id={@id}
         name={@name}
-        class="block w-full px-3 py-2 mt-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-zinc-500 focus:border-zinc-500 sm:text-sm"
+        class="block w-full px-3 py-2 mt-1 bg-white border border-gray-300 rounded-md shadow-xs focus:outline-hidden focus:ring-zinc-500 focus:border-zinc-500 sm:text-sm"
         multiple={@multiple}
         {@rest}
       >
@@ -399,8 +402,8 @@ defmodule BikeBrigadeWeb.CoreComponents do
         name={@name}
         class={[
           input_border(@errors),
-          "mt-1 block min-h-[6rem] w-full rounded-md border-gray-300 shadow-sm py-[calc(theme(spacing.2)-1px)] px-[calc(theme(spacing.3)-1px)]]",
-          "text-gray-900 focus:outline-none sm:text-sm sm:leading-6",
+          "mt-1 block min-h-24 w-full rounded-md border-gray-300 shadow-xs py-[calc(--spacing(2)-1px)] px-[calc(--spacing(3)-1px)]]",
+          "text-gray-900 focus:outline-hidden sm:text-sm sm:leading-6",
           @errors == [] && "border-gray-300 focus:border-indigo-500 focus:ring-indigo-500",
           "disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none",
           @extra_class
@@ -442,8 +445,8 @@ defmodule BikeBrigadeWeb.CoreComponents do
         value={@value}
         class={[
           input_border(@errors),
-          "mt-1 block w-full rounded-md border-gray-300 shadow-sm py-[calc(theme(spacing.2)-1px)] px-[calc(theme(spacing.3)-1px)]",
-          "text-gray-900 focus:outline-none sm:text-sm sm:leading-6",
+          "mt-1 block w-full rounded-md border-gray-300 shadow-xs py-[calc(--spacing(2)-1px)] px-[calc(--spacing(3)-1px)]",
+          "text-gray-900 focus:outline-hidden sm:text-sm sm:leading-6",
           @errors == [] && "border-gray-300 focus:border-indigo-500 focus:ring-indigo-500",
           "disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none",
           @extra_class
@@ -470,13 +473,13 @@ defmodule BikeBrigadeWeb.CoreComponents do
         role="switch"
         aria-checked={to_string(@enabled)}
         class={[
-          "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2",
+          "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2",
           if(@enabled, do: "bg-indigo-600", else: "bg-gray-200")
         ]}
         {@rest}
       >
         <span class={[
-          "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
+          "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out",
           if(@enabled, do: "translate-x-5", else: "translate-x-0")
         ]} />
       </button>
@@ -654,7 +657,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
 
   def location(assigns) do
     ~H"""
-    <div class="inline-flex flex-shrink-0 leading-normal">
+    <div class="inline-flex shrink-0 leading-normal">
       <Heroicons.map_pin mini aria-label="Location" class="w-4 h-4 mt-1 mr-1 text-gray-500" />
       <div class="grid grid-cols-2 gap-y-0 gap-x-1">
         <div class="col-span-2">{@location.address}</div>
@@ -929,7 +932,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
                 <!-- Action buttons -->
                 <div
                   :if={@confirm != [] or @cancel != [] or @extra_actions != []}
-                  class="flex-shrink-0 px-4 py-5 border-t border-gray-200 sm:px-6"
+                  class="shrink-0 px-4 py-5 border-t border-gray-200 sm:px-6"
                 >
                   <div class="flex justify-end space-x-3">
                     <div class="mr-auto">
@@ -1052,7 +1055,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
     <div id={@id} class="flex flex-col mt-8">
       <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-          <div class="relative overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+          <div class="relative overflow-hidden shadow-sm ring-1 ring-black/5 md:rounded-lg">
             <div
               :if={@num_checked > 0}
               class="absolute top-0 flex items-center h-12 space-x-3 left-12 bg-gray-50 sm:left-16"
@@ -1080,7 +1083,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
                       phx-hook="CheckboxAll"
                       data-num-checked={@num_checked}
                       data-num-rows={length(@rows)}
-                      class="absolute w-4 h-4 -mt-2 text-indigo-600 border-gray-300 rounded left-4 top-1/2 focus:ring-indigo-500 sm:left-6"
+                      class="absolute w-4 h-4 -mt-2 text-indigo-600 border-gray-300 rounded-sm left-4 top-1/2 focus:ring-indigo-500 sm:left-6"
                     />
                   </th>
                   <th
@@ -1140,7 +1143,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
                       value="true"
                       checked={MapSet.member?(@checkboxes_selected, row.id)}
                       form={@checkboxes}
-                      class="absolute w-4 h-4 -mt-2 text-indigo-600 border-gray-300 rounded left-4 top-1/2 focus:ring-indigo-500 sm:left-6"
+                      class="absolute w-4 h-4 -mt-2 text-indigo-600 border-gray-300 rounded-sm left-4 top-1/2 focus:ring-indigo-500 sm:left-6"
                     />
                   </td>
                   <td
@@ -1230,7 +1233,7 @@ defmodule BikeBrigadeWeb.CoreComponents do
     <div class="relative flex flex-col items-center has-tooltip">
       {render_slot(@inner_block)}
       <div class="absolute bottom-0 flex-col items-center mb-6 tooltip">
-        <span class="relative z-10 p-2 text-xs leading-none text-white whitespace-no-wrap bg-black rounded-sm shadow-lg">
+        <span class="relative z-10 p-2 text-xs leading-none text-white whitespace-no-wrap bg-black rounded-xs shadow-lg">
           {render_slot(@tooltip)}
         </span>
         <div class="w-3 h-3 -mt-2 transform rotate-45 bg-black"></div>

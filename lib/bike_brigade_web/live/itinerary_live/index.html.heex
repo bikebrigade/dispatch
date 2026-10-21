@@ -19,17 +19,17 @@
     </div>
   </div>
   <div class="flex mt-4 md:mt-0 md:justify-end flex-0 md:flex-1">
-    <span class="relative z-0 inline-flex rounded-md shadow-sm">
+    <span class="relative z-0 inline-flex rounded-md shadow-xs">
       <.link
         patch={~p"/itinerary?date=#{Date.add(@date, -1)}"}
         aria-label="Previous Day"
-        class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+        class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 focus:z-10 focus:outline-hidden focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
       >
         <Heroicons.chevron_left solid class="w-5 h-5" />
       </.link>
       <.link
         patch={~p"/itinerary?date=#{LocalizedDateTime.today()}"}
-        class="relative items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+        class="relative items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:z-10 focus:outline-hidden focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
       >
         Today
       </.link>
@@ -37,7 +37,7 @@
       <.link
         patch={~p"/itinerary?date=#{Date.add(@date, 1)}"}
         aria-label="Next Day"
-        class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+        class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 focus:z-10 focus:outline-hidden focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
       >
         <Heroicons.chevron_right solid class="w-5 h-5" />
       </.link>
@@ -47,7 +47,7 @@
 <%= if @campaign_riders != [] do %>
   <div
     :for={cr <- @campaign_riders}
-    class="flex w-full bg-white shadow mb-2 md:mb-4 sm:rounded-md"
+    class="flex w-full bg-white shadow-sm mb-2 md:mb-4 sm:rounded-md"
   >
     <ul role="list" class="w-full divide-y divide-gray-200">
       <li id={"campaign-#{cr.campaign.id}"}>
@@ -58,7 +58,7 @@
                 {name(cr.campaign)}
               </p>
             </div>
-            <div class="flex-shrink-0 space-y-1 md:space-y-0 md:space-x-2 md:flex">
+            <div class="shrink-0 space-y-1 md:space-y-0 md:space-x-2 md:flex">
               <.button navigate={~p"/app/delivery/#{cr.token}"} size={:medium}>
                 Details
               </.button>
@@ -69,7 +69,7 @@
               <p class="flex items-center text-sm text-gray-500">
                 <Heroicons.clock
                   aria-label="Pickup Time"
-                  class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
+                  class="shrink-0 mr-1.5 h-5 w-5 text-gray-400"
                 />
                 {pickup_window(cr.campaign)}
               </p>
@@ -81,7 +81,7 @@
               <p class="flex items-center text-sm text-gray-500">
                 <Heroicons.shopping_bag
                   aria-label="Location"
-                  class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400"
+                  class="shrink-0 mr-1.5 h-5 w-5 text-gray-400"
                 />
                 {humanized_task_count(cr.campaign.tasks)}
               </p>
