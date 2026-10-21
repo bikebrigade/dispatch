@@ -71,6 +71,7 @@ defmodule BikeBrigadeWeb.Layouts do
           Riders
         </.sidebar_link>
         <.sidebar_link
+          :if={false}
           selected={@current_page == :community_fridges}
           navigate={~p"/community_fridges"}
         >
