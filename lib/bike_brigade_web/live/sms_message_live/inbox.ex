@@ -12,6 +12,9 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Inbox do
 
   @presence_topic "messaging_presence"
 
+  # The "All" tab loads conversations a page at a time as the list is scrolled.
+  @conversations_page_size 50
+
   on_mount {BikeBrigadeWeb.LiveHooks.FeatureFlags, {:require, :unified_messaging, "/messages"}}
 
   @impl true
@@ -28,6 +31,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Inbox do
     {:ok,
      socket
      |> allow_upload(:media, accept: ~w(.gif .png .jpg .jpeg), max_entries: 10)
+     |> stream_configure(:conversations, dom_id: fn {rider, _} -> conversation_dom_id(rider) end)
      |> assign(
        page: :messages,
        page_title: "Messages",
@@ -35,7 +39,8 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Inbox do
        presence: presence,
        others_present: others_present(socket.assigns.current_user, presence),
        confirm_send: BikeBrigade.SmsService.sending_confirmation_message(),
-       loaded: %{}
+       loaded: %{},
+       conversations_cursor: nil
      )
      |> reset_bulk_form()
      |> reset_everyone_form()}
@@ -65,6 +70,17 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Inbox do
   def handle_event("search", %{"search" => search}, socket) do
     {:noreply,
      push_patch(socket, to: inbox_path(socket.assigns, %{"search" => search}), replace: true)}
+  end
+
+  def handle_event("load_more_conversations", _params, socket) do
+    %{tab: tab, search: search, conversations_cursor: cursor} = socket.assigns
+
+    if tab == "all" && cursor do
+      page = list_conversations_page(search, cursor)
+      {:noreply, socket |> stream(:conversations, page) |> assign_conversations_cursor(page)}
+    else
+      {:noreply, socket}
+    end
   end
 
   def handle_event("bulk", _params, socket) do
@@ -491,34 +507,48 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Inbox do
     assign(socket, context: context)
   end
 
-  # The "All" tab can hold every conversation, so it's streamed and filtered by the
-  # query; a context's roster is small enough to keep in memory and filter locally.
+  # The "All" tab can hold every conversation, so it's searched in the database and
+  # streamed a page at a time (see "load_more_conversations"); a context's roster is
+  # small enough to keep in memory and filter locally.
   defp load_conversations(%{assigns: %{tab: "all", search: search}} = socket) do
     key = {:all, search}
 
     if loaded?(socket, :conversations, key) do
       socket
     else
-      visible =
-        Messaging.list_sms_conversations()
-        |> Enum.map(fn {rider, message} -> {with_display_name(rider), message} end)
-        |> Enum.filter(fn {rider, _} -> matches_search?(rider, search) end)
+      page = list_conversations_page(search, nil)
 
       socket
       |> assign(
         conversations: [],
         first_conversation_rider:
-          case visible do
+          case page do
             [{rider, _} | _] -> rider
             [] -> nil
           end
       )
-      |> stream(:conversations, visible,
-        reset: true,
-        dom_id: fn {rider, _} -> conversation_dom_id(rider) end
-      )
+      |> stream(:conversations, page, reset: true)
+      |> assign_conversations_cursor(page)
       |> mark_loaded(:conversations, key)
     end
+  end
+
+  defp list_conversations_page(search, cursor) do
+    [limit: @conversations_page_size, search: search, after: cursor]
+    |> Enum.reject(fn {_, value} -> is_nil(value) end)
+    |> Messaging.list_sms_conversations()
+    |> Enum.map(fn {rider, message} -> {with_display_name(rider), message} end)
+  end
+
+  # A full page means there may be more; the cursor is where the next page starts.
+  defp assign_conversations_cursor(socket, page) do
+    cursor =
+      if length(page) == @conversations_page_size do
+        {rider, message} = List.last(page)
+        {message.sent_at, rider.id}
+      end
+
+    assign(socket, conversations_cursor: cursor)
   end
 
   defp load_conversations(%{assigns: %{context: context}} = socket) do

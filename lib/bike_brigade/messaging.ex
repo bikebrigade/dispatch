@@ -39,6 +39,13 @@ defmodule BikeBrigade.Messaging do
 
   @doc """
   Returns pairs of riders and the last message, sorted by last message sent
+
+  ## Options
+
+    * `:limit` - return at most this many conversations
+    * `:after` - a `{sent_at, rider_id}` cursor (the last conversation of the previous
+      page); only conversations that come after it are returned
+    * `:search` - only riders whose name (or phone, for unnamed riders) contains this
   """
   def list_sms_conversations(opts \\ []) do
     query =
@@ -46,15 +53,28 @@ defmodule BikeBrigade.Messaging do
         as: :rider,
         inner_lateral_join: latest_message in ^get_latest_message_subquery(),
         on: true,
-        order_by: [desc: latest_message.sent_at],
+        # sent_at has second precision, so break ties by rider to keep paging stable
+        order_by: [desc: latest_message.sent_at, desc: r.id],
         select: {r, latest_message}
 
     query =
-      if limit = opts[:limit] do
-        query |> limit(^limit)
-      else
-        query
-      end
+      Enum.reduce(opts, query, fn
+        {:limit, limit}, query ->
+          limit(query, ^limit)
+
+        {:after, {sent_at, rider_id}}, query ->
+          where(
+            query,
+            [r, m],
+            m.sent_at < ^sent_at or (m.sent_at == ^sent_at and r.id < ^rider_id)
+          )
+
+        {:search, search}, query when search in [nil, ""] ->
+          query
+
+        {:search, search}, query ->
+          where(query, [r], ilike(coalesce(r.name, r.phone), ^"%#{search}%"))
+      end)
 
     Repo.all(query)
   end

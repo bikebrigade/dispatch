@@ -146,6 +146,7 @@
         <.sms_message_list
           conversations={@streams.conversations}
           rider_link_fn={fn id -> inbox_path(assigns, %{"rider" => id}) end}
+          load_more={@conversations_cursor && "load_more_conversations"}
         />
       </div>
     </section>
