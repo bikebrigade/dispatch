@@ -245,7 +245,6 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
       "Name: #{task.dropoff_name}\nPhone: #{task.dropoff_phone}\nType: #{request_type(task)}\nAddress: #{task.dropoff_location}\nNotes: #{task.delivery_instructions}"
     end
     |> Enum.join("\n\n")
-    |> inspect()
   end
 
   defp others_present(socket, presence) do
