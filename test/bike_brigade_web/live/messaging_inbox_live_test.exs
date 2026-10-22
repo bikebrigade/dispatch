@@ -9,6 +9,10 @@ defmodule BikeBrigadeWeb.MessagingInboxLiveTest do
     Enum.find(Messaging.latest_messages(rider), &(&1.body =~ text))
   end
 
+  defp count_items(html) do
+    html |> Floki.parse_fragment!() |> Floki.find("#conversation-list > li") |> length()
+  end
+
   defp opt_in(%{user: user}) do
     {:ok, user} = Accounts.update_user_as_admin(user, %{flags: %{unified_messaging: true}})
     %{user: user}
@@ -65,6 +69,27 @@ defmodule BikeBrigadeWeb.MessagingInboxLiveTest do
       {:ok, view, _} = live(conn, ~p"/messages/inbox?rider=#{rider.id}")
       assert has_element?(view, "#conversation-form")
       assert has_element?(view, "#inbox-riders", rider.phone)
+    end
+
+    test "conversations load a page at a time and search the whole list", %{conn: conn} do
+      # Created first, so with every message sent in the same second it sorts last.
+      oldest = fixture(:rider, %{name: "Zelda Oldest"})
+      fixture(:sms_message_from_rider, oldest)
+
+      for _ <- 1..50, do: fixture(:sms_message_from_rider, fixture(:rider))
+
+      {:ok, view, _} = live(conn, ~p"/messages/inbox")
+      assert has_element?(view, "#conversation-list[phx-viewport-bottom]")
+      refute has_element?(view, "#conversation-list-item\\:#{oldest.id}")
+
+      render_hook(view, "load_more_conversations", %{})
+      assert has_element?(view, "#conversation-list-item\\:#{oldest.id}")
+      assert view |> element("#conversation-list") |> render() |> count_items() == 51
+      refute has_element?(view, "#conversation-list[phx-viewport-bottom]")
+
+      {:ok, view, _} = live(conn, ~p"/messages/inbox?search=zelda")
+      assert has_element?(view, "#conversation-list-item\\:#{oldest.id}")
+      assert view |> element("#conversation-list") |> render() |> count_items() == 1
     end
 
     test "incoming messages preserve a composed reply", %{conn: conn} do

@@ -29,6 +29,10 @@ defmodule BikeBrigadeWeb.Components.SMSMessageListComponent do
   attr :conversations, :any, required: true
   attr :rider_link_fn, :any, required: true
 
+  attr :load_more, :string,
+    default: nil,
+    doc: "event pushed when the list is scrolled to the bottom, to load the next page"
+
   def sms_message_list(assigns) do
     ~H"""
     <ul
@@ -36,6 +40,7 @@ defmodule BikeBrigadeWeb.Components.SMSMessageListComponent do
       id="conversation-list"
       phx-hook="ConversationList"
       phx-update="stream"
+      phx-viewport-bottom={@load_more}
     >
       <li
         :for={{dom_id, {rider, last_message}} <- @conversations}
