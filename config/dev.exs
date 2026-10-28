@@ -3,6 +3,9 @@ import Config
 config :bike_brigade, :environment, :dev
 config :bike_brigade, :app_env, "development"
 
+# Enables dev-only routes like /dev/components
+config :bike_brigade, dev_routes: true
+
 # Configure your database
 config :bike_brigade, BikeBrigade.Repo,
   username: System.get_env("POSTGRES_USERNAME") || "postgres",

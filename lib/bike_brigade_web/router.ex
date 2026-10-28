@@ -201,6 +201,11 @@ defmodule BikeBrigadeWeb.Router do
       live "/community_fridges", CommunityFridgeLive.Index, :index
       live "/community_fridges/new", CommunityFridgeLive.Index, :new
       live "/community_fridges/:id/edit", CommunityFridgeLive.Index, :edit
+
+      # DaisyUI component gallery in dev
+      if Application.compile_env(:bike_brigade, :dev_routes) do
+        live "/dev/components", Dev.ComponentGalleryLive, :index
+      end
     end
 
     get "/stats/leaderboard/download", ExportStatsController, :leaderboard
