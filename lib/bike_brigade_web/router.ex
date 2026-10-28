@@ -206,7 +206,7 @@ defmodule BikeBrigadeWeb.Router do
       if Application.compile_env(:bike_brigade, :dev_routes) do
         live "/dev/components", Dev.ComponentGalleryLive, :index
       end
-  end
+    end
 
     get "/stats/leaderboard/download", ExportStatsController, :leaderboard
 
