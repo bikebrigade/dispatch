@@ -32,6 +32,7 @@ defmodule BikeBrigadeWeb.Layouts do
       :campaigns,
       :opportunities,
       :riders,
+      :community_fridges,
       :stats,
       :users,
       :messages,
@@ -69,6 +70,16 @@ defmodule BikeBrigadeWeb.Layouts do
             <Heroicons.user_group />
           </:icon>
           Riders
+        </.sidebar_link>
+        <.sidebar_link
+          :if={false}
+          selected={@current_page == :community_fridges}
+          navigate={~p"/community_fridges"}
+        >
+          <:icon>
+            <Heroicons.archive_box />
+          </:icon>
+          Community Fridges
         </.sidebar_link>
         <.sidebar_link selected={@current_page == :stats} navigate={~p"/stats"}>
           <:icon>

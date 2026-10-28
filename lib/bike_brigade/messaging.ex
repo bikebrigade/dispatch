@@ -12,7 +12,7 @@ defmodule BikeBrigade.Messaging do
   alias BikeBrigade.Riders.Rider
   alias BikeBrigade.SmsService
 
-  @initial_message "Hello! This is the Bike Brigade number. The team uses this number to send you information about deliveries you sign up for, and you can text us here if you have any questions. This number is monitored by the Bike Brigade team -- we'll often sign messages with the person sending them.\n\nWe recommend you add this number to your contacts as Bike Brigade (or update your contacts if you've added our old number).\n\nYou can text STOP to this number to opt-out of receiving text messages from us."
+  @initial_message "Hello! This is the Bike Brigade number. The team uses this number to send you information about deliveries you sign up for, and you can text us here if you have any questions about specific deliveries. This number is monitored by the Bike Brigade team - we’ll often sign messages with the person sending them.\n\nWe recommend you add this number to your contacts as Bike Brigade.\n\nYou can text STOP to this number to opt-out of receiving text messages from us.\n\nFor more info about signing up for your first delivery, see our new rider onboarding guide https://dispatch.bikebrigade.ca/new-rider-guide. For general questions, email info@bikebrigade.ca."
 
   @doc """
   Returns the list of sms_messages.
@@ -39,6 +39,13 @@ defmodule BikeBrigade.Messaging do
 
   @doc """
   Returns pairs of riders and the last message, sorted by last message sent
+
+  ## Options
+
+    * `:limit` - return at most this many conversations
+    * `:after` - a `{sent_at, rider_id}` cursor (the last conversation of the previous
+      page); only conversations that come after it are returned
+    * `:search` - only riders whose name (or phone, for unnamed riders) contains this
   """
   def list_sms_conversations(opts \\ []) do
     query =
@@ -46,15 +53,28 @@ defmodule BikeBrigade.Messaging do
         as: :rider,
         inner_lateral_join: latest_message in ^get_latest_message_subquery(),
         on: true,
-        order_by: [desc: latest_message.sent_at],
+        # sent_at has second precision, so break ties by rider to keep paging stable
+        order_by: [desc: latest_message.sent_at, desc: r.id],
         select: {r, latest_message}
 
     query =
-      if limit = opts[:limit] do
-        query |> limit(^limit)
-      else
-        query
-      end
+      Enum.reduce(opts, query, fn
+        {:limit, limit}, query ->
+          limit(query, ^limit)
+
+        {:after, {sent_at, rider_id}}, query ->
+          where(
+            query,
+            [r, m],
+            m.sent_at < ^sent_at or (m.sent_at == ^sent_at and r.id < ^rider_id)
+          )
+
+        {:search, search}, query when search in [nil, ""] ->
+          query
+
+        {:search, search}, query ->
+          where(query, [r], ilike(coalesce(r.name, r.phone), ^"%#{search}%"))
+      end)
 
     Repo.all(query)
   end
@@ -213,6 +233,23 @@ defmodule BikeBrigade.Messaging do
     }
   end
 
+  @doc "Send the welcome SMS to a rider and record it in the database"
+  def send_welcome_sms(%Rider{} = rider, opts \\ []) do
+    rider = Repo.get!(Rider, rider.id) |> Repo.preload(:location)
+    message = new_sms_message(rider, Keyword.put_new(opts, :body, @initial_message))
+
+    with {:ok, %{status: status, sid: sid}} <-
+           SmsService.send_sms(message, send_callback: true),
+         {:ok, _} <-
+           create_sms_message(message, %{
+             sent_at: DateTime.utc_now(),
+             twilio_status: status,
+             twilio_sid: sid
+           }) do
+      Riders.update_rider(rider, %{flags: %{initial_message_sent: true}})
+    end
+  end
+
   @doc """
   Appends the dispatcher's signature to a message body if the user has signatures enabled.
   Returns the original body unchanged if no sent_by_user_id, user has setting disabled, or user not found.
@@ -312,6 +349,9 @@ defmodule BikeBrigade.Messaging do
 
   defp maybe_send_initial_message(%Ecto.Multi{} = multi, nil), do: multi
 
+  # Sends the welcome SMS for riders who opted in to the new number via the dispatcher flow.
+  # Riders signing up through the portal receive the welcome SMS via Riders.create_or_update/1
+  # and will not reach this clause (initial_message_sent is already true by then).
   defp maybe_send_initial_message(%Ecto.Multi{} = multi, %Rider{} = rider) do
     case rider.flags do
       %Rider.Flags{opt_in_to_new_number: true, initial_message_sent: false} ->

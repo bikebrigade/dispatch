@@ -137,6 +137,40 @@ defmodule BikeBrigadeWeb.CoreComponents do
     end
   end
 
+  @doc """
+  Renders content clamped to `max_height`, with a "Show More" toggle when it overflows.
+
+  ## Examples
+
+      <.collapsible id="campaign-details">{@campaign.details}</.collapsible>
+  """
+  attr :id, :string, required: true
+  attr :max_height, :string, default: "max-h-20", values: ["max-h-20", "max-h-24"]
+  attr :class, :string, default: nil
+  slot :inner_block, required: true
+
+  def collapsible(assigns) do
+    ~H"""
+    <div id={@id} phx-hook="Collapsible" data-collapsed-class={@max_height} class="relative">
+      <div data-collapsible-content class={["overflow-hidden", @max_height, @class]}>
+        {render_slot(@inner_block)}
+      </div>
+      <div
+        data-collapsible-controls
+        class="hidden absolute inset-x-0 bottom-0 p-1.5 text-center bg-white/90"
+      >
+        <button
+          data-collapsible-toggle
+          type="button"
+          class="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-xs text-xs font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          Show More...
+        </button>
+      </div>
+    </div>
+    """
+  end
+
   @doc ~S"""
   Renders date.
 

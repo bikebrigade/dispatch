@@ -87,6 +87,12 @@ defmodule BikeBrigadeWeb.Router do
     delete "/login", AuthenticationController, :cancel
   end
 
+  scope "/", BikeBrigadeWeb do
+    pipe_through [:browser]
+
+    get "/new-rider-guide", RedirectController, :new_rider_guide
+  end
+
   # this scope is for authenticated users that aren't dispatchers (ie: riders).
   scope "/", BikeBrigadeWeb do
     pipe_through [:browser, :require_authenticated_user, :set_honeybadger_context]
@@ -100,6 +106,16 @@ defmodule BikeBrigadeWeb.Router do
       live "/campaigns/signup/:id", CampaignSignupLive.Show, :new
       live "/campaigns/signup/:id/task/:task_id", CampaignSignupLive.Show, :rider_signup
       live "/leaderboard", StatsLive.Leaderboard, :show
+
+      if dev?() do
+        live "/mockups/fridge_signup", Mockups.FridgeSignupLive.MockA, :index
+        live "/mockups/fridge_signup/a", Mockups.FridgeSignupLive.MockA, :index
+        live "/mockups/fridge_signup/b", Mockups.FridgeSignupLive.MockB, :index
+        live "/mockups/fridge_signup/c", Mockups.FridgeSignupLive.MockC, :index
+        live "/mockups/fridge_signup/d", Mockups.FridgeSignupLive.Simple, :table
+        live "/mockups/fridge_signup/e", Mockups.FridgeSignupLive.Simple, :preferences
+        live "/mockups/fridge_signup/f", Mockups.FridgeSignupLive.Simple, :area
+      end
     end
 
     delete "/logout", AuthenticationController, :logout
@@ -182,11 +198,15 @@ defmodule BikeBrigadeWeb.Router do
 
       live "/delivery_notes", DeliveryNoteLive.Index, :index
 
-      # Every core component in every state, for checking UI changes in the browser
+      live "/community_fridges", CommunityFridgeLive.Index, :index
+      live "/community_fridges/new", CommunityFridgeLive.Index, :new
+      live "/community_fridges/:id/edit", CommunityFridgeLive.Index, :edit
+
+      # DaisyUI component gallery in dev
       if Application.compile_env(:bike_brigade, :dev_routes) do
         live "/dev/components", Dev.ComponentGalleryLive, :index
       end
-    end
+  end
 
     get "/stats/leaderboard/download", ExportStatsController, :leaderboard
 
@@ -238,6 +258,10 @@ defmodule BikeBrigadeWeb.Router do
   defp allow_framing(conn, _opts) do
     conn
     |> Plug.Conn.delete_resp_header("x-frame-options")
+    |> Plug.Conn.put_resp_header(
+      "content-security-policy",
+      "base-uri 'self'; frame-ancestors 'self' https://bikebrigade.ca https://*.bikebrigade.ca https://bikebrigade.squarespace.com;"
+    )
   end
 end
 

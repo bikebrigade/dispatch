@@ -19,16 +19,15 @@ defmodule BikeBrigade.Locations.CommunityFridge do
     field :active, :boolean, default: true
     field :pair_preferred, :boolean, default: false
 
-    belongs_to :location, Location
+    belongs_to :location, Location, on_replace: :update
 
     timestamps()
   end
 
   def changeset(community_fridge, params) do
     community_fridge
-    |> cast(params, @fields ++ [:location_id])
-    |> validate_required([:name, :location_id])
-    |> unique_constraint(:location_id)
-    |> assoc_constraint(:location)
+    |> cast(params, @fields)
+    |> cast_assoc(:location)
+    |> validate_required([:name])
   end
 end
