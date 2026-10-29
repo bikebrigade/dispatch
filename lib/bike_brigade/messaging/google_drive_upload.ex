@@ -23,7 +23,7 @@ defmodule BikeBrigade.Messaging.GoogleDriveUpload do
 
           %{
             id: m.id,
-            gdrive_url: file.webViewLink,
+            gdrive_url: file["webViewLink"],
             gdrive_folder_url: "https://drive.google.com/drive/folders/#{@folder}"
           }
         else
