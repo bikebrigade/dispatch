@@ -60,8 +60,6 @@ defmodule BikeBrigade.MixProject do
       {:plug_cowboy, "~> 2.9", override: true},
       {:httpoison, "~> 3.0", override: true},
       {:req, "~> 0.7.5"},
-      # google_gax pins mime ~> 1.0 but never calls it; req needs ~> 2.0
-      {:mime, "~> 2.0", override: true},
       {:nimble_csv, "~> 1.3"},
       {:ex_phone_number, "~> 0.4.11"},
       {:ecto_enum, "~> 1.4"},
@@ -72,9 +70,6 @@ defmodule BikeBrigade.MixProject do
       {:topo, "~> 1.0"},
       {:ex_twilio, "~> 0.10.0"},
       {:mailchimp, "~> 0.2.0"},
-      {:google_api_drive, "~> 0.32.0"},
-      {:google_api_storage, "~> 0.46.1"},
-      {:google_api_sheets, "~> 0.35.0"},
       {:goth, "~> 1.4"},
       {:faker, "~> 0.19"},
       {:mustache, "~> 0.5.1"},
