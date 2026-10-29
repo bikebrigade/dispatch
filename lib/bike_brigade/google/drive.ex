@@ -1,11 +1,13 @@
 defmodule BikeBrigade.Google.Drive do
+  alias BikeBrigade.Google
   alias BikeBrigade.Google.MultipartUpload
 
   @upload_url "https://www.googleapis.com/upload/drive/v3/files"
 
   def upload_from_url(url, parent, opts \\ []) do
-    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <-
-           HTTPoison.get(url, [], follow_redirect: true),
+    # The media URL isn't a Google API, so it gets no Google auth
+    with {:ok, %Req.Response{status: 200, body: body}} <-
+           Req.get(url, [decode_body: false] ++ Google.req_options()),
          {:ok, file} <-
            MultipartUpload.upload(
              @upload_url,
@@ -21,7 +23,7 @@ defmodule BikeBrigade.Google.Drive do
            ) do
       {:ok, file}
     else
-      {:ok, %HTTPoison.Response{status_code: status}} -> {:error, {:download_failed, status}}
+      {:ok, %Req.Response{status: status}} -> {:error, {:download_failed, status}}
       {:error, reason} -> {:error, reason}
     end
   end

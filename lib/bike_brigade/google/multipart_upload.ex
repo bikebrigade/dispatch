@@ -2,27 +2,24 @@ defmodule BikeBrigade.Google.MultipartUpload do
   @moduledoc """
   Google API multipart (metadata + media) uploads.
 
-  We build the `multipart/related` request ourselves because `google_gax`
-  passes atom field names to `Tesla.Multipart`, which Tesla >= 1.19 rejects.
+  Google documents these uploads as `multipart/related`, which `Req` doesn't
+  encode (its `:form_multipart` is `multipart/form-data`), so we build the body.
   """
 
   @boundary "bike_brigade_upload_boundary"
 
   def upload(url, metadata, content, content_type, query \\ []) do
-    with {:ok, token} <- Goth.fetch(BikeBrigade.Google),
-         {:ok, %HTTPoison.Response{status_code: status, body: body}} when status in 200..299 <-
-           HTTPoison.post(
-             url,
-             build_body(metadata, content, content_type),
-             [
-               {"Authorization", "Bearer #{token.token}"},
-               {"Content-Type", "multipart/related; boundary=#{@boundary}"}
-             ],
-             params: [{:uploadType, "multipart"} | query]
+    with {:ok, req} <- BikeBrigade.Google.request(),
+         {:ok, %Req.Response{status: status, body: body}} when status in 200..299 <-
+           Req.post(req,
+             url: url,
+             params: [{:uploadType, "multipart"} | query],
+             headers: [content_type: "multipart/related; boundary=#{@boundary}"],
+             body: build_body(metadata, content, content_type)
            ) do
-      Jason.decode(body)
+      {:ok, body}
     else
-      {:ok, %HTTPoison.Response{status_code: status, body: body}} ->
+      {:ok, %Req.Response{status: status, body: body}} ->
         {:error, {:http_error, status, body}}
 
       {:error, reason} ->

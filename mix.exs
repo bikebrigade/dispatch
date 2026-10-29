@@ -59,6 +59,9 @@ defmodule BikeBrigade.MixProject do
       {:jason, "~> 1.4"},
       {:plug_cowboy, "~> 2.9", override: true},
       {:httpoison, "~> 3.0", override: true},
+      {:req, "~> 0.7.5"},
+      # google_gax pins mime ~> 1.0 but never calls it; req needs ~> 2.0
+      {:mime, "~> 2.0", override: true},
       {:nimble_csv, "~> 1.3"},
       {:ex_phone_number, "~> 0.4.11"},
       {:ecto_enum, "~> 1.4"},

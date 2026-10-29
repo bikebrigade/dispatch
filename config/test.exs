@@ -38,6 +38,10 @@ config :honeybadger,
 # Don't use google stuff
 config :goth, disabled: true
 
+config :bike_brigade, BikeBrigade.Google,
+  token: "test-token",
+  req_options: [plug: {Req.Test, BikeBrigade.Google}, retry: false]
+
 config :bike_brigade, :slack,
   token: "token",
   adapter: BikeBrigade.SlackApi.FakeSlack

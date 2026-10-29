@@ -4,6 +4,37 @@ defmodule BikeBrigade.Google do
     "https://www.googleapis.com/auth/drive"
   ]
 
+  @doc """
+  A `Req` request authorized against Google APIs.
+
+  The token comes from Goth unless `:token` is configured (as in tests).
+  """
+  def request(opts \\ []) do
+    with {:ok, token} <- token() do
+      {:ok, Req.new([auth: {:bearer, token}] ++ req_options() ++ opts)}
+    end
+  end
+
+  @doc """
+  Extra `Req` options for requests made by the Google modules.
+
+  Tests use this to route requests to a `Req.Test` stub.
+  """
+  def req_options do
+    Application.get_env(:bike_brigade, __MODULE__, [])
+    |> Keyword.get(:req_options, [])
+  end
+
+  defp token do
+    case Application.get_env(:bike_brigade, __MODULE__, []) |> Keyword.get(:token) do
+      nil ->
+        with {:ok, token} <- Goth.fetch(__MODULE__), do: {:ok, token.token}
+
+      token ->
+        {:ok, token}
+    end
+  end
+
   def append_child_spec(children) do
     config = Application.get_env(:bike_brigade, __MODULE__, [])
     credentials = config |> Keyword.get(:credentials)
