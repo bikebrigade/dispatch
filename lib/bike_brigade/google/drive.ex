@@ -1,20 +1,30 @@
 defmodule BikeBrigade.Google.Drive do
+  alias BikeBrigade.Google
+  alias BikeBrigade.Google.MultipartUpload
+
+  @upload_url "https://www.googleapis.com/upload/drive/v3/files"
+
   def upload_from_url(url, parent, opts \\ []) do
-    with {:ok, token} <- Goth.fetch(BikeBrigade.Google),
-         conn <- GoogleApi.Storage.V1.Connection.new(token.token),
-         {:ok, %HTTPoison.Response{body: body}} <- HTTPoison.get(url, [], follow_redirect: true) do
-      GoogleApi.Drive.V3.Api.Files.drive_files_create_iodata(
-        conn,
-        "multipart",
-        %GoogleApi.Drive.V3.Model.File{
-          name: Keyword.get(opts, :name),
-          parents: [parent],
-          mimeType: Keyword.get(opts, :content_type)
-        },
-        body,
-        supportsAllDrives: true,
-        fields: "id, name, webViewLink"
-      )
+    # The media URL isn't a Google API, so it gets no Google auth
+    with {:ok, %Req.Response{status: 200, body: body}} <-
+           Req.get(url, [decode_body: false] ++ Google.req_options()),
+         {:ok, file} <-
+           MultipartUpload.upload(
+             @upload_url,
+             %{
+               name: Keyword.get(opts, :name),
+               parents: [parent],
+               mimeType: Keyword.get(opts, :content_type)
+             },
+             body,
+             Keyword.get(opts, :content_type),
+             supportsAllDrives: true,
+             fields: "id, name, webViewLink"
+           ) do
+      {:ok, file}
+    else
+      {:ok, %Req.Response{status: status}} -> {:error, {:download_failed, status}}
+      {:error, reason} -> {:error, reason}
     end
   end
 end

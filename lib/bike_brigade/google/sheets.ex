@@ -1,21 +1,17 @@
 defmodule BikeBrigade.Google.Sheets do
-  alias GoogleApi.Sheets.V4.Connection
-  alias GoogleApi.Sheets.V4.Api.Spreadsheets
-
   def get_values(spreadsheet_url) do
-    with {:ok, token} <- Goth.fetch(BikeBrigade.Google),
-         conn <- Connection.new(token.token),
-         {:ok, id, gid} <- parse_url(spreadsheet_url),
-         {:ok, response} <-
-           Spreadsheets.sheets_spreadsheets_values_batch_get_by_data_filter(
-             conn,
-             id,
-             body: build_body(gid)
+    with {:ok, id, gid} <- parse_url(spreadsheet_url),
+         {:ok, req} <- BikeBrigade.Google.request(),
+         {:ok, %Req.Response{status: 200, body: %{"valueRanges" => [value_range | _]}}} <-
+           Req.post(req,
+             url:
+               "https://sheets.googleapis.com/v4/spreadsheets/#{id}/values:batchGetByDataFilter",
+             json: build_body(gid)
            ) do
-      {:ok, hd(response.valueRanges).valueRange.values}
+      {:ok, value_range["valueRange"]["values"]}
     else
+      {:ok, %Req.Response{status: status, body: body}} -> {:error, {:http_error, status, body}}
       {:error, err} -> {:error, err}
-      _ -> {:error, "unable to fetch sheet"}
     end
   end
 
