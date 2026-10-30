@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# Lists hard-coded Tailwind palette colors (e.g. text-gray-500, bg-indigo-600) in templates.
+# New UI code should use daisyUI theme colors instead (primary, base-content, error, ...).
+#
+#   scripts/lint_ui           # per-file counts, always exits 0
+#   scripts/lint_ui --strict  # exits 1 if anything is found (for CI once the migration is done)
+#   scripts/lint_ui FILE...   # show the offending lines in specific files
+
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+PALETTE='slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose'
+UTILITIES='text|bg|border|border-[trblxy]|ring|ring-offset|divide|outline|fill|stroke|placeholder|from|via|to|decoration|accent|caret|shadow'
+PATTERN="(^|[^[:alnum:]_-])((${UTILITIES})-(${PALETTE})-[0-9]{2,3}|(text|bg|border)-(white|black))([^[:alnum:]_-]|$)"
+
+if [[ $# -gt 0 && $1 != "--strict" ]]; then
+  grep -nE "$PATTERN" "$@" || true
+  exit 0
+fi
+
+counts=$(grep -rcE "$PATTERN" lib --include='*.ex' --include='*.heex' | grep -v ':0$' | sort -t: -k2 -nr || true)
+
+if [[ -z $counts ]]; then
+  echo "No hard-coded palette colors found."
+  exit 0
+fi
+
+total=$(echo "$counts" | awk -F: '{s += $2} END {print s}')
+echo "$counts"
+echo
+echo "$total lines with hard-coded palette colors in $(echo "$counts" | wc -l | tr -d ' ') files."
+echo "Use daisyUI theme colors instead (see the UI conventions in CLAUDE.md)."
+
+if [[ ${1:-} == "--strict" ]]; then
+  exit 1
+fi

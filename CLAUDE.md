@@ -83,6 +83,16 @@ The application follows Phoenix context patterns with these main domains:
 ### Code Style
 - **ALWAYS run `scripts/format` before committing changes or presenting final code**
 
+### UI Conventions
+The UI is moving from hand-written Tailwind (a Tailwind UI port) to [daisyUI](https://daisyui.com) components on top of Tailwind v4. Progress is tracked in `docs/daisyui-migration.md`. For any new or touched UI code:
+
+- **Use core components first** (`lib/bike_brigade_web/core_components.ex`): `<.button>`, `<.input>`, `<.table>`, `<.modal>`, `<.slideover>`, `<.header>`, etc. See them all at `/dev/components` in dev.
+- **Then daisyUI component classes** (`btn`, `badge`, `card`, `alert`, `menu`, `stat`, ...) rather than rebuilding them from utilities.
+- **Only use theme colors**: `primary`, `secondary`, `accent`, `neutral`, `base-100/200/300`, `base-content`, `info`, `success`, `warning`, `error` (with opacity modifiers like `text-base-content/60` for muted text). Never hard-code palette colors like `text-gray-500` or `bg-indigo-600`; `scripts/lint_ui` lists them.
+- **Lay out rows with `flex` + `gap`**, not `space-x-*`, especially when items wrap, change direction at a breakpoint (`space-y-1 md:space-x-2`), or carry their own margins. `space-y-*` is fine for a simple vertical stack of blocks.
+- Themes live in `assets/css/app.css` (`bikebrigade`, plus `bikebrigade-dark` which isn't exposed to users yet). Change colors, radii and sizes there, not in templates.
+- Check UI changes in the browser at desktop and phone widths.
+
 ### Database
 The application uses PostgreSQL with several extensions including PostGIS for geographic data, fuzzystrmatch for fuzzy matching, and unaccent for text processing.
 
