@@ -201,10 +201,14 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
 
       doc = view |> render() |> Floki.parse_document!()
 
-      input_ids = Floki.attribute(doc, "[phx-hook=EmojiButton]", "data-input-id")
-      assert input_ids != []
+      buttons = Floki.find(doc, "[phx-hook=EmojiButton]")
+      assert buttons != []
 
-      for id <- input_ids do
+      for button <- buttons do
+        id = button |> Floki.attribute("data-input-id") |> List.first()
+
+        assert id, "emoji button has no data-input-id"
+
         assert Floki.find(doc, "textarea[id='#{id}']") != [],
                "emoji button points at #{inspect(id)}, but no textarea has that id"
       end
