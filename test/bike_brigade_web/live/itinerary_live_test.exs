@@ -163,6 +163,47 @@ defmodule BikeBrigadeWeb.ItineraryLiveTest do
       assert has_element?(view, "a", "Mark Complete")
     end
 
+    test "I'm done completes every assigned delivery and stays completed after refresh", %{
+      conn: conn,
+      rider: rider,
+      campaign: campaign,
+      program: program
+    } do
+      campaign_rider = create_campaign_rider_for_test(campaign, rider)
+      {first_task, _, _} = create_task_for_test(campaign, rider, program)
+      {second_task, _, _} = create_task_for_test(campaign, rider, program)
+      {:ok, _} = Delivery.update_task(second_task, %{delivery_status: :picked_up})
+
+      {:ok, view, _html} = live(conn, ~p"/app/delivery/#{campaign_rider.token}")
+      assert has_element?(view, "button#complete-delivery:not([disabled])", "I'm done!")
+      refute has_element?(view, "#complete-delivery[href]")
+
+      view |> element("#complete-delivery") |> render_click()
+
+      assert has_element?(view, "button#complete-delivery[disabled]", "Completed")
+      refute has_element?(view, "a", "Mark Complete")
+      assert Delivery.get_task(first_task.id).delivery_status == :completed
+      assert Delivery.get_task(second_task.id).delivery_status == :completed
+
+      {:ok, refreshed_view, _html} = live(conn, ~p"/app/delivery/#{campaign_rider.token}")
+      assert has_element?(refreshed_view, "button#complete-delivery[disabled]", "Completed")
+    end
+
+    test "completing tasks individually also updates the I'm done button", %{
+      conn: conn,
+      rider: rider,
+      campaign: campaign,
+      program: program
+    } do
+      campaign_rider = create_campaign_rider_for_test(campaign, rider)
+      {_task, _, _} = create_task_for_test(campaign, rider, program)
+      {:ok, view, _html} = live(conn, ~p"/app/delivery/#{campaign_rider.token}")
+
+      view |> element("a", "Mark Complete") |> render_click()
+
+      assert has_element?(view, "button#complete-delivery[disabled]", "Completed")
+    end
+
     test "displays Completed label for completed tasks", %{
       conn: conn,
       rider: rider,

@@ -471,6 +471,46 @@ defmodule BikeBrigade.DeliveryTest do
     end
   end
 
+  describe "mark_campaign_tasks_complete_by_rider/2" do
+    test "completes only this rider's active tasks in this campaign and is repeatable" do
+      campaign = fixture(:campaign)
+      rider = fixture(:rider)
+
+      tasks =
+        for status <- [:pending, :picked_up, :completed, :failed, :removed] do
+          fixture(:task, %{
+            campaign: campaign,
+            assigned_rider_id: rider.id,
+            delivery_status: status
+          })
+        end
+
+      other_rider_task = fixture(:task, %{campaign: campaign, rider: fixture(:rider)})
+      other_campaign_task = fixture(:task, %{assigned_rider_id: rider.id})
+      unassigned_task = fixture(:task, %{campaign: campaign})
+      Delivery.subscribe()
+
+      assert {:ok, updated_tasks} =
+               Delivery.mark_campaign_tasks_complete_by_rider(campaign.id, rider.id)
+
+      assert MapSet.new(updated_tasks, & &1.id) == MapSet.new(Enum.take(tasks, 2), & &1.id)
+
+      for task <- Enum.take(tasks, 2) do
+        assert Delivery.get_task(task.id).delivery_status == :completed
+        assert_receive {:task_updated, %{id: id, delivery_status: :completed}}
+        assert id in Enum.map(updated_tasks, & &1.id)
+      end
+
+      for task <-
+            Enum.drop(tasks, 2) ++
+              [other_rider_task, other_campaign_task, unassigned_task] do
+        assert Delivery.get_task(task.id).delivery_status == task.delivery_status
+      end
+
+      assert {:ok, []} = Delivery.mark_campaign_tasks_complete_by_rider(campaign.id, rider.id)
+    end
+  end
+
   describe "list_campaigns_ended_between/2" do
     setup do
       now = get_utc_now()

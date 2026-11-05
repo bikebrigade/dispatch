@@ -156,6 +156,29 @@ defmodule BikeBrigade.Delivery do
   end
 
   @doc """
+  Completes all pending or picked-up tasks assigned to a rider in a campaign.
+  Tasks in other campaigns or assigned to other riders are left unchanged.
+  """
+  def mark_campaign_tasks_complete_by_rider(campaign_id, rider_id)
+      when is_integer(campaign_id) and is_integer(rider_id) do
+    query =
+      from t in Task,
+        where:
+          t.campaign_id == ^campaign_id and t.assigned_rider_id == ^rider_id and
+            t.delivery_status in [:pending, :picked_up],
+        select: t.id
+
+    {_count, task_ids} =
+      Repo.update_all(query,
+        set: [delivery_status: :completed, updated_at: DateTime.utc_now()]
+      )
+
+    tasks = Enum.map(task_ids, &get_task/1)
+    Enum.each(tasks, &broadcast({:ok, &1}, :task_updated))
+    {:ok, tasks}
+  end
+
+  @doc """
   Assign a task to a given rider (tracking the user that made the assignment)
   """
 

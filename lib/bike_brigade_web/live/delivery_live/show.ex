@@ -102,6 +102,18 @@ defmodule BikeBrigadeWeb.DeliveryLive.Show do
   end
 
   @impl Phoenix.LiveView
+  def handle_event("complete_delivery", _params, socket) do
+    {:ok, tasks} =
+      Delivery.mark_campaign_tasks_complete_by_rider(
+        socket.assigns.campaign.id,
+        socket.assigns.rider.id
+      )
+
+    socket = Enum.reduce(tasks, socket, &update_task(&2, &1))
+    {:noreply, put_flash(socket, :info, "Deliveries marked as completed")}
+  end
+
+  @impl Phoenix.LiveView
   def handle_info({:task_updated, task}, socket) do
     {:noreply, update_task(socket, task)}
   end

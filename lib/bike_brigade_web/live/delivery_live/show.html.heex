@@ -305,13 +305,23 @@
               Tell us you're done.
             </h2>
             <div class="flex flex-wrap items-start justify-end shrink ml-auto">
-              <.button href={sms_done_url(@campaign, @rider)} class="ml-auto" color={:green}>
-                <Heroicons.chat_bubble_left_right mini class="w-5 h-5 mr-1 -ml-0.5" /> I'm done!
+              <.button
+                id="complete-delivery"
+                type="button"
+                phx-click="complete_delivery"
+                phx-disable-with="Completing…"
+                disabled={Enum.all?(@rider.assigned_tasks, &(&1.delivery_status == :completed))}
+                class="ml-auto"
+                color={:green}
+              >
+                <Heroicons.check_circle mini class="w-5 h-5 mr-1 -ml-0.5" />
+                <%= if Enum.all?(@rider.assigned_tasks, &(&1.delivery_status == :completed)) do %>
+                  Completed
+                <% else %>
+                  I'm done!
+                <% end %>
               </.button>
             </div>
-          </div>
-          <div class="mt-1">
-            Pics or it didn't happen - send a selfie that we can share on social media!
           </div>
         </div>
       </div>
