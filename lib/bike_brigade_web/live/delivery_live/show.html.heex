@@ -364,6 +364,72 @@
         <br />
       </div>
     </div>
+    <section id="delivery-selfie" class="card bg-base-100 text-base-content shadow-md my-4">
+      <div class="card-body p-4 sm:p-6">
+        <h2 class="card-title">Share a delivery selfie</h2>
+        <p class="text-sm text-base-content/70">
+          Snap a selfie on your ride and share it with Bike Brigade.
+        </p>
+        <form
+          id="selfie-form"
+          phx-change="validate_selfie"
+          phx-submit="upload_selfie"
+          class="flex flex-col gap-3"
+        >
+          <label for={@uploads.selfie.ref} class="font-medium">Take or choose a selfie</label>
+          <.live_file_input
+            upload={@uploads.selfie}
+            capture="user"
+            class="file-input w-full"
+            aria-describedby="selfie-help"
+          />
+          <p id="selfie-help" class="text-sm text-base-content/70">One photo, up to 20 MB.</p>
+          <p :for={error <- upload_errors(@uploads.selfie)} class="text-error" role="alert">
+            {selfie_upload_error(error)}
+          </p>
+          <div :for={entry <- @uploads.selfie.entries} class="flex flex-col gap-2">
+            <.live_img_preview
+              :if={entry.client_type in ["image/jpeg", "image/png", "image/webp"]}
+              entry={entry}
+              class="max-h-64 w-full object-contain rounded-lg"
+            />
+            <span class="text-sm break-all">{entry.client_name}</span>
+            <progress
+              class="progress progress-primary w-full"
+              value={entry.progress}
+              max="100"
+              aria-label="Photo upload progress"
+            >{entry.progress}%</progress>
+            <p
+              :for={error <- upload_errors(@uploads.selfie, entry)}
+              class="text-error"
+              role="alert"
+            >
+              {selfie_upload_error(error)}
+            </p>
+            <.button
+              type="button"
+              phx-click="cancel_selfie"
+              phx-value-ref={entry.ref}
+              color={:secondary}
+              class="self-start"
+            >Remove photo</.button>
+          </div>
+          <p :if={@selfie_error} class="text-error" role="alert">{@selfie_error}</p>
+          <.button
+            type="submit"
+            phx-disable-with="Uploading…"
+            disabled={
+              @uploads.selfie.entries == [] or
+                Enum.any?(@uploads.selfie.entries, &(!&1.done? or !&1.valid?))
+            }
+            class="self-start"
+          >
+            Upload selfie
+          </.button>
+        </form>
+      </div>
+    </section>
     <div
       :if={@backup_rider && @rider.assigned_tasks == []}
       id="backup-rider-empty-state"

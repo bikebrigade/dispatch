@@ -42,7 +42,55 @@ defmodule BikeBrigadeWeb.DeliveryLive.Show do
      |> assign(:rider, rider)
      |> assign(:backup_rider, backup_rider)
      |> assign(:active_note_task_id, nil)
-     |> assign(:note_text, "")}
+     |> assign(:note_text, "")
+     |> assign(:selfie_error, nil)
+     |> allow_upload(:selfie,
+       accept: ~w(image/jpeg image/png image/webp image/heic image/heif),
+       max_entries: 1,
+       max_file_size: 20_000_000,
+       auto_upload: true
+     )}
+  end
+
+  @impl Phoenix.LiveView
+  def handle_event("validate_selfie", _params, socket) do
+    {:noreply, assign(socket, :selfie_error, nil)}
+  end
+
+  def handle_event("cancel_selfie", %{"ref" => ref}, socket) do
+    {:noreply, socket |> cancel_upload(:selfie, ref) |> assign(:selfie_error, nil)}
+  end
+
+  def handle_event("upload_selfie", _params, socket) do
+    {completed, in_progress} = uploaded_entries(socket, :selfie)
+
+    if completed != [] and in_progress == [] do
+      results =
+        consume_uploaded_entries(socket, :selfie, fn %{path: path}, entry ->
+          case BikeBrigade.Selfies.upload(
+                 path,
+                 entry.client_type,
+                 socket.assigns.rider,
+                 socket.assigns.campaign
+               ) do
+            {:ok, _file} -> {:ok, :uploaded}
+            {:error, _reason} -> {:postpone, :failed}
+          end
+        end)
+
+      if results == [:uploaded] do
+        {:noreply,
+         socket
+         |> assign(:selfie_error, nil)
+         |> put_flash(:info, "Selfie uploaded. Thank you!")}
+      else
+        {:noreply,
+         assign(socket, :selfie_error, "Couldn't upload your selfie. Please try again.")}
+      end
+    else
+      {:noreply,
+       assign(socket, :selfie_error, "Please choose a photo and wait for it to finish loading.")}
+    end
   end
 
   @impl Phoenix.LiveView
@@ -121,6 +169,11 @@ defmodule BikeBrigadeWeb.DeliveryLive.Show do
   def handle_info(_msg, socket) do
     {:noreply, socket}
   end
+
+  defp selfie_upload_error(:too_large), do: "Photo must be smaller than 20 MB."
+  defp selfie_upload_error(:too_many_files), do: "Please choose one photo."
+  defp selfie_upload_error(:not_accepted), do: "Choose a JPEG, PNG, WebP, or HEIC photo."
+  defp selfie_upload_error(_), do: "Couldn't load this photo. Please choose it again."
 
   defp update_task(socket, task) do
     cond do
