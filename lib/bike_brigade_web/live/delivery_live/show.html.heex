@@ -376,15 +376,20 @@
           phx-submit="upload_selfie"
           class="flex flex-col gap-3"
         >
-          <label for={@uploads.selfie.ref} class="font-medium">Take or choose a selfie</label>
-          <.live_file_input
-            upload={@uploads.selfie}
-            capture="user"
-            class="file-input w-full"
-            aria-describedby="selfie-help"
-          />
+          <label
+            for={@uploads.selfie.ref}
+            class="btn btn-primary self-start gap-2 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-primary"
+          >
+            <Heroicons.camera class="h-5 w-5" aria-hidden="true" /> Take a selfie
+            <.live_file_input
+              upload={@uploads.selfie}
+              capture="user"
+              class="sr-only"
+              aria-describedby="selfie-help"
+            />
+          </label>
           <p id="selfie-help" class="text-sm text-base-content/70">One photo, up to 20 MB.</p>
-          <p :for={error <- upload_errors(@uploads.selfie)} class="text-error" role="alert">
+          <p :for={error <- upload_errors(@uploads.selfie)} class="alert alert-error" role="alert">
             {selfie_upload_error(error)}
           </p>
           <div :for={entry <- @uploads.selfie.entries} class="flex flex-col gap-2">
@@ -402,31 +407,30 @@
             >{entry.progress}%</progress>
             <p
               :for={error <- upload_errors(@uploads.selfie, entry)}
-              class="text-error"
+              class="alert alert-error"
               role="alert"
             >
               {selfie_upload_error(error)}
             </p>
-            <.button
+            <button
               type="button"
               phx-click="cancel_selfie"
               phx-value-ref={entry.ref}
-              color={:secondary}
-              class="self-start"
-            >Remove photo</.button>
+              class="btn btn-ghost btn-sm self-start"
+            >Remove photo</button>
           </div>
-          <p :if={@selfie_error} class="text-error" role="alert">{@selfie_error}</p>
-          <.button
+          <p :if={@selfie_error} class="alert alert-error" role="alert">{@selfie_error}</p>
+          <button
             type="submit"
             phx-disable-with="Uploading…"
             disabled={
               @uploads.selfie.entries == [] or
                 Enum.any?(@uploads.selfie.entries, &(!&1.done? or !&1.valid?))
             }
-            class="self-start"
+            class="btn btn-primary self-start"
           >
             Upload selfie
-          </.button>
+          </button>
         </form>
       </div>
     </section>
