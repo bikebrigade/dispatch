@@ -189,6 +189,57 @@ defmodule BikeBrigadeWeb.ItineraryLiveTest do
       assert has_element?(refreshed_view, "button#complete-delivery[disabled]", "Completed")
     end
 
+    test "I'm done leaves an assignment that has not appeared on the page pending", %{
+      conn: conn,
+      rider: rider,
+      campaign: campaign,
+      program: program
+    } do
+      campaign_rider = create_campaign_rider_for_test(campaign, rider)
+      {shown_task, _, _} = create_task_for_test(campaign, rider, program)
+      other_rider = fixture(:rider)
+      {unseen_task, _, _} = create_task_for_test(campaign, other_rider, program)
+      {:ok, view, _html} = live(conn, ~p"/app/delivery/#{campaign_rider.token}")
+
+      # Simulate the click arriving before the new assignment's notification.
+      import Ecto.Query
+
+      BikeBrigade.Repo.update_all(
+        from(t in Delivery.Task, where: t.id == ^unseen_task.id),
+        set: [assigned_rider_id: rider.id]
+      )
+
+      view |> element("#complete-delivery") |> render_click()
+
+      assert Delivery.get_task(shown_task.id).delivery_status == :completed
+      assert Delivery.get_task(unseen_task.id).delivery_status == :pending
+      assert has_element?(view, "#complete-delivery:not([disabled])", "I'm done!")
+      assert has_element?(view, "a[phx-value-task-id='#{unseen_task.id}']", "Mark Complete")
+    end
+
+    test "assignment changes refresh the displayed deliveries", %{
+      conn: conn,
+      rider: rider,
+      campaign: campaign,
+      program: program
+    } do
+      campaign_rider = create_campaign_rider_for_test(campaign, rider)
+      other_rider = fixture(:rider)
+      {task, _, _} = create_task_for_test(campaign, other_rider, program)
+      {:ok, view, _html} = live(conn, ~p"/app/delivery/#{campaign_rider.token}")
+      refute has_element?(view, "#complete-delivery")
+
+      {:ok, task} = Delivery.update_task(task, %{assigned_rider_id: rider.id})
+
+      assert has_element?(view, "a[phx-value-task-id='#{task.id}']", "Mark Complete")
+      assert has_element?(view, "#complete-delivery:not([disabled])")
+
+      {:ok, _task} = Delivery.update_task(task, %{assigned_rider_id: other_rider.id})
+
+      refute has_element?(view, "a[phx-value-task-id='#{task.id}']", "Mark Complete")
+      refute has_element?(view, "#complete-delivery")
+    end
+
     test "completing tasks individually also updates the I'm done button", %{
       conn: conn,
       rider: rider,

@@ -156,15 +156,17 @@ defmodule BikeBrigade.Delivery do
   end
 
   @doc """
-  Completes all pending or picked-up tasks assigned to a rider in a campaign.
-  Tasks in other campaigns or assigned to other riders are left unchanged.
+  Completes the displayed pending or picked-up tasks assigned to a rider in a campaign.
+  Tasks outside the displayed IDs, in other campaigns, or assigned to other riders
+  are left unchanged.
   """
-  def mark_campaign_tasks_complete_by_rider(campaign_id, rider_id)
-      when is_integer(campaign_id) and is_integer(rider_id) do
+  def mark_campaign_tasks_complete_by_rider(campaign_id, rider_id, displayed_task_ids)
+      when is_integer(campaign_id) and is_integer(rider_id) and is_list(displayed_task_ids) do
     query =
       from t in Task,
         where:
-          t.campaign_id == ^campaign_id and t.assigned_rider_id == ^rider_id and
+          t.id in ^displayed_task_ids and t.campaign_id == ^campaign_id and
+            t.assigned_rider_id == ^rider_id and
             t.delivery_status in [:pending, :picked_up],
         select: t.id
 
@@ -173,7 +175,13 @@ defmodule BikeBrigade.Delivery do
         set: [delivery_status: :completed, updated_at: DateTime.utc_now()]
       )
 
-    tasks = Enum.map(task_ids, &get_task/1)
+    tasks =
+      from(t in Task,
+        where: t.id in ^task_ids,
+        preload: [:assigned_rider, :pickup_location, :dropoff_location, task_items: :item]
+      )
+      |> Repo.all()
+
     Enum.each(tasks, &broadcast({:ok, &1}, :task_updated))
     {:ok, tasks}
   end

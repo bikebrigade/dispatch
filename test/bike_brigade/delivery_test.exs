@@ -471,7 +471,7 @@ defmodule BikeBrigade.DeliveryTest do
     end
   end
 
-  describe "mark_campaign_tasks_complete_by_rider/2" do
+  describe "mark_campaign_tasks_complete_by_rider/3" do
     test "completes only this rider's active tasks in this campaign and is repeatable" do
       campaign = fixture(:campaign)
       rider = fixture(:rider)
@@ -488,10 +488,19 @@ defmodule BikeBrigade.DeliveryTest do
       other_rider_task = fixture(:task, %{campaign: campaign, rider: fixture(:rider)})
       other_campaign_task = fixture(:task, %{assigned_rider_id: rider.id})
       unassigned_task = fixture(:task, %{campaign: campaign})
+      unseen_task = fixture(:task, %{campaign: campaign, assigned_rider_id: rider.id})
+
+      displayed_task_ids =
+        Enum.map(tasks ++ [other_rider_task, other_campaign_task, unassigned_task], & &1.id)
+
       Delivery.subscribe()
 
       assert {:ok, updated_tasks} =
-               Delivery.mark_campaign_tasks_complete_by_rider(campaign.id, rider.id)
+               Delivery.mark_campaign_tasks_complete_by_rider(
+                 campaign.id,
+                 rider.id,
+                 displayed_task_ids
+               )
 
       assert MapSet.new(updated_tasks, & &1.id) == MapSet.new(Enum.take(tasks, 2), & &1.id)
 
@@ -503,11 +512,58 @@ defmodule BikeBrigade.DeliveryTest do
 
       for task <-
             Enum.drop(tasks, 2) ++
-              [other_rider_task, other_campaign_task, unassigned_task] do
+              [other_rider_task, other_campaign_task, unassigned_task, unseen_task] do
         assert Delivery.get_task(task.id).delivery_status == task.delivery_status
       end
 
-      assert {:ok, []} = Delivery.mark_campaign_tasks_complete_by_rider(campaign.id, rider.id)
+      assert {:ok, []} =
+               Delivery.mark_campaign_tasks_complete_by_rider(
+                 campaign.id,
+                 rider.id,
+                 displayed_task_ids
+               )
+
+      refute_receive {:task_updated, _}
+    end
+
+    test "returns and broadcasts completed tasks without a pickup location" do
+      campaign = fixture(:campaign)
+      rider = fixture(:rider)
+      task = fixture(:task, %{campaign: campaign, assigned_rider_id: rider.id})
+      Repo.update_all(from(t in Task, where: t.id == ^task.id), set: [pickup_location_id: nil])
+      Delivery.subscribe()
+
+      assert {:ok, [completed_task]} =
+               Delivery.mark_campaign_tasks_complete_by_rider(campaign.id, rider.id, [task.id])
+
+      assert completed_task.id == task.id
+      assert completed_task.delivery_status == :completed
+      assert completed_task.pickup_location == nil
+      assert completed_task.dropoff_location.id == task.dropoff_location.id
+      assert Ecto.assoc_loaded?(completed_task.assigned_rider)
+      assert Ecto.assoc_loaded?(completed_task.task_items)
+      assert_receive {:task_updated, ^completed_task}
+      refute_receive {:task_updated, _}
+    end
+
+    test "ignores deleted displayed tasks and an empty selection" do
+      campaign = fixture(:campaign)
+      rider = fixture(:rider)
+      task = fixture(:task, %{campaign: campaign, assigned_rider_id: rider.id})
+      deleted_task = fixture(:task, %{campaign: campaign, assigned_rider_id: rider.id})
+      Repo.delete!(deleted_task)
+      Delivery.subscribe()
+
+      assert {:ok, []} =
+               Delivery.mark_campaign_tasks_complete_by_rider(campaign.id, rider.id, [
+                 deleted_task.id
+               ])
+
+      assert {:ok, []} =
+               Delivery.mark_campaign_tasks_complete_by_rider(campaign.id, rider.id, [])
+
+      assert Repo.get!(Task, task.id).delivery_status == :pending
+      refute_receive {:task_updated, _}
     end
   end
 
