@@ -76,7 +76,10 @@ defmodule BikeBrigadeWeb.MessagingInboxLiveTest do
       oldest = fixture(:rider, %{name: "Zelda Oldest"})
       fixture(:sms_message_from_rider, oldest)
 
-      for _ <- 1..50, do: fixture(:sms_message_from_rider, fixture(:rider))
+      for i <- 1..50 do
+        rider = fixture(:rider, %{name: "Pagination Rider #{i}"})
+        fixture(:sms_message_from_rider, rider)
+      end
 
       {:ok, view, _} = live(conn, ~p"/messages/inbox")
       assert has_element?(view, "#conversation-list[phx-viewport-bottom]")

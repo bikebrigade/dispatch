@@ -1,6 +1,5 @@
 defmodule BikeBrigadeWeb.DeliveryHelpers do
   alias BikeBrigade.Delivery.{Campaign, Task}
-  alias BikeBrigade.Messaging
 
   alias BikeBrigade.GoogleMaps
 
@@ -18,11 +17,6 @@ defmodule BikeBrigadeWeb.DeliveryHelpers do
       "Hi #{first_name(task)}, it's #{first_name(rider)} from the Bike Brigade delivering for #{campaign_name(campaign)}! I'll be arriving shortly with a delivery for you! Are you available to receive it?"
 
     {:sms, "#{task.dropoff_phone}?&body=#{URI.encode(message)}"}
-  end
-
-  def sms_done_url(campaign, rider) do
-    message = "I'm done with this #{campaign_name(campaign)} delivery!"
-    {:sms, "#{Messaging.inbound_number(rider)}?&body=#{URI.encode(message)}"}
   end
 
   def tel_url(%Task{dropoff_phone: nil}), do: nil

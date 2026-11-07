@@ -36,6 +36,7 @@ defmodule BikeBrigadeWeb.DeliveryLive.Show do
 
     {:ok,
      socket
+     |> assign(:campaign_rider_token, token)
      |> assign(:campaign, campaign)
      |> assign(:campaign_date, campaign_date)
      |> assign(:page_title, "#{campaign_name(campaign)} - #{campaign_date}")
@@ -102,30 +103,41 @@ defmodule BikeBrigadeWeb.DeliveryLive.Show do
   end
 
   @impl Phoenix.LiveView
-  def handle_info({:task_updated, task}, socket) do
-    {:noreply, update_task(socket, task)}
+  def handle_event("complete_delivery", _params, socket) do
+    displayed_task_ids = Enum.map(socket.assigns.rider.assigned_tasks, & &1.id)
+
+    {:ok, _tasks} =
+      Delivery.mark_campaign_tasks_complete_by_rider(
+        socket.assigns.campaign.id,
+        socket.assigns.rider.id,
+        displayed_task_ids
+      )
+
+    socket = refresh_rider_tasks(socket)
+    {:noreply, put_flash(socket, :info, "Deliveries marked as completed")}
+  end
+
+  @impl Phoenix.LiveView
+  def handle_info({event, %Delivery.Task{} = task}, socket)
+      when event in [:task_created, :task_updated, :task_deleted] do
+    belongs_to_campaign? = task.campaign_id == socket.assigns.campaign.id
+    currently_displayed? = Enum.any?(socket.assigns.rider.assigned_tasks, &(&1.id == task.id))
+
+    if belongs_to_campaign? or currently_displayed? do
+      {:noreply, refresh_rider_tasks(socket)}
+    else
+      {:noreply, socket}
+    end
   end
 
   def handle_info(_msg, socket) do
     {:noreply, socket}
   end
 
-  defp update_task(socket, task) do
-    cond do
-      task.assigned_rider_id == socket.assigns.rider.id ->
-        updated_tasks =
-          Enum.map(
-            socket.assigns.rider.assigned_tasks,
-            fn
-              %{id: id} = _original_task when id == task.id -> task
-              original_task -> original_task
-            end
-          )
+  defp refresh_rider_tasks(socket) do
+    %{rider: rider, pickup_window: pickup_window} =
+      Delivery.get_campaign_rider!(socket.assigns.campaign_rider_token)
 
-        assign(socket, :rider, %{socket.assigns.rider | assigned_tasks: updated_tasks})
-
-      true ->
-        socket
-    end
+    assign(socket, :rider, %{rider | pickup_window: pickup_window})
   end
 end
