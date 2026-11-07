@@ -46,12 +46,6 @@ defmodule BikeBrigadeWeb.DeliveryLive.Show do
      |> assign(:note_text, "")}
   end
 
-  @doc """
-  Handles rider notes and delivery completion actions.
-
-  Bulk completion uses only the task IDs currently displayed to the rider,
-  then reloads assignments so newly assigned deliveries remain visible and pending.
-  """
   @impl Phoenix.LiveView
   def handle_event("toggle_note_form", %{"task-id" => task_id}, socket) do
     task_id = String.to_integer(task_id)
@@ -123,12 +117,6 @@ defmodule BikeBrigadeWeb.DeliveryLive.Show do
     {:noreply, put_flash(socket, :info, "Deliveries marked as completed")}
   end
 
-  @doc """
-  Refreshes deliveries when task changes affect this campaign or a displayed task.
-
-  Checking displayed tasks also removes deliveries moved to another campaign.
-  Unrelated notifications leave the page unchanged.
-  """
   @impl Phoenix.LiveView
   def handle_info({event, %Delivery.Task{} = task}, socket)
       when event in [:task_created, :task_updated, :task_deleted] do
