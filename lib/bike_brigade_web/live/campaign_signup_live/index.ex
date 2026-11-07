@@ -257,7 +257,7 @@ defmodule BikeBrigadeWeb.CampaignSignupLive.Index do
                 %{color: :disabled, text: "Campaign not ready for signup"}
 
               campaign_tasks_fully_assigned? ->
-                %{color: :secondary, text: "Campaign Filled"}
+                %{color: :secondary, text: "Sign up as a backup rider"}
 
               true ->
                 %{color: :secondary, text: "Sign up"}
