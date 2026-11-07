@@ -3,6 +3,11 @@ language: "en-US"
 early_access: false
 
 reviews:
+  profile: "chill"
+  pre_merge_checks:
+    # Review documentation contextually: Elixir @impl callbacks hide docs by default.
+    docstrings:
+      mode: "off"
   auto_review:
     enabled: true
     drafts: false
@@ -14,12 +19,48 @@ reviews:
     - "!**/package-lock.json"
     - "!priv/static/**"
   path_instructions:
+    - path: "**/*.{ex,exs,heex}"
+      instructions: >-
+        Focus on correctness, security, and regressions. For each finding, explain
+        a concrete triggering condition and consequence. Inspect callers, schemas,
+        and existing guarantees before assuming a failure is reachable.
+        Pattern matching and deliberate process crashes can be intentional in
+        Elixir; flag them when an expected input or recoverable external failure
+        can cause an unintended crash. Recommend docs for meaningful public API
+        contracts, return values, and side effects. Do not require redundant @doc
+        on @impl behaviour callbacks, private defp helpers, or tests. Multi-clause
+        functions share one docstring per name and arity. Use comments when useful
+        to explain private implementation details. Leave formatting to mix format.
     - path: "lib/bike_brigade/**/*.ex"
-      instructions: "This is an Elixir/Phoenix application. Review for Elixir best practices, proper use of pattern matching, and Phoenix context boundaries."
-    - path: "lib/bike_brigade_web/**/*.ex"
-      instructions: "Review Phoenix LiveView and controller code. Check for proper assigns handling, security considerations, and component composition."
+      instructions: >-
+        Check Ecto queries and writes for correct record scope, current ownership,
+        and allowed state transitions. Inspect transaction boundaries and when
+        PubSub notifications are emitted relative to commits. Check query joins
+        and preloads against optional associations, and handle empty or missing
+        results according to the caller's contract. Consider concurrent updates
+        and repeat calls where they can cause a concrete data integrity problem.
+    - path: "lib/bike_brigade_web/**/*.{ex,heex}"
+      instructions: >-
+        Check server-side authorization and validation of client-controlled IDs
+        and parameters; hidden or disabled controls do not enforce permissions.
+        Check LiveView collections after creation, reassignment, and deletion,
+        including stale assigns and PubSub event ordering. Follow the repository's
+        existing UI conventions and check labels, keyboard access, and error states
+        for changed controls. Avoid suggesting client-only fixes for server-side
+        authorization problems.
+    - path: "priv/repo/migrations/**/*.exs"
+      instructions: >-
+        Check schema changes against existing data and deployment compatibility.
+        Identify concrete risks from table locks, constraint validation, backfills,
+        and nontransactional index operations. Do not require a particular migration
+        strategy without considering table size and the operation involved.
     - path: "test/**/*.exs"
-      instructions: "Review test coverage and ExUnit best practices. Ensure tests are focused and descriptive."
+      instructions: >-
+        Prefer regression tests for observable behavior, authorization boundaries,
+        state transitions, and relevant failure paths. Check for random fixture
+        collisions, unspecified database ordering, time assumptions, and asynchronous
+        message races. Prefer deterministic fixtures and synchronization over sleeps.
+        Respect ExUnit SQL sandbox ownership when tests spawn processes.
 
 chat:
   auto_reply: true
