@@ -193,6 +193,27 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
       assert view |> element("a", "Rider Messaging") |> has_element?()
     end
 
+    test "campaign messaging emoji buttons target existing inputs", %{
+      conn: conn,
+      campaign: campaign
+    } do
+      {:ok, view, _html} = live(conn, ~p"/campaigns/#{campaign}/messaging")
+
+      doc = view |> render() |> Floki.parse_document!()
+
+      buttons = Floki.find(doc, "[phx-hook=EmojiButton]")
+      assert buttons != []
+
+      for button <- buttons do
+        id = button |> Floki.attribute("data-input-id") |> List.first()
+
+        assert id, "emoji button has no data-input-id"
+
+        assert Floki.find(doc, "textarea[id='#{id}']") != [],
+               "emoji button points at #{inspect(id)}, but no textarea has that id"
+      end
+    end
+
     test "can open a rider conversation and return to the campaign conversation list", ctx do
       rider = hd(ctx.riders)
       message = fixture(:sms_message_from_rider, rider, %{body: "A message from the rider"})
