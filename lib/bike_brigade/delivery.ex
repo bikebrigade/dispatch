@@ -170,20 +170,24 @@ defmodule BikeBrigade.Delivery do
             t.delivery_status in [:pending, :picked_up],
         select: t.id
 
-    {_count, task_ids} =
-      Repo.update_all(query,
-        set: [delivery_status: :completed, updated_at: DateTime.utc_now()]
-      )
+    # Update and fetch together so a failed fetch can't leave tasks completed
+    # without a broadcast; broadcast only once the transaction has committed.
+    with {:ok, tasks} <-
+           Repo.transaction(fn ->
+             {_count, task_ids} =
+               Repo.update_all(query,
+                 set: [delivery_status: :completed, updated_at: DateTime.utc_now()]
+               )
 
-    tasks =
-      from(t in Task,
-        where: t.id in ^task_ids,
-        preload: [:assigned_rider, :pickup_location, :dropoff_location, task_items: :item]
-      )
-      |> Repo.all()
-
-    Enum.each(tasks, &broadcast({:ok, &1}, :task_updated))
-    {:ok, tasks}
+             from(t in Task,
+               where: t.id in ^task_ids,
+               preload: [:assigned_rider, :pickup_location, :dropoff_location, task_items: :item]
+             )
+             |> Repo.all()
+           end) do
+      Enum.each(tasks, &broadcast({:ok, &1}, :task_updated))
+      {:ok, tasks}
+    end
   end
 
   @doc """
