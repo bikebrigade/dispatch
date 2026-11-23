@@ -326,50 +326,32 @@
         </div>
       </div>
     </div>
-    <div :if={@rider.assigned_tasks != []} class="relative my-1 sm:my-2">
-      <div class="absolute inset-0 flex items-center" aria-hidden="true">
-        <div class="w-full border-t border-gray-300"></div>
+    <div class="relative my-1 sm:my-2" aria-hidden="true">
+      <div class="absolute inset-0 flex items-center">
+        <div class="w-full border-t border-base-300"></div>
       </div>
       <div class="relative flex justify-center">
-        <span class="px-2 text-gray-500 bg-gray-50">
-          <Heroicons.map mini class="w-5 h-5 text-gray-500" />
+        <span class="px-2 text-base-content/60 bg-base-200">
+          <Heroicons.camera mini class="w-5 h-5" />
         </span>
       </div>
     </div>
-    <div
-      :if={@rider.assigned_tasks != []}
-      class="overflow-hidden bg-white border-t divide-y divide-gray-200 shadow-md sm:mt-2 sm:rounded-lg"
+    <section
+      id="delivery-selfie"
+      class="w-full overflow-hidden bg-base-100 text-base-content shadow-md sm:mt-2 sm:rounded-lg"
     >
-      <div class="flex flex-row items-center justify-between">
-        <h2 class="text-base font-semibold text-gray-900 ml-7">
-          Full Route Map
-        </h2>
-        <div class="flex justify-end flex-1 pb-1 my-4 mr-3">
-          <.button href={directions_url(assigns)} class="font-medium text-white">
-            Open in Google Maps
-          </.button>
+      <div class="flex items-start gap-1 p-2.5 border-b border-base-300 sm:p-4">
+        <div class="flex items-center justify-center shrink-0 w-8 h-8 bg-primary text-primary-content rounded-full ring-8 ring-base-100">
+          <Heroicons.camera mini class="w-5 h-5" aria-hidden="true" />
+        </div>
+        <div class="w-full pl-1 border-l border-base-300">
+          <h2 class="text-base font-semibold">Share a delivery selfie</h2>
+          <p class="text-sm text-base-content/70">
+            Optional but appreciated - send us a selfie or a photo of the community fridge you filled that we can share on socials
+          </p>
         </div>
       </div>
-      <div class="p-3 sm:p-4">
-        <div class="w-full h-80">
-          <iframe
-            width="100%"
-            height="100%"
-            frameborder="0"
-            style="border:0"
-            src={embed_directions_url(assigns)}
-            allowfullscreen
-          ></iframe>
-        </div>
-        <br />
-      </div>
-    </div>
-    <section id="delivery-selfie" class="card bg-base-100 text-base-content shadow-md my-4">
-      <div class="card-body p-4 sm:p-6">
-        <h2 class="card-title">Share a delivery selfie</h2>
-        <p class="text-sm text-base-content/70">
-          Snap a selfie on your ride and share it with Bike Brigade.
-        </p>
+      <div class="px-6 py-2 pl-14 sm:py-5">
         <form
           id="selfie-form"
           phx-change="validate_selfie"
@@ -434,6 +416,44 @@
         </form>
       </div>
     </section>
+    <div :if={@rider.assigned_tasks != []} class="relative my-1 sm:my-2">
+      <div class="absolute inset-0 flex items-center" aria-hidden="true">
+        <div class="w-full border-t border-gray-300"></div>
+      </div>
+      <div class="relative flex justify-center">
+        <span class="px-2 text-gray-500 bg-gray-50">
+          <Heroicons.map mini class="w-5 h-5 text-gray-500" />
+        </span>
+      </div>
+    </div>
+    <div
+      :if={@rider.assigned_tasks != []}
+      class="overflow-hidden bg-white border-t divide-y divide-gray-200 shadow-md sm:mt-2 sm:rounded-lg"
+    >
+      <div class="flex flex-row items-center justify-between">
+        <h2 class="text-base font-semibold text-gray-900 ml-7">
+          Full Route Map
+        </h2>
+        <div class="flex justify-end flex-1 pb-1 my-4 mr-3">
+          <.button href={directions_url(assigns)} class="font-medium text-white">
+            Open in Google Maps
+          </.button>
+        </div>
+      </div>
+      <div class="p-3 sm:p-4">
+        <div class="w-full h-80">
+          <iframe
+            width="100%"
+            height="100%"
+            frameborder="0"
+            style="border:0"
+            src={embed_directions_url(assigns)}
+            allowfullscreen
+          ></iframe>
+        </div>
+        <br />
+      </div>
+    </div>
     <div
       :if={@backup_rider && @rider.assigned_tasks == []}
       id="backup-rider-empty-state"
