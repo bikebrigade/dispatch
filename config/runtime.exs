@@ -96,9 +96,11 @@ case config_env() do
 
     config :bike_brigade, BikeBrigade.Repo,
       url: database_url,
-      # Encrypt the connection. Cloud SQL signs its server certificate with a
-      # per-instance CA, so the default verification against public CAs fails.
-      ssl: [verify: :verify_none],
+      # Encrypt the production connection, which crosses the public internet to
+      # Cloud SQL. Cloud SQL signs its server certificate with a per-instance CA,
+      # so the default verification against public CAs fails. Staging uses Fly
+      # Postgres over Fly's private network, which doesn't offer SSL.
+      ssl: if(app_env == :production, do: [verify: :verify_none], else: false),
       pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
       queue_target: 5_000,
       queue_interval: 2_000,
