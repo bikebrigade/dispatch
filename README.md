@@ -17,6 +17,8 @@
 ## Development environment
 You'll want to be inside the `nix-shell` when working on this project. Make sure postgres is running with `docker-compose up -d`
 
+The shell is a [numtide devshell](https://github.com/numtide/devshell). Run `menu` inside it to list the available commands: `server`, `tests`, `fmt` and the rest wrap the scripts in `scripts/`, and `flyctl` and `gcloud` are included for operations.
+
 As you develop, when you've downloaded new code, you can run `mix setup` to update the dependencies and run any migrations.
 
 To start the server & console run:
@@ -56,12 +58,11 @@ You can also add `mix format --check-formatted` to a [Git pre-commit hook](https
 Note: similar to having the Elixir language server available in your editor you may need to launch your editor from within `nix-shell` or otherwise make sure your editor can find/run `scripts/format`.
 
 ### Updating nix dependencies
-[niv](https://github.com/nmattia/niv) is used to ensure everyone is using the same version of nixpkgs.
+`flake.lock` ensures everyone is using the same version of nixpkgs.
 To update the nixpkgs version run:
 
 ```
-nix-shell -p niv
-niv update
+nix flake update
 ```
 
 You can then commit the changes.
