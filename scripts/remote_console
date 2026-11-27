@@ -5,6 +5,9 @@ set -e
 if [ "$1" == "prod" ]; then
   wrap_nix_shell "flyctl ssh console"
 elif [ "$1" == "staging" ]; then
+  # Staging stops when idle and SSH doesn't wake it, so start its machines
+  # first (a no-op for ones already running)
+  wrap_nix_shell "flyctl machine start -c fly.staging.toml $(flyctl machine list -c fly.staging.toml -q | tr '\n' ' ')"
   wrap_nix_shell "flyctl ssh console -c fly.staging.toml"
 else
   echo "usage: scripts/remote_console <prod|staging>"

@@ -19,6 +19,12 @@ kill_timeout = 5
   protocol = "tcp"
 #  script_checks = []
 
+  # Sleep when nobody's using staging; the first request wakes it. Its Managed
+  # Postgres (Developer plan) then pauses once the app's connections close.
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
   [services.concurrency]
     hard_limit = 25
     soft_limit = 20
@@ -37,6 +43,10 @@ kill_timeout = 5
     interval = "15s"
     restart_limit = 6
     timeout = "2s"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "1gb"
 
 [metrics]
 port = 4021
