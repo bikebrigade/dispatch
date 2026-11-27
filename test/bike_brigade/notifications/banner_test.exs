@@ -2,6 +2,7 @@ defmodule BikeBrigade.Notifications.BannerTest do
   use BikeBrigade.DataCase, async: true
 
   alias BikeBrigade.Notifications
+  alias BikeBrigade.Notifications.Banner
 
   describe "Banner CRUD operations" do
     test "create_banner with valid data" do
@@ -170,6 +171,50 @@ defmodule BikeBrigade.Notifications.BannerTest do
       html = Notifications.render_banner_message(banner)
 
       assert html =~ ~s(target="_blank")
+    end
+  end
+
+  describe "HTML sanitization" do
+    defp render(message), do: Notifications.render_banner_message(%Banner{message: message})
+
+    test "keeps simple formatting, line breaks and safe links" do
+      html =
+        render(~s(<b>Snow</b> <em>tonight</em>\nTips: <a href="https://example.com">here</a>))
+
+      assert html =~ "<b>Snow</b>"
+      assert html =~ "<em>tonight</em>"
+      assert html =~ "\nTips:"
+      assert html =~ ~s(<a href="https://example.com">here</a>)
+    end
+
+    test "keeps tel and mailto links" do
+      html =
+        render(~s(<a href="tel:+14165551234">call</a> <a href="mailto:a@example.com">mail</a>))
+
+      assert html =~ ~s(href="tel:+14165551234")
+      assert html =~ ~s(href="mailto:a@example.com")
+    end
+
+    test "removes script tags, event handlers and styles" do
+      html =
+        render(
+          ~s{<script>steal()</script><img src="x" onerror="steal()"><a href="https://example.com" onclick="steal()" style="color:red">x</a>}
+        )
+
+      refute html =~ "<script"
+      refute html =~ "<img"
+      refute html =~ "onerror"
+      refute html =~ "onclick"
+      refute html =~ "style="
+      assert html =~ ~s(<a href="https://example.com">x</a>)
+    end
+
+    test "removes javascript: links" do
+      refute render(~s{<a href="javascript:steal()">x</a>}) =~ "javascript:"
+    end
+
+    test "escapes stray angle brackets in plain text" do
+      assert render("a < b and 3 > 2") =~ "a &lt; b and 3 &gt; 2"
     end
   end
 

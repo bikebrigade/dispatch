@@ -7,9 +7,7 @@
     <span class="text-2xl mr-1">📢</span>
     <span class="text-sm font-semibold">Important Notice</span>
   </div>
-  <div class="text-sm mt-2">
-    {raw(BikeBrigade.Notifications.render_banner_message(banner))}
-  </div>
+  <.banner_message banner={banner} class="text-sm mt-2" />
 </div>
 
 <%= if @campaign_riders != [] do %>
