@@ -19,6 +19,12 @@
 #                            (password: dashboard → Managed Postgres → Connect)
 #   STAGING_ALLOWED_EMAILS   comma-separated emails of users who keep their real
 #                            phone and dispatcher access, e.g. you
+#   PROD_CLOUD_SQL_INSTANCE  optional Cloud SQL connection name
+#                            (project:region:instance). When set, the script
+#                            runs cloud-sql-proxy on PROD_DATABASE_URL's port,
+#                            so PROD_DATABASE_URL should be e.g.
+#                            postgres://staging_dump:…@localhost:15433/bike_brigade
+#                            (needs `gcloud auth application-default login`)
 #
 # Each can be set in the environment or in .env.local (gitignored).
 #
@@ -31,7 +37,7 @@ set -euo pipefail
 app=bike-brigade-staging
 db=bike_brigade
 
-for var in PROD_DATABASE_URL STAGING_DATABASE_URL STAGING_ALLOWED_EMAILS; do
+for var in PROD_DATABASE_URL STAGING_DATABASE_URL STAGING_ALLOWED_EMAILS PROD_CLOUD_SQL_INSTANCE; do
   # Fall back to .env.local (VAR=value, optionally quoted); read just these keys
   # rather than sourcing the file
   if [ -z "${!var:-}" ] && [ -f .env.local ]; then
@@ -39,15 +45,23 @@ for var in PROD_DATABASE_URL STAGING_DATABASE_URL STAGING_ALLOWED_EMAILS; do
     value="${value%\"}"; value="${value#\"}"; value="${value%\'}"; value="${value#\'}"
     printf -v "$var" '%s' "$value"
   fi
+done
 
+for var in PROD_DATABASE_URL STAGING_DATABASE_URL STAGING_ALLOWED_EMAILS; do
   if [ -z "${!var:-}" ]; then
     echo "Missing \$$var"
     exit 1
   fi
 done
 
-# postgres://user:pass@host:port/dbname?params -> host, dbname
-url_host() { local u="${1#*://}"; u="${u#*@}"; u="${u%%/*}"; echo "${u%%:*}"; }
+# postgres://user:pass@host:port/dbname?params -> host:port (localhost as
+# 127.0.0.1, port defaulting to 5432), dbname
+url_server() {
+  local u="${1#*://}"
+  u="${u#*@}"; u="${u%%/*}"; u="${u%%\?*}"
+  [[ "$u" == *:* ]] || u="$u:5432"
+  echo "${u/#localhost:/127.0.0.1:}"
+}
 url_db() { local u="${1%%\?*}"; echo "${u##*/}"; }
 
 for var in PROD_DATABASE_URL STAGING_DATABASE_URL; do
@@ -58,15 +72,45 @@ for var in PROD_DATABASE_URL STAGING_DATABASE_URL; do
 done
 
 # The restore drops and recreates every table in the staging database, so make
-# sure the two URLs can't be the same server
-if [ "$(url_host "$PROD_DATABASE_URL")" == "$(url_host "$STAGING_DATABASE_URL")" ]; then
-  echo "\$PROD_DATABASE_URL and \$STAGING_DATABASE_URL point at the same host; refusing"
+# sure the two URLs can't be the same server (both may be local tunnels, so
+# compare host and port)
+if [ "$(url_server "$PROD_DATABASE_URL")" == "$(url_server "$STAGING_DATABASE_URL")" ]; then
+  echo "\$PROD_DATABASE_URL and \$STAGING_DATABASE_URL point at the same server; refusing"
   exit 1
 fi
 
 workdir=$(mktemp -d)
 chmod 700 "$workdir"
-trap 'rm -rf "$workdir"' EXIT
+proxy_pid=
+cleanup() {
+  if [ -n "$proxy_pid" ]; then kill "$proxy_pid" 2>/dev/null || true; fi
+  rm -rf "$workdir"
+}
+trap cleanup EXIT
+
+if [ -n "${PROD_CLOUD_SQL_INSTANCE:-}" ]; then
+  prod_server=$(url_server "$PROD_DATABASE_URL")
+  if [ "${prod_server%:*}" != 127.0.0.1 ]; then
+    echo "With \$PROD_CLOUD_SQL_INSTANCE set, \$PROD_DATABASE_URL must point at localhost (the proxy)"
+    exit 1
+  fi
+  prod_port="${prod_server##*:}"
+
+  echo "Starting Cloud SQL proxy for $PROD_CLOUD_SQL_INSTANCE on port $prod_port"
+  cloud-sql-proxy --port "$prod_port" "$PROD_CLOUD_SQL_INSTANCE" >"$workdir/cloud-sql-proxy.log" 2>&1 &
+  proxy_pid=$!
+
+  for _ in $(seq 1 30); do
+    if pg_isready -q -h 127.0.0.1 -p "$prod_port"; then break; fi
+    if ! kill -0 "$proxy_pid" 2>/dev/null; then break; fi
+    sleep 1
+  done
+  if ! pg_isready -q -h 127.0.0.1 -p "$prod_port"; then
+    echo "Couldn't reach production through the Cloud SQL proxy:"
+    cat "$workdir/cloud-sql-proxy.log"
+    exit 1
+  fi
+fi
 
 # -q prints one machine ID per line
 machines=$(flyctl machine list --app "$app" -q | grep -c . || true)
