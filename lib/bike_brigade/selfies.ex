@@ -8,12 +8,19 @@ defmodule BikeBrigade.Selfies do
 
   def folder, do: @folder
 
-  @heic_brands ~w(heic heix hevc heim heis hevm hevs)
+  # Enough for the WebP signature and an ftyp box with a dozen compatible brands
+  @header_size 64
+
+  # Still-image brands from the image/heic and image/heif IANA registrations.
+  # Sequence brands (hevc, hevx, hevm, hevs, msf1) are deliberately absent.
+  @heic_brands ~w(heic heix heim heis)
+  @heif_brand "mif1"
 
   @doc """
-  Uploads the photo at `path`. The content type comes from the file's leading
-  bytes, not from the browser, and anything that isn't a supported photo
-  returns `{:error, :unsupported_format}` without contacting Drive.
+  Uploads the photo at `path`, labelled with the content type from
+  `detect_content_type/1` rather than the browser's. Anything that isn't a
+  supported still photo returns `{:error, :unsupported_format}` without
+  contacting Drive.
   """
   def upload(path, rider, campaign) do
     with {:ok, content_type} <- detect_content_type(path) do
@@ -26,29 +33,47 @@ defmodule BikeBrigade.Selfies do
     end
   end
 
-  defp detect_content_type(path) do
-    header = File.open!(path, [:read, :binary], &IO.binread(&1, 16))
+  @doc """
+  Identifies the likely format of the file at `path` from its leading bytes.
 
-    case header do
-      <<0xFF, 0xD8, 0xFF, _::binary>> ->
-        {:ok, "image/jpeg"}
+  Returns `{:ok, content_type}` for JPEG, PNG, WebP, and HEIC/HEIF still images,
+  or `{:error, :unsupported_format}` otherwise, including empty files and HEIF
+  files that carry only image sequence brands.
 
-      <<0x89, "PNG", 0x0D, 0x0A, 0x1A, 0x0A, _::binary>> ->
-        {:ok, "image/png"}
+  This is signature sniffing, not validation: it checks a few magic bytes and
+  does not decode the image. A file that starts with a valid signature but is
+  truncated or corrupt after it (for example, just the three JPEG marker bytes)
+  is still reported as that format.
+  """
+  def detect_content_type(path) do
+    path
+    |> File.open!([:read, :binary], &IO.binread(&1, @header_size))
+    |> sniff()
+  end
 
-      <<"RIFF", _size::binary-size(4), "WEBP", _::binary>> ->
-        {:ok, "image/webp"}
+  defp sniff(<<0xFF, 0xD8, 0xFF, _::binary>>), do: {:ok, "image/jpeg"}
+  defp sniff(<<0x89, "PNG", 0x0D, 0x0A, 0x1A, 0x0A, _::binary>>), do: {:ok, "image/png"}
 
-      <<_size::binary-size(4), "ftyp", brand::binary-size(4), _::binary>>
-      when brand in @heic_brands ->
-        {:ok, "image/heic"}
+  # WHATWG MIME Sniffing: "RIFF", 4 size bytes, then "WEBPVP"
+  defp sniff(<<"RIFF", _size::binary-size(4), "WEBPVP", _::binary>>), do: {:ok, "image/webp"}
 
-      <<_size::binary-size(4), "ftyp", brand::binary-size(4), _::binary>>
-      when brand in ~w(mif1 msf1) ->
-        {:ok, "image/heif"}
+  defp sniff(<<size::32, "ftyp", major::binary-size(4), _minor::binary-size(4), rest::binary>>)
+       when size >= 16 do
+    brands = [major | compatible_brands(rest, size - 16)]
 
-      _ ->
-        {:error, :unsupported_format}
+    cond do
+      Enum.any?(brands, &(&1 in @heic_brands)) -> {:ok, "image/heic"}
+      @heif_brand in brands -> {:ok, "image/heif"}
+      true -> {:error, :unsupported_format}
     end
+  end
+
+  defp sniff(_header), do: {:error, :unsupported_format}
+
+  # Compatible brands fill the rest of the ftyp box, four bytes each. Brands past
+  # the bytes we read are ignored.
+  defp compatible_brands(rest, length) do
+    rest = binary_part(rest, 0, min(length, byte_size(rest)))
+    for <<brand::binary-size(4) <- rest>>, do: brand
   end
 end

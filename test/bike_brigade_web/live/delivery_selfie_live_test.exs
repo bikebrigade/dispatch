@@ -175,7 +175,7 @@ defmodule BikeBrigadeWeb.DeliverySelfieLiveTest do
       Req.Test.json(conn, %{"id" => "selfie-id"})
     end)
 
-    heic = <<0, 0, 0, 0x18>> <> "ftypheic" <> <<0, 0, 0, 0>> <> "mif1heic" <> "selfie bytes"
+    heic = File.read!(Path.expand("../../support/fixtures/selfies/photo.heic", __DIR__))
 
     view
     |> file_input("#selfie-form", :selfie, [%{name: "selfie.heic", content: heic, type: ""}])
@@ -186,6 +186,7 @@ defmodule BikeBrigadeWeb.DeliverySelfieLiveTest do
     assert render(view) =~ "Selfie uploaded. Thank you!"
     assert_receive {:drive_upload, body}
     assert body =~ ~s("mimeType":"image/heic")
+    assert body =~ heic
   end
 
   defp upload_photo(view) do
