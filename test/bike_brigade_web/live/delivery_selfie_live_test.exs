@@ -95,6 +95,31 @@ defmodule BikeBrigadeWeb.DeliverySelfieLiveTest do
              view,
              ~s(#selfie-form input[type="file"][aria-describedby~="#{error_id}"])
            )
+
+    view |> element("button", "Remove photo") |> render_click()
+
+    refute has_element?(view, "##{error_id}")
+    refute has_element?(view, ~s(#selfie-form input[type="file"][aria-invalid]))
+    assert has_element?(view, ~s(#selfie-form input[type="file"][aria-describedby="selfie-help"]))
+  end
+
+  test "associates upload-level errors with the file input", %{view: view} do
+    upload =
+      file_input(view, "#selfie-form", :selfie, [
+        %{name: "one.jpg", content: "one", type: "image/jpeg"},
+        %{name: "two.jpg", content: "two", type: "image/jpeg"}
+      ])
+
+    render_upload(upload, "one.jpg")
+
+    error_id = "selfie-error-too_many_files"
+    assert has_element?(view, "##{error_id}")
+    assert has_element?(view, ~s(#selfie-form input[type="file"][aria-invalid="true"]))
+
+    assert has_element?(
+             view,
+             ~s(#selfie-form input[type="file"][aria-describedby="selfie-help #{error_id}"])
+           )
   end
 
   test "rejects oversized photos", %{view: view} do
