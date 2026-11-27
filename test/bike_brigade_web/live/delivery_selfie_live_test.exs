@@ -52,9 +52,18 @@ defmodule BikeBrigadeWeb.DeliverySelfieLiveTest do
 
     assert has_element?(view, "#selfie-form button[type=submit]:not([disabled])")
 
-    Req.Test.stub(BikeBrigade.Google, fn conn -> Req.Test.json(conn, %{"id" => "retry-id"}) end)
+    test_pid = self()
+
+    Req.Test.stub(BikeBrigade.Google, fn conn ->
+      {:ok, body, conn} = Plug.Conn.read_body(conn)
+      send(test_pid, {:drive_upload, body})
+      Req.Test.json(conn, %{"id" => "retry-id"})
+    end)
+
     view |> form("#selfie-form") |> render_submit()
     assert render(view) =~ "Selfie uploaded. Thank you!"
+    assert_receive {:drive_upload, body}
+    assert body =~ "selfie bytes"
   end
 
   test "can remove a selected photo", %{view: view} do
