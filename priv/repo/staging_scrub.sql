@@ -36,13 +36,28 @@ WHERE id NOT IN (SELECT id FROM allowed_users);
 UPDATE users SET is_dispatcher = true WHERE id IN (SELECT id FROM allowed_users);
 
 -- Riders: unique fake numbers in the 555 exchange (riders.phone is unique),
--- e.g. +14165550042. Room for 60,000 riders.
+-- e.g. +14165550042. Numbered by position, not ID, so they never collide;
+-- six area codes give room for 60,000 riders.
+DO $$
+BEGIN
+  IF (SELECT count(*) FROM riders WHERE id NOT IN (SELECT id FROM allowed_riders)) > 60000 THEN
+    RAISE EXCEPTION 'More than 60,000 riders to scrub; add area codes to staging_scrub.sql';
+  END IF;
+END
+$$;
+
+WITH numbered AS (
+  SELECT id, row_number() OVER (ORDER BY id) - 1 AS n
+  FROM riders
+  WHERE id NOT IN (SELECT id FROM allowed_riders)
+)
 UPDATE riders
 SET phone = '+1'
-  || (ARRAY['416', '647', '437', '289', '905', '365'])[(id / 10000) % 6 + 1]
+  || (ARRAY['416', '647', '437', '289', '905', '365'])[numbered.n / 10000 + 1]
   || '555'
-  || lpad((id % 10000)::text, 4, '0')
-WHERE id NOT IN (SELECT id FROM allowed_riders);
+  || lpad((numbered.n % 10000)::text, 4, '0')
+FROM numbered
+WHERE riders.id = numbered.id;
 
 -- Recipients
 UPDATE tasks SET dropoff_phone = '+14165550100' WHERE dropoff_phone IS NOT NULL;

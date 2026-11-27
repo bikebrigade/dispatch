@@ -4,14 +4,14 @@
 #
 # Run from the repo root through the flake: direnv exec . scripts/restore_staging_db
 #
-#   PROD_DATABASE_URL        prod connection (any database on the prod server)
+#   PROD_DATABASE_URL        prod connection to the bike_brigade database
 #   STAGING_DATABASE_URL     staging connection to a maintenance database such as
 #                            /postgres, not bike_brigade (which gets dropped)
 #   STAGING_ALLOWED_EMAILS   comma-separated emails of users who keep their real
 #                            phone and dispatcher access, e.g. you
 #
-# If the scrub check fails, staging stays scaled down so the unscrubbed copy is
-# never served.
+# If the restore or the scrub check fails, staging stays scaled down so an
+# unscrubbed or partial copy is never served.
 
 set -euo pipefail
 
@@ -25,12 +25,20 @@ for var in PROD_DATABASE_URL STAGING_DATABASE_URL STAGING_ALLOWED_EMAILS; do
   fi
 done
 
+# pg_dump copies only the database in the URL, so it must be the app's
+prod_url_base="${PROD_DATABASE_URL%%\?*}"
+if [ "${prod_url_base##*/}" != "$db" ]; then
+  echo "\$PROD_DATABASE_URL must select the $db database, not ${prod_url_base##*/}"
+  exit 1
+fi
+
 # Same server as STAGING_DATABASE_URL, but the bike_brigade database
 url_base="${STAGING_DATABASE_URL%%\?*}"
 url_query="${STAGING_DATABASE_URL#"$url_base"}"
 staging_app_db_url="${url_base%/*}/${db}${url_query}"
 
-machines=$(flyctl machine list --app "$app" --json | jq length)
+# -q prints one machine ID per line
+machines=$(flyctl machine list --app "$app" -q | grep -c . || true)
 machines=$((machines > 0 ? machines : 1))
 
 echo "Taking staging down (was $machines machine(s))"
@@ -46,11 +54,10 @@ echo "Dropping staging database"
 psql "$STAGING_DATABASE_URL" -v ON_ERROR_STOP=1 -c "DROP DATABASE IF EXISTS $db"
 
 echo "Restoring production database"
-# pg_restore exits non-zero for harmless problems too (e.g. extension comments
-# it may not set with --no-owner); the scrub check below is the real gate
+# Any dump or restore error stops here with staging down: the scrub check
+# can't tell a partial restore from a complete one
 pg_dump "$PROD_DATABASE_URL" --exclude-table-data scheduled_messages -Fc |
-  pg_restore --create --no-acl --no-owner -d "$STAGING_DATABASE_URL" ||
-  echo "pg_restore reported errors (above); continuing to the scrub check"
+  pg_restore --create --no-acl --no-owner -d "$STAGING_DATABASE_URL"
 
 echo "Scrubbing phones and Slack channels"
 psql "$staging_app_db_url" -v allowed_emails="$STAGING_ALLOWED_EMAILS" \
