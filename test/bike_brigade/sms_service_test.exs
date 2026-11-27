@@ -96,11 +96,22 @@ defmodule BikeBrigade.SmsServiceTest do
     end
 
     test "allows messages to be sent to dispatchers" do
-      dispatcher = fixture(:user, %{phone: "+16475551212"})
+      dispatcher = fixture(:user, %{phone: "+16475551212", is_dispatcher: true})
 
       message = fixture(:sms_message, %{to: dispatcher.phone})
 
       assert {:ok, _} = SmsService.send_sms(message)
+    end
+
+    test "disallows messages to riders who have a login" do
+      rider = fixture(:rider, %{phone: "+16475551313"})
+      {:ok, user} = BikeBrigade.Accounts.create_user_for_rider(rider)
+      refute user.is_dispatcher
+
+      message = fixture(:sms_message, %{to: rider.phone})
+
+      error_message = "Sending real SMS messages to non-dispatchers is not allowed here"
+      assert {:error, ^error_message} = SmsService.send_sms(message)
     end
 
     test "disallows messages to be sent to non-dispatchers" do

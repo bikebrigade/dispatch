@@ -4,9 +4,7 @@ defmodule BikeBrigade.Selfies do
   alias BikeBrigade.Google.Drive
   alias BikeBrigade.LocalizedDateTime
 
-  @folder "12avCsCaaNEtxcqvdUiijSQhWGyRBjC0B"
-
-  def folder, do: @folder
+  def folder, do: BikeBrigade.Messaging.GoogleDriveUpload.folder()
 
   # Enough for the WebP signature and an ftyp box with a dozen compatible brands
   @header_size 64
@@ -26,7 +24,7 @@ defmodule BikeBrigade.Selfies do
     with {:ok, content_type} <- detect_content_type(path) do
       date = LocalizedDateTime.to_date(campaign.delivery_start)
 
-      Drive.upload_file(path, @folder,
+      Drive.upload_file(path, folder(),
         name: "#{date} - #{rider.name} - #{campaign.program.name}",
         content_type: content_type
       )

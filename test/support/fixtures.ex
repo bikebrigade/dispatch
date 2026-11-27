@@ -10,7 +10,7 @@ defmodule BikeBrigade.Fixtures do
     {:ok, user} =
       %{
         name: fake_name(),
-        email: Faker.Internet.email(),
+        email: unique_email(),
         phone: fake_phone()
       }
       |> Map.merge(attrs)
@@ -114,7 +114,7 @@ defmodule BikeBrigade.Fixtures do
     {:ok, rider} =
       %{
         name: fake_name(),
-        email: Faker.Internet.email(),
+        email: unique_email(),
         phone: fake_phone(),
         pronouns: Enum.random(~w(He/Him She/Her They/Them)),
         country: location.country,
@@ -318,9 +318,13 @@ defmodule BikeBrigade.Fixtures do
     |> String.replace(~r/[^a-zA-Z\s]/, "")
   end
 
-  # Faker's phone doesn't always pass canadian validation
+  defp unique_email() do
+    "fixture-#{System.unique_integer([:positive, :monotonic])}@example.com"
+  end
+
+  # Keep valid Canadian numbers unique across fixtures and global SMS/auth state.
   defp fake_phone() do
-    "647-#{Enum.random(200..999)}-#{Enum.random(1000..9999)}"
+    "+1647#{2_000_000 + System.unique_integer([:positive, :monotonic])}"
   end
 
   defp fake_item() do

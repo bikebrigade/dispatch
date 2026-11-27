@@ -9,8 +9,6 @@ defmodule BikeBrigade.Messaging.GoogleDriveUpload do
 
   require Logger
 
-  @folder BikeBrigade.Selfies.folder()
-
   @content_type_allowlist ~w(image/jpeg video/3gpp video/mp4)
 
   @doc """
@@ -21,10 +19,12 @@ defmodule BikeBrigade.Messaging.GoogleDriveUpload do
   later run retries it.
   """
   def upload_media(%SmsMessage{rider: rider} = message) do
+    folder = folder()
+
     media =
       for m <- message.media do
         if m.content_type in @content_type_allowlist and is_nil(m.gdrive_url) do
-          case Drive.upload_from_url(m.url, @folder,
+          case Drive.upload_from_url(m.url, folder,
                  name: file_name(rider, message),
                  content_type: m.content_type
                ) do
@@ -32,7 +32,7 @@ defmodule BikeBrigade.Messaging.GoogleDriveUpload do
               %{
                 id: m.id,
                 gdrive_url: file["webViewLink"],
-                gdrive_folder_url: "https://drive.google.com/drive/folders/#{@folder}"
+                gdrive_folder_url: "https://drive.google.com/drive/folders/#{folder}"
               }
 
             {:error, reason} ->
@@ -49,6 +49,12 @@ defmodule BikeBrigade.Messaging.GoogleDriveUpload do
 
     Messaging.update_sms_message(message, %{media: media})
   end
+
+  @doc """
+  The Drive folder that rider media goes to, from `GOOGLE_DRIVE_MEDIA_FOLDER_ID`
+  (production and staging each have their own).
+  """
+  def folder, do: Application.fetch_env!(:bike_brigade, :drive_media_folder_id)
 
   defp file_name(%Rider{name: rider_name}, %SmsMessage{body: body, sent_at: sent_at}) do
     date =
