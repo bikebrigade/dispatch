@@ -367,11 +367,17 @@
               upload={@uploads.selfie}
               capture="user"
               class="sr-only"
-              aria-describedby="selfie-help"
+              aria-describedby={selfie_describedby(@uploads.selfie)}
+              aria-invalid={selfie_error_ids(@uploads.selfie) != [] && "true"}
             />
           </label>
           <p id="selfie-help" class="text-sm text-base-content/70">One photo, up to 20 MB.</p>
-          <p :for={error <- upload_errors(@uploads.selfie)} class="alert alert-error" role="alert">
+          <p
+            :for={error <- upload_errors(@uploads.selfie)}
+            id={selfie_error_id(error)}
+            class="alert alert-error"
+            role="alert"
+          >
             {selfie_upload_error(error)}
           </p>
           <div :for={entry <- @uploads.selfie.entries} class="flex flex-col gap-2">
@@ -389,6 +395,7 @@
             >{entry.progress}%</progress>
             <p
               :for={error <- upload_errors(@uploads.selfie, entry)}
+              id={selfie_error_id(entry, error)}
               class="alert alert-error"
               role="alert"
             >
