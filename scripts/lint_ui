@@ -29,7 +29,7 @@ total=$(echo "$counts" | awk -F: '{s += $2} END {print s}')
 echo "$counts"
 echo
 echo "$total lines with hard-coded palette colors in $(echo "$counts" | wc -l | tr -d ' ') files."
-echo "Use daisyUI theme colors instead (see the UI conventions in CLAUDE.md)."
+echo "Use daisyUI theme colors instead (see the UI conventions in AGENTS.md)."
 
 if [[ ${1:-} == "--strict" ]]; then
   exit 1

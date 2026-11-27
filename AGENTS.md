@@ -1,14 +1,23 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to coding agents working in this repository.
 
 ## Development Environment & Setup
 
 This is an Elixir/Phoenix application using Nix for development environment management. The setup requires:
 
-1. **Prerequisites**: Nix with flakes enabled and Docker
-2. **Initial setup**: `nix develop` then `docker-compose up -d` then `mix bb.init`
-3. **Daily development**: Start with `nix-shell` and ensure postgres is running with `docker-compose up -d`
+1. **Prerequisites**: Nix with flakes enabled, direnv with flake support, and Docker
+2. **Initial setup**: Review `.envrc` and authorize it with `direnv allow .`, then run `direnv exec . docker-compose up -d` and `direnv exec . mix bb.init`
+3. **Daily development**: Ensure postgres is running with `direnv exec . docker-compose up -d`
+
+### Running Commands with direnv
+
+The repository's `.envrc` contains `use flake`. Run build, test, dependency, and runtime commands through `direnv exec .` from the repository root. This explicitly loads the project's toolchain and environment without relying on the environment inherited by the Codex daemon or on interactive shell hooks.
+
+- Prefix the commands listed below with `direnv exec .`, for example `direnv exec . scripts/test`, `direnv exec . scripts/format`, or `direnv exec . mix compile`.
+- To run a command in a subdirectory, activate the environment before changing directories: `direnv exec . sh -c 'cd assets && yarn install'`.
+- Use the tool versions and environment variables provided by the flake. Plain file inspection and Git commands do not need the wrapper.
+- If environment activation fails, diagnose the failure before continuing. Do not silently fall back to globally installed tools or change the flake merely to match the host environment.
 
 ## Common Commands
 
