@@ -24,16 +24,18 @@ defmodule BikeBrigadeWeb.RiderLiveTest do
     end
 
     test "searching riders works", %{conn: conn} do
-      fixture(:rider, %{name: "Béa"})
+      # The setup rider has a random Faker name, so search for something Faker
+      # can't generate ("Bea" also matches Beatrice, Beatty, ...).
+      fixture(:rider, %{name: "Bécane"})
       {:ok, index_live, _html} = live(conn, ~p"/riders")
 
       html =
         index_live
         |> element("#rider-search")
-        |> render_submit(%{value: "Bea"})
+        |> render_submit(%{value: "Becane"})
 
       assert Floki.parse_fragment!(html) |> Floki.find(".rider-row") |> Enum.count() == 1
-      assert html =~ "Béa"
+      assert html =~ "Bécane"
     end
 
     test "bulk message with no riders selected", %{conn: conn, rider: rider} do
