@@ -195,6 +195,13 @@ case config_env() do
 
         config :bike_brigade, :sms_service, block_non_dispatch_messages: true
 
+        # Keep staging media out of the real ops folder. Required, so staging
+        # can't fall back to the production folder.
+        config :bike_brigade,
+               :drive_media_folder_id,
+               System.get_env("GOOGLE_DRIVE_MEDIA_FOLDER_ID") ||
+                 raise("GOOGLE_DRIVE_MEDIA_FOLDER_ID is required on staging")
+
         config :bike_brigade, BikeBrigade.Messaging.Slack.Operations,
           channel_id: "C022R3HU9B9",
           channel_name: "api-playground"
