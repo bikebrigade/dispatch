@@ -84,10 +84,61 @@ defmodule BikeBrigadeWeb.DeliverySelfieLiveTest do
     assert render(view) =~ "Photo must be smaller than 20 MB."
   end
 
+  test "rejects a non-image disguised as a JPEG without calling Drive", %{view: view} do
+    test_pid = self()
+
+    Req.Test.stub(BikeBrigade.Google, fn conn ->
+      send(test_pid, :drive_upload)
+      Req.Test.json(conn, %{"id" => "selfie-id"})
+    end)
+
+    view
+    |> file_input("#selfie-form", :selfie, [
+      %{name: "selfie.jpg", content: "just some text", type: "image/jpeg"}
+    ])
+    |> render_upload("selfie.jpg")
+
+    view |> form("#selfie-form") |> render_submit()
+
+    assert render(view) =~
+             "That file isn&#39;t a supported photo. Please choose a JPEG, PNG, WebP, or HEIC photo."
+
+    refute_received :drive_upload
+    refute render(view) =~ "selfie.jpg"
+  end
+
+  test "accepts a HEIC photo with no client MIME type and uploads it as image/heic", %{
+    view: view
+  } do
+    test_pid = self()
+
+    Req.Test.stub(BikeBrigade.Google, fn conn ->
+      {:ok, body, conn} = Plug.Conn.read_body(conn)
+      send(test_pid, {:drive_upload, body})
+      Req.Test.json(conn, %{"id" => "selfie-id"})
+    end)
+
+    heic = <<0, 0, 0, 0x18>> <> "ftypheic" <> <<0, 0, 0, 0>> <> "mif1heic" <> "selfie bytes"
+
+    view
+    |> file_input("#selfie-form", :selfie, [%{name: "selfie.heic", content: heic, type: ""}])
+    |> render_upload("selfie.heic")
+
+    view |> form("#selfie-form") |> render_submit()
+
+    assert render(view) =~ "Selfie uploaded. Thank you!"
+    assert_receive {:drive_upload, body}
+    assert body =~ ~s("mimeType":"image/heic")
+  end
+
   defp upload_photo(view) do
     view
     |> file_input("#selfie-form", :selfie, [
-      %{name: "selfie.jpg", content: "selfie bytes", type: "image/jpeg"}
+      %{
+        name: "selfie.jpg",
+        content: <<0xFF, 0xD8, 0xFF, 0xE0>> <> "selfie bytes",
+        type: "image/jpeg"
+      }
     ])
     |> render_upload("selfie.jpg")
   end
