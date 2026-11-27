@@ -4,7 +4,7 @@ Moving the UI from a hand-ported Tailwind UI kit to daisyUI on Tailwind v4, so n
 (and `mix phx.gen.*` output) use a small, consistent component vocabulary and the design lives
 in one theme instead of thousands of utility classes.
 
-Conventions for new code are in `CLAUDE.md` (UI Conventions). `scripts/lint_ui` lists
+Conventions for new code are in `AGENTS.md` (UI Conventions). `scripts/lint_ui` lists
 remaining hard-coded palette colors (baseline before the migration: 766 lines in 61 files).
 
 ## Decisions
@@ -32,7 +32,7 @@ remaining hard-coded palette colors (baseline before the migration: 766 lines in
 ## Phase 0: Foundation
 
 - [x] Vendor daisyUI 5.7.50; `bikebrigade` and `bikebrigade-dark` themes
-- [x] UI conventions in `CLAUDE.md`
+- [x] UI conventions in `AGENTS.md`
 - [x] `scripts/lint_ui`
 - [x] Dev-only component gallery at `/dev/components`
 - [x] Confirm no visual change on existing pages (pixel-diffed 9 pages against main; removed a stray `btn` class on campaign show that daisyUI started styling)
