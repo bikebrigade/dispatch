@@ -42,6 +42,8 @@ config :bike_brigade, BikeBrigade.Google,
   token: "test-token",
   req_options: [plug: {Req.Test, BikeBrigade.Google}, retry: false]
 
+config :bike_brigade, :drive_media_folder_id, "test-drive-folder"
+
 config :bike_brigade, :slack,
   token: "token",
   adapter: BikeBrigade.SlackApi.FakeSlack

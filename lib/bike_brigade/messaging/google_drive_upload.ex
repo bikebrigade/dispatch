@@ -51,8 +51,8 @@ defmodule BikeBrigade.Messaging.GoogleDriveUpload do
   end
 
   @doc """
-  The Drive folder that rider media goes to: the production ops folder by
-  default, and a separate folder on staging (`GOOGLE_DRIVE_MEDIA_FOLDER_ID`).
+  The Drive folder that rider media goes to, from `GOOGLE_DRIVE_MEDIA_FOLDER_ID`
+  (production and staging each have their own).
   """
   def folder, do: Application.fetch_env!(:bike_brigade, :drive_media_folder_id)
 

@@ -84,10 +84,6 @@ config :bike_brigade, BikeBrigade.Messaging,
 config :bike_brigade, BikeBrigade.AuthenticationMessenger,
   phone_number: {:system, "PHONE_NUMBER", default: "647-555-5555"}
 
-# Drive folder for rider SMS media and selfies (the ops folder). Staging
-# overrides it in runtime.exs.
-config :bike_brigade, :drive_media_folder_id, "12avCsCaaNEtxcqvdUiijSQhWGyRBjC0B"
-
 # Config our google clients
 config :bike_brigade, BikeBrigade.GoogleMaps,
   api_key: {:system, "GOOGLE_MAPS_API_KEY", default: ""}

@@ -47,6 +47,8 @@ case config_env() do
           adapter: {BikeBrigade.Geocoder.FakeGeocoder, [locations: :from_seeds]}
     end
 
+    config :bike_brigade, :drive_media_folder_id, System.get_env("GOOGLE_DRIVE_MEDIA_FOLDER_ID")
+
     case System.get_env("GOOGLE_SERVICE_JSON") do
       json when is_binary(json) and json != "" ->
         config :bike_brigade, BikeBrigade.Google, credentials: json
@@ -195,13 +197,6 @@ case config_env() do
 
         config :bike_brigade, :sms_service, block_non_dispatch_messages: true
 
-        # Keep staging media out of the real ops folder. Required, so staging
-        # can't fall back to the production folder.
-        config :bike_brigade,
-               :drive_media_folder_id,
-               System.get_env("GOOGLE_DRIVE_MEDIA_FOLDER_ID") ||
-                 raise("GOOGLE_DRIVE_MEDIA_FOLDER_ID is required on staging")
-
         config :bike_brigade, BikeBrigade.Messaging.Slack.Operations,
           channel_id: "C022R3HU9B9",
           channel_name: "api-playground"
@@ -218,6 +213,11 @@ case config_env() do
     # Google
     config :bike_brigade, BikeBrigade.Google,
       credentials: System.fetch_env!("GOOGLE_SERVICE_JSON")
+
+    # Drive folder for rider SMS media (separate folders for prod and staging)
+    config :bike_brigade,
+           :drive_media_folder_id,
+           System.fetch_env!("GOOGLE_DRIVE_MEDIA_FOLDER_ID")
 
     # Slack
     config :bike_brigade, :slack, token: System.fetch_env!("SLACK_OAUTH_TOKEN")

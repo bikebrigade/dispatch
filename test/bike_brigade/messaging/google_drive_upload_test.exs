@@ -5,7 +5,7 @@ defmodule BikeBrigade.Messaging.GoogleDriveUploadTest do
 
   alias BikeBrigade.Messaging.GoogleDriveUpload
 
-  @folder_url "https://drive.google.com/drive/folders/12avCsCaaNEtxcqvdUiijSQhWGyRBjC0B"
+  @folder_url "https://drive.google.com/drive/folders/test-drive-folder"
 
   setup do
     %{rider: fixture(:rider)}
