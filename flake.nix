@@ -134,6 +134,10 @@
               help = "Tunnel to Cloud SQL with your Google login (used by restore-staging-db)";
               package = pkgs.google-cloud-sql-proxy;
             }
+            {
+              category = "tools";
+              package = pkgs.jq;
+            }
           ];
         };
       });
