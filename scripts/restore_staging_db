@@ -155,10 +155,14 @@ pg_restore -l "$workdir/prod.dump" |
     >"$workdir/restore.list"
 
 # Extensions aren't restored, so staging must already have every one prod uses
-# (enable missing ones with `fly mpg databases extensions enable`)
+# (enable missing ones with `fly mpg databases extensions enable`), except
+# diagnostics tools nothing in the app depends on. If something did depend on
+# one, the single-transaction restore would fail and change nothing.
+diagnostic_extensions="pageinspect pg_buffercache pg_stat_statements pgstattuple"
 missing=$(comm -23 \
   <(pg_restore -l "$workdir/prod.dump" | sed -n -E 's/.* EXTENSION - ([a-z0-9_]+).*/\1/p' | sort -u) \
-  <(psql "$STAGING_DATABASE_URL" -At -c "select extname from pg_extension" | sort -u))
+  <(psql "$STAGING_DATABASE_URL" -At -c "select extname from pg_extension" | sort -u) |
+  grep -v -x -F -f <(tr ' ' '\n' <<<"$diagnostic_extensions") || true)
 if [ -n "$missing" ]; then
   echo "Staging is missing extensions production uses: $(echo $missing)"
   exit 1
