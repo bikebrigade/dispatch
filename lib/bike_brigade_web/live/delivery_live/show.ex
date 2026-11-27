@@ -46,7 +46,9 @@ defmodule BikeBrigadeWeb.DeliveryLive.Show do
      |> assign(:note_text, "")
      |> assign(:selfie_error, nil)
      |> allow_upload(:selfie,
-       accept: ~w(image/jpeg image/png image/webp image/heic image/heif),
+       # Extensions too: some browsers report an empty MIME type for HEIC
+       accept:
+         ~w(image/jpeg image/png image/webp image/heic image/heif .jpg .jpeg .png .webp .heic .heif),
        max_entries: 1,
        max_file_size: 20_000_000,
        auto_upload: true
@@ -67,26 +69,33 @@ defmodule BikeBrigadeWeb.DeliveryLive.Show do
 
     if completed != [] and in_progress == [] do
       results =
-        consume_uploaded_entries(socket, :selfie, fn %{path: path}, entry ->
-          case BikeBrigade.Selfies.upload(
-                 path,
-                 entry.client_type,
-                 socket.assigns.rider,
-                 socket.assigns.campaign
-               ) do
+        consume_uploaded_entries(socket, :selfie, fn %{path: path}, _entry ->
+          case BikeBrigade.Selfies.upload(path, socket.assigns.rider, socket.assigns.campaign) do
             {:ok, _file} -> {:ok, :uploaded}
+            # Retrying won't turn it into a photo, so drop the entry
+            {:error, :unsupported_format} -> {:ok, :unsupported_format}
             {:error, _reason} -> {:postpone, :failed}
           end
         end)
 
-      if results == [:uploaded] do
-        {:noreply,
-         socket
-         |> assign(:selfie_error, nil)
-         |> put_flash(:info, "Selfie uploaded. Thank you!")}
-      else
-        {:noreply,
-         assign(socket, :selfie_error, "Couldn't upload your selfie. Please try again.")}
+      case results do
+        [:uploaded] ->
+          {:noreply,
+           socket
+           |> assign(:selfie_error, nil)
+           |> put_flash(:info, "Selfie uploaded. Thank you!")}
+
+        [:unsupported_format] ->
+          {:noreply,
+           assign(
+             socket,
+             :selfie_error,
+             "That file isn't a supported photo. Please choose a JPEG, PNG, WebP, or HEIC photo."
+           )}
+
+        _ ->
+          {:noreply,
+           assign(socket, :selfie_error, "Couldn't upload your selfie. Please try again.")}
       end
     else
       {:noreply,
