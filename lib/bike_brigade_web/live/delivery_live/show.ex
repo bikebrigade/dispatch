@@ -187,6 +187,20 @@ defmodule BikeBrigadeWeb.DeliveryLive.Show do
   defp selfie_upload_error(:not_accepted), do: "Choose a JPEG, PNG, WebP, or HEIC photo."
   defp selfie_upload_error(_), do: "Couldn't load this photo. Please choose it again."
 
+  defp selfie_error_id(error), do: "selfie-error-#{error}"
+  defp selfie_error_id(entry, error), do: "selfie-entry-error-#{entry.ref}-#{error}"
+
+  defp selfie_error_ids(upload) do
+    Enum.map(upload_errors(upload), &selfie_error_id/1) ++
+      for entry <- upload.entries,
+          error <- upload_errors(upload, entry),
+          do: selfie_error_id(entry, error)
+  end
+
+  defp selfie_describedby(upload) do
+    Enum.join(["selfie-help" | selfie_error_ids(upload)], " ")
+  end
+
   defp refresh_rider_tasks(socket) do
     %{rider: rider, pickup_window: pickup_window} =
       Delivery.get_campaign_rider!(socket.assigns.campaign_rider_token)

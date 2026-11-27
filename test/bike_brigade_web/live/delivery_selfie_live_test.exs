@@ -74,6 +74,29 @@ defmodule BikeBrigadeWeb.DeliverySelfieLiveTest do
     assert render(view) =~ "Choose a JPEG, PNG, WebP, or HEIC photo."
   end
 
+  test "associates selection errors with the file input", %{view: view} do
+    upload =
+      file_input(view, "#selfie-form", :selfie, [
+        %{name: "file.txt", content: "text", type: "text/plain"}
+      ])
+
+    assert {:error, [[ref, :not_accepted]]} = render_upload(upload, "file.txt")
+
+    error_id = "selfie-entry-error-#{ref}-not_accepted"
+    assert has_element?(view, "##{error_id}", "Choose a JPEG, PNG, WebP, or HEIC photo.")
+    assert has_element?(view, ~s(#selfie-form input[type="file"][aria-invalid="true"]))
+
+    assert has_element?(
+             view,
+             ~s(#selfie-form input[type="file"][aria-describedby~="selfie-help"])
+           )
+
+    assert has_element?(
+             view,
+             ~s(#selfie-form input[type="file"][aria-describedby~="#{error_id}"])
+           )
+  end
+
   test "rejects oversized photos", %{view: view} do
     upload =
       file_input(view, "#selfie-form", :selfie, [
