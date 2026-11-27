@@ -202,6 +202,9 @@ defmodule BikeBrigadeWeb.Router do
       live "/community_fridges/new", CommunityFridgeLive.Index, :new
       live "/community_fridges/:id/edit", CommunityFridgeLive.Index, :edit
 
+      # Throwaway: for testing selfie uploads on staging, never merge to main
+      live "/dev/selfie_upload", Dev.SelfieUploadTestLive, :index
+
       # DaisyUI component gallery in dev
       if Application.compile_env(:bike_brigade, :dev_routes) do
         live "/dev/components", Dev.ComponentGalleryLive, :index
