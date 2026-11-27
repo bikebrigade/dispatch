@@ -9,10 +9,11 @@ defmodule BikeBrigadeWeb.ProgramLiveTest do
     setup [:create_program, :login]
 
     test "lists programs for week programs", %{conn: conn, program: program} do
-      {:ok, _index_live, html} = live(conn, ~p"/programs")
+      {:ok, program} = Delivery.update_program(program, %{name: "Ra's Al Ghul"})
+      {:ok, index_live, html} = live(conn, ~p"/programs")
 
       assert html =~ "Programs"
-      assert html =~ program.name
+      assert has_element?(index_live, "#programs-#{program.id}", program.name)
     end
 
     test "redirects to show program", %{conn: conn, program: program} do

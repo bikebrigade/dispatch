@@ -13,9 +13,10 @@ defmodule BikeBrigadeWeb.OpportunityLiveTest do
       opportunity: opportunity,
       program: program
     } do
-      {:ok, _index_live, html} = live(conn, ~p"/opportunities")
+      {:ok, program} = BikeBrigade.Delivery.update_program(program, %{name: "Ra's Al Ghul"})
+      {:ok, index_live, html} = live(conn, ~p"/opportunities")
       assert html =~ "Opportunities"
-      assert html =~ program.name
+      assert has_element?(index_live, "#opportunities-#{opportunity.id}", program.name)
       assert html =~ opportunity.signup_link
     end
 

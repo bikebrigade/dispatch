@@ -6,6 +6,14 @@ defmodule BikeBrigade.GeocoderTest do
 
   @address "1 Blue Jays Way"
 
+  setup do
+    locations = :sys.get_state(FakeGeocoder)
+
+    on_exit(fn ->
+      :sys.replace_state(FakeGeocoder, fn _ -> locations end)
+    end)
+  end
+
   test "looks up address by a configured Geocoder.Adapter" do
     location = fixture(:location)
     FakeGeocoder.inject_address(@address, location)
