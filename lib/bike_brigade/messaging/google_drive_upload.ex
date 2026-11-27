@@ -7,6 +7,8 @@ defmodule BikeBrigade.Messaging.GoogleDriveUpload do
 
   alias BikeBrigade.LocalizedDateTime
 
+  require Logger
+
   @folder BikeBrigade.Selfies.folder()
 
   @content_type_allowlist ~w(image/jpeg video/3gpp video/mp4)
