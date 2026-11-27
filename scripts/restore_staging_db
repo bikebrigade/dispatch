@@ -1,24 +1,64 @@
 #!/usr/bin/env bash
-source "$(dirname "$0")/utils.sh"
+# Replace the staging database with a copy of production, then scrub it so
+# staging can't text or Slack real people (see priv/repo/staging_scrub.sql).
+#
+# Run from the repo root through the flake: direnv exec . scripts/restore_staging_db
+#
+#   PROD_DATABASE_URL        prod connection (any database on the prod server)
+#   STAGING_DATABASE_URL     staging connection to a maintenance database such as
+#                            /postgres, not bike_brigade (which gets dropped)
+#   STAGING_ALLOWED_EMAILS   comma-separated emails of users who keep their real
+#                            phone and dispatcher access, e.g. you
+#
+# If the scrub check fails, staging stays scaled down so the unscrubbed copy is
+# never served.
 
-set -e
+set -euo pipefail
 
-if [ "$PROD_DATABASE_URL" == "" ]; then
-  echo 'Missing $PROD_DATABASE_URL'
-  exit 1
-fi
+app=bike-brigade-staging
+db=bike_brigade
 
-if [ "$STAGING_DATABASE_URL" == "" ]; then
-  echo 'Missing $STAGING_DATABASE_URL'
-  exit 1
-fi
+for var in PROD_DATABASE_URL STAGING_DATABASE_URL STAGING_ALLOWED_EMAILS; do
+  if [ -z "${!var:-}" ]; then
+    echo "Missing \$$var"
+    exit 1
+  fi
+done
 
-echo "Taking staging down"
-wrap_nix_shell "flyctl suspend bike-brigade-staging"
+# Same server as STAGING_DATABASE_URL, but the bike_brigade database
+url_base="${STAGING_DATABASE_URL%%\?*}"
+url_query="${STAGING_DATABASE_URL#"$url_base"}"
+staging_app_db_url="${url_base%/*}/${db}${url_query}"
+
+machines=$(flyctl machine list --app "$app" --json | jq length)
+machines=$((machines > 0 ? machines : 1))
+
+echo "Taking staging down (was $machines machine(s))"
+flyctl scale count 0 --app "$app" --yes
+
+# From here until the scrub passes, any failure leaves staging down
+trap 'echo
+echo "Failed. Staging is still scaled down and its database may hold an"
+echo "UNSCRUBBED copy of production. Fix the problem and rerun, or drop it:"
+echo "  psql \"\$STAGING_DATABASE_URL\" -c '\''DROP DATABASE $db'\''"' ERR
+
 echo "Dropping staging database"
-wrap_nix_shell "psql -d $STAGING_DATABASE_URL -c 'DROP DATABASE bike_brigade'"
+psql "$STAGING_DATABASE_URL" -v ON_ERROR_STOP=1 -c "DROP DATABASE IF EXISTS $db"
+
 echo "Restoring production database"
-wrap_nix_shell "pg_dump $PROD_DATABASE_URL --exclude-table-data scheduled_messages -Fc | pg_restore --create --no-acl --no-owner -d $STAGING_DATABASE_URL"
+# pg_restore exits non-zero for harmless problems too (e.g. extension comments
+# it may not set with --no-owner); the scrub check below is the real gate
+pg_dump "$PROD_DATABASE_URL" --exclude-table-data scheduled_messages -Fc |
+  pg_restore --create --no-acl --no-owner -d "$STAGING_DATABASE_URL" ||
+  echo "pg_restore reported errors (above); continuing to the scrub check"
+
+echo "Scrubbing phones and Slack channels"
+psql "$staging_app_db_url" -v allowed_emails="$STAGING_ALLOWED_EMAILS" \
+  -f priv/repo/staging_scrub.sql
+
+trap - ERR
+
 echo "Bringing staging back up"
-wrap_nix_shell "flyctl resume  bike-brigade-staging"
+flyctl scale count "$machines" --app "$app" --yes
+
 echo "Staging restore complete"
