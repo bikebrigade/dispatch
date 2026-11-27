@@ -95,13 +95,28 @@ defmodule BikeBrigadeWeb.RiderHomeLiveTest do
     end
 
     test "it shows rider's itinerary of deliveries for today, with a sign up button", ctx do
-      fixture(:task, %{campaign: ctx.campaign, rider: ctx.rider})
-      fixture(:task, %{campaign: ctx.campaign2, rider: ctx.rider})
+      # The urgent-campaign fixtures start an hour from now, which is tomorrow after 11 PM.
+      # The itinerary needs campaigns on today's local date regardless of the current hour.
+      delivery_start = LocalizedDateTime.new!(LocalizedDateTime.today(), ~T[12:00:00])
 
-      {:ok, _live, html} = live(ctx.conn, ~p"/home")
+      campaigns =
+        for program_id <- [ctx.campaign.program_id, ctx.campaign2.program_id] do
+          campaign =
+            fixture(:campaign, %{
+              program_id: program_id,
+              delivery_start: delivery_start,
+              delivery_end: DateTime.add(delivery_start, 1, :minute)
+            })
 
-      assert html =~ "ACME Delivery"
-      assert html =~ "ABC Foodbank"
+          fixture(:task, %{campaign: campaign, rider: ctx.rider})
+          campaign
+        end
+
+      {:ok, view, _html} = live(ctx.conn, ~p"/home")
+
+      for campaign <- campaigns do
+        assert has_element?(view, "#campaign-#{campaign.id}", campaign.program.name)
+      end
     end
 
     test "it shows a stats based on the last seven days", ctx do

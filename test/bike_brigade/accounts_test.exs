@@ -21,7 +21,7 @@ defmodule BikeBrigade.AccountsTest do
     end
 
     test "get_user_by_phone/1 returns the user with given phone number" do
-      user = fixture(:user)
+      user = fixture(:user, %{phone: "6475551234"})
       assert Accounts.get_user_by_phone(user.phone) == user
       assert Accounts.get_user_by_phone("6475559999") == nil
     end

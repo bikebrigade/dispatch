@@ -8,11 +8,12 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
   describe "Index" do
     setup [:create_campaign, :login]
 
-    test "lists campaigns for week campaigns", %{conn: conn, program: program} do
-      {:ok, _index_live, html} = live(conn, ~p"/campaigns/")
+    test "lists campaigns for week campaigns", %{conn: conn, program: program, campaign: campaign} do
+      {:ok, program} = Delivery.update_program(program, %{name: "Ra's Al Ghul"})
+      {:ok, index_live, html} = live(conn, ~p"/campaigns/")
 
       assert html =~ "Campaigns"
-      assert html =~ program.name
+      assert has_element?(index_live, "#campaign-#{campaign.id}", program.name)
     end
 
     test "redirects to show campaign", %{conn: conn, campaign: campaign, program: program} do
@@ -70,7 +71,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
     test "displays campaign", %{conn: conn, campaign: campaign} do
       {:ok, _show_live, html} = live(conn, ~p"/campaigns/#{campaign}")
 
-      assert html =~ campaign.program.name
+      assert html |> Floki.parse_fragment!() |> Floki.text() =~ campaign.program.name
     end
 
     @default_location %{
@@ -346,7 +347,7 @@ defmodule BikeBrigadeWeb.CampaignLiveTest do
       view |> element("#backup-riders-list\\:#{rider.id} a", rider.name) |> render_click()
 
       assert render(view) =~ "Available as backup while assigned to 1 specific delivery."
-      assert render(view) =~ task.dropoff_name
+      assert render(view) |> Floki.parse_fragment!() |> Floki.text() =~ task.dropoff_name
       assert has_element?(view, "a", "Stop Backup Availability")
       refute has_element?(view, "a", "Convert to Rider")
 

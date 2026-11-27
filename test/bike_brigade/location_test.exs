@@ -4,6 +4,14 @@ defmodule BikeBrigade.Locations.LocationTest do
   alias BikeBrigade.Geocoder.FakeGeocoder
   alias BikeBrigade.Locations.Location
 
+  setup do
+    locations = :sys.get_state(FakeGeocoder)
+
+    on_exit(fn ->
+      :sys.replace_state(FakeGeocoder, fn _ -> locations end)
+    end)
+  end
+
   describe "Geolocation" do
     setup do
       location = fixture(:location)

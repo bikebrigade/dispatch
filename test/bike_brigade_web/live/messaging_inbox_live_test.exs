@@ -13,6 +13,10 @@ defmodule BikeBrigadeWeb.MessagingInboxLiveTest do
     html |> Floki.parse_fragment!() |> Floki.find("#conversation-list > li") |> length()
   end
 
+  defp campaign_link(campaign) do
+    ~s(#inbox-contexts a[href*="context=#{campaign.id}&"])
+  end
+
   defp opt_in(%{user: user}) do
     {:ok, user} = Accounts.update_user_as_admin(user, %{flags: %{unified_messaging: true}})
     %{user: user}
@@ -115,7 +119,7 @@ defmodule BikeBrigadeWeb.MessagingInboxLiveTest do
       conn: conn,
       user: user
     } do
-      p = fixture(:program, %{lead_id: user.id})
+      p = fixture(:program, %{lead_id: user.id, name: "The delivery crew"})
       now = BikeBrigade.LocalizedDateTime.now()
 
       campaign =
@@ -125,12 +129,21 @@ defmodule BikeBrigadeWeb.MessagingInboxLiveTest do
           delivery_end: DateTime.add(now, 3600)
         })
 
-      other = fixture(:campaign, %{delivery_start: now, delivery_end: DateTime.add(now, 3600)})
+      # A short name can occur elsewhere in the sidebar even when this campaign is absent.
+      other_program = fixture(:program, %{name: "T"})
+
+      other =
+        fixture(:campaign, %{
+          program_id: other_program.id,
+          delivery_start: now,
+          delivery_end: DateTime.add(now, 3600)
+        })
+
       rider = fixture(:rider)
       BikeBrigade.Delivery.create_campaign_rider(%{campaign_id: campaign.id, rider_id: rider.id})
       {:ok, view, _} = live(conn, ~p"/messages/inbox?tab=campaigns")
-      assert has_element?(view, "#inbox-contexts", BikeBrigadeWeb.CampaignHelpers.name(campaign))
-      refute has_element?(view, "#inbox-contexts", BikeBrigadeWeb.CampaignHelpers.name(other))
+      assert has_element?(view, campaign_link(campaign), p.name)
+      refute has_element?(view, campaign_link(other))
       task = fixture(:task, %{campaign: campaign, rider: rider})
       fixture(:task, %{campaign: campaign, rider: rider})
 
@@ -164,18 +177,22 @@ defmodule BikeBrigadeWeb.MessagingInboxLiveTest do
     end
 
     test "Only my campaigns toggles between my and all campaigns", %{conn: conn, user: user} do
-      mine = fixture(:campaign, %{program_id: fixture(:program, %{lead_id: user.id}).id})
-      other = fixture(:campaign)
-      name = &BikeBrigadeWeb.CampaignHelpers.name/1
+      # Campaign names need not be unique; their links identify which campaigns are visible.
+      mine =
+        fixture(:campaign, %{
+          program_id: fixture(:program, %{lead_id: user.id, name: "Delivery crew"}).id
+        })
+
+      other = fixture(:campaign, %{program_id: fixture(:program, %{name: "Delivery crew"}).id})
 
       {:ok, view, _} = live(conn, ~p"/messages/inbox?tab=campaigns")
       assert has_element?(view, "#inbox-mine[role=switch][aria-checked=true]")
-      refute has_element?(view, "#inbox-contexts", name.(other))
+      refute has_element?(view, campaign_link(other))
 
       view |> element("#inbox-mine") |> render_click()
       assert_patch(view, ~p"/messages/inbox?mine=false&tab=campaigns")
-      assert has_element?(view, "#inbox-contexts", name.(other))
-      assert has_element?(view, "#inbox-contexts", name.(mine))
+      assert has_element?(view, campaign_link(other), "Delivery crew")
+      assert has_element?(view, campaign_link(mine), "Delivery crew")
     end
 
     test "the campaign page's link opens its campaign even outside this week", %{conn: conn} do

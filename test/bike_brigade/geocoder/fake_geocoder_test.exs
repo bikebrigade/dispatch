@@ -1,10 +1,19 @@
 defmodule BikeBrigade.Geocoder.FakeGeocoderTest do
-  use BikeBrigade.DataCase, async: true
+  # These tests also exercise the named fake used by the application.
+  use BikeBrigade.DataCase
 
   alias BikeBrigade.Geocoder
   alias BikeBrigade.Geocoder.FakeGeocoder
 
   @address "1 Blue Jays Way"
+
+  setup do
+    locations = :sys.get_state(FakeGeocoder)
+
+    on_exit(fn ->
+      :sys.replace_state(FakeGeocoder, fn _ -> locations end)
+    end)
+  end
 
   test "Fake geocoder" do
     location = fixture(:location)

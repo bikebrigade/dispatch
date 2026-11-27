@@ -82,7 +82,7 @@ defmodule BikeBrigadeWeb.ItineraryLiveTest do
 
       {:ok, view, html} = live(conn, ~p"/itinerary")
 
-      assert html =~ program.name
+      assert html |> Floki.parse_fragment!() |> Floki.text() =~ program.name
       assert html =~ "1 #{hd(program.items).name}"
 
       # redirect to delivery details page
@@ -151,12 +151,13 @@ defmodule BikeBrigadeWeb.ItineraryLiveTest do
     } do
       campaign_rider = create_campaign_rider_for_test(campaign, rider)
 
-      {_task, dropoff_name, item} = create_task_for_test(campaign, rider, program)
+      {_task, dropoff_name, item} =
+        create_task_for_test(campaign, rider, program, dropoff_name: "D'angelo")
 
       {:ok, view, html} = live(conn, ~p"/app/delivery/#{campaign_rider.token}")
 
       # Check that the specific delivery item is displayed
-      assert html =~ dropoff_name
+      assert html |> Floki.parse_fragment!() |> Floki.text() =~ dropoff_name
       assert html =~ "1 #{item.name}"
 
       # Check for Mark Complete button (rendered as a link element)
@@ -261,7 +262,7 @@ defmodule BikeBrigadeWeb.ItineraryLiveTest do
       campaign: campaign,
       program: program
     } do
-      dropoff_name = Faker.Person.first_name()
+      dropoff_name = "D'angelo"
       item = hd(program.items)
 
       campaign_rider = create_campaign_rider_for_test(campaign, rider)
@@ -278,7 +279,7 @@ defmodule BikeBrigadeWeb.ItineraryLiveTest do
       {:ok, view, html} = live(conn, ~p"/app/delivery/#{campaign_rider.token}")
 
       # Check that the specific delivery item is displayed
-      assert html =~ dropoff_name
+      assert html |> Floki.parse_fragment!() |> Floki.text() =~ dropoff_name
       assert html =~ "1 #{item.name}"
 
       # Check for Completed label in div element
