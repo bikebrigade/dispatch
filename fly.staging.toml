@@ -1,4 +1,6 @@
 app = "bike-brigade-staging"
+# Next to the staging database (Fly Managed Postgres in Toronto)
+primary_region = "yyz"
 
 kill_signal = "SIGTERM"
 kill_timeout = 5

@@ -143,14 +143,15 @@ fi
 
 # Scaling down destroys the machines, and `fly scale count` recreates them at
 # Fly's default size (256 MB, too small for the app) rather than the size in
-# fly.staging.toml, so note their count, size and region to restore later
+# fly.staging.toml, so note their count and size to restore later. They come
+# back in fly.staging.toml's primary region, next to the database.
 machine_list=$(flyctl machine list --app "$app" --json)
 machines=$(jq length <<<"$machine_list")
 machines=$((machines > 0 ? machines : 1))
 vm_memory=$(jq -r '.[0].config.guest.memory_mb // 1024' <<<"$machine_list")
 vm_cpus=$(jq -r '.[0].config.guest.cpus // 1' <<<"$machine_list")
 vm_cpu_kind=$(jq -r '.[0].config.guest.cpu_kind // "shared"' <<<"$machine_list")
-region=$(jq -r '.[0].region // empty' <<<"$machine_list")
+region=$(sed -n -E 's/^primary_region = "([a-z]+)".*/\1/p' fly.staging.toml)
 
 echo "Dumping production"
 pg_dump "$PROD_DATABASE_URL" --exclude-table-data scheduled_messages -Fc -f "$workdir/prod.dump"
