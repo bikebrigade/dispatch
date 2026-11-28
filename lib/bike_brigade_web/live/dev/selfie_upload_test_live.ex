@@ -19,7 +19,12 @@ defmodule BikeBrigadeWeb.Dev.SelfieUploadTestLive do
      |> assign(:page, :dev_selfie_upload)
      |> assign(:page_title, "Selfie upload test")
      |> assign(:results, [])
-     |> allow_upload(:photo, accept: :any, max_entries: 1, max_file_size: 20_000_000)}
+     |> allow_upload(:photo,
+       accept: :any,
+       max_entries: 1,
+       max_file_size: 20_000_000,
+       auto_upload: true
+     )}
   end
 
   @impl true
