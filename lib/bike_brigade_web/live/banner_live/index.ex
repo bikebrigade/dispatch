@@ -1,9 +1,14 @@
 defmodule BikeBrigadeWeb.BannerLive.Index do
   use BikeBrigadeWeb, :live_view
 
+  import BikeBrigadeWeb.BannerComponents
+
   alias BikeBrigade.Notifications
   alias BikeBrigade.Notifications.Banner
   alias BikeBrigade.LocalizedDateTime
+
+  @tabs [:current, :expired]
+  @sort_fields [:message, :turn_on_at, :turn_off_at]
 
   @impl true
   def mount(_params, _session, socket) do
@@ -11,7 +16,8 @@ defmodule BikeBrigadeWeb.BannerLive.Index do
      socket
      |> assign(:page, :banners)
      |> assign(:page_title, "Banners")
-     |> assign(:banners, list_banners())}
+     |> assign_tab(:current)
+     |> fetch_banners()}
   end
 
   @impl true
@@ -46,7 +52,7 @@ defmodule BikeBrigadeWeb.BannerLive.Index do
 
   @impl true
   def handle_info({BikeBrigadeWeb.BannerLive.FormComponent, {:saved, _banner}}, socket) do
-    {:noreply, assign(socket, :banners, list_banners())}
+    {:noreply, fetch_banners(socket)}
   end
 
   @impl true
@@ -54,11 +60,65 @@ defmodule BikeBrigadeWeb.BannerLive.Index do
     banner = Notifications.get_banner!(id)
     {:ok, _} = Notifications.delete_banner(banner)
 
-    {:noreply, assign(socket, :banners, list_banners())}
+    {:noreply, fetch_banners(socket)}
   end
 
-  defp list_banners do
-    Notifications.list_banners()
-    |> BikeBrigade.Repo.preload(:created_by)
+  def handle_event("select-tab", %{"tab" => tab}, socket) do
+    # Refetch so banners that expired since mount move tabs and counts stay right.
+    {:noreply,
+     socket
+     |> assign_tab(parse_param(tab, @tabs, :current))
+     |> fetch_banners()}
   end
+
+  def handle_event("sort", %{"field" => field, "order" => order}, socket) do
+    {:noreply,
+     socket
+     |> assign(:sort_field, parse_param(field, @sort_fields, :turn_on_at))
+     |> assign(:sort_order, parse_param(order, [:asc, :desc], :asc))
+     |> sort_banners()}
+  end
+
+  # Current banners read best soonest-first; expired ones most-recently-expired first.
+  defp assign_tab(socket, tab) do
+    {field, order} = default_sort(tab)
+
+    socket
+    |> assign(:tab, tab)
+    |> assign(:sort_field, field)
+    |> assign(:sort_order, order)
+  end
+
+  defp default_sort(:current), do: {:turn_on_at, :asc}
+  defp default_sort(:expired), do: {:turn_off_at, :desc}
+
+  defp parse_param(value, allowed, default) do
+    Enum.find(allowed, default, &(Atom.to_string(&1) == value))
+  end
+
+  defp fetch_banners(socket) do
+    now = DateTime.utc_now()
+
+    {expired, current} =
+      Notifications.list_banners()
+      |> BikeBrigade.Repo.preload(:created_by)
+      |> Enum.split_with(&(DateTime.compare(&1.turn_off_at, now) == :lt))
+
+    socket
+    |> assign(:all_banners, %{current: current, expired: expired})
+    |> sort_banners()
+  end
+
+  defp sort_banners(socket) do
+    %{all_banners: all_banners, tab: tab, sort_field: field, sort_order: order} =
+      socket.assigns
+
+    assign(socket, :banners, sort(all_banners[tab], field, order))
+  end
+
+  defp sort(banners, :message, order),
+    do: Enum.sort_by(banners, &String.downcase(&1.message), order)
+
+  defp sort(banners, field, order),
+    do: Enum.sort_by(banners, &Map.fetch!(&1, field), {order, DateTime})
 end

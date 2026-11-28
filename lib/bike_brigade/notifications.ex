@@ -63,10 +63,14 @@ defmodule BikeBrigade.Notifications do
   end
 
   @doc """
-  Renders a banner message with URLs converted to clickable links.
+  Renders a banner message as safe HTML: bare URLs become clickable links, and
+  any HTML the author wrote is limited to `BikeBrigade.Notifications.BannerScrubber`'s
+  allowlist (simple formatting and links). The result is safe to pass to `raw/1`.
   """
   def render_banner_message(%Banner{message: message}) do
-    Linkify.link(message, class: "link break-all", new_window: true)
+    message
+    |> Linkify.link(class: "link break-all", new_window: true)
+    |> HtmlSanitizeEx.Scrubber.scrub(BikeBrigade.Notifications.BannerScrubber)
   end
 
   def subscribe do

@@ -50,6 +50,7 @@ defmodule BikeBrigade.MixProject do
       {:lazy_html, ">= 0.1.13", only: :test},
       {:phoenix_html, "~> 4.3"},
       {:phoenix_html_helpers, "~> 1.0"},
+      {:html_sanitize_ex, "~> 1.4"},
       {:phoenix_live_reload, "~> 1.7", only: :dev},
       {:phoenix_live_dashboard, "~> 0.9.1"},
       {:reverse_proxy_plug, "~> 3.0"},

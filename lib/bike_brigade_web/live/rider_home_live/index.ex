@@ -4,6 +4,7 @@ defmodule BikeBrigadeWeb.RiderHomeLive.Index do
   alias BikeBrigade.{Delivery, Notifications, Riders, Stats, LocalizedDateTime}
 
   import BikeBrigadeWeb.CampaignHelpers
+  import BikeBrigadeWeb.BannerComponents
 
   alias BikeBrigade.Utils
 
