@@ -75,6 +75,13 @@ url_server() {
 url_db() { local u="${1%%\?*}"; echo "${u##*/}"; }
 
 for var in PROD_DATABASE_URL STAGING_DATABASE_URL; do
+  # libpq lets query parameters (e.g. ?port=) and extra hosts override the
+  # URL's host and port, which would defeat the same-server check below
+  if [[ "${!var}" =~ [?\&](host|hostaddr|port|service)= ]] ||
+    [[ "$(url_server "${!var}")" == *,* ]]; then
+    echo "\$$var must give one host and port, with no host, hostaddr, port or service parameters"
+    exit 1
+  fi
   if [ "$(url_db "${!var}")" != "$db" ]; then
     echo "\$$var must select the $db database, not $(url_db "${!var}")"
     exit 1
@@ -114,21 +121,29 @@ local_port() {
 start_tunnel() {
   local label=$1 port=$2 pid
   shift 2
+
+  # If something else already listens on PORT, the tunnel could fail to bind
+  # while that listener answers in its place, and we'd restore into it
+  if (exec 3<>"/dev/tcp/127.0.0.1/$port") 2>/dev/null; then
+    echo "Port $port is already in use; stop whatever is using it (another tunnel?) and rerun"
+    exit 1
+  fi
+
   echo "Starting $label tunnel on port $port"
   "$@" >"$workdir/$label.log" 2>&1 &
   pid=$!
   tunnel_pids="$tunnel_pids $pid"
 
   for _ in $(seq 1 30); do
-    if pg_isready -q -h 127.0.0.1 -p "$port"; then return 0; fi
     if ! kill -0 "$pid" 2>/dev/null; then break; fi
+    if pg_isready -q -h 127.0.0.1 -p "$port" && kill -0 "$pid" 2>/dev/null; then
+      return 0
+    fi
     sleep 1
   done
-  if ! pg_isready -q -h 127.0.0.1 -p "$port"; then
-    echo "Couldn't reach the database through the $label tunnel:"
-    cat "$workdir/$label.log"
-    exit 1
-  fi
+  echo "Couldn't reach the database through the $label tunnel:"
+  cat "$workdir/$label.log"
+  exit 1
 }
 
 if [ -n "${PROD_CLOUD_SQL_INSTANCE:-}" ]; then
