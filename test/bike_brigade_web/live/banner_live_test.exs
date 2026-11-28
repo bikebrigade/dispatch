@@ -2,6 +2,7 @@ defmodule BikeBrigadeWeb.BannerLiveTest do
   use BikeBrigadeWeb.ConnCase
 
   import Phoenix.LiveViewTest
+  import Ecto.Query, only: [from: 2]
 
   setup :login
 
@@ -68,16 +69,46 @@ defmodule BikeBrigadeWeb.BannerLiveTest do
     assert row_ids(view) == ids([ctx.later, ctx.soon, ctx.active])
   end
 
-  test "expired banners are shown in their own tab, most recent first", ctx do
+  test "expired banners are shown in their own tab, most recently expired first", ctx do
+    # Started earliest but expired most recently, so it sorts first despite its start time
+    long_running =
+      fixture(:banner, %{
+        message: "Long running",
+        turn_on_at: DateTime.add(DateTime.utc_now(), -100, :hour),
+        turn_off_at: DateTime.add(DateTime.utc_now(), -1, :hour)
+      })
+
     {:ok, view, _html} = live(ctx.conn, ~p"/banners")
 
     refute render(view) =~ "Old expired"
 
     element(view, "#banners-tab-expired") |> render_click()
-    assert row_ids(view) == ids([ctx.recent, ctx.old])
+    assert row_ids(view) == ids([long_running, ctx.recent, ctx.old])
     refute render(view) =~ "Zulu active"
 
     element(view, "#banners-tab-current") |> render_click()
     assert row_ids(view) == ids([ctx.active, ctx.soon, ctx.later])
+  end
+
+  test "switching tabs picks up banners that expired after the page loaded", ctx do
+    {:ok, view, _html} = live(ctx.conn, ~p"/banners")
+    assert row_ids(view) == ids([ctx.active, ctx.soon, ctx.later])
+
+    now = DateTime.utc_now()
+
+    # Simulate the banner expiring while the page is open
+    BikeBrigade.Repo.update_all(
+      from(b in BikeBrigade.Notifications.Banner, where: b.id == ^ctx.active.id),
+      set: [turn_on_at: DateTime.add(now, -3, :hour), turn_off_at: DateTime.add(now, -2, :hour)]
+    )
+
+    element(view, "#banners-tab-expired") |> render_click()
+    assert "banners-#{ctx.active.id}" in row_ids(view)
+    assert has_element?(view, "#banners-tab-current .badge", "2")
+
+    assert has_element?(
+             view,
+             ~s(#banners-panel[role="tabpanel"][aria-labelledby="banners-tab-expired"])
+           )
   end
 end

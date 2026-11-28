@@ -17,6 +17,7 @@
     role="tab"
     id={"banners-tab-#{tab}"}
     aria-selected={to_string(@tab == tab)}
+    aria-controls="banners-panel"
     class={["tab gap-2", @tab == tab && "tab-active"]}
     phx-click={JS.push("select-tab", value: %{tab: tab})}
   >
@@ -25,59 +26,61 @@
   </button>
 </div>
 
-<.table
-  id="banners"
-  rows={@banners}
-  sort_click={JS.push("sort")}
-  sort_field={@sort_field}
-  sort_order={@sort_order}
->
-  <:col :let={banner} label="Message" sortable_field={:message} default_order={:asc}>
-    <.banner_message banner={banner} class="max-w-md line-clamp-3" />
-  </:col>
-  <:col :let={banner} label="Turn On At" sortable_field={:turn_on_at} default_order={:asc}>
-    <div>{format_date(banner.turn_on_at, "%Y-%m-%d %H:%M:%S")}</div>
-  </:col>
-  <:col :let={banner} label="Turn Off At" sortable_field={:turn_off_at} default_order={:asc}>
-    <div>{format_date(banner.turn_off_at, "%Y-%m-%d %H:%M:%S")}</div>
-  </:col>
-  <:col :let={banner} label="Enabled">
-    <span class={[
-      "badge badge-sm badge-soft",
-      if(banner.enabled, do: "badge-success", else: "badge-error")
-    ]}>
-      {if banner.enabled, do: "Yes", else: "No"}
-    </span>
-  </:col>
-  <:col :let={banner} label="Created By">
-    <span :if={banner.created_by} class="text-sm text-base-content/70">
-      {banner.created_by.name}
-    </span>
-  </:col>
-  <:action :let={banner}>
-    <div class="sr-only">
+<div id="banners-panel" role="tabpanel" aria-labelledby={"banners-tab-#{@tab}"}>
+  <.table
+    id="banners"
+    rows={@banners}
+    sort_click={JS.push("sort")}
+    sort_field={@sort_field}
+    sort_order={@sort_order}
+  >
+    <:col :let={banner} label="Message" sortable_field={:message} default_order={:asc}>
+      <.banner_message banner={banner} class="max-w-md line-clamp-3" />
+    </:col>
+    <:col :let={banner} label="Turn On At" sortable_field={:turn_on_at} default_order={:asc}>
+      <div>{format_date(banner.turn_on_at, "%Y-%m-%d %H:%M:%S")}</div>
+    </:col>
+    <:col :let={banner} label="Turn Off At" sortable_field={:turn_off_at} default_order={:asc}>
+      <div>{format_date(banner.turn_off_at, "%Y-%m-%d %H:%M:%S")}</div>
+    </:col>
+    <:col :let={banner} label="Enabled">
+      <span class={[
+        "badge badge-sm badge-soft",
+        if(banner.enabled, do: "badge-success", else: "badge-error")
+      ]}>
+        {if banner.enabled, do: "Yes", else: "No"}
+      </span>
+    </:col>
+    <:col :let={banner} label="Created By">
+      <span :if={banner.created_by} class="text-sm text-base-content/70">
+        {banner.created_by.name}
+      </span>
+    </:col>
+    <:action :let={banner}>
+      <div class="sr-only">
+        <.link patch={~p"/banners/#{banner}/edit"} class="link">
+          Edit
+        </.link>
+      </div>
       <.link patch={~p"/banners/#{banner}/edit"} class="link">
-        Edit
+        Edit <span class="sr-only">, {String.slice(banner.message, 0, 20)}...</span>
       </.link>
-    </div>
-    <.link patch={~p"/banners/#{banner}/edit"} class="link">
-      Edit <span class="sr-only">, {String.slice(banner.message, 0, 20)}...</span>
-    </.link>
-  </:action>
-  <:action :let={banner}>
-    <.link
-      phx-click={JS.push("delete", value: %{id: banner.id}) |> hide("##{banner.id}")}
-      data-confirm="Are you sure?"
-      class="link text-error"
-    >
-      Delete
-    </.link>
-  </:action>
-</.table>
+    </:action>
+    <:action :let={banner}>
+      <.link
+        phx-click={JS.push("delete", value: %{id: banner.id}) |> hide("##{banner.id}")}
+        data-confirm="Are you sure?"
+        class="link text-error"
+      >
+        Delete
+      </.link>
+    </:action>
+  </.table>
 
-<p :if={@banners == []} id="banners-empty" class="mt-4 text-sm text-base-content/60">
-  {if @tab == :expired, do: "No expired banners.", else: "No active or upcoming banners."}
-</p>
+  <p :if={@banners == []} id="banners-empty" class="mt-4 text-sm text-base-content/60">
+    {if @tab == :expired, do: "No expired banners.", else: "No active or upcoming banners."}
+  </p>
+</div>
 
 <.slideover
   :if={@live_action in [:new, :edit]}

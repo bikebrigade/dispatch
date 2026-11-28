@@ -16,9 +16,7 @@ defmodule BikeBrigadeWeb.BannerLive.Index do
      socket
      |> assign(:page, :banners)
      |> assign(:page_title, "Banners")
-     |> assign(:tab, :current)
-     |> assign(:sort_field, :turn_on_at)
-     |> assign(:sort_order, default_sort_order(:current))
+     |> assign_tab(:current)
      |> fetch_banners()}
   end
 
@@ -66,14 +64,11 @@ defmodule BikeBrigadeWeb.BannerLive.Index do
   end
 
   def handle_event("select-tab", %{"tab" => tab}, socket) do
-    tab = parse_param(tab, @tabs, :current)
-
+    # Refetch so banners that expired since mount move tabs and counts stay right.
     {:noreply,
      socket
-     |> assign(:tab, tab)
-     |> assign(:sort_field, :turn_on_at)
-     |> assign(:sort_order, default_sort_order(tab))
-     |> sort_banners()}
+     |> assign_tab(parse_param(tab, @tabs, :current))
+     |> fetch_banners()}
   end
 
   def handle_event("sort", %{"field" => field, "order" => order}, socket) do
@@ -84,9 +79,18 @@ defmodule BikeBrigadeWeb.BannerLive.Index do
      |> sort_banners()}
   end
 
-  # Current banners read best soonest-first; expired ones most-recent-first.
-  defp default_sort_order(:current), do: :asc
-  defp default_sort_order(:expired), do: :desc
+  # Current banners read best soonest-first; expired ones most-recently-expired first.
+  defp assign_tab(socket, tab) do
+    {field, order} = default_sort(tab)
+
+    socket
+    |> assign(:tab, tab)
+    |> assign(:sort_field, field)
+    |> assign(:sort_order, order)
+  end
+
+  defp default_sort(:current), do: {:turn_on_at, :asc}
+  defp default_sort(:expired), do: {:turn_off_at, :desc}
 
   defp parse_param(value, allowed, default) do
     Enum.find(allowed, default, &(Atom.to_string(&1) == value))

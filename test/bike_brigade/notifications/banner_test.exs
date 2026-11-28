@@ -209,6 +209,13 @@ defmodule BikeBrigade.Notifications.BannerTest do
       assert html =~ ~s(<a href="https://example.com">x</a>)
     end
 
+    test "keeps target=_blank but drops named link targets" do
+      assert render(~s(<a href="https://example.com" target="_blank">x</a>)) =~
+               ~s(target="_blank")
+
+      refute render(~s(<a href="https://example.com" target="help">x</a>)) =~ "target"
+    end
+
     test "removes javascript: links" do
       refute render(~s{<a href="javascript:steal()">x</a>}) =~ "javascript:"
     end
