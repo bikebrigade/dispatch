@@ -29,6 +29,17 @@
         {tab.count}
       </span>
     </.link>
+    <button
+      id="use-classic-messaging"
+      type="button"
+      phx-click="use_classic_messaging"
+      title="Switch back to the classic messages page"
+      aria-label="Switch to classic view"
+      class="btn btn-ghost btn-sm self-center font-normal text-base-content/60 sm:ml-auto"
+    >
+      <Heroicons.arrow_uturn_left class="h-4 w-4" />
+      <span class="hidden sm:inline">Classic view</span>
+    </button>
   </nav>
   <%!-- isolate keeps the pane's drawers (z-10..30) below page-level overlays like the slideover --%>
   <div
@@ -145,7 +156,7 @@
       <div class="min-h-0 flex-1 overflow-y-auto">
         <.sms_message_list
           conversations={@streams.conversations}
-          rider_link_fn={fn id -> inbox_path(assigns, %{"rider" => id}) end}
+          rider_link_fn={fn id -> inbox_path(assigns, %{"rider" => id, "panel" => nil}) end}
           load_more={@conversations_cursor && "load_more_conversations"}
         />
       </div>

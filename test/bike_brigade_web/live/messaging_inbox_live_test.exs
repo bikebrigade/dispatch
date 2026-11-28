@@ -54,6 +54,21 @@ defmodule BikeBrigadeWeb.MessagingInboxLiveTest do
       assert flash["error"] =~ "isn't enabled"
     end
 
+    test "dispatchers can switch themselves back to the classic page", %{conn: conn, user: user} do
+      rider = fixture(:rider)
+      {:ok, view, _} = live(conn, ~p"/messages/inbox?rider=#{rider.id}")
+
+      {:ok, _view, html} =
+        view
+        |> element("#use-classic-messaging")
+        |> render_click()
+        |> follow_redirect(conn, ~p"/messages/#{rider}")
+
+      assert html =~ "Switched to the classic messages page"
+      refute html =~ "messaging-inbox"
+      refute Accounts.get_user(user.id).flags.unified_messaging
+    end
+
     test "malformed params are ignored", %{conn: conn} do
       {:ok, view, _} = live(conn, "/messages/inbox?search[]=x&rider[]=1&tab[]=groups")
       assert has_element?(view, "#inbox-riders")
@@ -397,6 +412,23 @@ defmodule BikeBrigadeWeb.MessagingInboxLiveTest do
 
       view |> element("#rider-deliveries a[aria-label='Back to conversation']") |> render_click()
       assert_patch(view, ~p"/messages/inbox?rider=#{rider.id}")
+      assert has_element?(view, "#rider-deliveries.hidden")
+    end
+
+    test "opening another conversation shows its chat, not its deliveries", %{conn: conn} do
+      [rider, other] =
+        for name <- ["Rider One", "Rider Two"] do
+          rider = fixture(:rider, %{name: name})
+          fixture(:task, %{rider: rider})
+          fixture(:sms_message_from_rider, rider)
+          rider
+        end
+
+      {:ok, view, _} = live(conn, ~p"/messages/inbox?rider=#{rider.id}&panel=deliveries")
+      refute has_element?(view, "#rider-deliveries.hidden")
+
+      view |> element("#inbox-riders a[href*='rider=#{other.id}']") |> render_click()
+      assert_patch(view, ~p"/messages/inbox?rider=#{other.id}")
       assert has_element?(view, "#rider-deliveries.hidden")
     end
 
