@@ -1,0 +1,203 @@
+defmodule BikeBrigadeWeb.DeliverySelfieLiveTest do
+  use BikeBrigadeWeb.ConnCase
+  import Phoenix.LiveViewTest
+
+  alias BikeBrigade.{Delivery, LocalizedDateTime, Selfies}
+
+  setup [:create_campaign, :login_as_rider]
+
+  setup %{conn: conn, campaign: campaign, rider: rider} do
+    {:ok, campaign_rider} =
+      Delivery.create_campaign_rider(%{campaign_id: campaign.id, rider_id: rider.id})
+
+    {:ok, view, _html} = live(conn, ~p"/app/delivery/#{campaign_rider.token}")
+    %{view: view}
+  end
+
+  test "uploads a camera photo to the existing selfie folder with delivery context", ctx do
+    test_pid = self()
+
+    Req.Test.stub(BikeBrigade.Google, fn conn ->
+      {:ok, body, conn} = Plug.Conn.read_body(conn)
+      send(test_pid, {:drive_upload, conn, body})
+      Req.Test.json(conn, %{"id" => "selfie-id"})
+    end)
+
+    assert has_element?(ctx.view, "input[type=file][capture=user]")
+    assert has_element?(ctx.view, "#selfie-form button[type=submit][disabled]")
+    upload_photo(ctx.view)
+    ctx.view |> form("#selfie-form") |> render_submit()
+
+    assert render(ctx.view) =~ "Selfie uploaded. Thank you!"
+    refute has_element?(ctx.view, "[data-phx-upload-ref] img")
+    assert_receive {:drive_upload, conn, body}
+    assert conn.request_path == "/upload/drive/v3/files"
+    assert body =~ Selfies.folder()
+    date = LocalizedDateTime.to_date(ctx.campaign.delivery_start)
+    assert body =~ "#{date} - #{ctx.rider.name} - #{ctx.program.name}"
+    assert body =~ "selfie bytes"
+    assert has_element?(ctx.view, "#selfie-form button[type=submit][disabled]")
+  end
+
+  test "retains the photo for retry when Drive fails", %{view: view} do
+    Req.Test.stub(BikeBrigade.Google, fn conn -> Plug.Conn.send_resp(conn, 403, "forbidden") end)
+    upload_photo(view)
+    view |> form("#selfie-form") |> render_submit()
+
+    assert has_element?(
+             view,
+             "#selfie-form [role=alert]",
+             "Couldn't upload your selfie. Please try again."
+           )
+
+    assert has_element?(view, "#selfie-form button[type=submit]:not([disabled])")
+
+    test_pid = self()
+
+    Req.Test.stub(BikeBrigade.Google, fn conn ->
+      {:ok, body, conn} = Plug.Conn.read_body(conn)
+      send(test_pid, {:drive_upload, body})
+      Req.Test.json(conn, %{"id" => "retry-id"})
+    end)
+
+    view |> form("#selfie-form") |> render_submit()
+    assert render(view) =~ "Selfie uploaded. Thank you!"
+    assert_receive {:drive_upload, body}
+    assert body =~ "selfie bytes"
+  end
+
+  test "can remove a selected photo", %{view: view} do
+    upload_photo(view)
+    view |> element("button", "Remove photo") |> render_click()
+    assert has_element?(view, "#selfie-form button[type=submit][disabled]")
+    refute render(view) =~ "selfie.jpg"
+  end
+
+  test "rejects unsupported files", %{view: view} do
+    upload =
+      file_input(view, "#selfie-form", :selfie, [
+        %{name: "file.txt", content: "text", type: "text/plain"}
+      ])
+
+    assert {:error, [[_ref, :not_accepted]]} = render_upload(upload, "file.txt")
+    assert render(view) =~ "Choose a JPEG, PNG, WebP, or HEIC photo."
+  end
+
+  test "associates selection errors with the file input", %{view: view} do
+    upload =
+      file_input(view, "#selfie-form", :selfie, [
+        %{name: "file.txt", content: "text", type: "text/plain"}
+      ])
+
+    assert {:error, [[ref, :not_accepted]]} = render_upload(upload, "file.txt")
+
+    error_id = "selfie-entry-error-#{ref}-not_accepted"
+    assert has_element?(view, "##{error_id}", "Choose a JPEG, PNG, WebP, or HEIC photo.")
+    assert has_element?(view, ~s(#selfie-form input[type="file"][aria-invalid="true"]))
+
+    assert has_element?(
+             view,
+             ~s(#selfie-form input[type="file"][aria-describedby~="selfie-help"])
+           )
+
+    assert has_element?(
+             view,
+             ~s(#selfie-form input[type="file"][aria-describedby~="#{error_id}"])
+           )
+
+    view |> element("button", "Remove photo") |> render_click()
+
+    refute has_element?(view, "##{error_id}")
+    refute has_element?(view, ~s(#selfie-form input[type="file"][aria-invalid]))
+    assert has_element?(view, ~s(#selfie-form input[type="file"][aria-describedby="selfie-help"]))
+  end
+
+  test "associates upload-level errors with the file input", %{view: view} do
+    upload =
+      file_input(view, "#selfie-form", :selfie, [
+        %{name: "one.jpg", content: "one", type: "image/jpeg"},
+        %{name: "two.jpg", content: "two", type: "image/jpeg"}
+      ])
+
+    render_upload(upload, "one.jpg")
+
+    error_id = "selfie-error-too_many_files"
+    assert has_element?(view, "##{error_id}")
+    assert has_element?(view, ~s(#selfie-form input[type="file"][aria-invalid="true"]))
+
+    assert has_element?(
+             view,
+             ~s(#selfie-form input[type="file"][aria-describedby="selfie-help #{error_id}"])
+           )
+  end
+
+  test "rejects oversized photos", %{view: view} do
+    upload =
+      file_input(view, "#selfie-form", :selfie, [
+        %{name: "huge.jpg", content: :binary.copy("a", 20_000_001), type: "image/jpeg"}
+      ])
+
+    assert {:error, [[_ref, :too_large]]} = render_upload(upload, "huge.jpg")
+    assert render(view) =~ "Photo must be smaller than 20 MB."
+  end
+
+  test "rejects a non-image disguised as a JPEG without calling Drive", %{view: view} do
+    test_pid = self()
+
+    Req.Test.stub(BikeBrigade.Google, fn conn ->
+      send(test_pid, :drive_upload)
+      Req.Test.json(conn, %{"id" => "selfie-id"})
+    end)
+
+    view
+    |> file_input("#selfie-form", :selfie, [
+      %{name: "selfie.jpg", content: "just some text", type: "image/jpeg"}
+    ])
+    |> render_upload("selfie.jpg")
+
+    view |> form("#selfie-form") |> render_submit()
+
+    assert render(view) =~
+             "That file isn&#39;t a supported photo. Please choose a JPEG, PNG, WebP, or HEIC photo."
+
+    refute_received :drive_upload
+    refute render(view) =~ "selfie.jpg"
+  end
+
+  test "accepts a HEIC photo with no client MIME type and uploads it as image/heic", %{
+    view: view
+  } do
+    test_pid = self()
+
+    Req.Test.stub(BikeBrigade.Google, fn conn ->
+      {:ok, body, conn} = Plug.Conn.read_body(conn)
+      send(test_pid, {:drive_upload, body})
+      Req.Test.json(conn, %{"id" => "selfie-id"})
+    end)
+
+    heic = File.read!(Path.expand("../../support/fixtures/selfies/photo.heic", __DIR__))
+
+    view
+    |> file_input("#selfie-form", :selfie, [%{name: "selfie.heic", content: heic, type: ""}])
+    |> render_upload("selfie.heic")
+
+    view |> form("#selfie-form") |> render_submit()
+
+    assert render(view) =~ "Selfie uploaded. Thank you!"
+    assert_receive {:drive_upload, body}
+    assert body =~ ~s("mimeType":"image/heic")
+    assert body =~ heic
+  end
+
+  defp upload_photo(view) do
+    view
+    |> file_input("#selfie-form", :selfie, [
+      %{
+        name: "selfie.jpg",
+        content: <<0xFF, 0xD8, 0xFF, 0xE0>> <> "selfie bytes",
+        type: "image/jpeg"
+      }
+    ])
+    |> render_upload("selfie.jpg")
+  end
+end

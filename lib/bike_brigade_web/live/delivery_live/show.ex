@@ -43,7 +43,64 @@ defmodule BikeBrigadeWeb.DeliveryLive.Show do
      |> assign(:rider, rider)
      |> assign(:backup_rider, backup_rider)
      |> assign(:active_note_task_id, nil)
-     |> assign(:note_text, "")}
+     |> assign(:note_text, "")
+     |> assign(:selfie_error, nil)
+     |> allow_upload(:selfie,
+       # Extensions too: some browsers report an empty MIME type for HEIC
+       accept:
+         ~w(image/jpeg image/png image/webp image/heic image/heif .jpg .jpeg .png .webp .heic .heif),
+       max_entries: 1,
+       max_file_size: 20_000_000,
+       auto_upload: true
+     )}
+  end
+
+  @impl Phoenix.LiveView
+  def handle_event("validate_selfie", _params, socket) do
+    {:noreply, assign(socket, :selfie_error, nil)}
+  end
+
+  def handle_event("cancel_selfie", %{"ref" => ref}, socket) do
+    {:noreply, socket |> cancel_upload(:selfie, ref) |> assign(:selfie_error, nil)}
+  end
+
+  def handle_event("upload_selfie", _params, socket) do
+    {completed, in_progress} = uploaded_entries(socket, :selfie)
+
+    if completed != [] and in_progress == [] do
+      results =
+        consume_uploaded_entries(socket, :selfie, fn %{path: path}, _entry ->
+          case BikeBrigade.Selfies.upload(path, socket.assigns.rider, socket.assigns.campaign) do
+            {:ok, _file} -> {:ok, :uploaded}
+            # Retrying won't turn it into a photo, so drop the entry
+            {:error, :unsupported_format} -> {:ok, :unsupported_format}
+            {:error, _reason} -> {:postpone, :failed}
+          end
+        end)
+
+      case results do
+        [:uploaded] ->
+          {:noreply,
+           socket
+           |> assign(:selfie_error, nil)
+           |> put_flash(:info, "Selfie uploaded. Thank you!")}
+
+        [:unsupported_format] ->
+          {:noreply,
+           assign(
+             socket,
+             :selfie_error,
+             "That file isn't a supported photo. Please choose a JPEG, PNG, WebP, or HEIC photo."
+           )}
+
+        _ ->
+          {:noreply,
+           assign(socket, :selfie_error, "Couldn't upload your selfie. Please try again.")}
+      end
+    else
+      {:noreply,
+       assign(socket, :selfie_error, "Please choose a photo and wait for it to finish loading.")}
+    end
   end
 
   @impl Phoenix.LiveView
@@ -132,6 +189,25 @@ defmodule BikeBrigadeWeb.DeliveryLive.Show do
 
   def handle_info(_msg, socket) do
     {:noreply, socket}
+  end
+
+  defp selfie_upload_error(:too_large), do: "Photo must be smaller than 20 MB."
+  defp selfie_upload_error(:too_many_files), do: "Please choose one photo."
+  defp selfie_upload_error(:not_accepted), do: "Choose a JPEG, PNG, WebP, or HEIC photo."
+  defp selfie_upload_error(_), do: "Couldn't load this photo. Please choose it again."
+
+  defp selfie_error_id(error), do: "selfie-error-#{error}"
+  defp selfie_error_id(entry, error), do: "selfie-entry-error-#{entry.ref}-#{error}"
+
+  defp selfie_error_ids(upload) do
+    Enum.map(upload_errors(upload), &selfie_error_id/1) ++
+      for entry <- upload.entries,
+          error <- upload_errors(upload, entry),
+          do: selfie_error_id(entry, error)
+  end
+
+  defp selfie_describedby(upload) do
+    Enum.join(["selfie-help" | selfie_error_ids(upload)], " ")
   end
 
   defp refresh_rider_tasks(socket) do
