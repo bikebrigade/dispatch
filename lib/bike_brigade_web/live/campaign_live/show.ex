@@ -179,7 +179,10 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
 
   @impl true
   def handle_event("auto_assign", _, socket) do
-    BikeBrigade.Delivery.hacky_assign(socket.assigns.campaign)
+    BikeBrigade.Delivery.hacky_assign(
+      socket.assigns.campaign,
+      socket.assigns.current_user.id
+    )
 
     {:noreply, socket}
   end
@@ -253,9 +256,12 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
 
   @impl true
   def handle_event("assign_task", %{"task_id" => task_id, "rider_id" => rider_id}, socket) do
-    {:ok, _task} =
-      get_task(socket, task_id)
-      |> Delivery.assign_task(rider_id, socket.assigns.current_user.id)
+    socket =
+      case get_task(socket, task_id)
+           |> Delivery.assign_task(rider_id, socket.assigns.current_user.id) do
+        {:ok, _task} -> socket
+        {:error, _reason} -> put_flash(socket, :error, "Unable to assign this delivery.")
+      end
 
     {:noreply, socket}
   end
@@ -264,11 +270,15 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   def handle_event("unassign_task", %{"task_id" => task_id}, socket) do
     task = get_task(socket, task_id)
 
-    if task.assigned_rider do
-      {:ok, _task} =
-        task
-        |> Delivery.unassign_task(socket.assigns.current_user.id)
-    end
+    socket =
+      if task.assigned_rider do
+        case Delivery.unassign_task(task, socket.assigns.current_user.id) do
+          {:ok, _task} -> socket
+          {:error, _reason} -> put_flash(socket, :error, "Unable to unassign this delivery.")
+        end
+      else
+        socket
+      end
 
     {:noreply, socket}
   end
@@ -304,7 +314,11 @@ defmodule BikeBrigadeWeb.CampaignLive.Show do
   def handle_event("remove_rider", %{"rider_id" => rider_id}, socket) do
     rider = get_rider(socket, rider_id)
 
-    Delivery.remove_rider_from_campaign(socket.assigns.campaign, rider.id)
+    Delivery.remove_rider_from_campaign(
+      socket.assigns.campaign,
+      rider.id,
+      socket.assigns.current_user.id
+    )
 
     {:noreply, socket}
   end

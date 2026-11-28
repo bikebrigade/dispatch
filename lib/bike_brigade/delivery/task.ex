@@ -25,7 +25,6 @@ defmodule BikeBrigade.Delivery.Task do
     :partner_tracking_id,
     :delivery_instructions,
     :signup_notes,
-    :assigned_rider_id,
     :campaign_id
   ]
 
@@ -89,6 +88,13 @@ defmodule BikeBrigade.Delivery.Task do
     ])
     |> assoc_constraint(:dropoff_location)
     |> cast_assoc(:task_items)
+  end
+
+  def assignment_changeset(task, attrs) do
+    task
+    |> cast(attrs, [:assigned_rider_id])
+    |> foreign_key_constraint(:assigned_rider_id)
+    |> foreign_key_constraint(:assigned_rider_id, name: :tasks_campaign_rider_fkey)
   end
 
   def fields_for(task) do

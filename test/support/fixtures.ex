@@ -141,31 +141,34 @@ defmodule BikeBrigade.Fixtures do
     {campaign, attrs} = Map.pop_lazy(attrs, :campaign, fn -> fixture(:campaign) end)
     {rider, attrs} = Map.pop(attrs, :rider)
 
-    if rider do
-      # assign rider to campaign
+    assigned_rider_id = Map.get(attrs, :assigned_rider_id) || if(rider, do: rider.id)
+    attrs = Map.delete(attrs, :assigned_rider_id)
 
+    if assigned_rider_id do
       Delivery.create_campaign_rider(%{
         campaign_id: campaign.id,
-        rider_id: rider.id
+        rider_id: assigned_rider_id
       })
     end
 
-    rider_id = if rider, do: rider.id
-
-    # Create a task (possibly assigned to rider)
     {:ok, task} =
       Delivery.create_task_for_campaign(
         campaign,
         %{
           dropoff_name: Faker.Person.first_name(),
           dropoff_location: Toronto.random_location(),
-          task_items: [%{item_id: hd(campaign.program.items).id, count: 1}],
-          assigned_rider_id: rider_id
+          task_items: [%{item_id: hd(campaign.program.items).id, count: 1}]
         }
         |> Map.merge(attrs)
       )
 
-    task
+    if assigned_rider_id do
+      task
+      |> Delivery.Task.assignment_changeset(%{assigned_rider_id: assigned_rider_id})
+      |> Repo.update!()
+    else
+      task
+    end
   end
 
   def fixture(:opportunity, attrs) do
