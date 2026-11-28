@@ -12,6 +12,7 @@ import StatsDashboardChart from './stats_dashboard_chart';
 import Frame from './frame';
 import TagsComponent from './tags_component';
 import LeafletMap from './leaflet_map';
+import Flash from './flash';
 
 
 export default {
@@ -28,5 +29,6 @@ export default {
   CheckboxAll,
   Frame,
   TagsComponent,
-  LeafletMap
+  LeafletMap,
+  Flash
 }
