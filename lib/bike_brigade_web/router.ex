@@ -32,7 +32,7 @@ defmodule BikeBrigadeWeb.Router do
     plug :sessions
     plug :fetch_live_flash
     plug :put_root_layout, {BikeBrigadeWeb.Layouts, :root}
-    plug :protect_from_forgery
+    plug :protect_from_forgery_with_login_recovery
     plug :put_secure_browser_headers
     plug :check_maintenance_mode
   end
@@ -242,6 +242,22 @@ defmodule BikeBrigadeWeb.Router do
     end
 
     conn
+  end
+
+  defp protect_from_forgery_with_login_recovery(conn, opts) do
+    protect_from_forgery(conn, opts)
+  rescue
+    error in Plug.CSRFProtection.InvalidCSRFTokenError ->
+      if conn.method == "POST" and conn.request_path == "/login" do
+        # Reject the submission, but let an expired form recover with a fresh GET.
+        conn
+        |> put_flash(:error, "Your login page expired. Please try again.")
+        |> put_status(:see_other)
+        |> redirect(to: "/login")
+        |> halt()
+      else
+        reraise error, __STACKTRACE__
+      end
   end
 
   defp check_maintenance_mode(conn, _opts) do
