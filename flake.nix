@@ -128,6 +128,16 @@
               name = "gcloud";
               package = pkgs.google-cloud-sdk;
             }
+            {
+              category = "operations";
+              name = "cloud-sql-proxy";
+              help = "Tunnel to Cloud SQL with your Google login (used by restore-staging-db)";
+              package = pkgs.google-cloud-sql-proxy;
+            }
+            {
+              category = "tools";
+              package = pkgs.jq;
+            }
           ];
         };
       });

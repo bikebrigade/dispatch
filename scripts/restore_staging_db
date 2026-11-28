@@ -7,20 +7,28 @@
 # and Fly manages the extensions, so this restores into the existing
 # bike_brigade database and leaves extensions alone.
 #
-# Run from the repo root through the flake, with a tunnel to staging open in
-# another terminal (`fly mpg proxy <staging cluster id>`, port 16380; the ID
-# is in `fly mpg list`):
+# Run from the repo root through the flake:
 #
 #   direnv exec . scripts/restore_staging_db
 #
+# Settings, from the environment or .env.local (gitignored):
+#
 #   PROD_DATABASE_URL        prod connection to the bike_brigade database
+#   PROD_CLOUD_SQL_INSTANCE  optional Cloud SQL connection name
+#                            (project:region:instance). When set, the script
+#                            runs cloud-sql-proxy on PROD_DATABASE_URL's port,
+#                            so PROD_DATABASE_URL should be e.g.
+#                            postgres://staging_dump:…@localhost:15433/bike_brigade
+#                            (needs `gcloud auth application-default login`)
+#   STAGING_MPG_CLUSTER      optional staging Managed Postgres cluster ID (see
+#                            `fly mpg list`). When set, the script runs
+#                            `fly mpg proxy` and, unless STAGING_DATABASE_URL
+#                            is set, builds it from the cluster's credentials
 #   STAGING_DATABASE_URL     staging connection to its bike_brigade database, e.g.
 #                            postgres://fly-user:…@localhost:16380/bike_brigade
-#                            (password: dashboard → Managed Postgres → Connect)
+#                            (not needed with STAGING_MPG_CLUSTER)
 #   STAGING_ALLOWED_EMAILS   comma-separated emails of users who keep their real
 #                            phone and dispatcher access, e.g. you
-#
-# Each can be set in the environment or in .env.local (gitignored).
 #
 # The restore runs in one transaction, so if it fails staging's database is
 # unchanged. Either way, staging stays scaled down after any failure so an
@@ -30,8 +38,9 @@ set -euo pipefail
 
 app=bike-brigade-staging
 db=bike_brigade
+staging_proxy_port=16380
 
-for var in PROD_DATABASE_URL STAGING_DATABASE_URL STAGING_ALLOWED_EMAILS; do
+for var in PROD_DATABASE_URL PROD_CLOUD_SQL_INSTANCE STAGING_MPG_CLUSTER STAGING_DATABASE_URL STAGING_ALLOWED_EMAILS; do
   # Fall back to .env.local (VAR=value, optionally quoted); read just these keys
   # rather than sourcing the file
   if [ -z "${!var:-}" ] && [ -f .env.local ]; then
@@ -39,18 +48,40 @@ for var in PROD_DATABASE_URL STAGING_DATABASE_URL STAGING_ALLOWED_EMAILS; do
     value="${value%\"}"; value="${value#\"}"; value="${value%\'}"; value="${value#\'}"
     printf -v "$var" '%s' "$value"
   fi
+done
 
+if [ -n "${STAGING_MPG_CLUSTER:-}" ] && [ -z "${STAGING_DATABASE_URL:-}" ]; then
+  # The app's user and password, pointed at the local tunnel
+  STAGING_DATABASE_URL=$(flyctl mpg status "$STAGING_MPG_CLUSTER" --json |
+    jq -er --arg port "$staging_proxy_port" --arg db "$db" \
+      '"postgres://\(.credentials.user | @uri):\(.credentials.password | @uri)@localhost:\($port)/\($db)"')
+fi
+
+for var in PROD_DATABASE_URL STAGING_DATABASE_URL STAGING_ALLOWED_EMAILS; do
   if [ -z "${!var:-}" ]; then
     echo "Missing \$$var"
     exit 1
   fi
 done
 
-# postgres://user:pass@host:port/dbname?params -> host, dbname
-url_host() { local u="${1#*://}"; u="${u#*@}"; u="${u%%/*}"; echo "${u%%:*}"; }
+# postgres://user:pass@host:port/dbname?params -> host:port (localhost as
+# 127.0.0.1, port defaulting to 5432), dbname
+url_server() {
+  local u="${1#*://}"
+  u="${u#*@}"; u="${u%%/*}"; u="${u%%\?*}"
+  [[ "$u" == *:* ]] || u="$u:5432"
+  echo "${u/#localhost:/127.0.0.1:}"
+}
 url_db() { local u="${1%%\?*}"; echo "${u##*/}"; }
 
 for var in PROD_DATABASE_URL STAGING_DATABASE_URL; do
+  # libpq lets query parameters (e.g. ?port=) and extra hosts override the
+  # URL's host and port, which would defeat the same-server check below
+  if [[ "${!var}" =~ [?\&](host|hostaddr|port|service)= ]] ||
+    [[ "$(url_server "${!var}")" == *,* ]]; then
+    echo "\$$var must give one host and port, with no host, hostaddr, port or service parameters"
+    exit 1
+  fi
   if [ "$(url_db "${!var}")" != "$db" ]; then
     echo "\$$var must select the $db database, not $(url_db "${!var}")"
     exit 1
@@ -58,19 +89,84 @@ for var in PROD_DATABASE_URL STAGING_DATABASE_URL; do
 done
 
 # The restore drops and recreates every table in the staging database, so make
-# sure the two URLs can't be the same server
-if [ "$(url_host "$PROD_DATABASE_URL")" == "$(url_host "$STAGING_DATABASE_URL")" ]; then
-  echo "\$PROD_DATABASE_URL and \$STAGING_DATABASE_URL point at the same host; refusing"
+# sure the two URLs can't be the same server (both may be local tunnels, so
+# compare host and port)
+if [ "$(url_server "$PROD_DATABASE_URL")" == "$(url_server "$STAGING_DATABASE_URL")" ]; then
+  echo "\$PROD_DATABASE_URL and \$STAGING_DATABASE_URL point at the same server; refusing"
   exit 1
 fi
 
 workdir=$(mktemp -d)
 chmod 700 "$workdir"
-trap 'rm -rf "$workdir"' EXIT
+tunnel_pids=""
+cleanup() {
+  for pid in $tunnel_pids; do kill "$pid" 2>/dev/null || true; done
+  rm -rf "$workdir"
+}
+trap cleanup EXIT
 
-# -q prints one machine ID per line
-machines=$(flyctl machine list --app "$app" -q | grep -c . || true)
+# The local port a tunnelled URL uses; it must point at localhost
+local_port() {
+  local name=$1 server
+  server=$(url_server "${!name}")
+  if [ "${server%:*}" != 127.0.0.1 ]; then
+    echo "With a tunnel, \$$name must point at localhost" >&2
+    return 1
+  fi
+  echo "${server##*:}"
+}
+
+# start_tunnel LABEL PORT COMMAND...: run COMMAND in the background and wait
+# until Postgres answers on PORT; it's stopped when the script exits
+start_tunnel() {
+  local label=$1 port=$2 pid
+  shift 2
+
+  # If something else already listens on PORT, the tunnel could fail to bind
+  # while that listener answers in its place, and we'd restore into it
+  if (exec 3<>"/dev/tcp/127.0.0.1/$port") 2>/dev/null; then
+    echo "Port $port is already in use; stop whatever is using it (another tunnel?) and rerun"
+    exit 1
+  fi
+
+  echo "Starting $label tunnel on port $port"
+  "$@" >"$workdir/$label.log" 2>&1 &
+  pid=$!
+  tunnel_pids="$tunnel_pids $pid"
+
+  for _ in $(seq 1 30); do
+    if ! kill -0 "$pid" 2>/dev/null; then break; fi
+    if pg_isready -q -h 127.0.0.1 -p "$port" && kill -0 "$pid" 2>/dev/null; then
+      return 0
+    fi
+    sleep 1
+  done
+  echo "Couldn't reach the database through the $label tunnel:"
+  cat "$workdir/$label.log"
+  exit 1
+}
+
+if [ -n "${PROD_CLOUD_SQL_INSTANCE:-}" ]; then
+  port=$(local_port PROD_DATABASE_URL)
+  start_tunnel cloud-sql "$port" cloud-sql-proxy --port "$port" "$PROD_CLOUD_SQL_INSTANCE"
+fi
+
+if [ -n "${STAGING_MPG_CLUSTER:-}" ]; then
+  port=$(local_port STAGING_DATABASE_URL)
+  start_tunnel fly-mpg "$port" flyctl mpg proxy "$STAGING_MPG_CLUSTER" --local-port "$port"
+fi
+
+# Scaling down destroys the machines, and `fly scale count` recreates them at
+# Fly's default size (256 MB, too small for the app) rather than the size in
+# fly.staging.toml, so note their count and size to restore later. They come
+# back in fly.staging.toml's primary region, next to the database.
+machine_list=$(flyctl machine list --app "$app" --json)
+machines=$(jq length <<<"$machine_list")
 machines=$((machines > 0 ? machines : 1))
+vm_memory=$(jq -r '.[0].config.guest.memory_mb // 1024' <<<"$machine_list")
+vm_cpus=$(jq -r '.[0].config.guest.cpus // 1' <<<"$machine_list")
+vm_cpu_kind=$(jq -r '.[0].config.guest.cpu_kind // "shared"' <<<"$machine_list")
+region=$(sed -n -E 's/^primary_region = "([a-z]+)".*/\1/p' fly.staging.toml)
 
 echo "Dumping production"
 pg_dump "$PROD_DATABASE_URL" --exclude-table-data scheduled_messages -Fc -f "$workdir/prod.dump"
@@ -82,10 +178,14 @@ pg_restore -l "$workdir/prod.dump" |
     >"$workdir/restore.list"
 
 # Extensions aren't restored, so staging must already have every one prod uses
-# (enable missing ones with `fly mpg databases extensions enable`)
+# (enable missing ones with `fly mpg databases extensions enable`), except
+# diagnostics tools nothing in the app depends on. If something did depend on
+# one, the single-transaction restore would fail and change nothing.
+diagnostic_extensions="pageinspect pg_buffercache pg_stat_statements pgstattuple"
 missing=$(comm -23 \
   <(pg_restore -l "$workdir/prod.dump" | sed -n -E 's/.* EXTENSION - ([a-z0-9_]+).*/\1/p' | sort -u) \
-  <(psql "$STAGING_DATABASE_URL" -At -c "select extname from pg_extension" | sort -u))
+  <(psql "$STAGING_DATABASE_URL" -At -c "select extname from pg_extension" | sort -u) |
+  grep -v -x -F -f <(tr ' ' '\n' <<<"$diagnostic_extensions") || true)
 if [ -n "$missing" ]; then
   echo "Staging is missing extensions production uses: $(echo $missing)"
   exit 1
@@ -111,6 +211,8 @@ psql "$STAGING_DATABASE_URL" -v allowed_emails="$STAGING_ALLOWED_EMAILS" \
 trap - ERR
 
 echo "Bringing staging back up"
-flyctl scale count "$machines" --app "$app" --yes
+flyctl scale count "$machines" --app "$app" --yes \
+  --vm-memory "$vm_memory" --vm-cpus "$vm_cpus" --vm-cpu-kind "$vm_cpu_kind" \
+  ${region:+--region "$region"}
 
 echo "Staging restore complete"
