@@ -69,6 +69,21 @@ defmodule BikeBrigadeWeb.MessagingInboxLiveTest do
       refute Accounts.get_user(user.id).flags.unified_messaging
     end
 
+    test "dispatchers can switch themselves to the new inbox", %{conn: conn, user: user} do
+      {:ok, _} = Accounts.update_user_as_admin(user, %{flags: %{unified_messaging: false}})
+      rider = fixture(:rider)
+      {:ok, view, _} = live(conn, ~p"/messages/#{rider}")
+
+      {:ok, view, _} =
+        view
+        |> element("#use-unified-messaging")
+        |> render_click()
+        |> follow_redirect(conn, ~p"/messages/inbox?rider=#{rider.id}")
+
+      assert has_element?(view, "#messaging-inbox")
+      assert Accounts.get_user(user.id).flags.unified_messaging
+    end
+
     test "malformed params are ignored", %{conn: conn} do
       {:ok, view, _} = live(conn, "/messages/inbox?search[]=x&rider[]=1&tab[]=groups")
       assert has_element?(view, "#inbox-riders")

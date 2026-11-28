@@ -76,7 +76,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Inbox do
          socket
          |> put_flash(
            :info,
-           "Switched to the classic messages page. Ask an admin if you'd like the new inbox back."
+           "Switched to the classic messages page. You can switch back to the new inbox any time."
          )
          |> push_navigate(to: if(rider, do: ~p"/messages/#{rider}", else: ~p"/messages"))}
 

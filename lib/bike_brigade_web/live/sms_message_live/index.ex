@@ -2,7 +2,7 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
   use BikeBrigadeWeb, :live_view
 
   alias BikeBrigadeWeb.Components.ConversationComponent
-  alias BikeBrigade.{Presence, Messaging, Delivery, Riders, Riders.RiderSearch}
+  alias BikeBrigade.{Accounts, Presence, Messaging, Delivery, Riders, Riders.RiderSearch}
 
   import BikeBrigadeWeb.Components.SMSMessageListComponent
   import BikeBrigadeWeb.Components.PresenceComponents, only: [currently_viewing: 1]
@@ -94,6 +94,19 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Index do
   end
 
   @impl true
+  def handle_event("use_unified_messaging", _params, socket) do
+    %{current_user: user, selected_rider: rider} = socket.assigns
+
+    case Accounts.update_user_flags(user, %{unified_messaging: true}) do
+      {:ok, _user} ->
+        query = if rider, do: %{"rider" => rider.id}, else: %{}
+        {:noreply, push_navigate(socket, to: ~p"/messages/inbox?#{query}")}
+
+      {:error, _changeset} ->
+        {:noreply, put_flash(socket, :error, "Couldn't switch to the new inbox")}
+    end
+  end
+
   def handle_event("search_riders", %{"search" => ""}, socket) do
     {:noreply,
      socket

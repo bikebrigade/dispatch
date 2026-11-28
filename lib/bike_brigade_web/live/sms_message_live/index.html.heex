@@ -50,6 +50,14 @@
             </div>
           </div>
         </div>
+        <button
+          id="use-unified-messaging"
+          type="button"
+          phx-click="use_unified_messaging"
+          class="btn btn-link btn-sm mt-3 h-auto min-h-0 px-0"
+        >
+          <Heroicons.sparkles class="h-4 w-4" /> Switch to the new inbox
+        </button>
       </div>
       <.sms_message_list
         rider_link_fn={fn rider_id -> ~p"/messages/#{rider_id}" end}
