@@ -1,24 +1,116 @@
 #!/usr/bin/env bash
-source "$(dirname "$0")/utils.sh"
+# Replace the staging database's contents with a copy of production, then
+# scrub it so staging can't text or Slack real people (see
+# priv/repo/staging_scrub.sql).
+#
+# Staging uses Fly Managed Postgres, where we can't drop or create databases
+# and Fly manages the extensions, so this restores into the existing
+# bike_brigade database and leaves extensions alone.
+#
+# Run from the repo root through the flake, with a tunnel to staging open in
+# another terminal (`fly mpg proxy <staging cluster id>`, port 16380; the ID
+# is in `fly mpg list`):
+#
+#   direnv exec . scripts/restore_staging_db
+#
+#   PROD_DATABASE_URL        prod connection to the bike_brigade database
+#   STAGING_DATABASE_URL     staging connection to its bike_brigade database, e.g.
+#                            postgres://fly-user:…@localhost:16380/bike_brigade
+#                            (password: dashboard → Managed Postgres → Connect)
+#   STAGING_ALLOWED_EMAILS   comma-separated emails of users who keep their real
+#                            phone and dispatcher access, e.g. you
+#
+# Each can be set in the environment or in .env.local (gitignored).
+#
+# The restore runs in one transaction, so if it fails staging's database is
+# unchanged. Either way, staging stays scaled down after any failure so an
+# unscrubbed copy is never served.
 
-set -e
+set -euo pipefail
 
-if [ "$PROD_DATABASE_URL" == "" ]; then
-  echo 'Missing $PROD_DATABASE_URL'
+app=bike-brigade-staging
+db=bike_brigade
+
+for var in PROD_DATABASE_URL STAGING_DATABASE_URL STAGING_ALLOWED_EMAILS; do
+  # Fall back to .env.local (VAR=value, optionally quoted); read just these keys
+  # rather than sourcing the file
+  if [ -z "${!var:-}" ] && [ -f .env.local ]; then
+    value=$(sed -n -E "s/^${var}=//p" .env.local | tail -n 1)
+    value="${value%\"}"; value="${value#\"}"; value="${value%\'}"; value="${value#\'}"
+    printf -v "$var" '%s' "$value"
+  fi
+
+  if [ -z "${!var:-}" ]; then
+    echo "Missing \$$var"
+    exit 1
+  fi
+done
+
+# postgres://user:pass@host:port/dbname?params -> host, dbname
+url_host() { local u="${1#*://}"; u="${u#*@}"; u="${u%%/*}"; echo "${u%%:*}"; }
+url_db() { local u="${1%%\?*}"; echo "${u##*/}"; }
+
+for var in PROD_DATABASE_URL STAGING_DATABASE_URL; do
+  if [ "$(url_db "${!var}")" != "$db" ]; then
+    echo "\$$var must select the $db database, not $(url_db "${!var}")"
+    exit 1
+  fi
+done
+
+# The restore drops and recreates every table in the staging database, so make
+# sure the two URLs can't be the same server
+if [ "$(url_host "$PROD_DATABASE_URL")" == "$(url_host "$STAGING_DATABASE_URL")" ]; then
+  echo "\$PROD_DATABASE_URL and \$STAGING_DATABASE_URL point at the same host; refusing"
   exit 1
 fi
 
-if [ "$STAGING_DATABASE_URL" == "" ]; then
-  echo 'Missing $STAGING_DATABASE_URL'
+workdir=$(mktemp -d)
+chmod 700 "$workdir"
+trap 'rm -rf "$workdir"' EXIT
+
+# -q prints one machine ID per line
+machines=$(flyctl machine list --app "$app" -q | grep -c . || true)
+machines=$((machines > 0 ? machines : 1))
+
+echo "Dumping production"
+pg_dump "$PROD_DATABASE_URL" --exclude-table-data scheduled_messages -Fc -f "$workdir/prod.dump"
+
+# Fly manages extensions and the public schema on staging; restoring them, or
+# PostGIS's own spatial_ref_sys table, would need superuser
+pg_restore -l "$workdir/prod.dump" |
+  grep -v -E ' EXTENSION | SCHEMA - public |COMMENT - SCHEMA public|TABLE DATA public spatial_ref_sys ' \
+    >"$workdir/restore.list"
+
+# Extensions aren't restored, so staging must already have every one prod uses
+# (enable missing ones with `fly mpg databases extensions enable`)
+missing=$(comm -23 \
+  <(pg_restore -l "$workdir/prod.dump" | sed -n -E 's/.* EXTENSION - ([a-z0-9_]+).*/\1/p' | sort -u) \
+  <(psql "$STAGING_DATABASE_URL" -At -c "select extname from pg_extension" | sort -u))
+if [ -n "$missing" ]; then
+  echo "Staging is missing extensions production uses: $(echo $missing)"
   exit 1
 fi
 
-echo "Taking staging down"
-wrap_nix_shell "flyctl suspend bike-brigade-staging"
-echo "Dropping staging database"
-wrap_nix_shell "psql -d $STAGING_DATABASE_URL -c 'DROP DATABASE bike_brigade'"
-echo "Restoring production database"
-wrap_nix_shell "pg_dump $PROD_DATABASE_URL --exclude-table-data scheduled_messages -Fc | pg_restore --create --no-acl --no-owner -d $STAGING_DATABASE_URL"
+echo "Taking staging down (was $machines machine(s))"
+flyctl scale count 0 --app "$app" --yes
+
+# From here until the scrub passes, any failure leaves staging down
+trap 'echo
+echo "Failed. Staging is still scaled down. If the restore failed its database is"
+echo "unchanged; if the scrub failed it holds an UNSCRUBBED copy of production."
+echo "Fix the problem and rerun."' ERR
+
+echo "Restoring into staging"
+pg_restore --clean --if-exists --no-owner --no-acl --single-transaction \
+  -L "$workdir/restore.list" -d "$STAGING_DATABASE_URL" "$workdir/prod.dump"
+
+echo "Scrubbing phones and Slack channels"
+psql "$STAGING_DATABASE_URL" -v allowed_emails="$STAGING_ALLOWED_EMAILS" \
+  -f priv/repo/staging_scrub.sql
+
+trap - ERR
+
 echo "Bringing staging back up"
-wrap_nix_shell "flyctl resume  bike-brigade-staging"
+flyctl scale count "$machines" --app "$app" --yes
+
 echo "Staging restore complete"

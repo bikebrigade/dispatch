@@ -196,9 +196,15 @@ defmodule BikeBrigade.Accounts do
     User.admin_changeset(user, attrs)
   end
 
+  @doc """
+  Phone numbers of dispatcher users. Riders with a login also have a user
+  record, so this must filter on `is_dispatcher`: staging relies on it to avoid
+  texting real riders.
+  """
   def get_dispatcher_phone_numbers() do
     query =
       from u in User,
+        where: u.is_dispatcher and not is_nil(u.phone),
         select: u.phone
 
     Repo.all(query)
