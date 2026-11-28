@@ -189,6 +189,16 @@ defmodule BikeBrigade.Accounts do
   end
 
   @doc """
+  Updates a user's own feature flags, e.g. a dispatcher switching back to the classic
+  messages page. Only touches `flags`.
+  """
+  def update_user_flags(%User{} = user, attrs) do
+    user
+    |> User.flags_changeset(%{flags: attrs})
+    |> Repo.update()
+  end
+
+  @doc """
   Returns an `%Ecto.Changeset{}` for tracking user changes made by an admin,
   including dispatcher status and feature flags.
   """

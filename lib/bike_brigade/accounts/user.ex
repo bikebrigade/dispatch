@@ -42,6 +42,13 @@ defmodule BikeBrigade.Accounts.User do
     |> unique_constraint(:email)
   end
 
+  @doc "Changes only the user's feature flags"
+  def flags_changeset(user, attrs) do
+    user
+    |> cast(attrs, [])
+    |> cast_embed(:flags)
+  end
+
   @doc "This changeset is to be used by admin users"
   def admin_changeset(user, attrs) do
     user

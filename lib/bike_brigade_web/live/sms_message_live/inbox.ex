@@ -1,7 +1,7 @@
 defmodule BikeBrigadeWeb.SmsMessageLive.Inbox do
   use BikeBrigadeWeb, :live_view
 
-  alias BikeBrigade.{Messaging, Riders, Delivery, Presence, LocalizedDateTime}
+  alias BikeBrigade.{Accounts, Messaging, Riders, Delivery, Presence, LocalizedDateTime}
   alias BikeBrigadeWeb.CampaignHelpers
   alias BikeBrigadeWeb.Components.{ConversationComponent, RiderDeliveriesComponent}
 
@@ -65,6 +65,24 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Inbox do
      push_patch(socket,
        to: inbox_path(socket.assigns, %{"mine" => mine, "context" => nil, "rider" => nil})
      )}
+  end
+
+  def handle_event("use_classic_messaging", _params, socket) do
+    %{current_user: user, rider: rider} = socket.assigns
+
+    case Accounts.update_user_flags(user, %{unified_messaging: false}) do
+      {:ok, _user} ->
+        {:noreply,
+         socket
+         |> put_flash(
+           :info,
+           "Switched to the classic messages page. You can switch back to the new inbox any time."
+         )
+         |> push_navigate(to: if(rider, do: ~p"/messages/#{rider}", else: ~p"/messages"))}
+
+      {:error, _changeset} ->
+        {:noreply, put_flash(socket, :error, "Couldn't switch to the classic view")}
+    end
   end
 
   def handle_event("search", %{"search" => search}, socket) do
@@ -649,7 +667,12 @@ defmodule BikeBrigadeWeb.SmsMessageLive.Inbox do
                 body: message.body || preview_message(message)
               },
           link:
-            inbox_path(socket.assigns, %{"rider" => rider.id, "context" => context && context.id})
+            inbox_path(socket.assigns, %{
+              "rider" => rider.id,
+              "context" => context && context.id,
+              # A newly opened conversation starts on the chat, not the last rider's deliveries.
+              "panel" => nil
+            })
         }
       end
 
